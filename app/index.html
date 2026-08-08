@@ -34,10 +34,23 @@
     " />
     <title>Ember POS</title>
     <!-- Browser-tab niceties for the web deploy. Inert inside Capacitor (no
-         tabs) and harmless in dev. noindex: the back office is an app shell,
-         not content — the landing page is what search engines should hold. -->
+         tabs) and harmless in dev. noindex: this is an app shell, not content
+         — the landing page is what search engines should hold. -->
     <link rel="icon" href="/app/brand/logo-mark.png" type="image/png" />
     <meta name="robots" content="noindex" />
+    <!-- INSTALLABLE ON A PHONE HOME SCREEN.
+         This matters most on iPhone: there is no App Store build yet, so
+         Safari's "Add to Home Screen" is how an iOS shop gets an app icon and
+         a full-screen app with no browser chrome. Safari ignores the manifest
+         for the icon and the status bar, hence the apple-* tags alongside it.
+         Paths are relative so they resolve under whatever base the build uses
+         (/app/ on the website, / in dev, unused inside Capacitor). -->
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icons/icon-180.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Ember POS" />
     <style>
       html, body { margin: 0; height: 100%; background: #151210; color: #ece7df;
         font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
@@ -108,6 +121,6 @@
       })();
     </script>
     <script crossorigin id="vite-legacy-polyfill" src="/app/assets/polyfills-legacy-DwKv7o7K.js"></script>
-    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-B-XdUIG6.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-BYqO648r.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
   </body>
 </html>
