@@ -1,0 +1,190 @@
+/* EmberPOS public pages — shared styling.
+   Brand: "Coal & Flame" — flame #ff5c00, gold #feb700, matching the app.
+   Light by default (these are legal/utility pages people read and print),
+   with a dark variant for anyone whose device asks for one. */
+
+:root {
+  --flame: #ff5c00;
+  --gold: #feb700;
+  --ink: #1a1714;
+  --muted: #6b625a;
+  --paper: #f7f5f1;
+  --card: #ffffff;
+  --line: #e6e1da;
+  --shadow: 0 1px 2px rgba(26, 23, 20, .04), 0 8px 24px rgba(26, 23, 20, .06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #ece7df;
+    --muted: #9c948b;
+    --paper: #121415;
+    --card: #1a1d1f;
+    --line: #2b2f31;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .35);
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.65 ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 760px; margin: 0 auto; padding: 40px 22px 88px; }
+.wrap.narrow { max-width: 520px; }
+
+/* ---------- header ---------- */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 28px;
+}
+.brand img { width: 44px; height: 44px; display: block; }
+.brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+.brand-name {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+.brand-sub {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  color: var(--muted);
+}
+
+/* The flame rule under a page title. */
+.page-head {
+  text-align: center;
+  padding-bottom: 22px;
+  margin-bottom: 30px;
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+.page-head::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  transform: translateX(-50%);
+  width: 72px;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--flame), var(--gold));
+}
+h1 { font-size: 30px; line-height: 1.2; margin: 0 0 8px; letter-spacing: -.01em; }
+.page-head p { margin: 0; color: var(--muted); font-size: 15px; }
+
+h2 { font-size: 20px; margin: 36px 0 10px; letter-spacing: -.01em; }
+h3 { font-size: 16px; margin: 22px 0 6px; }
+p, li { color: var(--ink); }
+a { color: var(--flame); }
+.muted { color: var(--muted); }
+
+/* ---------- cards ---------- */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin: 14px 0;
+  box-shadow: var(--shadow);
+}
+
+a.card {
+  display: block;
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color .15s ease, transform .15s ease;
+}
+a.card:hover { border-color: var(--flame); transform: translateY(-1px); }
+a.card b { color: var(--flame); display: block; margin-bottom: 3px; }
+
+/* ---------- tables (privacy policy) ---------- */
+
+.table-scroll { overflow-x: auto; margin: 14px 0; }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; min-width: 460px; }
+th, td { border: 1px solid var(--line); padding: 10px 12px; text-align: left; vertical-align: top; }
+th { background: color-mix(in srgb, var(--flame) 7%, var(--card)); font-weight: 650; }
+
+/* ---------- forms (reset password) ---------- */
+
+label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--muted);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+input[type="email"], input[type="password"] {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 16px; /* 16px stops iOS zooming on focus */
+  color: var(--ink);
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-family: inherit;
+}
+input:focus {
+  outline: none;
+  border-color: var(--flame);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--flame) 18%, transparent);
+}
+button {
+  width: 100%;
+  padding: 13px 18px;
+  font-size: 15.5px;
+  font-weight: 650;
+  font-family: inherit;
+  color: #fff;
+  background: var(--flame);
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: filter .15s ease;
+}
+button:hover:not(:disabled) { filter: brightness(1.07); }
+button:disabled { opacity: .55; cursor: default; }
+
+.note { margin-top: 16px; font-size: 14.5px; padding: 12px 14px; border-radius: 10px; }
+.note:empty { display: none; }
+.note.ok { color: #14532d; background: #dcfce7; border: 1px solid #86efac; }
+.note.err { color: #7f1d1d; background: #fee2e2; border: 1px solid #fca5a5; }
+@media (prefers-color-scheme: dark) {
+  .note.ok { color: #bbf7d0; background: #052e16; border-color: #166534; }
+  .note.err { color: #fecaca; background: #450a0a; border-color: #991b1b; }
+}
+
+/* ---------- footer ---------- */
+
+footer {
+  margin-top: 52px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 13.5px;
+  text-align: center;
+}
+footer nav { margin-bottom: 8px; }
+footer nav a { margin: 0 9px; color: var(--muted); text-decoration: none; }
+footer nav a:hover { color: var(--flame); }
+
+@media (max-width: 560px) {
+  .wrap { padding: 28px 18px 64px; }
+  h1 { font-size: 25px; }
+}

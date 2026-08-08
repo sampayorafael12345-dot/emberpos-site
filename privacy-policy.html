@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EmberPOS — Privacy Policy</title>
+<link rel="icon" href="favicon.png" type="image/png" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="wrap">
+
+  <a class="brand" href="index.html">
+    <img src="logo.png" alt="" />
+    <span class="brand-text">
+      <span class="brand-name">Ember POS</span>
+      <span class="brand-sub">by Atlasco</span>
+    </span>
+  </a>
+
+<div class="page-head">
+  <h1>Privacy Policy</h1>
+  <p>Last updated: <strong>28 July 2026</strong></p>
+</div>
+
+<p>
+  EmberPOS ("the app", "we", "us") is a point-of-sale and back-office app for cafés and restaurants,
+  operated by <strong>EmberPOS by Atlasco</strong> ("the operator"). This policy explains what
+  information the app handles, why, and the choices you have. By creating an account or using the app you
+  agree to this policy.
+</p>
+
+<h2>1. Who the data belongs to</h2>
+<p>
+  EmberPOS is business software. Most information in the app is your <em>shop's own operating data</em>
+  (your menu, your sales, your staff records) that you enter and control. We store and process it on your
+  behalf so the app can work across your devices. We do <strong>not</strong> sell your data and we do
+  <strong>not</strong> use it for advertising.
+</p>
+
+<h2>2. Information we collect</h2>
+<div class="table-scroll"><table>
+  <tr><th>Category</th><th>Examples</th><th>Why</th></tr>
+  <tr>
+    <td>Account &amp; sign-in</td>
+    <td>Your email address and a securely hashed password, or — if you choose "Continue with Google" — your
+        Google account email and name. We never see your Google password.</td>
+    <td>To create and secure your shop account and sign you in.</td>
+  </tr>
+  <tr>
+    <td>Shop / business data</td>
+    <td>Shop name, menu and prices, ingredients and recipes, inventory, customers you add, orders and
+        payments, expenses, quotations, and reports.</td>
+    <td>Core POS and reporting features you use the app for.</td>
+  </tr>
+  <tr>
+    <td>Staff records</td>
+    <td>Employee names, roles, staff passcodes (stored as bcrypt hashes), wages, time-clock entries and
+        schedules that an owner/manager enters.</td>
+    <td>Staff login, timekeeping, and payroll features.</td>
+  </tr>
+  <tr>
+    <td>Technical / diagnostic</td>
+    <td>If the app hits an error, we record the error message and stack trace, the app version, the platform,
+        the screen it happened on, and the account and shop it happened in.</td>
+    <td>To keep the app reliable and fix problems.</td>
+  </tr>
+  <tr>
+    <td>Subscription &amp; purchase</td>
+    <td>If you subscribe, our billing provider receives your account identifier and the purchase and renewal
+        status Google Play reports for it.</td>
+    <td>To unlock the paid features on every device you sign in to.</td>
+  </tr>
+</table></div>
+<p class="muted">
+  We do <strong>not</strong> collect your device location, contacts, photos, microphone, or advertising
+  identifiers. EmberPOS contains no third-party advertising or analytics SDKs.
+</p>
+
+<h2>3. How payments work</h2>
+<p>
+  Sales you record in the POS (cash, card, e-wallet, etc.) are <em>your own bookkeeping entries</em> — the app
+  records the amount and method; it does not process or transmit your customers' card numbers. The EmberPOS
+  subscription itself is purchased through <strong>Google Play Billing</strong> under Google's own terms —
+  your card details go to Google, never to us. We only receive confirmation that a subscription is active.
+</p>
+
+<h2>4. Where data is stored and who processes it</h2>
+<p>
+  Your data is stored in a secure cloud database hosted by <strong>Supabase</strong> (running on Amazon Web
+  Services infrastructure). Each shop's data is isolated from every other shop by per-row security rules and is
+  reachable only with your authenticated session. We use Google Sign-In (by Google LLC) only if you choose it.
+  Subscription purchases are processed by <strong>Google Play Billing</strong> and their status is managed for us
+  by <strong>RevenueCat, Inc.</strong>, which receives your account identifier and your purchase and renewal
+  status — but no card details and none of your shop's sales, staff or customer data.
+  These providers process data solely to deliver the service to you.
+</p>
+
+<h2>5. How long we keep it</h2>
+<p>
+  We keep your shop's data for as long as your account is active so the app remains useful. When you delete your
+  account (see section 7), your shop data and account are permanently removed. Routine backups are rotated out
+  within a short period.
+</p>
+
+<h2>6. Your choices and rights</h2>
+<ul>
+  <li><strong>Access &amp; correct:</strong> you can view and edit your shop data directly in the app at any time.</li>
+  <li><strong>Export:</strong> you can export your menu and sales data from Settings → Data.</li>
+  <li><strong>Delete:</strong> you can delete your entire shop and account from inside the app (section 7).</li>
+  <li>Depending on where you live, you may also have rights to request a copy or deletion of your data by
+      contacting us.</li>
+</ul>
+
+<h2 id="delete">7. Deleting your account and data</h2>
+<div class="card">
+  <p style="margin-top:0"><strong>In the app:</strong> Open <strong>Settings → Data → Danger zone → "Delete shop &amp; account"</strong>,
+  type <code>DELETE</code> to confirm, and tap <strong>Permanently delete</strong>.</p>
+  <p style="margin-bottom:0">This immediately and permanently erases your shop and all of its data — sales, menu,
+  inventory, customers, staff records, reports — and closes your EmberPOS account. This cannot be undone. You can
+  also request deletion by emailing us at <strong>atlasco.web@gmail.com</strong> and we will action it.</p>
+</div>
+
+<h2>8. Children</h2>
+<p>EmberPOS is a tool for businesses and is not directed to children under 13.</p>
+
+<h2>9. Security</h2>
+<p>
+  Account and staff passwords are stored only as salted bcrypt hashes — never in plain text — and password
+  hashes cannot be read back through the app's API. Connections are encrypted in transit (HTTPS/TLS), and
+  access to your data requires your authenticated session. Each shop's records are separated at the database
+  level, so one shop's session can never read or change another shop's data.
+</p>
+
+<h2>10. Changes to this policy</h2>
+<p>
+  If we make material changes we will update the "Last updated" date above and, where appropriate, notify you in
+  the app.
+</p>
+
+<h2>11. Contact</h2>
+<p>
+  <strong>EmberPOS by Atlasco</strong><br />
+  Philippines<br />
+  Email: <strong>atlasco.web@gmail.com</strong>
+</p>
+
+<footer>
+  <nav>
+    <a href="index.html">Help</a>
+    <a href="privacy-policy.html">Privacy</a>
+    <a href="account-deletion.html">Delete account</a>
+    <a href="reset-password.html">Reset password</a>
+  </nav>
+
+  EmberPOS · Privacy Policy · This document is provided to satisfy Google Play's privacy-policy requirement and
+  describes the app's actual data practices as of the date above.
+</footer>
+</div>
+</body>
+</html>
