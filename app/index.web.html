@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#151210" />
+    <!--
+      Content Security Policy.
+
+      `script-src` has to keep 'unsafe-inline': the boot screen below is an inline
+      script (on purpose — it is what shows a readable message when the bundle is
+      too modern for an old WebView), and @vitejs/plugin-legacy emits its own
+      inline System.import loader with a per-build hashed filename. So this policy
+      does NOT try to prevent script injection.
+
+      What it does instead is contain one: `connect-src` means an injected script
+      cannot POST the shop's Supabase session token to an attacker's server, which
+      is the step that turns XSS into a stolen shop. `object-src`/`base-uri` close
+      the usual bypasses, and `frame-ancestors` stops clickjacking of the web
+      build. Escaping in the print templates (src/lib/output.ts) remains the
+      primary defence; this is the net under it.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline';
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: blob: https:;
+      font-src 'self' data:;
+      connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'none';
+      frame-ancestors 'none';
+    " />
+    <title>Ember POS</title>
+    <!-- Browser-tab niceties for the web deploy. Inert inside Capacitor (no
+         tabs) and harmless in dev. noindex: the back office is an app shell,
+         not content — the landing page is what search engines should hold. -->
+    <link rel="icon" href="/app/brand/logo-mark.png" type="image/png" />
+    <meta name="robots" content="noindex" />
+    <style>
+      html, body { margin: 0; height: 100%; background: #151210; color: #ece7df;
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+      #boot { position: fixed; top: 0; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: center;
+        text-align: center; padding: 24px;
+        background: radial-gradient(600px 360px at 50% 30%, rgba(255,92,0,0.16), transparent 65%), #151210; }
+      #boot .msg { max-width: 560px; font-size: 15px; line-height: 1.5; }
+      #boot .err { white-space: pre-wrap; word-break: break-word; color: #fca5a5; font-size: 12px;
+        margin-top: 14px; text-align: left; max-height: 50vh; overflow: auto;
+        background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; }
+      #boot strong { color: #fbbf24; }
+      /* Branded splash: logo mark + wordmark, gentle pulse while the bundle loads.
+         Pure CSS animation — safe on any WebView old enough to at least parse CSS.
+         The mark carries its own silhouette, so the tile is just a sizing box now;
+         the glow is a drop-shadow that follows the artwork rather than a square. */
+      #boot .tile { width: 76px; height: 76px; margin: 0 auto 14px;
+        display: flex; align-items: center; justify-content: center;
+        animation: bootpulse 1.6s ease-in-out infinite; }
+      #boot .tile img { width: 76px; height: 76px; display: block;
+        filter: drop-shadow(0 6px 26px rgba(255,92,0,0.4)); }
+      #boot .word { font-size: 26px; font-weight: 800; letter-spacing: 3px; color: #ff6a1a; }
+      #boot .word span { color: #feb700; }
+      #boot .sub { font-size: 13px; color: rgba(236,231,223,0.5); margin-top: 6px; }
+      @keyframes bootpulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.94); opacity: 0.85; } }
+    </style>
+    
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- Boot screen: branded splash while the bundle loads, and readable text
+         instead of a black screen if the app can't start (common on very old
+         device WebViews). Plain ES5 + static markup only, so it works even when
+         the main bundle's syntax is too modern for the WebView. -->
+    <div id="boot"><div class="msg">
+      <div class="tile"><img src="/app/brand/logo-mark.png" width="76" height="76" alt=""></div>
+      <div class="word">EMBER <span>POS</span></div>
+      <div class="sub">Starting up&hellip;</div>
+    </div></div>
+    <script>
+      (function () {
+        function show(title, detail) {
+          var b = document.getElementById('boot');
+          if (!b) return;
+          b.style.display = 'flex';
+          var html = '<div class="msg"><strong>' + title + '</strong>';
+          if (detail) { html += '<div class="err">' + String(detail).replace(/</g, '&lt;') + '</div>'; }
+          html += '</div>';
+          b.innerHTML = html;
+        }
+        // Called by the app once React has mounted, to clear this boot screen.
+        window.__emberHideBoot = function () { var b = document.getElementById('boot'); if (b) b.parentNode.removeChild(b); };
+        window.addEventListener('error', function (e) {
+          show('Ember POS could not start on this device.',
+            (e && e.message ? e.message : 'Script error') + (e && e.filename ? '\n' + e.filename + ':' + e.lineno : ''));
+        });
+        window.addEventListener('unhandledrejection', function (e) {
+          var r = e && e.reason;
+          show('Ember POS hit an error while starting.', r && r.message ? r.message : String(r));
+        });
+        // Failsafe: nothing rendered after 12s -> almost always an out-of-date WebView.
+        setTimeout(function () {
+          var root = document.getElementById('root');
+          if (root && root.childNodes.length === 0) {
+            show('Ember POS did not finish loading.',
+              'The page loaded but the app did not render. This usually means the device\'s "Android System WebView" is out of date and cannot run the app. Update Android System WebView / Chrome, or check the internet connection, then reopen.');
+          }
+        }, 12000);
+      })();
+    </script>
+    <script crossorigin id="vite-legacy-polyfill" src="/app/assets/polyfills-legacy-DwKv7o7K.js"></script>
+    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-B-XdUIG6.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  </body>
+</html>
