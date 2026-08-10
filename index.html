@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ember POS: Point of Sale for CafÃ©s &amp; Restaurants in the Philippines</title>
-<meta name="description" content="Sales, stock, kitchen, staff and profit in one app. Sell on Android, run the back office from any computer, keep selling through a brownout. Free for 30 days." />
+<title>Ember POS: Point of Sale for Cafés &amp; Restaurants in the Philippines</title>
+<meta name="description" content="Sales, stock, kitchen, staff, utang and profit in one app. Sell on Android, run the back office from any computer, keep selling through a brownout. Free for 30 days." />
 <link rel="icon" href="favicon.png" type="image/png" />
 <meta name="theme-color" content="#0c0a09" />
 <!-- Social share card. Absolute URL on purpose (Facebook and Messenger will not
@@ -13,15 +13,17 @@
 <link rel="canonical" href="https://emberpos.net/" />
 <meta property="og:url" content="https://emberpos.net/" />
 <meta property="og:title" content="Ember POS: your whole shop, in one app" />
-<meta property="og:description" content="POS, inventory, kitchen display, QR ordering, payroll and daily profit for cafÃ©s and restaurants in the Philippines. Free for 30 days." />
+<meta property="og:description" content="POS, inventory, kitchen display, QR ordering, utang, payroll and daily profit for cafés and restaurants in the Philippines. Free for 30 days." />
 <meta property="og:image" content="https://emberpos.net/shots/og.png" />
 <meta property="og:type" content="website" />
+<link rel="preload" as="image" href="shots/hero-dashboard.webp" fetchpriority="high" />
 <style>
-  /* Ember POS landing. "Coal & Flame": the app's own incumbent system.
-     Palette (flame/gold on coal, warm paper body) and Space Grotesk are pinned
-     brand choices carried over from the product and the Play listing.
-     Radius scale, documented: cells/cards 16, buttons 12, images 10, chips pill.
-     Theme: dark bookends (hero, closing) around a single light body. */
+  /* Ember POS landing. "Coal & Flame" is the product's own incumbent system and
+     is preserved here: flame/gold on coal, warm paper body, Space Grotesk.
+     Radius scale, documented and locked: cards 16, buttons 12, images 10,
+     chips pill. Theme: dark bookends around a single light body (a deliberate
+     one-story composition carried over from the product, not per-section
+     flipping). */
   @font-face {
     font-family: 'Space Grotesk';
     src: url('fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations');
@@ -38,120 +40,198 @@
     --coal-ink: #ece7df; --coal-muted: #a89c90;
     --paper: #f7f5f1; --card: #ffffff; --ink: #1a1714; --muted: #635a52; --line: #e6e1da;
     --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --shell: min(1240px, 100% - 44px);
   }
   * { box-sizing: border-box; margin: 0; }
+  /* The header is sticky, so anchor jumps (#features, #pricing) must clear it
+     or the heading lands underneath it. */
+  html { scroll-padding-top: 90px; }
   body {
     background: var(--coal); color: var(--coal-ink);
     font: 16.5px/1.6 'Space Grotesk', ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
-  img { max-width: 100%; display: block; }
+  /* height:auto is load-bearing. The markup carries width/height attributes to
+     reserve space against CLS; without height:auto the width scales down and
+     the height does not, which squashed every screenshot on this page. */
+  img { max-width: 100%; height: auto; display: block; }
   a { color: inherit; }
-  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 22px; }
+  .wrap { width: var(--shell); margin: 0 auto; }
   .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 700; }
-  .ico { width: 22px; height: 22px; fill: var(--flame); }
+  .ico { width: 22px; height: 22px; fill: var(--flame); flex: none; }
 
   /* ---------- buttons ---------- */
   .btn {
     display: inline-flex; align-items: center; gap: 10px; justify-content: center;
     padding: 14px 24px; border-radius: 12px; font-weight: 600; font-size: 16px;
     text-decoration: none; border: 1.5px solid transparent; line-height: 1.2;
-    transition: transform 160ms var(--ease-out), filter 160ms var(--ease-out), border-color 160ms var(--ease-out);
+    white-space: nowrap;
+    transition: transform 160ms var(--ease-out), filter 160ms var(--ease-out),
+                border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
   }
   .btn:active { transform: scale(0.97); }
-  .btn-flame { background: var(--flame); color: #fff; }
+  .btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  .btn-flame { background: var(--flame); color: #fff; box-shadow: 0 6px 20px rgba(255,92,0,.28); }
   .btn-ghost { border-color: var(--coal-line); color: var(--coal-ink); background: rgba(255,255,255,.03); }
+  .btn-ink { background: var(--ink); color: var(--paper); }
   @media (hover: hover) and (pointer: fine) {
-    .btn-flame:hover { filter: brightness(1.08); }
+    .btn-flame:hover { filter: brightness(1.08); box-shadow: 0 10px 28px rgba(255,92,0,.36); }
     .btn-ghost:hover { border-color: var(--flame); }
+    .btn-ink:hover { filter: brightness(1.35); }
   }
-  .btn svg { flex: none; }
 
   /* ---------- header ---------- */
   header {
     position: sticky; top: 0; z-index: 20;
-    background: rgba(12,10,9,.85); backdrop-filter: blur(10px);
+    background: rgba(12,10,9,.82); backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--coal-line);
   }
-  .nav { display: flex; align-items: center; gap: 26px; height: 64px; }
+  .nav { display: flex; align-items: center; gap: 26px; height: 68px; }
   .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; margin-right: auto; }
   .nav-brand img { width: 34px; height: 34px; }
   .nav-brand b { font-size: 17px; letter-spacing: .02em; }
-  .nav-brand small { display: block; font-size: 9.5px; letter-spacing: .18em; color: var(--coal-muted); text-transform: uppercase; line-height: 1; }
   .nav a.link { text-decoration: none; color: var(--coal-muted); font-size: 15px; transition: color 160ms var(--ease-out); }
   @media (hover: hover) and (pointer: fine) { .nav a.link:hover { color: var(--coal-ink); } }
-  .nav .btn { padding: 9px 16px; font-size: 14.5px; }
-  @media (max-width: 640px) { .nav a.link { display: none; } }
+  .nav .btn { padding: 9px 17px; font-size: 14.5px; }
+  @media (max-width: 700px) { .nav a.link { display: none; } }
 
-  /* ---------- hero (dark bookend) ---------- */
-  .hero { position: relative; overflow: hidden; padding: 68px 0 0; text-align: center; }
+  /* ---------- hero: asymmetric split, product bleeding off the right ---------- */
+  .hero { position: relative; overflow: hidden; padding: 72px 0 84px; }
   .hero::before {
     content: ""; position: absolute; inset: 0; pointer-events: none;
-    background: radial-gradient(720px 420px at 50% -60px, rgba(255,92,0,.2), transparent 70%);
+    background: radial-gradient(900px 520px at 22% -10%, rgba(255,92,0,.20), transparent 68%);
+  }
+  .hero-grid {
+    position: relative; display: grid; grid-template-columns: minmax(0, 4.6fr) minmax(0, 7fr);
+    gap: 54px; align-items: center;
   }
   .eyebrow {
     display: inline-block; font-size: 12px; letter-spacing: .2em; text-transform: uppercase;
     color: var(--gold); border: 1px solid var(--coal-line); border-radius: 999px;
-    padding: 7px 16px; margin-bottom: 22px; background: rgba(254,183,0,.05);
+    padding: 7px 16px; background: rgba(254,183,0,.05);
   }
   h1 {
-    font-size: clamp(38px, 6vw, 62px); line-height: 1.05; letter-spacing: -.02em;
-    font-weight: 700; max-width: 780px; margin: 0 auto;
+    font-size: clamp(38px, 4.6vw, 60px); line-height: 1.03; letter-spacing: -.025em;
+    font-weight: 700; margin-top: 20px;
   }
   .flame-text {
     background: linear-gradient(100deg, var(--flame), var(--gold));
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
-  .hero-sub { max-width: 560px; margin: 20px auto 0; color: var(--coal-muted); font-size: 19px; }
+  .hero-sub { margin-top: 18px; color: var(--coal-muted); font-size: 18.5px; max-width: 46ch; }
   .hero-sub b { color: var(--coal-ink); font-weight: 600; }
-  .hero-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
-  .browser { max-width: 980px; margin: 50px auto -2px; text-align: left;
-    border: 1px solid var(--coal-line); border-bottom: 0; border-radius: 16px 16px 0 0;
-    background: var(--coal-2); box-shadow: 0 -18px 60px rgba(0,0,0,.45); overflow: hidden; }
-  .browser-bar { display: flex; align-items: center; gap: 8px; padding: 11px 16px; border-bottom: 1px solid var(--coal-line); }
-  .browser-bar i { width: 11px; height: 11px; border-radius: 50%; background: var(--coal-line); }
-  .browser-bar span {
+  .hero-ctas { display: flex; gap: 13px; flex-wrap: wrap; margin-top: 30px; }
+
+  /* The browser frame sits in the right column and runs past the viewport edge,
+     so the screenshot reads at a legible scale instead of being letterboxed
+     into the middle of a very wide screen. */
+  .frame {
+    border: 1px solid var(--coal-line); border-radius: 16px; overflow: hidden;
+    background: var(--coal-2); box-shadow: 0 40px 90px -30px rgba(0,0,0,.85);
+    width: calc(100% + 20vw); max-width: none;
+  }
+  .frame-bar { display: flex; align-items: center; gap: 8px; padding: 11px 16px; border-bottom: 1px solid var(--coal-line); }
+  .frame-bar i { width: 11px; height: 11px; border-radius: 50%; background: var(--coal-line); }
+  .frame-bar span {
     margin-left: 10px; font-size: 12.5px; color: var(--coal-muted);
     background: rgba(255,255,255,.04); border-radius: 7px; padding: 4px 14px;
   }
-  @media (max-width: 640px) { .hero { padding-top: 44px; } .hero-sub { font-size: 17px; } }
+  @media (max-width: 1020px) {
+    .hero { padding: 56px 0 64px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+    .hero-sub { max-width: 60ch; }
+    .frame { width: 100%; }
+  }
+
+  /* facts band: three plain claims, no invented metrics */
+  .facts { border-top: 1px solid var(--coal-line); background: rgba(0,0,0,.25); }
+  .facts-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .fact { padding: 26px 4px; text-align: center; }
+  .fact + .fact { border-left: 1px solid var(--coal-line); }
+  .fact b { display: block; font-size: 25px; letter-spacing: -.02em; color: var(--coal-ink); }
+  .fact span { font-size: 14px; color: var(--coal-muted); }
+  @media (max-width: 700px) {
+    .facts-grid { grid-template-columns: 1fr; }
+    .fact + .fact { border-left: 0; border-top: 1px solid var(--coal-line); }
+    .fact { padding: 18px 4px; }
+  }
 
   /* ---------- light body ---------- */
   .light { background: var(--paper); color: var(--ink); }
-  section { padding: 84px 0; }
-  .sec-head { max-width: 640px; margin: 0 auto 48px; text-align: center; }
-  .sec-head h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -.015em; }
+  section { padding: 92px 0; }
+  .sec-head { max-width: 660px; margin: 0 auto 46px; text-align: center; }
+  .sec-head h2 { font-size: clamp(29px, 3.6vw, 42px); line-height: 1.08; letter-spacing: -.02em; text-wrap: balance; }
   .sec-head p { margin-top: 12px; color: var(--muted); font-size: 17.5px; }
 
   /* features: asymmetric bento, three real screenshots, one coal cell */
   .bento { display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
   .cell {
     background: var(--card); border: 1px solid var(--line); border-radius: 16px;
-    padding: 26px 26px 0; overflow: hidden; display: flex; flex-direction: column;
-    box-shadow: 0 1px 2px rgba(26,23,20,.04), 0 8px 24px rgba(26,23,20,.05);
+    padding: 28px 28px 0; overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: 0 1px 2px rgba(26,23,20,.04), 0 10px 26px rgba(26,23,20,.05);
+    transition: transform 260ms var(--ease-out), box-shadow 260ms var(--ease-out);
   }
-  .cell h3 { font-size: 19px; letter-spacing: -.01em; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
-  .cell p { color: var(--muted); font-size: 15.5px; padding-bottom: 24px; }
-  .cell .shot { margin-top: auto; padding: 0 0 26px; }
+  @media (hover: hover) and (pointer: fine) {
+    .cell:hover { transform: translateY(-3px); box-shadow: 0 2px 4px rgba(26,23,20,.05), 0 20px 44px rgba(26,23,20,.10); }
+  }
+  .cell h3 { font-size: 19.5px; letter-spacing: -.01em; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+  .cell p { color: var(--muted); font-size: 15.5px; padding-bottom: 26px; }
+  .cell .shot { margin-top: auto; padding: 0 0 28px; }
   .cell .shot img { border: 1px solid var(--line); border-radius: 10px; }
-  .cell.pad { padding-bottom: 0; }
   .c7 { grid-column: span 7; } .c5 { grid-column: span 5; } .c6 { grid-column: span 6; }
-  .cell.dark-cell { background: var(--coal-2); border-color: var(--coal-line); color: var(--coal-ink); justify-content: center; padding-bottom: 26px; }
+  .cell.dark-cell {
+    background: linear-gradient(150deg, var(--coal-2), #221a15); border-color: var(--coal-line);
+    color: var(--coal-ink); justify-content: center; padding-bottom: 28px;
+  }
   .cell.dark-cell p { color: var(--coal-muted); padding-bottom: 0; }
-  @media (max-width: 820px) { .c7, .c5, .c6 { grid-column: span 12; } }
+  .cell.tint {
+    background: linear-gradient(150deg, #fff, #fdf3e9); justify-content: center; padding-bottom: 28px;
+  }
+  .cell.tint p { padding-bottom: 0; }
+  @media (max-width: 860px) { .c7, .c5, .c6 { grid-column: span 12; } }
+
+  /* PH section: bordered quadrants, no card chrome, so it does not read as a
+     second bento */
+  .ph { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--card); }
+  .ph-item { padding: 32px 34px; }
+  .ph-item:nth-child(odd) { border-right: 1px solid var(--line); }
+  .ph-item:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .ph-item h3 { font-size: 18.5px; letter-spacing: -.01em; display: flex; align-items: center; gap: 10px; }
+  .ph-item p { color: var(--muted); font-size: 15.5px; margin-top: 8px; }
+  .ph-item .tag {
+    display: inline-block; margin-bottom: 12px; font-size: 11px; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--flame);
+  }
+  @media (max-width: 860px) {
+    .ph { grid-template-columns: 1fr; }
+    .ph-item:nth-child(odd) { border-right: 0; }
+    .ph-item + .ph-item { border-top: 1px solid var(--line); }
+    .ph-item { padding: 26px 24px; }
+  }
+
+  /* back-office: two grouped columns, hairlines only between rows */
+  .groups { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 56px; }
+  .group h3 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .group .row { display: flex; gap: 12px; padding: 15px 0; }
+  .group .row + .row { border-top: 1px solid var(--line); }
+  .group .row b { display: block; font-size: 16px; font-weight: 600; }
+  .group .row span { color: var(--muted); font-size: 14.5px; }
+  .group .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--flame); margin-top: 9px; flex: none; }
+  @media (max-width: 860px) { .groups { grid-template-columns: 1fr; gap: 30px; } }
 
   /* devices: split header, stacked rows on the right */
   .split { display: grid; grid-template-columns: 5fr 6fr; gap: 56px; align-items: center; }
-  @media (max-width: 820px) { .split { grid-template-columns: 1fr; gap: 32px; } }
-  .split h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -.015em; }
+  @media (max-width: 860px) { .split { grid-template-columns: 1fr; gap: 32px; } }
+  .split h2 { font-size: clamp(28px, 3.6vw, 40px); line-height: 1.1; letter-spacing: -.02em; }
   .split .lead { margin-top: 14px; color: var(--muted); font-size: 17.5px; max-width: 46ch; }
   .split .go { display: inline-flex; align-items: center; gap: 8px; margin-top: 22px;
     color: var(--flame); font-weight: 600; text-decoration: none; font-size: 16.5px;
-    transition: gap 160ms var(--ease-out); }
-  @media (hover: hover) and (pointer: fine) { .split .go:hover { gap: 12px; } }
+    transition: gap 200ms var(--ease-out); }
+  @media (hover: hover) and (pointer: fine) { .split .go:hover { gap: 13px; } }
   .dev-row { display: flex; gap: 18px; align-items: flex-start; padding: 22px 4px; }
   .dev-row + .dev-row { border-top: 1px solid var(--line); }
-  .dev-row .ico { width: 26px; height: 26px; margin-top: 2px; flex: none; }
+  .dev-row .ico { width: 26px; height: 26px; margin-top: 2px; }
   .dev-row h3 { font-size: 17.5px; display: flex; align-items: center; gap: 10px; }
   .dev-row p { color: var(--muted); font-size: 15px; margin-top: 4px; }
   .chip {
@@ -159,25 +239,25 @@
     letter-spacing: .12em; text-transform: uppercase; border-radius: 999px; padding: 3px 10px;
   }
 
-  /* gallery rail (light, framed dark slides) */
+  /* gallery rail */
   .rail {
-    display: flex; gap: 18px; overflow-x: auto; padding: 6px 22px 14px;
+    display: flex; gap: 18px; overflow-x: auto; padding: 6px 22px 16px;
     scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
-    max-width: 1400px; margin: 0 auto;
+    max-width: 1500px; margin: 0 auto;
   }
   .rail::-webkit-scrollbar { height: 8px; }
   .rail::-webkit-scrollbar-thumb { background: var(--line); border-radius: 8px; }
   .rail img {
-    height: 380px; width: auto; flex: none; border-radius: 10px;
+    height: 400px; width: auto; flex: none; border-radius: 10px;
     border: 1px solid var(--line); scroll-snap-align: center;
   }
-  @media (max-width: 640px) { .rail img { height: 300px; } }
+  @media (max-width: 700px) { .rail img { height: 300px; } }
 
   /* pricing */
   .price-card {
-    max-width: 520px; margin: 0 auto; background: var(--card); border: 1px solid var(--line);
-    border-radius: 16px; padding: 40px 38px; text-align: center;
-    box-shadow: 0 1px 2px rgba(26,23,20,.04), 0 18px 48px rgba(26,23,20,.08);
+    max-width: 540px; margin: 0 auto; background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; padding: 42px 40px; text-align: center;
+    box-shadow: 0 1px 2px rgba(26,23,20,.04), 0 22px 54px rgba(26,23,20,.09);
   }
   .price-card .free { font-size: 21px; font-weight: 700; }
   .price-card .free em { font-style: normal; color: var(--flame); }
@@ -195,10 +275,10 @@
   .price-note { font-size: 13.5px; color: var(--muted); margin-top: 14px; }
 
   /* FAQ */
-  .faq { max-width: 720px; margin: 0 auto; }
+  .faq { max-width: 740px; margin: 0 auto; }
   .faq details { border-bottom: 1px solid var(--line); }
   .faq summary {
-    cursor: pointer; padding: 18px 30px 18px 2px; font-weight: 600; font-size: 17px;
+    cursor: pointer; padding: 19px 30px 19px 2px; font-weight: 600; font-size: 17px;
     list-style: none; position: relative;
   }
   .faq summary::-webkit-details-marker { display: none; }
@@ -210,44 +290,45 @@
   .faq details p { padding: 0 2px 20px; color: var(--muted); font-size: 15.5px; }
   .faq a { color: var(--flame); }
 
-  /* closing (dark bookend) */
+  /* closing */
   .cta-end { text-align: center; position: relative; overflow: hidden; }
   .cta-end::before {
     content: ""; position: absolute; inset: 0; pointer-events: none;
-    background: radial-gradient(560px 320px at 50% 110%, rgba(255,92,0,.16), transparent 70%);
+    background: radial-gradient(620px 340px at 50% 108%, rgba(255,92,0,.18), transparent 70%);
   }
-  .cta-end h2 { font-size: clamp(30px, 4.6vw, 46px); letter-spacing: -.02em; max-width: 640px; margin: 0 auto; }
+  .cta-end h2 { font-size: clamp(30px, 4.2vw, 46px); letter-spacing: -.025em; max-width: 660px; margin: 0 auto; }
   .cta-end h2 span { color: var(--gold); }
   .cta-end p { color: var(--coal-muted); margin: 16px auto 30px; max-width: 520px; }
+  .cta-end .hero-ctas { justify-content: center; margin-top: 0; }
 
   footer { border-top: 1px solid var(--coal-line); padding: 40px 0 56px; color: var(--coal-muted); font-size: 14px; }
   .foot { display: flex; flex-wrap: wrap; gap: 26px; align-items: center; }
   .foot nav { display: flex; flex-wrap: wrap; gap: 20px; margin-left: auto; }
   .foot a { color: var(--coal-muted); text-decoration: none; transition: color 160ms var(--ease-out); }
   @media (hover: hover) and (pointer: fine) { .foot a:hover { color: var(--coal-ink); } }
-  @media (max-width: 640px) { .foot { flex-direction: column; align-items: flex-start; } .foot nav { margin-left: 0; } }
+  @media (max-width: 700px) { .foot { flex-direction: column; align-items: flex-start; } .foot nav { margin-left: 0; } }
 
   /* ---------- motion ----------
-     Hero fades up once on load; sections reveal on scroll with a short stagger.
-     Armed only when JS runs (html.js) and motion is allowed, so the page is
-     never blank without JS and never moves for prefers-reduced-motion. */
+     Three motivated moves and nothing else: the hero enters in reading order
+     (hierarchy), sections reveal as they arrive (storytelling), and controls
+     respond to touch (feedback). Armed only when JS runs, so the page is never
+     blank without it, and fully disabled for reduced motion. */
   @media (prefers-reduced-motion: no-preference) {
     html { scroll-behavior: smooth; }
-    html.js .hero .rise { opacity: 0; transform: translateY(16px); animation: rise 700ms var(--ease-out) forwards; }
-    html.js .hero .rise:nth-child(2) { animation-delay: 60ms; }
-    html.js .hero .rise:nth-child(3) { animation-delay: 120ms; }
-    html.js .hero .rise:nth-child(4) { animation-delay: 180ms; }
-    html.js .hero .browser { opacity: 0; transform: translateY(24px); animation: rise 800ms var(--ease-out) 240ms forwards; }
-    @keyframes rise { to { opacity: 1; transform: translateY(0); } }
-    html.js .rev { opacity: 0; transform: translateY(14px);
-      transition: opacity 550ms var(--ease-out), transform 550ms var(--ease-out); }
+    html.js .hero .rise { opacity: 0; transform: translateY(18px); animation: rise 720ms var(--ease-out) forwards; }
+    html.js .hero .rise:nth-child(2) { animation-delay: 70ms; }
+    html.js .hero .rise:nth-child(3) { animation-delay: 140ms; }
+    html.js .hero .rise:nth-child(4) { animation-delay: 210ms; }
+    html.js .hero-art { opacity: 0; transform: translateY(26px) scale(.985); animation: rise 900ms var(--ease-out) 260ms forwards; }
+    @keyframes rise { to { opacity: 1; transform: translateY(0) scale(1); } }
+    html.js .rev { opacity: 0; transform: translateY(16px);
+      transition: opacity 620ms var(--ease-out), transform 620ms var(--ease-out); }
     html.js .rev.in { opacity: 1; transform: translateY(0); }
-    html.js .rev.d1 { transition-delay: 60ms; }
-    html.js .rev.d2 { transition-delay: 120ms; }
+    html.js .rev.d1 { transition-delay: 70ms; }
+    html.js .rev.d2 { transition-delay: 140ms; }
   }
-  /* Print and any context where the observer can't run: never hide content. */
   @media print {
-    html.js .rev, html.js .hero .rise, html.js .hero .browser { opacity: 1 !important; transform: none !important; }
+    html.js .rev, html.js .hero .rise, html.js .hero-art { opacity: 1 !important; transform: none !important; }
   }
 </style>
 </head>
@@ -256,7 +337,7 @@
 <header>
   <div class="wrap nav">
     <a class="nav-brand" href="index.html">
-      <img src="logo.png" alt="Ember POS logo" />
+      <img src="logo.png" width="34" height="34" alt="Ember POS logo" />
       <span><b>Ember POS</b></span>
     </a>
     <a class="link" href="#features">Features</a>
@@ -267,24 +348,34 @@
 </header>
 
 <div class="hero">
-  <div class="wrap">
-    <span class="eyebrow rise">Point of Sale &middot; Philippines</span>
-    <h1 class="rise">Your whole shop,<br /><span class="flame-text">in one app.</span></h1>
-    <p class="hero-sub rise">Sell, track stock, run the kitchen and see your profit.
-      On Android, and <b>in any browser</b>, iPhone included.</p>
-    <div class="hero-ctas rise">
-      <a class="btn btn-flame" href="https://play.google.com/store/apps/details?id=com.emberpos.app">
-        <svg width="18" height="20" viewBox="0 0 24 26" fill="none" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z" fill="currentColor"/></svg>
-        Get it on Google Play
-      </a>
-      <a class="btn btn-ghost" href="app/">Open the app &rarr;</a>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow rise">Point of Sale &middot; Philippines</span>
+      <h1 class="rise">Your whole shop,<br /><span class="flame-text">in one app.</span></h1>
+      <p class="hero-sub rise">Sell, track stock, run the kitchen, keep the utang and see your real profit. On Android, and <b>in any browser</b>.</p>
+      <div class="hero-ctas rise">
+        <a class="btn btn-flame" href="https://play.google.com/store/apps/details?id=com.emberpos.app">
+          <svg width="18" height="20" viewBox="0 0 24 26" fill="none" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z" fill="currentColor"/></svg>
+          Get it on Google Play
+        </a>
+        <a class="btn btn-ghost" href="app/">Open the app &rarr;</a>
+      </div>
     </div>
+    <div class="hero-art">
+      <div class="frame">
+        <div class="frame-bar"><i></i><i></i><i></i><span>The full app, running in a browser</span></div>
+        <img src="shots/hero-dashboard.webp" width="1400" height="875" fetchpriority="high"
+             alt="The Ember POS dashboard on a computer: net sales, orders, bottom-line profit and a sales chart" />
+      </div>
+    </div>
+  </div>
+</div>
 
-    <div class="browser">
-      <div class="browser-bar"><i></i><i></i><i></i><span>The full app, running in a browser</span></div>
-      <img src="shots/hero-dashboard.webp" width="1400" height="875"
-           alt="The Ember POS dashboard on a computer: net sales, orders, bottom-line profit and a sales chart" />
-    </div>
+<div class="facts">
+  <div class="wrap facts-grid">
+    <div class="fact"><b class="mono">&#8369;599</b><span>a month, everything included</span></div>
+    <div class="fact"><b>30 days free</b><span>no card, no commitment</span></div>
+    <div class="fact"><b>Works offline</b><span>keep selling through a brownout</span></div>
   </div>
 </div>
 
@@ -297,19 +388,18 @@
       <p>One app covers the counter, the kitchen, the stock room and the books.</p>
     </div>
     <div class="bento">
-      <div class="cell pad c7 rev">
+      <div class="cell c7 rev">
         <h3><svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M232,208a8,8,0,0,1-8,8H32a8,8,0,0,1-8-8V48a8,8,0,0,1,16,0V156.69l50.34-50.35a8,8,0,0,1,11.32,0L128,132.69,180.69,80H160a8,8,0,0,1,0-16h40a8,8,0,0,1,8,8v40a8,8,0,0,1-16,0V91.31l-58.34,58.35a8,8,0,0,1-11.32,0L96,123.31l-56,56V200H224A8,8,0,0,1,232,208Z"/></svg>
           Profit, not just sales</h3>
         <p>Ingredients used, wages clocked and expenses paid come off the day's sales. You see what you actually kept, every day.</p>
-        <div class="shot"><img src="shots/feat-profit.webp" loading="lazy"
+        <div class="shot"><img src="shots/feat-profit.webp" width="1000" height="159" loading="lazy"
           alt="The bottom line strip: sales minus ingredients, labor and expenses leaves the real profit" /></div>
       </div>
-      <div class="cell pad c5 rev d1">
+      <div class="cell c5 rev d1">
         <h3><svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M223.68,66.15,135.68,18a15.88,15.88,0,0,0-15.36,0l-88,48.17a16,16,0,0,0-8.32,14v95.64a16,16,0,0,0,8.32,14l88,48.17a15.88,15.88,0,0,0,15.36,0l88-48.17a16,16,0,0,0,8.32-14V80.18A16,16,0,0,0,223.68,66.15ZM128,32l80.34,44-29.77,16.3-80.35-44ZM128,120,47.66,76l33.9-18.56,80.34,44ZM40,90l80,43.78v85.79L40,175.82Zm176,85.78h0l-80,43.79V133.82l32-17.51V152a8,8,0,0,0,16,0V107.55L216,90v85.77Z"/></svg>
           Stock counts itself</h3>
-        <p>Sell a latte and the milk, beans and cup go down on their own. It warns you before you run out mid-rush.
-          <b style="color:var(--ink)">Send us your list and we import your menu and stock for you.</b></p>
-        <div class="shot"><img src="shots/feat-stock.webp" loading="lazy"
+        <p>Sell a latte and the milk, beans and cup go down on their own. It warns you before you run out mid-rush, and flags what to use before it expires.</p>
+        <div class="shot"><img src="shots/feat-stock.webp" width="800" height="325" loading="lazy"
           alt="Two ingredient cards showing stock on hand, value and the recipes each is used in" /></div>
       </div>
       <div class="cell dark-cell c5 rev">
@@ -317,22 +407,78 @@
           Brownout-proof</h3>
         <p>No signal? Keep selling. Orders, receipts and sign-ins all work offline, then sync themselves when the internet returns.</p>
       </div>
-      <div class="cell pad c7 rev d1">
+      <div class="cell c7 rev d1">
         <h3><svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,60.08,60.15C52.81,67.51,46.35,74.59,40,82V64a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H72a8,8,0,0,0,0-16H49c7.15-8.42,14.27-16.35,22.39-24.57a80,80,0,1,1,1.66,114.75,8,8,0,1,0-11,11.64A96,96,0,1,0,128,32Z"/></svg>
           Every action on the record</h3>
         <p>Voids, discounts and drawer opens are logged with a name and a time. You choose who is allowed to do what.</p>
-        <div class="shot"><img src="shots/feat-record.webp" loading="lazy"
+        <div class="shot"><img src="shots/feat-record.webp" width="1000" height="313" loading="lazy"
           alt="Activity log rows: who did what, and when" /></div>
       </div>
-      <div class="cell c6 rev">
+      <div class="cell tint c6 rev">
         <h3><svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M88,48V16a8,8,0,0,1,16,0V48a8,8,0,0,1-16,0Zm40,8a8,8,0,0,0,8-8V16a8,8,0,0,0-16,0V48A8,8,0,0,0,128,56Zm32,0a8,8,0,0,0,8-8V16a8,8,0,0,0-16,0V48A8,8,0,0,0,160,56Zm92.8,46.4L224,124v60a32,32,0,0,1-32,32H64a32,32,0,0,1-32-32V124L3.2,102.4a8,8,0,0,1,9.6-12.8L32,104V80a8,8,0,0,1,8-8H216a8,8,0,0,1,8,8v24l19.2-14.4a8,8,0,0,1,9.6,12.8ZM208,88H48v96a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16Z"/></svg>
           Kitchen and QR ordering</h3>
-        <p>Orders flow straight to a kitchen screen, notes included. Guests can scan a QR at the table and order from their own phone.</p>
+        <p>Orders flow straight to a kitchen screen, notes and photos included, and it warns you when the kitchen is falling behind. Guests can scan a QR at the table and order from their own phone.</p>
       </div>
-      <div class="cell c6 rev d1">
+      <div class="cell tint c6 rev d1">
         <h3><svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M232,96a7.89,7.89,0,0,0-.3-2.2L217.35,43.6A16.07,16.07,0,0,0,202,32H54A16.07,16.07,0,0,0,38.65,43.6L24.31,93.8A7.89,7.89,0,0,0,24,96h0v16a40,40,0,0,0,16,32v72a8,8,0,0,0,8,8H208a8,8,0,0,0,8-8V144a40,40,0,0,0,16-32V96ZM54,48H202l11.42,40H42.61Zm50,56h48v8a24,24,0,0,1-48,0Zm-16,0v8a24,24,0,0,1-35.12,21.26,7.88,7.88,0,0,0-1.82-1.06A24,24,0,0,1,40,112v-8ZM200,208H56V151.2a40.57,40.57,0,0,0,8,.8,40,40,0,0,0,32-16,40,40,0,0,0,64,0,40,40,0,0,0,32,16,40.57,40.57,0,0,0,8-.8Zm4.93-75.8a8.08,8.08,0,0,0-1.8,1.05A24,24,0,0,1,168,112v-8h48v8A24,24,0,0,1,204.93,132.2Z"/></svg>
           Grows with you</h3>
-        <p>Payroll, time clock and schedules are built in. Open a second branch and run both from one account.</p>
+        <p>Payroll, time clock and schedules are built in. Open a second branch and run both from one account, with each branch's numbers kept apart.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="philippines" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head rev">
+      <h2>Built for how Philippine shops really run</h2>
+      <p>The parts a foreign POS never gets right, done properly here.</p>
+    </div>
+    <div class="ph rev">
+      <div class="ph-item">
+        <span class="tag">Utang / Lista</span>
+        <h3>The notebook, finally digital</h3>
+        <p>Put a sale on a suki's tab in one tap. See who owes what, how long it has been, and record payments as they come. Set a limit per person and the till warns your cashier, without blocking the sale. Tap a name and you get a polite reminder message ready to paste into Messenger.</p>
+      </div>
+      <div class="ph-item">
+        <span class="tag">Senior &amp; PWD</span>
+        <h3>The 20% and the ID, recorded</h3>
+        <p>The discount covers only what the cardholder actually ordered, VAT handled correctly, with the OSCA or PWD ID number captured on the sale the way BIR expects it. No more separate notebook at the counter.</p>
+      </div>
+      <div class="ph-item">
+        <span class="tag">Your books</span>
+        <h3>Ready for your bookkeeper</h3>
+        <p>Download a sales book in the columns an accountant actually asks for, and check your invoice numbers for gaps in one tap. Export your whole shop to spreadsheets any time. Your records stay yours.</p>
+      </div>
+      <div class="ph-item">
+        <span class="tag">Getting paid</span>
+        <h3>GCash, Maya and the delivery apps</h3>
+        <p>Add GCash, Maya, FoodPanda and GrabFood as their own buttons, so each one lands separately in your reports. At closing, check what the wallet app says against what the till recorded and find the gap before it becomes an argument.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="backoffice" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head rev">
+      <h2>The back office does the thinking</h2>
+      <p>Open the app on a laptop and it tells you what needs attention today.</p>
+    </div>
+    <div class="groups rev">
+      <div class="group">
+        <h3>Money</h3>
+        <div class="row"><span class="dot"></span><div><b>Break-even</b><span>The daily sales you need before the shop starts earning.</span></div></div>
+        <div class="row"><span class="dot"></span><div><b>Unpaid deliveries</b><span>What you still owe each supplier, and when it arrived.</span></div></div>
+        <div class="row"><span class="dot"></span><div><b>Drawer bill counter</b><span>Count the cash by denomination and it adds up for you.</span></div></div>
+        <div class="row"><span class="dot"></span><div><b>Cash in and out</b><span>Petty cash and owner draws, kept out of your sales figures.</span></div></div>
+      </div>
+      <div class="group">
+        <h3>Selling more</h3>
+        <div class="row"><span class="dot"></span><div><b>What stopped selling</b><span>Items nobody ordered this period, worth promoting or cutting.</span></div></div>
+        <div class="row"><span class="dot"></span><div><b>Bought together</b><span>Real pairs from your receipts, so your combos are built on evidence.</span></div></div>
+        <div class="row"><span class="dot"></span><div><b>Customers gone quiet</b><span>Regulars who stopped coming, with a message ready to send.</span></div></div>
+        <div class="row"><span class="dot"></span><div><b>Busiest hours</b><span>When the rush really lands, so you staff for it.</span></div></div>
       </div>
     </div>
   </div>
@@ -372,12 +518,12 @@
     <p>Every image below is the app itself, running a working shop.</p>
   </div>
   <div class="rail">
-    <img src="shots/g1-profit.webp" alt="Dashboard slide: sales minus costs, today" loading="lazy" />
-    <img src="shots/g2-pos.webp" alt="Point of sale slide: ring a sale in three taps" loading="lazy" />
-    <img src="shots/g3-kitchen.webp" alt="Kitchen display slide" loading="lazy" />
-    <img src="shots/g4-stock.webp" alt="Inventory slide: stock counts itself" loading="lazy" />
-    <img src="shots/g5-access.webp" alt="Access rights slide: you decide who can do what" loading="lazy" />
-    <img src="shots/g6-activity.webp" alt="Activity log slide: every action recorded" loading="lazy" />
+    <img src="shots/g1-profit.webp" width="1100" height="619" alt="Dashboard slide: sales minus costs, today" loading="lazy" />
+    <img src="shots/g2-pos.webp" width="480" height="853" alt="Point of sale slide: ring a sale in three taps" loading="lazy" />
+    <img src="shots/g3-kitchen.webp" width="1100" height="619" alt="Kitchen display slide" loading="lazy" />
+    <img src="shots/g4-stock.webp" width="480" height="853" alt="Inventory slide: stock counts itself" loading="lazy" />
+    <img src="shots/g5-access.webp" width="1100" height="619" alt="Access rights slide: you decide who can do what" loading="lazy" />
+    <img src="shots/g6-activity.webp" width="480" height="853" alt="Activity log slide: every action recorded" loading="lazy" />
   </div>
 </section>
 
@@ -394,8 +540,8 @@
       <ul class="ticks">
         <li>Unlimited staff accounts and unlimited devices</li>
         <li>POS, inventory, recipes, kitchen display and QR ordering</li>
+        <li>Utang ledger, Senior and PWD handling, and your sales book</li>
         <li>Payroll, time clock, schedules and access rights</li>
-        <li>Daily profit, sales reports and the activity log</li>
         <li>Works offline, and every update is included</li>
       </ul>
       <a class="btn btn-flame" style="width:100%" href="https://play.google.com/store/apps/details?id=com.emberpos.app">Get it on Google Play</a>
@@ -413,6 +559,10 @@
       <details>
         <summary>Can I use it on my laptop or desktop computer?</summary>
         <p>Yes, and it is the whole app, not a cut-down version. Open <a href="app/">the web app</a> in any browser, sign in with the same shop account, and you get everything: the register, the kitchen screen, menu and recipes, inventory, reports, staff, payroll and settings. Changes show up on every device, live.</p>
+      </details>
+      <details>
+        <summary>Can I record utang the way we do in our notebook?</summary>
+        <p>Yes. Attach the customer to the order and choose Utang at payment, and the amount goes on their tab instead of the drawer. Money then shows every person who owes, how much, and how long it has been sitting. You record payments as they pay, set a credit limit per person if you want one, and tap a name to copy a polite reminder message you can send on Messenger.</p>
       </details>
       <details>
         <summary>Do you have an iPhone app?</summary>
@@ -448,7 +598,7 @@
   <div class="wrap">
     <h2 class="rev">Try it with your <span>own menu</span> tonight.</h2>
     <p class="rev d1">The first thirty days are free, without a card. If it does not earn its keep, walk away.</p>
-    <div class="hero-ctas rev d2" style="margin-top:0">
+    <div class="hero-ctas rev d2">
       <a class="btn btn-flame" href="https://play.google.com/store/apps/details?id=com.emberpos.app">
         <svg width="18" height="20" viewBox="0 0 24 26" fill="none" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z" fill="currentColor"/></svg>
         Get it on Google Play
@@ -471,12 +621,14 @@
 </footer>
 
 <script>
-  // Arms the scroll reveals. Without JS the CSS never hides anything.
+  // Arms the scroll reveals. Without JS the CSS never hides anything, so the
+  // page is fully readable with scripting off. IntersectionObserver only, never
+  // a scroll listener.
   document.documentElement.classList.add('js');
   (function () {
     var els = document.querySelectorAll('.rev');
     if (!('IntersectionObserver' in window)) {
-      els.forEach ? els.forEach(function (e) { e.classList.add('in'); }) : null;
+      Array.prototype.forEach.call(els, function (e) { e.classList.add('in'); });
       return;
     }
     var io = new IntersectionObserver(function (entries) {
