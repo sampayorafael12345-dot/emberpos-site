@@ -310,6 +310,11 @@ function render() {
         MENU.categories.map((c) => '<button class="cat" data-c="' + c.id + '" aria-pressed="' + (CAT === c.id) + '">' + esc(c.name) + '</button>').join('') +
       '</div>' +
     '</div>' + body +
+    // Rate-your-visit: same token, straight into the owner's Logbook. Sits
+    // above the cart bar so it never competes with "Review order".
+    '<div style="text-align:center;padding:6px 0 90px">' +
+      '<button class="ghost" id="rate" style="font-size:14px">☆ Rate your visit</button>' +
+    '</div>' +
     '<div class="bar">' +
       '<div class="sum"><b>' + money(total()) + '</b><span>' + count() + (count() === 1 ? ' item' : ' items') + '</span></div>' +
       '<button class="primary" id="review"' + (CART.length ? '' : ' disabled') + '>Review order</button>' +
@@ -328,6 +333,51 @@ function render() {
   document.querySelectorAll('.item').forEach((b) => b.onclick = () => openItem(Number(b.dataset.i)));
   el('review').onclick = openCart;
   if (el('mine')) el('mine').onclick = () => showOrders();
+  el('rate').onclick = openRating;
+}
+
+// ---- rate your visit → the shop's own logbook (kiosk_feedback RPC) --------
+let RATING = 0;
+function openRating() {
+  RATING = 0;
+  openSheet(
+    '<h2>How was it?</h2><p class="lede">Goes straight to the owner — not to the internet.</p>' +
+    '<div id="stars" style="font-size:38px;letter-spacing:6px;text-align:center;padding:10px 0;cursor:pointer;user-select:none"></div>' +
+    '<textarea id="fbtext" maxlength="500" placeholder="Anything you want them to know? (optional)" ' +
+      'style="width:100%;min-height:84px;border:1.5px solid var(--line);border-radius:12px;background:transparent;color:var(--text);padding:10px;font:inherit;font-size:15px"></textarea>' +
+    '<div style="display:flex;gap:10px;margin-top:12px">' +
+      '<button class="ghost" id="fbcancel" style="flex:1">Cancel</button>' +
+      '<button class="primary" id="fbsend" style="flex:1" disabled>Send</button>' +
+    '</div>'
+  );
+  const draw = () => {
+    el('stars').innerHTML = [1, 2, 3, 4, 5].map((n) =>
+      '<span data-n="' + n + '" style="opacity:' + (n <= RATING ? 1 : 0.35) + '">' + (n <= RATING ? '★' : '☆') + '</span>').join('');
+    el('stars').querySelectorAll('span').forEach((s) => s.onclick = () => { RATING = Number(s.dataset.n); draw(); });
+    el('fbsend').disabled = RATING < 1;
+  };
+  draw();
+  el('fbcancel').onclick = closeSheet;
+  el('fbsend').onclick = async () => {
+    el('fbsend').disabled = true;
+    el('fbsend').textContent = 'Sending…';
+    try {
+      const r = await rpc('kiosk_feedback', { p_token: TOKEN, p_rating: RATING, p_text: el('fbtext').value || '' });
+      if (r && r.ok) {
+        openSheet('<h2>Thank you! 🙏</h2><p class="lede">The owner will see it.</p>' +
+          '<button class="primary" id="fbdone" style="width:100%;margin-top:12px">Done</button>');
+        el('fbdone').onclick = closeSheet;
+      } else {
+        el('fbsend').disabled = false;
+        el('fbsend').textContent = 'Send';
+        alert((r && r.error) || 'Could not send right now.');
+      }
+    } catch (e) {
+      el('fbsend').disabled = false;
+      el('fbsend').textContent = 'Send';
+      alert('No connection. Check your signal and try again.');
+    }
+  };
 }
 
 function itemCard(i) {
