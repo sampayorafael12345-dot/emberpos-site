@@ -312,8 +312,11 @@ function render() {
     '</div>' + body +
     // Rate-your-visit: same token, straight into the owner's Logbook. Sits
     // above the cart bar so it never competes with "Review order".
-    '<div style="text-align:center;padding:6px 0 90px">' +
+    '<div style="text-align:center;padding:6px 0 90px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">' +
       '<button class="ghost" id="rate" style="font-size:14px">☆ Rate your visit</button>' +
+      // Only when the shop opted in. The RPC checks the same setting server-side,
+      // so a cached page can never keep asking after it is switched off.
+      ((MENU.shop && MENU.shop.loyalty) ? '<button class="ghost" id="stamps" style="font-size:14px">🎟 My stamps</button>' : '') +
     '</div>' +
     '<div class="bar">' +
       '<div class="sum"><b>' + money(total()) + '</b><span>' + count() + (count() === 1 ? ' item' : ' items') + '</span></div>' +
@@ -334,6 +337,61 @@ function render() {
   el('review').onclick = openCart;
   if (el('mine')) el('mine').onclick = () => showOrders();
   el('rate').onclick = openRating;
+  if (el('stamps')) el('stamps').onclick = openStamps;
+}
+
+// ---- my stamps: the customer checks their own punch card -----------------
+// Reads nothing but the shop's own loyalty counters, and only for a phone
+// number that already belongs to one of its customers. See migration 0063 for
+// the rate caps and for why the response is deliberately this small.
+function openStamps() {
+  var saved = '';
+  try { saved = localStorage.getItem('ember.phone') || ''; } catch (_) {}
+  openSheet(
+    '<h2>My stamps</h2><p class="lede">Type the mobile number you give at the counter.</p>' +
+    '<input id="ph" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" value="' + esc(saved) + '" ' +
+      'placeholder="0917 123 4567" style="width:100%;border:1.5px solid var(--line);border-radius:12px;' +
+      'background:transparent;color:var(--text);padding:12px;font:inherit;font-size:17px">' +
+    '<div id="stout" style="padding:14px 0;min-height:26px;text-align:center"></div>' +
+    '<div style="display:flex;gap:10px;margin-top:4px">' +
+      '<button class="ghost" id="stcancel" style="flex:1">Close</button>' +
+      '<button class="primary" id="stgo" style="flex:1">Check</button>' +
+    '</div>'
+  );
+  el('stcancel').onclick = closeSheet;
+  el('stgo').onclick = async function () {
+    var phone = el('ph').value.trim();
+    if (phone.replace(/\D/g, '').length < 10) {
+      el('stout').innerHTML = '<span style="color:var(--muted)">Type your full mobile number.</span>';
+      return;
+    }
+    el('stgo').disabled = true;
+    el('stout').innerHTML = '<span style="color:var(--muted)">Checking…</span>';
+    try {
+      var r = await rpc('kiosk_my_stamps', { p_token: TOKEN, p_phone: phone });
+      if (!r || !r.ok) {
+        el('stout').innerHTML = '<span style="color:var(--muted)">' + esc((r && r.error) || 'Please ask at the counter.') + '</span>';
+      } else if (!r.found) {
+        el('stout').innerHTML = '<span style="color:var(--muted)">We could not find that number. Ask the counter to add you.</span>';
+      } else {
+        try { localStorage.setItem('ember.phone', phone); } catch (_) {}
+        var have = r.stamps || 0, need = r.required || 10;
+        var dots = '';
+        for (var i = 0; i < need; i++) dots += (i < have ? '●' : '○');
+        el('stout').innerHTML =
+          '<div style="font-size:26px;letter-spacing:4px;line-height:1.4;word-break:break-all">' + dots + '</div>' +
+          '<div style="margin-top:8px;font-size:15px">' +
+            (r.free_ready
+              ? '<b>Free item ready!</b> Claim it at the counter.'
+              : esc(r.first_name || 'You') + ' — <b>' + have + ' of ' + need + '</b>. ' +
+                (need - have) + ' more for a free item.') +
+          '</div>';
+      }
+    } catch (_) {
+      el('stout').innerHTML = '<span style="color:var(--muted)">No connection. Try again in a moment.</span>';
+    }
+    el('stgo').disabled = false;
+  };
 }
 
 // ---- rate your visit → the shop's own logbook (kiosk_feedback RPC) --------
