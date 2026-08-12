@@ -715,6 +715,15 @@ function showOrders(highlight) {
             '</span>' +
             '<span style="color:var(--muted)">' + money(l.price * l.qty) + '</span></div>').join('') +
         '</div>' +
+        // Unpaid orders say so LOUDLY, above the progress steps: a customer who
+        // only sees "Staff are confirming it" assumes they are done and sits down.
+        (o.paid ? '' :
+          '<div style="display:flex;gap:8px;align-items:flex-start;background:rgba(255,92,0,.12);' +
+            'border:1px solid rgba(255,92,0,.45);border-radius:var(--r-md);padding:10px 12px;margin-bottom:12px">' +
+            '<span style="font-size:15px;line-height:1.2">💳</span>' +
+            '<span><b style="display:block;font-size:14.5px">Please pay at the counter</b>' +
+            '<span class="lede" style="font-size:12.5px">Show this order number, ' + esc(o.num) + '.</span></span>' +
+          '</div>') +
         '<div class="steps" data-track="' + esc(o.num) + '">' + stepsHtml(o.state || 'waiting') + '</div>' +
       '</div>';
     }).join('') + '</div>' +
