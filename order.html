@@ -651,7 +651,10 @@ async function send() {
    anyone who scans the table's QR could otherwise read what the last diner
    ordered. Keyed per link so two tables never mix. */
 const LS_KEY = 'ember.qr.' + TOKEN;
-const FINAL = { ready: 1, cancelled: 1 };
+/* States nothing more can happen to. "ready" is deliberately NOT here: the
+   page keeps asking until staff mark the order collected, which is what tags
+   it as collected on this phone. */
+const FINAL = { collected: 1, cancelled: 1 };
 
 function loadOrders() {
   try {
@@ -667,15 +670,29 @@ function rememberOrder(o) { const a = loadOrders(); a.unshift(o); writeOrders(a)
 function markOrder(num, state, paid) {
   const a = loadOrders();
   const i = a.findIndex((x) => x.num === num);
-  if (i < 0) return { becameReady: false, paidChanged: false };
+  if (i < 0) return { becameReady: false, paidChanged: false, becameCollected: false };
   const becameReady = state === 'ready' && a[i].state !== 'ready';
+  const becameCollected = state === 'collected' && a[i].state !== 'collected';
   const paidChanged = paid === true && !a[i].paid;
   if (a[i].state !== state || paidChanged) {
     a[i].state = state;
     if (paid === true) a[i].paid = true;
     writeOrders(a);
   }
-  return { becameReady, paidChanged };
+  return { becameReady, paidChanged, becameCollected };
+}
+
+/* The diner pressed "Got it": stop the ringing for this order. Stored beside
+   the order so a reload — or the screen locking and coming back — doesn't
+   start the whole thing over again. */
+function ackOrder(num) {
+  const a = loadOrders();
+  const i = a.findIndex((x) => x.num === num);
+  if (i < 0) return;
+  a[i].acked = true;
+  writeOrders(a);
+  stopRinging();
+  showOrders();
 }
 
 /* ---- "Your order is ready" on the CUSTOMER'S phone -------------------------
@@ -705,30 +722,63 @@ function chime() {
     });
   } catch (e) { /* speaker said no */ }
 }
+/* The phone is the pager, so it has to behave like one: keep ringing until
+   somebody answers. It stops on the diner's own "Got it" button, or when staff
+   mark the order collected — never on a timer, because a phone face-down in a
+   pocket that rings once has told nobody anything. */
+const ORIG_TITLE = document.title;
 let titleTimer = null;
-function alertReady(num) {
-  try { if (navigator.vibrate) navigator.vibrate([250, 120, 250, 120, 450]); } catch (e) { /* not supported */ }
-  for (let i = 0; i < 3; i++) setTimeout(chime, i * 1400);
-  toast('Order ' + num + ' is ready — please collect it at the counter!');
-  if (titleTimer) clearInterval(titleTimer);
-  const orig = document.title; let n = 0;
+let ringTimer = null;
+function flashTitle(num) {
+  if (titleTimer) return;
+  let n = 0;
   titleTimer = setInterval(() => {
-    document.title = (n++ % 2 === 0) ? '((🔔)) Order ' + num + ' is READY' : orig;
-    if (n > 12) { clearInterval(titleTimer); titleTimer = null; document.title = orig; }
+    document.title = (n++ % 2 === 0) ? '((🔔)) Order ' + num + ' is READY' : ORIG_TITLE;
   }, 900);
+}
+function buzz(num) {
+  try { if (navigator.vibrate) navigator.vibrate([250, 120, 250, 120, 450]); } catch (e) { /* not supported */ }
+  for (let i = 0; i < 2; i++) setTimeout(chime, i * 1400);
+  flashTitle(num);
+}
+/* Orders that are ready and that nobody has acknowledged yet. */
+function unackedReady() {
+  return loadOrders().filter((o) => o.state === 'ready' && !o.acked);
+}
+function stopRinging() {
+  if (ringTimer) { clearInterval(ringTimer); ringTimer = null; }
+  if (titleTimer) { clearInterval(titleTimer); titleTimer = null; }
+  document.title = ORIG_TITLE;
+}
+function alertReady(num) {
+  toast('Order ' + num + ' is ready — please collect it at the counter!');
+  buzz(num);
+  if (ringTimer) return;
+  ringTimer = setInterval(() => {
+    const live = unackedReady();
+    if (!live.length) { stopRinging(); return; }
+    buzz(live[0].num);
+  }, 6000);
+}
+/* Re-arm on load: a diner who reopened the tab mid-wait should still be rung
+   for an order that went ready while the page was closed. */
+function resumeRinging() {
+  const live = unackedReady();
+  if (live.length && !ringTimer) alertReady(live[0].num);
 }
 
 const STATE_TEXT = {
   waiting: 'Staff are confirming it',
   making: 'Being prepared',
   ready: 'Ready, please collect',
+  collected: 'Collected — enjoy!',
   cancelled: 'Cancelled, ask a staff member',
 };
 function stepsHtml(state) {
   if (state === 'cancelled') {
     return '<div class="step on"><span class="dot"></span><span>' + STATE_TEXT.cancelled + '</span></div>';
   }
-  const seq = ['waiting', 'making', 'ready'];
+  const seq = ['waiting', 'making', 'ready', 'collected'];
   const at = seq.indexOf(state);
   return seq.map((s, i) => '<div class="step ' + (i < at ? 'done' : i === at ? 'on' : '') + '">' +
     '<span class="dot"></span><span>' + STATE_TEXT[s] + '</span></div>').join('');
@@ -764,6 +814,19 @@ function showOrders(highlight) {
             '</span>' +
             '<span style="color:var(--muted)">' + money(l.price * l.qty) + '</span></div>').join('') +
         '</div>' +
+        // The phone is ringing for this one — the button that stops it has to
+        // be the biggest thing on the card, not a line of small print.
+        (o.state === 'ready' && !o.acked
+          ? '<button class="primary" data-ack="' + esc(o.num) + '" style="width:100%;margin-bottom:12px">' +
+              '🔔 Got it — stop ringing</button>'
+          : '') +
+        // Collected: the staff handed it over. Says so on the diner's phone.
+        (o.state === 'collected'
+          ? '<div style="display:flex;gap:8px;align-items:center;background:rgba(4,120,87,.12);' +
+              'border:1px solid rgba(4,120,87,.45);border-radius:var(--r-md);padding:10px 12px;margin-bottom:12px">' +
+              '<span style="font-size:15px;line-height:1.2">✅</span>' +
+              '<b style="font-size:14.5px">Collected — enjoy!</b></div>'
+          : '') +
         // Unpaid orders say so LOUDLY, above the progress steps: a customer who
         // only sees "Staff are confirming it" assumes they are done and sits down.
         (o.paid ? '' :
@@ -779,7 +842,11 @@ function showOrders(highlight) {
     '<div class="bar"><button class="primary" id="tomenu">Order more</button></div>';
 
   el('tomenu').onclick = () => { render(); };
+  document.querySelectorAll('[data-ack]').forEach((b) => {
+    b.onclick = () => ackOrder(b.getAttribute('data-ack'));
+  });
   trackAll();
+  resumeRinging();
 }
 
 let tracking = null;
@@ -795,7 +862,13 @@ function trackAll() {
         const r = await rpc('kiosk_order_status', { p_token: TOKEN, p_order_number: o.num });
         if (r && r.ok) {
           const ch = markOrder(o.num, r.state, r.paid);
-          if (ch.becameReady) alertReady(o.num);
+          // Redraw as well as ring: the "Got it" button lives outside the
+          // steps box, so patching the steps alone would leave no way to stop
+          // the ringing until the next full render.
+          if (ch.becameReady) { alertReady(o.num); redraw = true; }
+          // Handed over at the counter: stop any ringing and redraw so the
+          // card says "Collected" instead of still asking them to come over.
+          if (ch.becameCollected) { stopRinging(); redraw = true; }
           if (ch.paidChanged) redraw = true; // the paid badge + banner live outside the steps box
           const box = document.querySelector('[data-track="' + o.num + '"]');
           if (box) box.innerHTML = stepsHtml(r.state);
