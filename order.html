@@ -663,10 +663,59 @@ function writeOrders(list) {
   try { localStorage.setItem(LS_KEY, JSON.stringify(list.slice(0, 20))); } catch (e) { /* private mode */ }
 }
 function rememberOrder(o) { const a = loadOrders(); a.unshift(o); writeOrders(a); }
-function markOrder(num, state) {
+/* Returns what changed so the tracker knows when to ring the phone. */
+function markOrder(num, state, paid) {
   const a = loadOrders();
   const i = a.findIndex((x) => x.num === num);
-  if (i >= 0 && a[i].state !== state) { a[i].state = state; writeOrders(a); }
+  if (i < 0) return { becameReady: false, paidChanged: false };
+  const becameReady = state === 'ready' && a[i].state !== 'ready';
+  const paidChanged = paid === true && !a[i].paid;
+  if (a[i].state !== state || paidChanged) {
+    a[i].state = state;
+    if (paid === true) a[i].paid = true;
+    writeOrders(a);
+  }
+  return { becameReady, paidChanged };
+}
+
+/* ---- "Your order is ready" on the CUSTOMER'S phone -------------------------
+   Ring + vibrate + flash the tab title when an order flips to ready, so the
+   phone in their pocket does the pager's job. Web audio only runs after a
+   real tap, so the context is primed by whatever tap they already made —
+   adding to cart, sending the order — and resumed on every later tap. */
+let AUDIO = null;
+function primeAudio() {
+  try {
+    if (!AUDIO) AUDIO = new (window.AudioContext || window.webkitAudioContext)();
+    if (AUDIO.state === 'suspended') AUDIO.resume();
+  } catch (e) { /* no audio — vibration and the title still alert */ }
+}
+document.addEventListener('pointerdown', primeAudio);
+function chime() {
+  try {
+    if (!AUDIO || AUDIO.state !== 'running') return;
+    const t = AUDIO.currentTime;
+    [880, 1175].forEach((f, i) => {
+      const o = AUDIO.createOscillator(), g = AUDIO.createGain();
+      o.frequency.value = f; o.connect(g); g.connect(AUDIO.destination);
+      g.gain.setValueAtTime(0.0001, t + i * 0.18);
+      g.gain.exponentialRampToValueAtTime(0.35, t + i * 0.18 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.18 + 0.5);
+      o.start(t + i * 0.18); o.stop(t + i * 0.18 + 0.55);
+    });
+  } catch (e) { /* speaker said no */ }
+}
+let titleTimer = null;
+function alertReady(num) {
+  try { if (navigator.vibrate) navigator.vibrate([250, 120, 250, 120, 450]); } catch (e) { /* not supported */ }
+  for (let i = 0; i < 3; i++) setTimeout(chime, i * 1400);
+  toast('Order ' + num + ' is ready — please collect it at the counter!');
+  if (titleTimer) clearInterval(titleTimer);
+  const orig = document.title; let n = 0;
+  titleTimer = setInterval(() => {
+    document.title = (n++ % 2 === 0) ? '((🔔)) Order ' + num + ' is READY' : orig;
+    if (n > 12) { clearInterval(titleTimer); titleTimer = null; document.title = orig; }
+  }, 900);
 }
 
 const STATE_TEXT = {
@@ -736,18 +785,25 @@ function showOrders(highlight) {
 let tracking = null;
 function trackAll() {
   const tick = async () => {
-    const live = loadOrders().filter((o) => !FINAL[o.state]);
+    // Keep polling unpaid orders even after "ready": the moment the cashier
+    // takes payment, the "please pay at the counter" banner has to leave.
+    const live = loadOrders().filter((o) => !FINAL[o.state] || (!o.paid && o.state !== 'cancelled'));
     if (!live.length) return;
+    let redraw = false;
     for (const o of live) {
       try {
         const r = await rpc('kiosk_order_status', { p_token: TOKEN, p_order_number: o.num });
         if (r && r.ok) {
-          markOrder(o.num, r.state);
+          const ch = markOrder(o.num, r.state, r.paid);
+          if (ch.becameReady) alertReady(o.num);
+          if (ch.paidChanged) redraw = true; // the paid badge + banner live outside the steps box
           const box = document.querySelector('[data-track="' + o.num + '"]');
           if (box) box.innerHTML = stepsHtml(r.state);
         }
       } catch (e) { /* keep the last known state and try again next tick */ }
     }
+    // Only rebuild when the "Your orders" list is what's on screen.
+    if (redraw && el('tomenu')) showOrders();
   };
   tick();
   if (!tracking) tracking = setInterval(tick, 15000);
@@ -768,6 +824,14 @@ function fatal(title, msg) {
     const m = await rpc('kiosk_menu', { p_token: TOKEN });
     if (!m || !m.ok) {
       fatal('This link is not active', (m && m.error) || 'Please ask a staff member for help.');
+      return;
+    }
+    // The shop gates QR ordering on an open shift (0068) and none is open.
+    // Server-enforced too — this screen is just the polite version of the
+    // refusal kiosk_place_order would give anyway.
+    if (m.shop && m.shop.closed) {
+      fatal((m.shop.name || 'This shop') + ' is closed right now',
+        'Ordering opens again when the counter does. Please come back later!');
       return;
     }
     if (!m.items.length) {
