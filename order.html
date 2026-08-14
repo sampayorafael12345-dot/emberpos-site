@@ -599,8 +599,8 @@ function openCart() {
       '<input class="note-in" id="who" type="text" maxlength="40" placeholder="So the staff can call you" aria-label="Your name">' +
       '<div style="display:flex;gap:10px;margin-top:20px">' +
         '<button class="ghost" id="back">Add more</button>' +
-        '<button class="primary" id="send">Send to the kitchen</button></div>' +
-      '<p class="lede" style="font-size:13px;margin-top:12px">You pay at the counter. Staff confirm your order first.</p>');
+        '<button class="primary" id="send">Send to the cashier for payment</button></div>' +
+      '<p class="lede" style="font-size:13px;margin-top:12px">Your order goes to the counter first. Pay there, then it is made.</p>');
 
     document.querySelectorAll('[data-m]').forEach((b) => b.onclick = () => {
       const i = Number(b.dataset.m); CART[i].qty--; if (CART[i].qty <= 0) CART.splice(i, 1); draw(); render();
@@ -627,7 +627,7 @@ async function send() {
     });
     if (!res || !res.ok) {
       toast((res && res.error) || 'Could not send. Please ask a staff member.');
-      btn.disabled = false; btn.textContent = 'Send to the kitchen'; return;
+      btn.disabled = false; btn.textContent = 'Send to the cashier for payment'; return;
     }
     rememberOrder({
       num: res.order_number, at: Date.now(), total: res.total_cents,
@@ -640,7 +640,7 @@ async function send() {
     CART = []; closeSheet(); showOrders(res.order_number);
   } catch (e) {
     toast('No connection. Try again in a moment.');
-    btn.disabled = false; btn.textContent = 'Send to the kitchen';
+    btn.disabled = false; btn.textContent = 'Send to the cashier for payment';
   }
 }
 
@@ -751,7 +751,7 @@ function stopRinging() {
   document.title = ORIG_TITLE;
 }
 function alertReady(num) {
-  toast('Order ' + num + ' is ready — please collect it at the counter!');
+  toast('Order ' + pickupNum(num) + ' is ready — please collect it at the counter!');
   buzz(num);
   if (ringTimer) return;
   ringTimer = setInterval(() => {
@@ -774,6 +774,23 @@ const STATE_TEXT = {
   collected: 'Collected — enjoy!',
   cancelled: 'Cancelled, ask a staff member',
 };
+/* The shop's own wording for the number it calls out. Mirrors boardLabel() in
+   src/lib/pickup.ts — the board, the claim stub, the kitchen ticket and this
+   page must never disagree about what a customer is waiting for. */
+function pickupNum(raw) {
+  var s = String(raw == null ? '' : raw);
+  var mode = (MENU && MENU.shop && MENU.shop.pickup_mode) || 'full';
+  if (mode === 'short') {
+    var digits = s.replace(/\D/g, '');
+    return digits ? digits.slice(-3).replace(/^0+(?=\d)/, '') : s;
+  }
+  if (mode === 'last4') {
+    var t = s.replace(/[^A-Za-z0-9]/g, '');
+    return t.length > 4 ? t.slice(-4) : t;
+  }
+  return s;
+}
+
 function stepsHtml(state) {
   if (state === 'cancelled') {
     return '<div class="step on"><span class="dot"></span><span>' + STATE_TEXT.cancelled + '</span></div>';
@@ -797,8 +814,12 @@ function showOrders(highlight) {
       return '<div style="background:var(--card);border:1px solid ' + (isNew ? 'var(--accent)' : 'var(--line)') +
         ';border-radius:var(--r-md);padding:14px">' +
         '<div style="display:flex;align-items:baseline;gap:10px">' +
-          '<div style="font-weight:800;font-size:19px;letter-spacing:.5px">' + esc(o.num) + '</div>' +
+          '<div><div style="font-weight:900;font-size:30px;letter-spacing:1px;line-height:1.05">' + esc(pickupNum(o.num)) + '</div>' +
+            (pickupNum(o.num) !== o.num
+              ? '<div class="lede" style="font-size:11.5px;letter-spacing:.4px">' + esc(o.num) + '</div>' : '') +
+          '</div>' +
           '<div style="margin-left:auto;font-weight:700">' + money(o.total) + '</div></div>' +
+        '<div class="lede" style="font-size:12px;margin-top:2px">Watch for this number</div>' +
         '<div class="lede" style="font-size:12.5px;margin:2px 0 10px">' +
           new Date(o.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) +
           (o.paid ? ' · paid' : ' · pay at the counter') + '</div>' +
@@ -834,7 +855,7 @@ function showOrders(highlight) {
             'border:1px solid rgba(255,92,0,.45);border-radius:var(--r-md);padding:10px 12px;margin-bottom:12px">' +
             '<span style="font-size:15px;line-height:1.2">💳</span>' +
             '<span><b style="display:block;font-size:14.5px">Please pay at the counter</b>' +
-            '<span class="lede" style="font-size:12.5px">Show this order number, ' + esc(o.num) + '.</span></span>' +
+            '<span class="lede" style="font-size:12.5px">Show this number at the counter: <b>' + esc(pickupNum(o.num)) + '</b>.</span></span>' +
           '</div>') +
         '<div class="steps" data-track="' + esc(o.num) + '">' + stepsHtml(o.state || 'waiting') + '</div>' +
       '</div>';
