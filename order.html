@@ -516,9 +516,11 @@ function openItem(id) {
   // never narrowed it, so everything shows.
   const addonPicks = new Set();
   const allow = (it.addon_ids && it.addon_ids.length) ? new Set(it.addon_ids) : null;
-  const addons = (MENU.addons || []).filter((a) => !allow || allow.has(a.id));
+  // v1.1.63: an item ticked "no add-ons" hides the whole section - and the
+  // server drops anything a tampered page sends for it, so this is honest.
+  const addons = it.no_addons ? [] : (MENU.addons || []).filter((a) => !allow || allow.has(a.id));
   // Categories the customer MUST answer. The server checks these too.
-  const reqCats = new Set(it.required_cats || []);
+  const reqCats = new Set(it.no_addons ? [] : (it.required_cats || []));
   // v1.1.62: how many the customer may pick from a REQUIRED group. Size-first:
   // a Barkada order may allow 2 flavors while Solo allows 1. Blank = exactly
   // one (the honest reading of "must choose one"); 0 = as many as they like.
