@@ -395,14 +395,28 @@ function openStamps() {
 }
 
 // ---- rate your visit → the shop's own logbook (kiosk_feedback RPC) --------
+// v1.1.62: not just one star row. The diner rates the WHOLE visit — overall,
+// the service, and each thing they ordered (pulled from their own last order
+// on this phone, never the server) — and may sign it or stay anonymous.
 let RATING = 0;
+let SERVICE = 0;
 function openRating() {
   RATING = 0;
+  SERVICE = 0;
+  const lastItems = ((loadOrders()[0] || {}).items || []).slice(0, 12);
+  // itemVotes[i]: 1 = liked, -1 = not for me, 0 = no opinion.
+  const itemVotes = lastItems.map(function () { return 0; });
   openSheet(
     '<h2>How was it?</h2><p class="lede">Goes straight to the owner — not to the internet.</p>' +
-    '<div id="stars" style="font-size:38px;letter-spacing:6px;text-align:center;padding:10px 0;cursor:pointer;user-select:none"></div>' +
-    '<textarea id="fbtext" maxlength="500" placeholder="Anything you want them to know? (optional)" ' +
-      'style="width:100%;min-height:84px;border:1.5px solid var(--line);border-radius:12px;background:transparent;color:var(--text);padding:10px;font:inherit;font-size:15px"></textarea>' +
+    '<div class="label">Overall</div>' +
+    '<div id="stars" style="font-size:38px;letter-spacing:6px;text-align:center;padding:6px 0;cursor:pointer;user-select:none"></div>' +
+    '<div class="label">The service</div>' +
+    '<div id="svcstars" style="font-size:26px;letter-spacing:5px;text-align:center;padding:2px 0;cursor:pointer;user-select:none"></div>' +
+    (lastItems.length ? '<div class="label">What you ordered</div><div id="fbitems"></div>' : '') +
+    '<textarea id="fbtext" maxlength="400" placeholder="Anything you want them to know? (optional)" ' +
+      'style="width:100%;min-height:70px;border:1.5px solid var(--line);border-radius:12px;background:transparent;color:var(--text);padding:10px;font:inherit;font-size:15px;margin-top:8px"></textarea>' +
+    '<input id="fbname" type="text" maxlength="40" placeholder="Your name (optional — blank stays anonymous)" ' +
+      'style="width:100%;border:1.5px solid var(--line);border-radius:12px;background:transparent;color:var(--text);padding:10px;font:inherit;font-size:14px;margin-top:8px">' +
     '<div style="display:flex;gap:10px;margin-top:12px">' +
       '<button class="ghost" id="fbcancel" style="flex:1">Cancel</button>' +
       '<button class="primary" id="fbsend" style="flex:1" disabled>Send</button>' +
@@ -412,6 +426,26 @@ function openRating() {
     el('stars').innerHTML = [1, 2, 3, 4, 5].map((n) =>
       '<span data-n="' + n + '" style="opacity:' + (n <= RATING ? 1 : 0.35) + '">' + (n <= RATING ? '★' : '☆') + '</span>').join('');
     el('stars').querySelectorAll('span').forEach((s) => s.onclick = () => { RATING = Number(s.dataset.n); draw(); });
+    el('svcstars').innerHTML = [1, 2, 3, 4, 5].map((n) =>
+      '<span data-n="' + n + '" style="opacity:' + (n <= SERVICE ? 1 : 0.35) + '">' + (n <= SERVICE ? '★' : '☆') + '</span>').join('');
+    el('svcstars').querySelectorAll('span').forEach((s) => s.onclick = () => { SERVICE = Number(s.dataset.n); draw(); });
+    if (el('fbitems')) {
+      el('fbitems').innerHTML = lastItems.map(function (it, i) {
+        var label = it.name + (it.variant_label ? ' (' + it.variant_label + ')' : '');
+        return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0">' +
+          '<span style="flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(label) + '</span>' +
+          '<button class="ghost" data-fi="' + i + '" data-v="1" style="padding:6px 10px;font-size:15px;' + (itemVotes[i] === 1 ? 'border-color:#2fbf71;color:#2fbf71' : '') + '">&#128077;</button>' +
+          '<button class="ghost" data-fi="' + i + '" data-v="-1" style="padding:6px 10px;font-size:15px;' + (itemVotes[i] === -1 ? 'border-color:#e85200;color:#e85200' : '') + '">&#128078;</button>' +
+        '</div>';
+      }).join('');
+      el('fbitems').querySelectorAll('button').forEach(function (b) {
+        b.onclick = function () {
+          var i = Number(b.dataset.fi), v = Number(b.dataset.v);
+          itemVotes[i] = itemVotes[i] === v ? 0 : v;
+          draw();
+        };
+      });
+    }
     el('fbsend').disabled = RATING < 1;
   };
   draw();
@@ -419,8 +453,19 @@ function openRating() {
   el('fbsend').onclick = async () => {
     el('fbsend').disabled = true;
     el('fbsend').textContent = 'Sending…';
+    // Fold everything into the text the owner reads in the Logbook.
+    var parts = [];
+    if (SERVICE > 0) parts.push('Service ' + SERVICE + '/5');
+    var liked = lastItems.filter(function (_, i) { return itemVotes[i] === 1; }).map(function (it) { return it.name; });
+    var disliked = lastItems.filter(function (_, i) { return itemVotes[i] === -1; }).map(function (it) { return it.name; });
+    if (liked.length) parts.push('Liked: ' + liked.join(', '));
+    if (disliked.length) parts.push('Not for me: ' + disliked.join(', '));
+    var note = (el('fbtext').value || '').trim();
+    if (note) parts.push('"' + note + '"');
+    var who = (el('fbname').value || '').trim();
+    if (who) parts.push('From: ' + who);
     try {
-      const r = await rpc('kiosk_feedback', { p_token: TOKEN, p_rating: RATING, p_text: el('fbtext').value || '' });
+      const r = await rpc('kiosk_feedback', { p_token: TOKEN, p_rating: RATING, p_text: parts.join(' | ') });
       if (r && r.ok) {
         openSheet('<h2>Thank you! 🙏</h2><p class="lede">The owner will see it.</p>' +
           '<button class="primary" id="fbdone" style="width:100%;margin-top:12px">Done</button>');
@@ -474,6 +519,28 @@ function openItem(id) {
   const addons = (MENU.addons || []).filter((a) => !allow || allow.has(a.id));
   // Categories the customer MUST answer. The server checks these too.
   const reqCats = new Set(it.required_cats || []);
+  // v1.1.62: how many the customer may pick from a REQUIRED group. Size-first:
+  // a Barkada order may allow 2 flavors while Solo allows 1. Blank = exactly
+  // one (the honest reading of "must choose one"); 0 = as many as they like.
+  // The register enforces the same rule, and the server re-checks on submit.
+  const capFor = () => {
+    const v = size && it.sizes ? it.sizes.find((s) => s.id === size) : null;
+    const raw = (v && v.max_picks != null) ? v.max_picks
+      : (it.addon_max_picks != null ? it.addon_max_picks : null);
+    if (raw == null) return 1;
+    return raw === 0 ? Infinity : Math.max(1, raw);
+  };
+  const picksIn = (key) => addons.filter((a) => (a.category || 'other') === key && addonPicks.has(a.id));
+  // A size switch can LOWER the cap (Barkada -> Solo): keep the first picks
+  // that still fit and quietly drop the rest, so the button math stays honest.
+  const trimToCap = () => {
+    const cap = capFor();
+    if (cap === Infinity) return;
+    [...reqCats].forEach((key) => {
+      const cur = picksIn(key);
+      cur.slice(cap).forEach((a) => addonPicks.delete(a.id));
+    });
+  };
   const addonGroups = [];
   addons.forEach((a) => {
     const k = a.category || 'other';
@@ -505,9 +572,10 @@ function openItem(id) {
       addonGroups.map((g) => {
         const need = reqCats.has(g.key);
         const unanswered = need && missingCats().indexOf(g.key) >= 0;
+        const cap = need ? capFor() : null;
+        const badge = !need ? '' : (cap === Infinity ? 'Required' : cap === 1 ? 'Pick one' : 'Pick up to ' + cap);
         return '<div class="label">' + esc(ADDON_LABELS[g.key] || g.key) +
-          (need ? '<span class="req' + (unanswered ? ' req-on' : '') + '">' +
-            (unanswered ? 'Pick one' : 'Required') + '</span>' : '') + '</div>' +
+          (need ? '<span class="req' + (unanswered ? ' req-on' : '') + '">' + badge + '</span>' : '') + '</div>' +
           g.items.map((a) =>
             '<button class="opt" data-ad="' + a.id + '" aria-pressed="' + addonPicks.has(a.id) + '"><span>' + esc(a.text) + '</span>' +
             '<span class="delta">' + (a.price_cents > 0 ? '+' + money(a.price_cents) : 'Free') + '</span></button>').join('');
@@ -525,11 +593,27 @@ function openItem(id) {
           : '<button class="primary" id="add">Add ' + money(unit() * qty) + '</button>') +
       '</div>');
 
-    document.querySelectorAll('[data-sz]').forEach((b) => b.onclick = () => { size = Number(b.dataset.sz); redraw(); });
+    document.querySelectorAll('[data-sz]').forEach((b) => b.onclick = () => { size = Number(b.dataset.sz); trimToCap(); redraw(); });
     document.querySelectorAll('[data-op]').forEach((b) => b.onclick = () => { picks[Number(b.dataset.sl)] = Number(b.dataset.op); redraw(); });
     document.querySelectorAll('[data-ad]').forEach((b) => b.onclick = () => {
       const id = Number(b.dataset.ad);
-      if (addonPicks.has(id)) addonPicks.delete(id); else addonPicks.add(id);
+      if (addonPicks.has(id)) { addonPicks.delete(id); redraw(); return; }
+      const a = addons.find((x) => x.id === id);
+      const key = (a && a.category) || 'other';
+      if (reqCats.has(key)) {
+        const cap = capFor();
+        const cur = picksIn(key);
+        if (cur.length >= cap) {
+          if (cap === 1) {
+            // "Pick one" behaves like a radio: the new pick replaces the old.
+            cur.forEach((x) => addonPicks.delete(x.id));
+          } else {
+            toast('Up to ' + cap + ' only for ' + (ADDON_LABELS[key] || key).toLowerCase());
+            return;
+          }
+        }
+      }
+      addonPicks.add(id);
       redraw();
     });
     el('minus').onclick = () => { if (qty > 1) { qty--; redraw(); } };
@@ -631,6 +715,10 @@ async function send() {
     }
     rememberOrder({
       num: res.order_number, at: Date.now(), total: res.total_cents,
+      // v1.1.62: the pickup label is STAMPED on the order server-side; keeping
+      // it here means this phone shows the exact same number as the board even
+      // if the shop re-words its numbers later in the day.
+      pickup: res.pickup || null,
       state: res.accepted ? 'making' : 'waiting',
       items: CART.map((l) => ({
         name: l.name, qty: l.qty, price: l.price, variant_label: l.variant_label,
@@ -751,7 +839,7 @@ function stopRinging() {
   document.title = ORIG_TITLE;
 }
 function alertReady(num) {
-  toast('Order ' + pickupNum(num) + ' is ready — please collect it at the counter!');
+  toast('Order ' + pickupNum(num, (loadOrders().find(function (x) { return x.num === num; }) || {}).pickup) + ' is ready — please collect it at the counter!');
   buzz(num);
   if (ringTimer) return;
   ringTimer = setInterval(() => {
@@ -777,7 +865,10 @@ const STATE_TEXT = {
 /* The shop's own wording for the number it calls out. Mirrors boardLabel() in
    src/lib/pickup.ts — the board, the claim stub, the kitchen ticket and this
    page must never disagree about what a customer is waiting for. */
-function pickupNum(raw) {
+function pickupNum(raw, stamped) {
+  // The label stamped on the order at creation wins; computing is the
+  // fallback for orders placed before the stamp existed.
+  if (stamped) return String(stamped);
   var s = String(raw == null ? '' : raw);
   var mode = (MENU && MENU.shop && MENU.shop.pickup_mode) || 'full';
   if (mode === 'short') {
@@ -814,8 +905,8 @@ function showOrders(highlight) {
       return '<div style="background:var(--card);border:1px solid ' + (isNew ? 'var(--accent)' : 'var(--line)') +
         ';border-radius:var(--r-md);padding:14px">' +
         '<div style="display:flex;align-items:baseline;gap:10px">' +
-          '<div><div style="font-weight:900;font-size:30px;letter-spacing:1px;line-height:1.05">' + esc(pickupNum(o.num)) + '</div>' +
-            (pickupNum(o.num) !== o.num
+          '<div><div style="font-weight:900;font-size:30px;letter-spacing:1px;line-height:1.05">' + esc(pickupNum(o.num, o.pickup)) + '</div>' +
+            (pickupNum(o.num, o.pickup) !== o.num
               ? '<div class="lede" style="font-size:11.5px;letter-spacing:.4px">' + esc(o.num) + '</div>' : '') +
           '</div>' +
           '<div style="margin-left:auto;font-weight:700">' + money(o.total) + '</div></div>' +
@@ -855,7 +946,7 @@ function showOrders(highlight) {
             'border:1px solid rgba(255,92,0,.45);border-radius:var(--r-md);padding:10px 12px;margin-bottom:12px">' +
             '<span style="font-size:15px;line-height:1.2">💳</span>' +
             '<span><b style="display:block;font-size:14.5px">Please pay at the counter</b>' +
-            '<span class="lede" style="font-size:12.5px">Show this number at the counter: <b>' + esc(pickupNum(o.num)) + '</b>.</span></span>' +
+            '<span class="lede" style="font-size:12.5px">Show this number at the counter: <b>' + esc(pickupNum(o.num, o.pickup)) + '</b>.</span></span>' +
           '</div>') +
         '<div class="steps" data-track="' + esc(o.num) + '">' + stepsHtml(o.state || 'waiting') + '</div>' +
       '</div>';
