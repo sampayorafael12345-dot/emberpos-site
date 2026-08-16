@@ -524,22 +524,33 @@ function openItem(id) {
   // v1.1.62: how many the customer may pick from a REQUIRED group. Size-first:
   // a Barkada order may allow 2 flavors while Solo allows 1. Blank = exactly
   // one (the honest reading of "must choose one"); 0 = as many as they like.
-  // The register enforces the same rule, and the server re-checks on submit.
-  const capFor = () => {
+  // v1.1.64: the same max now caps OPTIONAL groups too (milktea: skippable
+  // add-ons but "2 max") - blank stays uncapped there, so nothing changes for
+  // menus that never typed a max. The register enforces the same rule, and the
+  // server re-checks on submit.
+  const rawMax = () => {
     const v = size && it.sizes ? it.sizes.find((s) => s.id === size) : null;
-    const raw = (v && v.max_picks != null) ? v.max_picks
+    return (v && v.max_picks != null) ? v.max_picks
       : (it.addon_max_picks != null ? it.addon_max_picks : null);
+  };
+  const capFor = () => {
+    const raw = rawMax();
     if (raw == null) return 1;
     return raw === 0 ? Infinity : Math.max(1, raw);
+  };
+  const capOpt = () => {
+    const raw = rawMax();
+    if (raw == null || raw === 0) return Infinity;
+    return Math.max(1, raw);
   };
   const picksIn = (key) => addons.filter((a) => (a.category || 'other') === key && addonPicks.has(a.id));
   // A size switch can LOWER the cap (Barkada -> Solo): keep the first picks
   // that still fit and quietly drop the rest, so the button math stays honest.
   const trimToCap = () => {
-    const cap = capFor();
-    if (cap === Infinity) return;
-    [...reqCats].forEach((key) => {
-      const cur = picksIn(key);
+    addonGroups.forEach((g) => {
+      const cap = reqCats.has(g.key) ? capFor() : capOpt();
+      if (cap === Infinity) return;
+      const cur = picksIn(g.key);
       cur.slice(cap).forEach((a) => addonPicks.delete(a.id));
     });
   };
@@ -574,10 +585,12 @@ function openItem(id) {
       addonGroups.map((g) => {
         const need = reqCats.has(g.key);
         const unanswered = need && missingCats().indexOf(g.key) >= 0;
-        const cap = need ? capFor() : null;
-        const badge = !need ? '' : (cap === Infinity ? 'Required' : cap === 1 ? 'Pick one' : 'Pick up to ' + cap);
+        const cap = need ? capFor() : capOpt();
+        const badge = need
+          ? (cap === Infinity ? 'Required' : cap === 1 ? 'Pick one' : 'Pick up to ' + cap)
+          : (cap === Infinity ? '' : 'Up to ' + cap);
         return '<div class="label">' + esc(ADDON_LABELS[g.key] || g.key) +
-          (need ? '<span class="req' + (unanswered ? ' req-on' : '') + '">' + badge + '</span>' : '') + '</div>' +
+          (badge ? '<span class="req' + (unanswered ? ' req-on' : '') + '">' + badge + '</span>' : '') + '</div>' +
           g.items.map((a) =>
             '<button class="opt" data-ad="' + a.id + '" aria-pressed="' + addonPicks.has(a.id) + '"><span>' + esc(a.text) + '</span>' +
             '<span class="delta">' + (a.price_cents > 0 ? '+' + money(a.price_cents) : 'Free') + '</span></button>').join('');
@@ -602,11 +615,12 @@ function openItem(id) {
       if (addonPicks.has(id)) { addonPicks.delete(id); redraw(); return; }
       const a = addons.find((x) => x.id === id);
       const key = (a && a.category) || 'other';
-      if (reqCats.has(key)) {
-        const cap = capFor();
+      const need = reqCats.has(key);
+      const cap = need ? capFor() : capOpt();
+      if (cap !== Infinity) {
         const cur = picksIn(key);
         if (cur.length >= cap) {
-          if (cap === 1) {
+          if (need && cap === 1) {
             // "Pick one" behaves like a radio: the new pick replaces the old.
             cur.forEach((x) => addonPicks.delete(x.id));
           } else {
@@ -700,16 +714,23 @@ function openCart() {
   draw();
 }
 
+/* Every send ATTEMPT for the current cart carries the same ref (v1.1.64):
+   a retry after a lost response (slow cafe wifi, page killed mid-send) then
+   returns the order that already landed instead of creating a second one —
+   the server dedupes on it. A NEW cart gets a new ref. */
+let SEND_REF = null;
 async function send() {
   const btn = el('send');
   if (btn.disabled) return;
-  btn.disabled = true; btn.textContent = 'Sending';
+  btn.disabled = true; btn.textContent = 'Sending…';
   const who = (el('who').value || '').trim();
+  if (!SEND_REF) SEND_REF = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
   try {
     const res = await rpc('kiosk_place_order', {
       p_token: TOKEN,
       p_items: CART.map((l) => ({ item_id: l.item_id, qty: l.qty, variant_id: l.variant_id, options: l.options, addons: l.addons || [], note: l.note })),
       p_name: who || null, p_note: null, p_order_type: null,
+      p_client_ref: SEND_REF,
     });
     if (!res || !res.ok) {
       toast((res && res.error) || 'Could not send. Please ask a staff member.');
@@ -727,9 +748,14 @@ async function send() {
         option_labels: l.option_labels || [], addon_labels: l.addon_labels || [], note: l.note,
       })),
     });
-    CART = []; closeSheet(); showOrders(res.order_number);
+    CART = []; SEND_REF = null; closeSheet(); showOrders(res.order_number);
+    // The unmistakable confirmation the shop asked for — the screen also
+    // switches to "Your orders" with this order on top.
+    toast(res.duplicate
+      ? 'This order was already sent to the cashier — here it is.'
+      : '✓ Order sent to the cashier!');
   } catch (e) {
-    toast('No connection. Try again in a moment.');
+    toast('No connection. Try again in a moment — your order was NOT sent twice.');
     btn.disabled = false; btn.textContent = 'Send to the cashier for payment';
   }
 }
@@ -857,6 +883,42 @@ function resumeRinging() {
   if (live.length && !ringTimer) alertReady(live[0].num);
 }
 
+/* ---- keep the pager ALIVE (v1.1.64) ----------------------------------------
+   KOPIKOPI: "sobrang hirap kung hindi mag-ring ang phone kapag off ang screen
+   o na-exit ang browser." A web page can't ring a closed browser — that
+   honestly needs an installed app — but it CAN stop the screen turning off
+   while an order is live (wake lock), fire a system notification when the tab
+   is merely in the background, and re-check the moment the page comes back. */
+let WAKE = null;
+async function holdWake() {
+  try {
+    const live = loadOrders().some(function (o) {
+      return o.state === 'waiting' || o.state === 'making' || (o.state === 'ready' && !o.acked);
+    });
+    if (!live) { if (WAKE) { try { WAKE.release(); } catch (e) { /* gone */ } WAKE = null; } return; }
+    if (WAKE || !('wakeLock' in navigator)) return;
+    WAKE = await navigator.wakeLock.request('screen');
+    WAKE.addEventListener('release', function () { WAKE = null; });
+  } catch (e) { WAKE = null; /* low battery or unsupported — the ring still works while open */ }
+}
+function askNotify() {
+  try {
+    if (!('Notification' in window)) return;               // iOS Safari tab: not offered
+    if (Notification.permission === 'default') Notification.requestPermission().catch(function () { /* their call */ });
+  } catch (e) { /* never block ordering on this */ }
+}
+function notifyReady(num, stamped) {
+  try {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    if (document.visibilityState === 'visible') return;    // the in-page ring already has them
+    new Notification('Order ' + pickupNum(num, stamped) + ' is ready 🎉',
+      { body: 'Please collect it at the counter.', tag: 'ember-ready' });
+  } catch (e) { /* the title flash + ring remain */ }
+}
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'visible') { holdWake(); resumeRinging(); }
+});
+
 const STATE_TEXT = {
   waiting: 'Staff are confirming it',
   making: 'Being prepared',
@@ -902,6 +964,13 @@ function showOrders(highlight) {
     '<div class="top" style="padding-bottom:14px"><div class="brand"><h1>Your orders</h1>' +
       (MENU && MENU.link && MENU.link.label ? '<span class="where">' + esc(MENU.link.label) + '</span>' : '') +
       '</div></div>' +
+    // The page IS the pager: it can only ring while it exists. Say so plainly —
+    // the shop reported diners closing the browser and missing every alert.
+    (list.some((o) => !FINAL[o.state])
+      ? '<div class="lede" style="margin:0 0 12px;padding:10px 12px;border:1px dashed var(--line);border-radius:var(--r-md);font-size:12.5px">' +
+        '📟 <b>Keep this page open</b> — your phone rings and vibrates here when your order is ready. ' +
+        'The screen is kept awake for you while you wait.</div>'
+      : '') +
     '<div class="list">' + list.map((o) => {
       const isNew = o.num === highlight;
       return '<div style="background:var(--card);border:1px solid ' + (isNew ? 'var(--accent)' : 'var(--line)') +
@@ -961,6 +1030,10 @@ function showOrders(highlight) {
   });
   trackAll();
   resumeRinging();
+  // While an order is live: keep the screen awake (this page IS the pager) and
+  // offer system notifications for when the tab slips into the background.
+  holdWake();
+  askNotify();
 }
 
 let tracking = null;
@@ -979,7 +1052,7 @@ function trackAll() {
           // Redraw as well as ring: the "Got it" button lives outside the
           // steps box, so patching the steps alone would leave no way to stop
           // the ringing until the next full render.
-          if (ch.becameReady) { alertReady(o.num); redraw = true; }
+          if (ch.becameReady) { alertReady(o.num); notifyReady(o.num, o.pickup); redraw = true; }
           // Handed over at the counter: stop any ringing and redraw so the
           // card says "Collected" instead of still asking them to come over.
           if (ch.becameCollected) { stopRinging(); redraw = true; }
@@ -991,6 +1064,7 @@ function trackAll() {
     }
     // Only rebuild when the "Your orders" list is what's on screen.
     if (redraw && el('tomenu')) showOrders();
+    holdWake(); // release the screen once nothing is live any more
   };
   tick();
   if (!tracking) tracking = setInterval(tick, 15000);
