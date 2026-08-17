@@ -108,6 +108,18 @@
               display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .item .meal { color: var(--accent); font-size: 12.5px; font-weight: 600; margin-top: 3px; }
   .item .pr { margin-left: auto; font-weight: 700; white-space: nowrap; align-self: flex-start; }
+  /* Sold out: SHOWN, not hidden. Diners kept asking the counter whether an
+     item was available because a missing item looks the same as one that was
+     never on the menu. Greyed, unpressable, and it says so. */
+  .item.out { opacity: .48; }
+  .item.out:active { transform: none; border-color: var(--line); }
+  .item.out .thumb { filter: grayscale(1); }
+  .item.out .pr { text-decoration: line-through; color: var(--muted); }
+  .soldout {
+    display: inline-block; margin-top: 4px; padding: 2px 7px; border-radius: 999px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: .02em;
+    background: var(--line); color: var(--muted);
+  }
   /* Category heading: 18px above, 8px below its cards, never doubled up. */
   .grp { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: .04em;
          text-transform: uppercase; padding: 18px 16px 0; }
@@ -174,6 +186,15 @@
   .stepper { display: flex; align-items: center; gap: 14px; }
   .stepper button { width: 42px; height: 42px; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--bg-sub); font-size: 20px; font-weight: 700; }
   .stepper span { min-width: 26px; text-align: center; font-weight: 700; font-size: 17px; }
+  /* Add-on rows carry their own little stepper once one is taken, so a diner
+     who wants double pearls can say so instead of asking at the counter. */
+  .adq { display: flex; align-items: center; gap: 4px; margin-left: 10px; }
+  .adq button {
+    width: 34px; height: 34px; border-radius: var(--r-sm); border: 1px solid var(--line);
+    background: var(--bg-sub); font-size: 18px; font-weight: 700; line-height: 1;
+  }
+  .adq b { min-width: 20px; text-align: center; font-size: 15px; }
+  .opt .adq + .delta, .opt .delta.pushed { margin-left: 0; }
   .row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
   .row:last-of-type { border-bottom: 0; }
   .totals { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 12px; }
@@ -265,11 +286,18 @@ function thumb(i) {
 
 function visibleItems() {
   const q = Q.trim().toLowerCase();
-  return MENU.items.filter((i) => {
+  const list = MENU.items.filter((i) => {
     if (CAT !== 'all' && i.category_id !== CAT) return false;
     if (!q) return true;
     return i.name.toLowerCase().includes(q) || (i.description || '').toLowerCase().includes(q);
   });
+  // Sold-out items sink to the bottom of their category. They are still on the
+  // page — the whole point — but nobody has to scroll past them to order.
+  // A stable sort, so the shop's own display order survives inside each half.
+  return list
+    .map((i, n) => [i, n])
+    .sort((a, b) => (soldOut(a[0]) - soldOut(b[0])) || (a[1] - b[1]))
+    .map((p) => p[0]);
 }
 
 function render() {
@@ -483,12 +511,21 @@ function openRating() {
   };
 }
 
+/** Has the shop marked this item sold out? Older servers send no flag at all,
+ *  and those only ever sent items that WERE available — so absent means yes. */
+function soldOut(i) { return i.available === 0 || i.available === false; }
+
 function itemCard(i) {
+  const out = soldOut(i);
   const meal = (i.slots && i.slots.length)
     ? '<div class="meal">Meal, choose your ' + i.slots.map((s) => esc(s.label).toLowerCase()).join(' and ') + '</div>' : '';
-  return '<button class="item" data-i="' + i.id + '">' + thumb(i) +
+  // Greyed and unpressable rather than gone: "baka pde po yung soldout items
+  // grayed out lang po. Kasi nag a-ask pa rin po sila if available."
+  return '<button class="item' + (out ? ' out' : '') + '" data-i="' + i.id + '"' +
+      (out ? ' disabled aria-disabled="true"' : '') + '>' + thumb(i) +
     '<div style="flex:1;min-width:0"><div class="nm">' + esc(i.name) + '</div>' +
-    (i.description ? '<div class="ds">' + esc(i.description) + '</div>' : '') + meal + '</div>' +
+    (i.description ? '<div class="ds">' + esc(i.description) + '</div>' : '') + meal +
+    (out ? '<div class="soldout">Sold out</div>' : '') + '</div>' +
     '<div class="pr">' + money(i.price_cents) + '</div></button>';
 }
 
@@ -506,6 +543,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheet
 
 function openItem(id) {
   const it = MENU.items.find((x) => x.id === id);
+  if (soldOut(it)) { toast(it.name + ' is sold out right now.'); return; }
   let size = (it.sizes && it.sizes.length) ? it.sizes[0].id : null;
   let qty = 1;
   const picks = {};
@@ -514,7 +552,19 @@ function openItem(id) {
   // Paid add-ons and free kitchen instructions, same chips the register shows.
   // An item can be narrowed to its own short list; an empty list means the shop
   // never narrowed it, so everything shows.
-  const addonPicks = new Set();
+  //
+  // A COUNT per add-on, not a yes/no (v1.1.67). "May isang customer po kanina
+  // na same item po na add on ang gusto niya. Di po siya pde maselect twice."
+  // Double pearls is one add-on taken twice, and the old on/off toggle had no
+  // way to say it — the diner had to ask at the counter, which is exactly the
+  // trip the QR menu exists to save.
+  const addonQty = new Map();
+  const qtyOf = (aid) => addonQty.get(aid) || 0;
+  const addonPicks = {
+    has: (aid) => qtyOf(aid) > 0,
+    delete: (aid) => addonQty.delete(aid),
+    add: (aid) => addonQty.set(aid, qtyOf(aid) + 1),
+  };
   const allow = (it.addon_ids && it.addon_ids.length) ? new Set(it.addon_ids) : null;
   // v1.1.63: an item ticked "no add-ons" hides the whole section - and the
   // server drops anything a tampered page sends for it, so this is honest.
@@ -544,14 +594,23 @@ function openItem(id) {
     return Math.max(1, raw);
   };
   const picksIn = (key) => addons.filter((a) => (a.category || 'other') === key && addonPicks.has(a.id));
+  /** How many picks a group holds IN TOTAL — two of one add-on is two picks,
+   *  which is what a "pick up to 2" cap has to count. */
+  const countIn = (key) => addons.reduce((n, a) => n + ((a.category || 'other') === key ? qtyOf(a.id) : 0), 0);
   // A size switch can LOWER the cap (Barkada -> Solo): keep the first picks
   // that still fit and quietly drop the rest, so the button math stays honest.
   const trimToCap = () => {
     addonGroups.forEach((g) => {
       const cap = reqCats.has(g.key) ? capFor() : capOpt();
       if (cap === Infinity) return;
-      const cur = picksIn(g.key);
-      cur.slice(cap).forEach((a) => addonPicks.delete(a.id));
+      let room = cap;
+      g.items.forEach((a) => {
+        const have = qtyOf(a.id);
+        if (!have) return;
+        const keep = Math.max(0, Math.min(have, room));
+        room -= keep;
+        if (keep) addonQty.set(a.id, keep); else addonQty.delete(a.id);
+      });
     });
   };
   const addonGroups = [];
@@ -568,7 +627,7 @@ function openItem(id) {
     let p = it.price_cents;
     if (size) { const v = it.sizes.find((s) => s.id === size); if (v) p += v.delta; }
     (it.slots || []).forEach((s) => { const o = s.options.find((x) => x.id === picks[s.id]); if (o) p += o.delta; });
-    addons.forEach((a) => { if (addonPicks.has(a.id)) p += Math.max(0, a.price_cents || 0); });
+    addons.forEach((a) => { p += Math.max(0, a.price_cents || 0) * qtyOf(a.id); });
     return p;
   };
 
@@ -591,9 +650,22 @@ function openItem(id) {
           : (cap === Infinity ? '' : 'Up to ' + cap);
         return '<div class="label">' + esc(ADDON_LABELS[g.key] || g.key) +
           (badge ? '<span class="req' + (unanswered ? ' req-on' : '') + '">' + badge + '</span>' : '') + '</div>' +
-          g.items.map((a) =>
-            '<button class="opt" data-ad="' + a.id + '" aria-pressed="' + addonPicks.has(a.id) + '"><span>' + esc(a.text) + '</span>' +
-            '<span class="delta">' + (a.price_cents > 0 ? '+' + money(a.price_cents) : 'Free') + '</span></button>').join('');
+          g.items.map((a) => {
+            const n = qtyOf(a.id);
+            // "Pick one" groups stay a radio — a quantity there means nothing
+            // (you cannot have two of your one flavour choice). Everything
+            // else gets a stepper once it is taken.
+            const stepper = n > 0 && !(need && cap === 1);
+            return '<div class="opt" data-ad="' + a.id + '" role="button" tabindex="0" aria-pressed="' + (n > 0) + '">' +
+              '<span>' + esc(a.text) + '</span>' +
+              '<span class="delta">' + (a.price_cents > 0 ? '+' + money(a.price_cents) : 'Free') + '</span>' +
+              (stepper
+                ? '<span class="adq"><button type="button" data-adm="' + a.id + '" aria-label="One less ' + esc(a.text) + '">&minus;</button>' +
+                  '<b>' + n + '</b>' +
+                  '<button type="button" data-adp="' + a.id + '" aria-label="One more ' + esc(a.text) + '">+</button></span>'
+                : '') +
+              '</div>';
+          }).join('');
       }).join('') +
       '<div class="label">Anything to tell the kitchen?</div>' +
       '<input class="note-in" id="inote" type="text" maxlength="120" placeholder="Allergies, no onions, extra napkins" aria-label="Note for the kitchen">' +
@@ -610,27 +682,44 @@ function openItem(id) {
 
     document.querySelectorAll('[data-sz]').forEach((b) => b.onclick = () => { size = Number(b.dataset.sz); trimToCap(); redraw(); });
     document.querySelectorAll('[data-op]').forEach((b) => b.onclick = () => { picks[Number(b.dataset.sl)] = Number(b.dataset.op); redraw(); });
-    document.querySelectorAll('[data-ad]').forEach((b) => b.onclick = () => {
-      const id = Number(b.dataset.ad);
-      if (addonPicks.has(id)) { addonPicks.delete(id); redraw(); return; }
+    /** Take one more of an add-on, respecting the group's cap. */
+    function addOne(id) {
       const a = addons.find((x) => x.id === id);
       const key = (a && a.category) || 'other';
       const need = reqCats.has(key);
       const cap = need ? capFor() : capOpt();
-      if (cap !== Infinity) {
-        const cur = picksIn(key);
-        if (cur.length >= cap) {
-          if (need && cap === 1) {
-            // "Pick one" behaves like a radio: the new pick replaces the old.
-            cur.forEach((x) => addonPicks.delete(x.id));
-          } else {
-            toast('Up to ' + cap + ' only for ' + (ADDON_LABELS[key] || key).toLowerCase());
-            return;
-          }
+      if (cap !== Infinity && countIn(key) >= cap) {
+        if (need && cap === 1) {
+          // "Pick one" behaves like a radio: the new pick replaces the old.
+          picksIn(key).forEach((x) => addonPicks.delete(x.id));
+        } else {
+          toast('Up to ' + cap + ' only for ' + (ADDON_LABELS[key] || key).toLowerCase());
+          return;
         }
       }
       addonPicks.add(id);
       redraw();
+    }
+    // The row's own +/− live INSIDE it, so a tap on either must not also count
+    // as a tap on the row.
+    document.querySelectorAll('[data-adp]').forEach((b) => b.onclick = (e) => { e.stopPropagation(); addOne(Number(b.dataset.adp)); });
+    document.querySelectorAll('[data-adm]').forEach((b) => b.onclick = (e) => {
+      e.stopPropagation();
+      const id = Number(b.dataset.adm);
+      const n = qtyOf(id);
+      if (n <= 1) addonPicks.delete(id); else addonQty.set(id, n - 1);
+      redraw();
+    });
+    document.querySelectorAll('[data-ad]').forEach((b) => {
+      const tap = () => {
+        const id = Number(b.dataset.ad);
+        // Tapping a taken add-on clears it — the same "tap again to remove"
+        // it has always had. The stepper is for going past one.
+        if (addonPicks.has(id)) { addonPicks.delete(id); redraw(); return; }
+        addOne(id);
+      };
+      b.onclick = tap;
+      b.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(); } };
     });
     el('minus').onclick = () => { if (qty > 1) { qty--; redraw(); } };
     el('plus').onclick = () => { if (qty < 20) { qty++; redraw(); } };
@@ -643,8 +732,12 @@ function openItem(id) {
         variant_id: size, variant_label: v ? v.label : null,
         options: Object.values(picks),
         option_labels: (it.slots || []).map((s) => { const o = s.options.find((x) => x.id === picks[s.id]); return o ? o.label : null; }).filter(Boolean),
-        addons: [...addonPicks],
-        addon_labels: addons.filter((a) => addonPicks.has(a.id)).map((a) => a.text),
+        // One entry PER unit — the server prices each entry, so two of an
+        // add-on charge twice. It also re-checks the group cap against the
+        // same count, so a tampered page cannot smuggle in a third flavour.
+        addons: addons.flatMap((a) => Array(qtyOf(a.id)).fill(a.id)),
+        addon_labels: addons.filter((a) => qtyOf(a.id) > 0)
+          .map((a) => (qtyOf(a.id) > 1 ? qtyOf(a.id) + '× ' + a.text : a.text)),
         note: (el('inote').value || '').trim(),
       });
       closeSheet(); render();

@@ -1,1 +1,0 @@
-System.register(["./index.web-legacy-6rwiNLzL.js"],function(e,r){"use strict";var n,t;return{setters:[function(e){n=e.r,t=e._}],execute:function(){e("Browser",n("Browser",{web:function(){return t(function(){return r.import("./web-legacy-B_Kr9CSI.js")},void 0).then(function(e){return new e.BrowserWeb})}}))}}});
