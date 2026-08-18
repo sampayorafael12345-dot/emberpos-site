@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f7f9" />
+    <!--
+      Same policy as the app entry, and for the same reason: it cannot stop an
+      injected script, but connect-src stops one PHONING HOME with the owner's
+      session — which is the step that turns an XSS into a stolen company.
+      This page reads every branch, so that containment matters more here than
+      anywhere else in the product.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline';
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: blob: https:;
+      font-src 'self' data:;
+      connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'none';
+      frame-ancestors 'none';
+    " />
+    <title>Ember Back Office</title>
+    <link rel="icon" href="/office/brand/logo-mark.png" type="image/png" />
+    <meta name="robots" content="noindex" />
+    <script type="module" crossorigin src="/office/assets/index.office-BLol3J_W.js"></script>
+    <link rel="stylesheet" crossorigin href="/office/assets/index-CwIiC6z8.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
