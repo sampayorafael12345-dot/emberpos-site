@@ -1,1 +1,0 @@
-System.register(["./index.web-legacy-Dl1pntIR.js"],function(e,r){"use strict";var n,t;return{setters:[function(e){n=e.r,t=e._}],execute:function(){e("Browser",n("Browser",{web:function(){return t(function(){return r.import("./web-legacy-Da8k6Nk2.js")},void 0).then(function(e){return new e.BrowserWeb})}}))}}});
