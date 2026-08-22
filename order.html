@@ -583,6 +583,20 @@ function openItem(id) {
     return (v && v.max_picks != null) ? v.max_picks
       : (it.addon_max_picks != null ? it.addon_max_picks : null);
   };
+  // v1.1.80: how many a REQUIRED group MUST have, size-first like the cap.
+  // 'Solo requires 1 flavor only while Barkada requires 2.' Blank = at least
+  // one, the old rule.
+  const rawMin = () => {
+    const v = size && it.sizes ? it.sizes.find((s) => s.id === size) : null;
+    return (v && v.min_picks != null) ? v.min_picks
+      : (it.addon_min_picks != null ? it.addon_min_picks : null);
+  };
+  const minFor = () => {
+    const raw = rawMin();
+    const min = raw == null ? 1 : Math.max(1, raw);
+    const cap = capFor();
+    return cap === Infinity ? min : Math.min(min, cap);
+  };
   const capFor = () => {
     const raw = rawMax();
     if (raw == null) return 1;
@@ -620,8 +634,11 @@ function openItem(id) {
     if (!g) { g = { key: k, items: [] }; addonGroups.push(g); }
     g.items.push(a);
   });
-  const missingCats = () => [...reqCats].filter(
-    (c) => !addons.some((a) => (a.category || 'other') === c && addonPicks.has(a.id)));
+  const missingCats = () => [...reqCats].filter((c) => {
+    var got = 0;
+    addons.forEach((a) => { if ((a.category || 'other') === c) got += qtyOf(a.id); });
+    return got < minFor();
+  });
 
   const unit = () => {
     let p = it.price_cents;
