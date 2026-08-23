@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover so env(safe-area-inset-*) reports real numbers on a
+      notched phone. Without it the CSS asks for the home-bar inset and is told
+      zero, and the Save button at the foot of a form sits under the bar. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#f6f7f9" />
     <!--
       Same policy as the app entry, and for the same reason: it cannot stop an
@@ -26,10 +29,10 @@
     <title>Ember Back Office</title>
     <link rel="icon" href="/office/brand/logo-mark.png" type="image/png" />
     <meta name="robots" content="noindex" />
-    <script type="module" crossorigin src="/office/assets/index.office-DOMkRiOs.js"></script>
-    <link rel="stylesheet" crossorigin href="/office/assets/index-BA6-Djel.css">
+    <script type="module" crossorigin src="/office/assets/index.office-B4XUqPT2.js"></script>
+    <link rel="stylesheet" crossorigin href="/office/assets/index-C1iHN-kD.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"></div>
   </body>
 </html>
