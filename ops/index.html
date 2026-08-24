@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0b0d" />
+    <!--
+      The strictest policy of the three pages, because this one can read every
+      tenant. connect-src is the line that matters: an injected script here
+      could not phone the fleet home, only back to Supabase, where the operator
+      guard is waiting for it.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline';
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: blob:;
+      font-src 'self' data:;
+      connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'none';
+      frame-ancestors 'none';
+    " />
+    <title>Ember Ops</title>
+    <link rel="icon" href="/ops/brand/logo-mark.png" type="image/png" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <script type="module" crossorigin src="/ops/assets/index.ops-BbQ01fHB.js"></script>
+    <link rel="stylesheet" crossorigin href="/ops/assets/index-BZxfPtiL.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
