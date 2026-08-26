@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#0b0b0d" />
+    <meta name="theme-color" content="#000000" />
     <!--
       The strictest policy of the three pages, because this one can read every
       tenant. connect-src is the line that matters: an injected script here
@@ -23,7 +23,16 @@
       frame-ancestors 'none';
     " />
     <title>Ember Ops</title>
-    <link rel="icon" href="/ops/brand/logo-mark.png" type="image/png" />
+    <!--
+      Relative, not root-relative. The old href was "/brand/logo-mark.png",
+      which LOOKS broken under a /ops/ base and is not: Vite rewrites
+      root-relative URLs in this file by the base at build time, so it shipped
+      as /ops/brand/logo-mark.png and has always resolved. This is written
+      relative anyway because it then survives a change of base without
+      depending on that rewrite - and because the next person to read it should
+      not have to know about the rewrite to believe it works.
+    -->
+    <link rel="icon" href="brand/logo-mark.png" type="image/png" />
     <meta name="robots" content="noindex, nofollow, noarchive" />
     <!-- On the home screen it opens full-screen, in its own colours. The
       status bar is drawn OVER on iOS (black-translucent), which is why the
@@ -33,9 +42,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Ops" />
-    <link rel="apple-touch-icon" href="icons/icon-192.png" />
-    <script type="module" crossorigin src="/ops/assets/index.ops-BfSDR7JC.js"></script>
-    <link rel="stylesheet" crossorigin href="/ops/assets/index-COe2g5l4.css">
+    <link rel="apple-touch-icon" href="icons/icon-180.png" />
+    <script type="module" crossorigin src="/ops/assets/index.ops-B1h3br5q.js"></script>
+    <link rel="stylesheet" crossorigin href="/ops/assets/index-DPCw_hHn.css">
   </head>
   <body>
     <div id="root"></div>
