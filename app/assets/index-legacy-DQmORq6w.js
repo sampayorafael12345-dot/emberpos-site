@@ -1,0 +1,1 @@
+System.register(["./index.web-legacy-wmTUXFd0.js"],function(e,r){"use strict";var n,t;return{setters:[function(e){n=e.r,t=e._}],execute:function(){e("Browser",n("Browser",{web:function(){return t(function(){return r.import("./web-legacy-0x90LDDg.js")},void 0).then(function(e){return new e.BrowserWeb})}}))}}});
