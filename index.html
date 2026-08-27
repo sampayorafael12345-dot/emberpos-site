@@ -89,7 +89,9 @@
   }
   .nav { display: flex; align-items: center; gap: 26px; height: 68px; }
   .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; margin-right: auto; }
-  .nav-brand img { width: 34px; height: 34px; }
+  /* Height only — the mark is trimmed to its own bounds, so a fixed width
+     would stretch a taller-than-wide flame into a square. */
+  .nav-brand img { height: 34px; width: auto; }
   .nav-brand b { font-size: 17px; letter-spacing: .02em; }
   .nav a.link { text-decoration: none; color: var(--coal-muted); font-size: 15px; transition: color 160ms var(--ease-out); }
   @media (hover: hover) and (pointer: fine) { .nav a.link:hover { color: var(--coal-ink); } }
@@ -337,7 +339,7 @@
 <header>
   <div class="wrap nav">
     <a class="nav-brand" href="index.html">
-      <img src="logo.png" width="34" height="34" alt="Ember POS logo" />
+      <img src="logo.png" height="34" alt="Ember POS logo" />
       <span><b>Ember POS</b></span>
     </a>
     <a class="link" href="#features">Features</a>

@@ -49,7 +49,10 @@ body {
   color: inherit;
   margin-bottom: 28px;
 }
-.brand img { width: 44px; height: 44px; display: block; }
+/* Height only. The 2026-08 mark is taller than it is wide and ships trimmed
+   to its own bounds, so pinning both axes with no object-fit would STRETCH
+   the flame into a square. */
+.brand img { height: 44px; width: auto; display: block; }
 .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
 .brand-name {
   font-size: 19px;

@@ -65,11 +65,14 @@
       /* Branded splash: logo mark + wordmark, gentle pulse while the bundle loads.
          Pure CSS animation — safe on any WebView old enough to at least parse CSS.
          The mark carries its own silhouette, so the tile is just a sizing box now;
-         the glow is a drop-shadow that follows the artwork rather than a square. */
-      #boot .tile { width: 76px; height: 76px; margin: 0 auto 14px;
+         the glow is a drop-shadow that follows the artwork rather than a square.
+         HEIGHT ONLY: the 2026-08 mark is taller than it is wide and ships trimmed
+         to its own bounds. Pinning both axes here has no object-fit to save it,
+         so it would STRETCH the flame into a square. */
+      #boot .tile { height: 76px; margin: 0 auto 14px;
         display: flex; align-items: center; justify-content: center;
         animation: bootpulse 1.6s ease-in-out infinite; }
-      #boot .tile img { width: 76px; height: 76px; display: block;
+      #boot .tile img { height: 76px; width: auto; display: block;
         filter: drop-shadow(0 6px 26px rgba(255,92,0,0.4)); }
       #boot .word { font-size: 26px; font-weight: 800; letter-spacing: 3px; color: #ff6a1a; }
       #boot .word span { color: #feb700; }
@@ -85,7 +88,7 @@
          device WebViews). Plain ES5 + static markup only, so it works even when
          the main bundle's syntax is too modern for the WebView. -->
     <div id="boot"><div class="msg">
-      <div class="tile"><img src="/app/brand/logo-mark.png" width="76" height="76" alt=""></div>
+      <div class="tile"><img src="/app/brand/logo-mark.png" height="76" alt=""></div>
       <div class="word">EMBER <span>POS</span></div>
       <div class="sub">Starting up&hellip;</div>
     </div></div>
@@ -121,6 +124,6 @@
       })();
     </script>
     <script crossorigin id="vite-legacy-polyfill" src="/app/assets/polyfills-legacy--HAA65jX.js"></script>
-    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-DhtYneTx.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-lvQndEoB.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
   </body>
 </html>
