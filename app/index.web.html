@@ -36,7 +36,9 @@
     <!-- Browser-tab niceties for the web deploy. Inert inside Capacitor (no
          tabs) and harmless in dev. noindex: this is an app shell, not content
          — the landing page is what search engines should hold. -->
-    <link rel="icon" href="/app/brand/logo-mark.png" type="image/png" />
+    <!-- A SQUARE file, not the trimmed mark: a tab slot is square and the
+         browser stretches rather than letterboxes, which fattened the flame. -->
+    <link rel="icon" href="/app/brand/favicon.png" type="image/png" />
     <meta name="robots" content="noindex" />
     <!-- INSTALLABLE ON A PHONE HOME SCREEN.
          This matters most on iPhone: there is no App Store build yet, so
