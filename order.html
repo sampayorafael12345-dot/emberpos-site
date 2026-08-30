@@ -251,7 +251,29 @@ async function rpc(fn, args) {
   return await r.json();
 }
 
+/* shop-pay's kiosk actions: fenced by this page's own link token + the order
+   number that token created. The shop's key never comes anywhere near here -
+   only a QR image and a paid/unpaid answer do. */
+async function payFn(args) {
+  const r = await fetch(URLB + '/functions/v1/shop-pay', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON },
+    body: JSON.stringify(args),
+  });
+  var j = null; try { j = await r.json(); } catch (e) { /* not JSON */ }
+  return j || {};
+}
+
+function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode */ } }
+
 let MENU = null, CART = [], CUR = '₱', TAXPCT = 0, CAT = 'all', Q = '';
+/* STOREFRONT (v1.1.94): non-null only when the link's kind is 'store'. Holds
+   the shop's ordering rules straight from kiosk_menu - the server re-checks
+   every one of them in kiosk_place_order, so this is display, not the fence. */
+let STORE = null;
+let OMODE = 'pickup';       // 'pickup' | 'delivery'
+let PAYCHOICE = 'later';    // 'now' | 'later'
 
 // Headings for each kind of add-on, matching the register's wording.
 const ADDON_LABELS = {
@@ -262,10 +284,13 @@ const ADDON_LABELS = {
 const money = (c) => CUR + (c / 100).toFixed(2);
 const count = () => CART.reduce((s, l) => s + l.qty, 0);
 const subtotal = () => CART.reduce((s, l) => s + l.price * l.qty, 0);
-// Mirror of the server's arithmetic (migration 0045) so the number the
-// customer agrees to is the number the shop charges.
-const taxOf = () => Math.round(CART.reduce((s, l) => s + (l.taxExempt ? 0 : l.price * l.qty), 0) * TAXPCT / 100);
-const total = () => subtotal() + taxOf();
+// Mirror of the server's arithmetic (migrations 0045 + 0137) so the number
+// the customer agrees to is the number the shop charges. The delivery fee is
+// a vatable line on the server, so it joins the tax base here too.
+const deliveryFee = () => (STORE && OMODE === 'delivery' ? (STORE.delivery_fee_cents || 0) : 0);
+const taxOf = () => Math.round((CART.reduce((s, l) => s + (l.taxExempt ? 0 : l.price * l.qty), 0) + deliveryFee()) * TAXPCT / 100);
+const total = () => subtotal() + deliveryFee() + taxOf();
+const minPay = () => (STORE && STORE.min_prepay_cents) || 2000;
 
 let toastTimer;
 function toast(msg) {
@@ -801,27 +826,107 @@ function openCart() {
         '<div class="stepper"><button data-m="' + idx + '" aria-label="One less">&minus;</button>' +
         '<span>' + l.qty + '</span><button data-p="' + idx + '" aria-label="One more">+</button></div></div>').join('') +
       '<div class="totals">' +
-        (tax > 0 ? '<div><span>Subtotal</span><span>' + money(subtotal()) + '</span></div>' +
-                   '<div><span>Tax</span><span>' + money(tax) + '</span></div>' : '') +
+        ((tax > 0 || deliveryFee() > 0) ? '<div><span>Subtotal</span><span>' + money(subtotal()) + '</span></div>' : '') +
+        (deliveryFee() > 0 ? '<div><span>Delivery fee</span><span>' + money(deliveryFee()) + '</span></div>' : '') +
+        (tax > 0 ? '<div><span>Tax</span><span>' + money(tax) + '</span></div>' : '') +
         '<div class="grand"><span>Total</span><span>' + money(total()) + '</span></div>' +
       '</div>' +
+      storeFields() +
       '<div class="label">Your name</div>' +
-      '<input class="note-in" id="who" type="text" maxlength="40" placeholder="So the staff can call you" aria-label="Your name">' +
+      '<input class="note-in" id="who" type="text" maxlength="40" placeholder="' + (STORE ? 'Who is this order for?' : 'So the staff can call you') + '" aria-label="Your name">' +
+      (STORE ? payChoiceHtml() : '') +
       '<div style="display:flex;gap:10px;margin-top:20px">' +
         '<button class="ghost" id="back">Add more</button>' +
-        '<button class="primary" id="send">Send to the cashier for payment</button></div>' +
-      '<p class="lede" style="font-size:13px;margin-top:12px">Your order goes to the counter first. Pay there, then it is made.</p>');
+        '<button class="primary" id="send">' + esc(sendLabel()) + '</button></div>' +
+      (STORE ? '' : '<p class="lede" style="font-size:13px;margin-top:12px">Your order goes to the counter first. Pay there, then it is made.</p>'));
 
     document.querySelectorAll('[data-m]').forEach((b) => b.onclick = () => {
-      const i = Number(b.dataset.m); CART[i].qty--; if (CART[i].qty <= 0) CART.splice(i, 1); draw(); render();
+      const i = Number(b.dataset.m); CART[i].qty--; if (CART[i].qty <= 0) CART.splice(i, 1); redrawKeeping(); render();
     });
     document.querySelectorAll('[data-p]').forEach((b) => b.onclick = () => {
-      const i = Number(b.dataset.p); if (CART[i].qty < 20) CART[i].qty++; draw(); render();
+      const i = Number(b.dataset.p); if (CART[i].qty < 20) CART[i].qty++; redrawKeeping(); render();
     });
+    if (STORE) {
+      // Remembered from the last order on this phone - typing an address twice
+      // is how a customer gives up.
+      if (el('who') && !el('who').value) el('who').value = lsGet('ember.who');
+      if (el('oph') && !el('oph').value) el('oph').value = lsGet('ember.phone');
+      if (el('oaddr') && !el('oaddr').value) el('oaddr').value = lsGet('ember.addr');
+      document.querySelectorAll('[data-omode]').forEach(function (b) {
+        b.onclick = function () { OMODE = b.getAttribute('data-omode'); PAYCHOICE = defaultPayChoice(); redrawKeeping(); };
+      });
+      document.querySelectorAll('[data-paych]').forEach(function (b) {
+        b.onclick = function () { PAYCHOICE = b.getAttribute('data-paych'); redrawKeeping(); };
+      });
+    }
     el('back').onclick = closeSheet;
     el('send').onclick = send;
   }
+  /* Redraw the sheet without eating what the customer already typed. */
+  function redrawKeeping() {
+    var w = el('who') ? el('who').value : '';
+    var ph = el('oph') ? el('oph').value : '';
+    var ad = el('oaddr') ? el('oaddr').value : '';
+    draw();
+    if (el('who') && w) el('who').value = w;
+    if (el('oph') && ph) el('oph').value = ph;
+    if (el('oaddr') && ad) el('oaddr').value = ad;
+  }
+  if (STORE) PAYCHOICE = defaultPayChoice();
   draw();
+}
+
+/* ---- Storefront helpers (v1.1.94) --------------------------------------- */
+function storeFields() {
+  if (!STORE) return '';
+  var h = '';
+  if (STORE.pickup && STORE.delivery) {
+    h += '<div class="label">How do you want it?</div>' +
+      '<div style="display:flex;gap:8px">' +
+      '<button class="' + (OMODE === 'pickup' ? 'primary' : 'ghost') + '" data-omode="pickup" style="flex:1">🛍 Pickup</button>' +
+      '<button class="' + (OMODE === 'delivery' ? 'primary' : 'ghost') + '" data-omode="delivery" style="flex:1">🛵 Delivery</button></div>';
+  } else if (OMODE === 'pickup') {
+    h += '<div class="label">🛍 Pickup order' + (STORE.address ? ' — collect at ' + esc(STORE.address) : '') + '</div>';
+  } else {
+    h += '<div class="label">🛵 Delivery order</div>';
+  }
+  h += '<div class="label">Your mobile number</div>' +
+    '<input class="note-in" id="oph" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="0917 123 4567" aria-label="Your mobile number">';
+  if (OMODE === 'delivery') {
+    h += '<div class="label">Delivery address</div>' +
+      '<textarea class="note-in" id="oaddr" rows="2" maxlength="300" placeholder="House no., street, barangay, city — a landmark helps" aria-label="Delivery address"></textarea>';
+  }
+  return h;
+}
+
+function defaultPayChoice() {
+  if (!STORE || !STORE.prepay || total() < minPay()) return 'later';
+  return 'now';
+}
+
+function payChoiceHtml() {
+  var canNow = STORE.prepay && total() >= minPay();
+  var canLater = OMODE === 'pickup' ? true : STORE.cod !== false;
+  if (!canNow && canLater) { PAYCHOICE = 'later'; return ''; }
+  if (!canNow && !canLater) {
+    return '<div class="lede" style="font-size:12.5px;margin-top:10px">⚠️ This shop takes delivery orders with online payment only' +
+      (total() < minPay() ? ' (minimum ' + money(minPay()) + ' — add a little more)' : '') + '.</div>';
+  }
+  if (canNow && !canLater) {
+    PAYCHOICE = 'now';
+    return '<div class="lede" style="font-size:12.5px;margin-top:10px">Pays online (GCash / Maya / bank app) — the shop sees it instantly.</div>';
+  }
+  return '<div class="label">Payment</div>' +
+    '<div style="display:flex;gap:8px">' +
+    '<button class="' + (PAYCHOICE === 'now' ? 'primary' : 'ghost') + '" data-paych="now" style="flex:1">Pay now (GCash/Maya)</button>' +
+    '<button class="' + (PAYCHOICE === 'later' ? 'primary' : 'ghost') + '" data-paych="later" style="flex:1">' +
+      (OMODE === 'delivery' ? 'Cash on delivery' : 'Pay at the counter') + '</button></div>';
+}
+
+function sendLabel() {
+  if (!STORE) return 'Send to the cashier for payment';
+  if (STORE.prepay && PAYCHOICE === 'now' && total() >= minPay()) return 'Place order & pay ' + money(total());
+  return OMODE === 'delivery' ? 'Place delivery order' : 'Place pickup order';
 }
 
 /* Every send ATTEMPT for the current cart carries the same ref (v1.1.64):
@@ -832,22 +937,36 @@ let SEND_REF = null;
 async function send() {
   const btn = el('send');
   if (btn.disabled) return;
-  btn.disabled = true; btn.textContent = 'Sending…';
   const who = (el('who').value || '').trim();
+  var phone = null, addr = null;
+  if (STORE) {
+    phone = ((el('oph') && el('oph').value) || '').trim();
+    addr = ((el('oaddr') && el('oaddr').value) || '').trim();
+    if (!who) { toast('Please give your name.'); return; }
+    if (phone.replace(/[^0-9]/g, '').length < 7) { toast('Please give a mobile number the shop can reach you on.'); return; }
+    if (OMODE === 'delivery' && !addr) { toast('Please give the delivery address.'); return; }
+    if (OMODE === 'delivery' && STORE.cod === false && (!STORE.prepay || total() < minPay())) {
+      toast('This shop takes delivery orders with online payment only.'); return;
+    }
+    lsSet('ember.who', who); lsSet('ember.phone', phone); if (addr) lsSet('ember.addr', addr);
+  }
+  btn.disabled = true; btn.textContent = 'Sending…';
   if (!SEND_REF) SEND_REF = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
   try {
     const res = await rpc('kiosk_place_order', {
       p_token: TOKEN,
       p_items: CART.map((l) => ({ item_id: l.item_id, qty: l.qty, variant_id: l.variant_id, options: l.options, addons: l.addons || [], note: l.note })),
-      p_name: who || null, p_note: null, p_order_type: null,
+      p_name: who || null, p_note: null, p_order_type: STORE ? OMODE : null,
       p_client_ref: SEND_REF,
+      p_phone: STORE ? phone : null, p_address: (STORE && OMODE === 'delivery') ? addr : null,
     });
     if (!res || !res.ok) {
       toast((res && res.error) || 'Could not send. Please ask a staff member.');
-      btn.disabled = false; btn.textContent = 'Send to the cashier for payment'; return;
+      btn.disabled = false; btn.textContent = sendLabel(); return;
     }
     rememberOrder({
       num: res.order_number, at: Date.now(), total: res.total_cents,
+      type: STORE ? (res.order_type || OMODE) : null, prepaid: false,
       // v1.1.62: the pickup label is STAMPED on the order server-side; keeping
       // it here means this phone shows the exact same number as the board even
       // if the shop re-words its numbers later in the day.
@@ -858,16 +977,77 @@ async function send() {
         option_labels: l.option_labels || [], addon_labels: l.addon_labels || [], note: l.note,
       })),
     });
+    var payNow = STORE && STORE.prepay && PAYCHOICE === 'now' && (res.total_cents || 0) >= minPay() && !res.duplicate;
     CART = []; SEND_REF = null; closeSheet(); showOrders(res.order_number);
     // The unmistakable confirmation the shop asked for — the screen also
     // switches to "Your orders" with this order on top.
     toast(res.duplicate
-      ? 'This order was already sent to the cashier — here it is.'
-      : '✓ Order sent to the cashier!');
+      ? (STORE ? 'This order was already sent to the shop — here it is.' : 'This order was already sent to the cashier — here it is.')
+      : (STORE ? '✓ Order sent to the shop!' : '✓ Order sent to the cashier!'));
+    if (payNow) openPaySheet(res.order_number);
   } catch (e) {
     toast('No connection. Try again in a moment — your order was NOT sent twice.');
-    btn.disabled = false; btn.textContent = 'Send to the cashier for payment';
+    btn.disabled = false; btn.textContent = sendLabel();
   }
+}
+
+/* ---- Scan-to-pay (v1.1.94): the shop's own PayMongo, from this phone ------
+   One QR Ph code for this exact order, made by the shop's own account. This
+   page polls until PayMongo confirms, and the shop's till lights the ticket
+   up as PAID the moment it does. Backing out is always allowed - the order
+   stays, payment just moves to the counter / the rider. */
+function markPrepaid(num) {
+  const a = loadOrders();
+  const i = a.findIndex(function (x) { return x.num === num; });
+  if (i >= 0) { a[i].prepaid = true; writeOrders(a); }
+}
+async function openPaySheet(num) {
+  openSheet('<h2>Pay now</h2><p class="lede" style="text-align:center;padding:26px 0" id="paywait">Getting your payment code…</p>' +
+    '<div style="display:flex;gap:10px"><button class="ghost" id="payabort" style="flex:1">Not now</button></div>');
+  el('payabort').onclick = function () { closeSheet(); showOrders(num); };
+  var r;
+  try { r = await payFn({ action: 'kiosk_create', token: TOKEN, orderNumber: num }); }
+  catch (e) { r = null; }
+  if (r && (r.alreadyPaid || r.paid)) { markPrepaid(num); closeSheet(); showOrders(num); toast('✓ Already paid!'); return; }
+  if (!r || !r.ok) {
+    closeSheet(); showOrders(num);
+    toast(((r && r.error) || 'Could not start the payment.') + ' You can pay ' +
+      (OMODE === 'delivery' ? 'the rider in cash.' : 'at the counter.'));
+    return;
+  }
+  var intent = r.intentId, stopped = false;
+  openSheet('<h2>Scan to pay</h2>' +
+    '<div style="text-align:center"><img src="' + r.qrImage + '" alt="QR Ph payment code" ' +
+      'style="width:230px;max-width:78vw;border-radius:12px;background:#fff;padding:8px"></div>' +
+    '<div style="text-align:center;font-weight:900;font-size:24px;margin:8px 0">' + money(r.amountCents) + '</div>' +
+    '<p class="lede" style="text-align:center;font-size:13px">Open GCash, Maya or your bank app and scan this QR Ph code' +
+    ' — or screenshot it and upload inside the app.<br>This screen confirms by itself the moment the money lands.</p>' +
+    '<div class="lede" id="paystate" style="text-align:center;padding:6px 0" aria-live="polite">Waiting for the payment…</div>' +
+    '<div style="display:flex;gap:10px;margin-top:8px">' +
+      '<button class="ghost" id="paylater" style="flex:1">' +
+        (OMODE === 'delivery' ? 'Pay cash instead' : 'Pay at the counter instead') + '</button></div>');
+  el('paylater').onclick = function () {
+    stopped = true;
+    payFn({ action: 'kiosk_cancel', token: TOKEN, orderNumber: num, intentId: intent }).then(function (c) {
+      // The customer-paid-in-the-same-breath race: cancel of a paid intent
+      // comes back PAID, and the money is honored, never lost.
+      if (c && c.paid) { markPrepaid(num); toast('✓ Paid!'); }
+      closeSheet(); showOrders(num);
+    }).catch(function () { closeSheet(); showOrders(num); });
+  };
+  var tickPay = function () {
+    if (stopped || !el('paystate')) return;   // sheet was replaced or closed
+    payFn({ action: 'kiosk_status', token: TOKEN, orderNumber: num, intentId: intent }).then(function (st) {
+      if (stopped) return;
+      if (st && st.paid) {
+        stopped = true; markPrepaid(num); closeSheet(); showOrders(num);
+        toast('✓ Paid — the shop sees it instantly!');
+        return;
+      }
+      setTimeout(tickPay, 3000);
+    }).catch(function () { setTimeout(tickPay, 4000); });
+  };
+  setTimeout(tickPay, 3000);
 }
 
 /* ---- My orders -------------------------------------------------------------
@@ -977,7 +1157,10 @@ function stopRinging() {
   document.title = ORIG_TITLE;
 }
 function alertReady(num) {
-  toast('Order ' + pickupNum(num, (loadOrders().find(function (x) { return x.num === num; }) || {}).pickup) + ' is ready — please collect it at the counter!');
+  var ord = loadOrders().find(function (x) { return x.num === num; }) || {};
+  toast(ord.type === 'delivery'
+    ? 'Order ' + pickupNum(num, ord.pickup) + ' is packed — the rider is on the way soon!'
+    : 'Order ' + pickupNum(num, ord.pickup) + ' is ready — please collect it at the counter!');
   buzz(num);
   if (ringTimer) return;
   ringTimer = setInterval(() => {
@@ -1036,6 +1219,23 @@ const STATE_TEXT = {
   collected: 'Collected — enjoy!',
   cancelled: 'Cancelled, ask a staff member',
 };
+/* The same four steps read differently when nobody is sitting at a table. */
+const STATE_TEXT_BY_TYPE = {
+  pickup: {
+    waiting: 'The shop is confirming it',
+    making: 'Being prepared',
+    ready: 'Ready — come get it!',
+    collected: 'Picked up — enjoy!',
+    cancelled: 'Cancelled — please contact the shop',
+  },
+  delivery: {
+    waiting: 'The shop is confirming it',
+    making: 'Being prepared',
+    ready: 'Packed — waiting for the rider',
+    collected: 'On the way to you!',
+    cancelled: 'Cancelled — please contact the shop',
+  },
+};
 /* The shop's own wording for the number it calls out. Mirrors boardLabel() in
    src/lib/pickup.ts — the board, the claim stub, the kitchen ticket and this
    page must never disagree about what a customer is waiting for. */
@@ -1056,14 +1256,15 @@ function pickupNum(raw, stamped) {
   return s;
 }
 
-function stepsHtml(state) {
+function stepsHtml(state, type) {
+  const texts = (type && STATE_TEXT_BY_TYPE[type]) || STATE_TEXT;
   if (state === 'cancelled') {
-    return '<div class="step on"><span class="dot"></span><span>' + STATE_TEXT.cancelled + '</span></div>';
+    return '<div class="step on"><span class="dot"></span><span>' + texts.cancelled + '</span></div>';
   }
   const seq = ['waiting', 'making', 'ready', 'collected'];
   const at = seq.indexOf(state);
   return seq.map((s, i) => '<div class="step ' + (i < at ? 'done' : i === at ? 'on' : '') + '">' +
-    '<span class="dot"></span><span>' + STATE_TEXT[s] + '</span></div>').join('');
+    '<span class="dot"></span><span>' + texts[s] + '</span></div>').join('');
 }
 
 function showOrders(highlight) {
@@ -1094,7 +1295,9 @@ function showOrders(highlight) {
         '<div class="lede" style="font-size:12px;margin-top:2px">Watch for this number</div>' +
         '<div class="lede" style="font-size:12.5px;margin:2px 0 10px">' +
           new Date(o.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) +
-          (o.paid ? ' · paid' : ' · pay at the counter') + '</div>' +
+          (o.paid ? ' · paid' : o.prepaid ? ' · paid online' :
+            o.type === 'delivery' ? ' · cash on delivery' :
+            o.type === 'pickup' ? ' · pay at pickup' : ' · pay at the counter') + '</div>' +
         // What they actually ordered, which is the bit that was missing.
         '<div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:12px">' +
           o.items.map((l) => '<div style="display:flex;gap:10px;padding:3px 0;font-size:14px">' +
@@ -1113,23 +1316,45 @@ function showOrders(highlight) {
           ? '<button class="primary" data-ack="' + esc(o.num) + '" style="width:100%;margin-bottom:12px">' +
               '🔔 Got it — stop ringing</button>'
           : '') +
+        // Pickup orders say WHERE - the address is the half of "come get it"
+        // a first-time customer does not have.
+        (o.type === 'pickup' && STORE && STORE.address
+          ? '<div class="lede" style="font-size:12.5px;margin-bottom:10px">📍 Pick up at: ' + esc(STORE.address) + '</div>'
+          : '') +
         // Collected: the staff handed it over. Says so on the diner's phone.
         (o.state === 'collected'
           ? '<div style="display:flex;gap:8px;align-items:center;background:rgba(4,120,87,.12);' +
               'border:1px solid rgba(4,120,87,.45);border-radius:var(--r-md);padding:10px 12px;margin-bottom:12px">' +
               '<span style="font-size:15px;line-height:1.2">✅</span>' +
-              '<b style="font-size:14.5px">Collected — enjoy!</b></div>'
+              '<b style="font-size:14.5px">' + (o.type === 'delivery' ? 'On the way — enjoy!' : 'Collected — enjoy!') + '</b></div>'
           : '') +
         // Unpaid orders say so LOUDLY, above the progress steps: a customer who
         // only sees "Staff are confirming it" assumes they are done and sits down.
-        (o.paid ? '' :
+        // Paid-online orders get the opposite banner, equally loud - the shop
+        // must never ask this customer for money twice.
+        (o.paid ? '' : o.prepaid
+          ? '<div style="display:flex;gap:8px;align-items:center;background:rgba(4,120,87,.12);' +
+              'border:1px solid rgba(4,120,87,.45);border-radius:var(--r-md);padding:10px 12px;margin-bottom:12px">' +
+              '<span style="font-size:15px;line-height:1.2">✅</span>' +
+              '<b style="font-size:14.5px">PAID online — show this screen if asked</b></div>'
+          : o.state === 'cancelled' ? '' :
           '<div style="display:flex;gap:8px;align-items:flex-start;background:rgba(255,92,0,.12);' +
             'border:1px solid rgba(255,92,0,.45);border-radius:var(--r-md);padding:10px 12px;margin-bottom:12px">' +
-            '<span style="font-size:15px;line-height:1.2">💳</span>' +
-            '<span><b style="display:block;font-size:14.5px">Please pay at the counter</b>' +
-            '<span class="lede" style="font-size:12.5px">Show this number at the counter: <b>' + esc(pickupNum(o.num, o.pickup)) + '</b>.</span></span>' +
-          '</div>') +
-        '<div class="steps" data-track="' + esc(o.num) + '">' + stepsHtml(o.state || 'waiting') + '</div>' +
+            '<span style="font-size:15px;line-height:1.2">' + (o.type === 'delivery' ? '💵' : '💳') + '</span>' +
+            (o.type === 'delivery'
+              ? '<span><b style="display:block;font-size:14.5px">Cash on delivery</b>' +
+                '<span class="lede" style="font-size:12.5px">Have ' + money(o.total) + ' ready for the rider.</span></span>'
+              : o.type === 'pickup'
+                ? '<span><b style="display:block;font-size:14.5px">Pay when you pick it up</b>' +
+                  '<span class="lede" style="font-size:12.5px">Show this number: <b>' + esc(pickupNum(o.num, o.pickup)) + '</b>.</span></span>'
+                : '<span><b style="display:block;font-size:14.5px">Please pay at the counter</b>' +
+                  '<span class="lede" style="font-size:12.5px">Show this number at the counter: <b>' + esc(pickupNum(o.num, o.pickup)) + '</b>.</span></span>') +
+          '</div>' +
+          // A payment that was backed out of can be finished from right here.
+          (o.type && STORE && STORE.prepay && o.total >= minPay()
+            ? '<button class="primary" data-paynow="' + esc(o.num) + '" style="width:100%;margin-bottom:12px">Pay now — ' + money(o.total) + '</button>'
+            : '')) +
+        '<div class="steps" data-track="' + esc(o.num) + '">' + stepsHtml(o.state || 'waiting', o.type) + '</div>' +
       '</div>';
     }).join('') + '</div>' +
     '<div class="bar"><button class="primary" id="tomenu">Order more</button></div>';
@@ -1137,6 +1362,9 @@ function showOrders(highlight) {
   el('tomenu').onclick = () => { render(); };
   document.querySelectorAll('[data-ack]').forEach((b) => {
     b.onclick = () => ackOrder(b.getAttribute('data-ack'));
+  });
+  document.querySelectorAll('[data-paynow]').forEach((b) => {
+    b.onclick = () => openPaySheet(b.getAttribute('data-paynow'));
   });
   trackAll();
   resumeRinging();
@@ -1159,6 +1387,9 @@ function trackAll() {
         const r = await rpc('kiosk_order_status', { p_token: TOKEN, p_order_number: o.num });
         if (r && r.ok) {
           const ch = markOrder(o.num, r.state, r.paid);
+          // The server's word on the online payment - a payment finished on
+          // ANOTHER device (or after this page reloaded) still lands here.
+          if (r.prepaid && !o.prepaid) { markPrepaid(o.num); redraw = true; }
           // Redraw as well as ring: the "Got it" button lives outside the
           // steps box, so patching the steps alone would leave no way to stop
           // the ringing until the next full render.
@@ -1168,7 +1399,7 @@ function trackAll() {
           if (ch.becameCollected) { stopRinging(); redraw = true; }
           if (ch.paidChanged) redraw = true; // the paid badge + banner live outside the steps box
           const box = document.querySelector('[data-track="' + o.num + '"]');
-          if (box) box.innerHTML = stepsHtml(r.state);
+          if (box) box.innerHTML = stepsHtml(r.state, o.type);
         }
       } catch (e) { /* keep the last known state and try again next tick */ }
     }
@@ -1212,6 +1443,15 @@ function fatal(title, msg) {
     MENU = m;
     CUR = (m.shop && m.shop.currency) || '₱';
     TAXPCT = Number((m.shop && m.shop.tax_percent) || 0);
+    if (m.link && m.link.kind === 'store') {
+      STORE = (m.shop && m.shop.ordering) || {};
+      if (!STORE.pickup && !STORE.delivery) {
+        fatal('Online ordering is off',
+          ((m.shop && m.shop.name) || 'This shop') + ' is not taking online orders right now. Please message the shop directly.');
+        return;
+      }
+      OMODE = STORE.pickup ? 'pickup' : 'delivery';
+    }
     render();
   } catch (e) {
     fatal('No connection', 'Check your signal and try again.');
