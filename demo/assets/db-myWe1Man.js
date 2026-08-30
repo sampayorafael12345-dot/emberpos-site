@@ -611,7 +611,7 @@ var $=Object.defineProperty;var J=(E,e,t)=>e in E?$(E,e,{enumerable:!0,configura
            cost_per_unit_cents = CASE WHEN cost_per_unit_cents IS NULL THEN NULL ELSE ROUND(cost_per_unit_cents * 1000) END,
            low_stock_threshold = CASE WHEN low_stock_threshold IS NULL THEN NULL ELSE low_stock_threshold / 1000.0 END,
            pack_qty = CASE WHEN pack_qty IS NULL THEN NULL ELSE pack_qty / 1000.0 END
-         WHERE id = ?`,[a,n]),E.run("UPDATE recipes SET qty = qty / 1000.0 WHERE ingredient_id = ?",[n]),E.run("UPDATE recipes SET entry_qty = entry_qty / 1000.0, entry_unit = ? WHERE ingredient_id = ? AND entry_unit = ?",[a,n,_])}}catch{}e("menu_items","extra_cost_cents","INTEGER NOT NULL DEFAULT 0"),e("menu_items","retired_at","TEXT"),e("purchase_order_items","received_packs","REAL");try{E.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='order_payments'").length>0&&E.exec(`
+         WHERE id = ?`,[a,n]),E.run("UPDATE recipes SET qty = qty / 1000.0 WHERE ingredient_id = ?",[n]),E.run("UPDATE recipes SET entry_qty = entry_qty / 1000.0, entry_unit = ? WHERE ingredient_id = ? AND entry_unit = ?",[a,n,_])}}catch{}e("menu_items","extra_cost_cents","INTEGER NOT NULL DEFAULT 0"),e("menu_items","retired_at","TEXT"),e("purchase_order_items","received_packs","REAL"),e("shifts","left_in_drawer_cents","INTEGER"),e("cash_custody","split_from","INTEGER");try{E.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='order_payments'").length>0&&E.exec(`
         INSERT INTO order_payments (order_id, method, amount_cents, tendered_cents, change_cents, created_at)
         SELECT id, COALESCE(payment_method, 'unknown'), total_cents, cash_tendered_cents, change_cents, COALESCE(paid_at, created_at)
         FROM orders
