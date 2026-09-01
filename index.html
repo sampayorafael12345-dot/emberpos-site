@@ -520,6 +520,32 @@
   @media (hover: hover) and (pointer: fine) { .foot a:hover { color: var(--coal-ink); } }
   @media (max-width: 700px) { .foot { flex-direction: column; align-items: flex-start; } .foot nav { margin-left: 0; } }
 
+  /* The BIR Registration Seal Badge (RMC 38-2026). BIR issues this with the
+     Certificate of Registration and requires online businesses to display it
+     where the public can see and SCAN it - so the QR is sized to stay usable
+     (~100px on screen), not shrunk to a decorative mark. It sits on a white
+     card because the badge artwork is BIR's own and must not be recoloured.
+     The caption is load-bearing: this seal says the BUSINESS is registered,
+     which is not the same claim as the software being accredited. */
+  .bir-seal {
+    width: 100%; margin-top: 26px; padding-top: 24px;
+    border-top: 1px solid var(--coal-line);
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  }
+  .bir-seal img {
+    width: 420px; max-width: 100%; height: auto;
+    background: #fff; border-radius: 10px; padding: 12px 14px;
+  }
+  .bir-seal p {
+    margin: 0; flex: 1 1 260px; max-width: 46ch;
+    font-size: 13px; line-height: 1.55; color: #8b8078;
+  }
+  .bir-seal a { text-decoration: underline; text-underline-offset: 2px; }
+  /* On a phone the card is already the full column, so the only room left for
+     the QR is the card's own padding. Give some of it back - BIR asks for the
+     badge to be "readily scannable", not merely present. */
+  @media (max-width: 560px) { .bir-seal img { padding: 8px 10px; } }
+
   /* ---------- the phone dock ----------
      Almost everyone who reads this page reads it on a phone, where the nav
      links are hidden and the hero buttons scroll away after one swipe. The
@@ -1097,6 +1123,13 @@
       <a href="account-deletion.html">Delete account</a>
       <a href="reset-password.html">Reset password</a>
     </nav>
+    <div class="bir-seal">
+      <img src="bir-seal-badge.webp" width="1141" height="389" loading="lazy" decoding="async"
+           alt="BIR Registration Seal Badge 2026 for Ember POS Computer Software Store, RSN 041RC20260000008789">
+      <p>Ember POS Computer Software Store is registered with the Bureau of Internal Revenue,
+         RDO 041 Mandaluyong. This seal confirms the business is BIR-registered. It is not a POS
+         accreditation &mdash; see the <a href="faq.html#bir">FAQ</a>.</p>
+    </div>
   </div>
 </footer>
 
