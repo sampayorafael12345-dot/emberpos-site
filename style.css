@@ -1,7 +1,27 @@
-/* EmberPOS public pages — shared styling.
-   Brand: "Coal & Flame" — flame #ff5c00, gold #feb700, matching the app.
+/* EmberPOS public pages, shared styling.
+   Brand: "Coal & Flame", flame #ff5c00, gold #feb700, matching the app.
    Light by default (these are legal/utility pages people read and print),
-   with a dark variant for anyone whose device asks for one. */
+   with a dark variant for anyone whose device asks for one.
+
+   1 Sep 2026: these pages had been running on the system sans while the
+   landing page ran on Space Grotesk, so clicking FAQ in the nav dropped a
+   visitor into a different typeface, a different rhythm and a different world.
+   The faces are already in site/fonts for the landing; loading them here costs
+   nothing new over the wire and makes the seven pages that share this file
+   read as the same product. */
+
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations');
+  font-weight: 300 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/jetbrains-mono-latin-700-normal.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
 
 :root {
   --flame: #ff5c00;
@@ -31,9 +51,15 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font: 16px/1.65 ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font: 16.5px/1.65 'Space Grotesk', ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+.mono {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
 
 .wrap { max-width: 760px; margin: 0 auto; padding: 40px 22px 88px; }
 .wrap.narrow { max-width: 520px; }
@@ -85,11 +111,14 @@ body {
   border-radius: 3px;
   background: linear-gradient(90deg, var(--flame), var(--gold));
 }
-h1 { font-size: 30px; line-height: 1.2; margin: 0 0 8px; letter-spacing: -.01em; }
-.page-head p { margin: 0; color: var(--muted); font-size: 15px; }
+h1 {
+  font-size: clamp(29px, 4.4vw, 38px); line-height: 1.1; margin: 0 0 10px;
+  letter-spacing: -.022em; font-weight: 700; text-wrap: balance;
+}
+.page-head p { margin: 0 auto; color: var(--muted); font-size: 16px; max-width: 54ch; }
 
-h2 { font-size: 20px; margin: 36px 0 10px; letter-spacing: -.01em; }
-h3 { font-size: 16px; margin: 22px 0 6px; }
+h2 { font-size: 21px; margin: 36px 0 10px; letter-spacing: -.018em; text-wrap: balance; }
+h3 { font-size: 16.5px; margin: 22px 0 6px; letter-spacing: -.01em; }
 p, li { color: var(--ink); }
 a { color: var(--flame); }
 .muted { color: var(--muted); }
@@ -173,6 +202,52 @@ button:disabled { opacity: .55; cursor: default; }
   .note.err { color: #fecaca; background: #450a0a; border-color: #991b1b; }
 }
 
+/* ---------- shared site chrome ----------
+   The same coal bar and coal footer the landing page wears, so a visitor who
+   clicks FAQ does not land somewhere that looks like a different company.
+   Always coal in both colour schemes: it is the site's furniture, not part of
+   the page's reading surface. */
+
+.site-head {
+  position: sticky; top: 0; z-index: 20;
+  background: rgba(12, 10, 9, .93);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  border-bottom: 1px solid #2b2420;
+}
+.site-head .bar {
+  width: min(1240px, 100% - 44px); margin: 0 auto;
+  display: flex; align-items: center; gap: 24px; height: 62px;
+}
+.site-head a { text-decoration: none; }
+.site-head .mark {
+  display: flex; align-items: center; gap: 10px; margin-right: auto; color: #ece7df;
+}
+/* Height only. The mark ships trimmed to its own bounds, so pinning both axes
+   would stretch a taller-than-wide flame into a square. */
+.site-head .mark img { height: 30px; width: auto; display: block; }
+.site-head .mark b { font-size: 16.5px; letter-spacing: .02em; }
+.site-head .lnk {
+  color: #a89c90; font-size: 15px; position: relative; padding: 4px 0;
+  transition: color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.site-head .lnk::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1.5px;
+  background: var(--flame); transform: scaleX(0); transform-origin: center;
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .site-head .lnk:hover { color: #ece7df; }
+  .site-head .lnk:hover::after { transform: scaleX(1); }
+}
+.site-head .cta {
+  background: var(--flame); color: #fff; font-weight: 600; font-size: 14.5px;
+  padding: 9px 17px; border-radius: 12px; line-height: 1.2; white-space: nowrap;
+  transition: filter 160ms ease, transform 140ms ease;
+}
+.site-head .cta:active { transform: scale(.97); }
+@media (hover: hover) and (pointer: fine) { .site-head .cta:hover { filter: brightness(1.08); } }
+@media (max-width: 720px) { .site-head .lnk { display: none; } }
+
 /* ---------- footer ---------- */
 
 footer {
@@ -186,6 +261,24 @@ footer {
 footer nav { margin-bottom: 8px; }
 footer nav a { margin: 0 9px; color: var(--muted); text-decoration: none; }
 footer nav a:hover { color: var(--flame); }
+
+/* The full-bleed coal footer, for pages that carry the site chrome. */
+footer.site-foot {
+  margin-top: 64px; padding: 34px 0 44px; text-align: left;
+  background: #0c0a09; border-top: 1px solid #2b2420; color: #a89c90;
+}
+footer.site-foot .bar {
+  width: min(1240px, 100% - 44px); margin: 0 auto;
+  display: flex; flex-wrap: wrap; gap: 22px; align-items: center; font-size: 14px;
+}
+footer.site-foot nav { margin: 0 0 0 auto; display: flex; flex-wrap: wrap; gap: 18px; }
+footer.site-foot nav a { margin: 0; color: #a89c90; }
+footer.site-foot a { color: #a89c90; text-decoration: none; }
+@media (hover: hover) and (pointer: fine) { footer.site-foot a:hover { color: #ece7df; } }
+@media (max-width: 720px) {
+  footer.site-foot .bar { flex-direction: column; align-items: flex-start; }
+  footer.site-foot nav { margin-left: 0; }
+}
 
 @media (max-width: 560px) {
   .wrap { padding: 28px 18px 64px; }

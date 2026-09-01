@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Ember POS: Point of Sale for Cafés &amp; Restaurants in the Philippines</title>
 <meta name="description" content="Sales, stock, kitchen, staff, utang and profit in one app. Sell on Android, run the back office from any computer, keep selling through a brownout. Free for 30 days." />
 <link rel="icon" href="favicon.png" type="image/png" />
@@ -16,6 +16,7 @@
 <meta property="og:description" content="POS, inventory, kitchen display, QR ordering, utang, payroll and daily profit for cafés and restaurants in the Philippines. Free for 30 days." />
 <meta property="og:image" content="https://emberpos.net/shots/og.png" />
 <meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
 <link rel="preload" as="image" href="shots/hero-dashboard.webp" fetchpriority="high" />
 <style>
   /* Ember POS landing. "Coal & Flame" is the product's own incumbent system and
@@ -39,8 +40,13 @@
     --coal: #0c0a09; --coal-2: #171310; --coal-line: #2b2420;
     --coal-ink: #ece7df; --coal-muted: #a89c90;
     --paper: #f7f5f1; --card: #ffffff; --ink: #1a1714; --muted: #635a52; --line: #e6e1da;
-    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    /* One arrival curve for the whole page. Confident deceleration, no bounce. */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-quick: cubic-bezier(0.4, 0, 0.2, 1);
     --shell: min(1240px, 100% - 44px);
+    /* Lets the FAQ animate to its natural height instead of snapping open.
+       Ignored by browsers that do not have it; there it simply snaps, as now. */
+    interpolate-size: allow-keywords;
   }
   * { box-sizing: border-box; margin: 0; }
   /* The header is sticky, so anchor jumps (#features, #pricing) must clear it
@@ -58,8 +64,9 @@
   img { max-width: 100%; height: auto; display: block; }
   a { color: inherit; }
   .wrap { width: var(--shell); margin: 0 auto; }
-  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 700; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 700; font-variant-numeric: tabular-nums; }
   .ico { width: 22px; height: 22px; fill: var(--flame); flex: none; }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
 
   /* ---------- buttons ---------- */
   .btn {
@@ -67,36 +74,74 @@
     padding: 14px 24px; border-radius: 12px; font-weight: 600; font-size: 16px;
     text-decoration: none; border: 1.5px solid transparent; line-height: 1.2;
     white-space: nowrap;
-    transition: transform 160ms var(--ease-out), filter 160ms var(--ease-out),
+    transition: transform 140ms var(--ease-quick), filter 160ms var(--ease-out),
                 border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
   }
   .btn:active { transform: scale(0.97); }
-  .btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
-  .btn-flame { background: var(--flame); color: #fff; box-shadow: 0 6px 20px rgba(255,92,0,.28); }
+  /* NO coloured shadow on the coal sections. A warm halo behind an orange
+     button on a near-black page is glow, not elevation, and it was the most
+     generated-looking thing on the page. Flame on coal has enough contrast to
+     stand up on its own. On the paper body a warm shadow is real elevation, so
+     it is scoped to there and taken back off the one coal panel that lives
+     inside it. */
+  .btn-flame { background: var(--flame); color: #fff; }
+  /* Same shadow ink as every card in the light body, so the page has one
+     elevation language rather than a special case for the orange button. */
+  .light .btn-flame { box-shadow: 0 10px 24px -10px rgba(26,23,20,.45); }
+  .light .offer .btn-flame { box-shadow: none; }
   .btn-ghost { border-color: var(--coal-line); color: var(--coal-ink); background: rgba(255,255,255,.03); }
   .btn-ink { background: var(--ink); color: var(--paper); }
   @media (hover: hover) and (pointer: fine) {
-    .btn-flame:hover { filter: brightness(1.08); box-shadow: 0 10px 28px rgba(255,92,0,.36); }
+    .btn-flame:hover { filter: brightness(1.08); }
+    .light .btn-flame:hover { box-shadow: 0 14px 30px -10px rgba(26,23,20,.55); }
     .btn-ghost:hover { border-color: var(--flame); }
     .btn-ink:hover { filter: brightness(1.35); }
   }
 
-  /* ---------- header ---------- */
+  /* ---------- header ----------
+     Condenses once the hero starts leaving. A sentinel plus one
+     IntersectionObserver, never a scroll listener. */
   header {
     position: sticky; top: 0; z-index: 20;
     background: rgba(12,10,9,.82); backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--coal-line);
+    border-bottom: 1px solid transparent;
+    transition: background 260ms var(--ease-out), border-color 260ms var(--ease-out);
   }
+  /* The height SNAPS; it is not transitioned. This header is sticky, so
+     animating its height reflows a 9,600px document for the length of the
+     animation. The background, border and mark carry the change smoothly and
+     the one instant step reads as a single deliberate state, not a glitch. */
   .nav { display: flex; align-items: center; gap: 26px; height: 68px; }
   .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; margin-right: auto; }
-  /* Height only — the mark is trimmed to its own bounds, so a fixed width
+  /* Height only - the mark is trimmed to its own bounds, so a fixed width
      would stretch a taller-than-wide flame into a square. */
-  .nav-brand img { height: 34px; width: auto; }
+  .nav-brand img {
+    height: 34px; width: auto; transform-origin: left center;
+    transition: transform 260ms var(--ease-out);
+  }
   .nav-brand b { font-size: 17px; letter-spacing: .02em; }
-  .nav a.link { text-decoration: none; color: var(--coal-muted); font-size: 15px; transition: color 160ms var(--ease-out); }
-  @media (hover: hover) and (pointer: fine) { .nav a.link:hover { color: var(--coal-ink); } }
+  .nav a.link {
+    text-decoration: none; color: var(--coal-muted); font-size: 15px;
+    position: relative; padding: 4px 0;
+    transition: color 160ms var(--ease-out);
+  }
+  /* The underline grows from the centre on hover, so the link acknowledges the
+     pointer without moving the text and reflowing the row. */
+  .nav a.link::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1.5px;
+    background: var(--flame); transform: scaleX(0); transform-origin: center;
+    transition: transform 200ms var(--ease-out);
+  }
   .nav .btn { padding: 9px 17px; font-size: 14.5px; }
-  @media (max-width: 700px) { .nav a.link { display: none; } }
+  @media (hover: hover) and (pointer: fine) {
+    .nav a.link:hover { color: var(--coal-ink); }
+    .nav a.link:hover::after { transform: scaleX(1); }
+  }
+  html.stuck header { background: rgba(12,10,9,.94); border-bottom-color: var(--coal-line); }
+  html.stuck .nav { height: 56px; }
+  html.stuck .nav-brand img { transform: scale(.82); }
+  @media (max-width: 760px) { .nav a.link { display: none; } }
+  #top-sentinel { position: absolute; top: 0; height: 1px; width: 1px; }
 
   /* ---------- hero: asymmetric split, product bleeding off the right ---------- */
   .hero { position: relative; overflow: hidden; padding: 72px 0 84px; }
@@ -115,7 +160,7 @@
   }
   h1 {
     font-size: clamp(38px, 4.6vw, 60px); line-height: 1.03; letter-spacing: -.025em;
-    font-weight: 700; margin-top: 20px;
+    font-weight: 700; margin-top: 20px; text-wrap: balance;
   }
   .flame-text {
     background: linear-gradient(100deg, var(--flame), var(--gold));
@@ -127,7 +172,10 @@
 
   /* The browser frame sits in the right column and runs past the viewport edge,
      so the screenshot reads at a legible scale instead of being letterboxed
-     into the middle of a very wide screen. */
+     into the middle of a very wide screen. The phone leans on its lower-left
+     corner: the page's claim is one shop on every screen, so the hero shows
+     both screens rather than saying so twice. */
+  .hero-art { position: relative; }
   .frame {
     border: 1px solid var(--coal-line); border-radius: 16px; overflow: hidden;
     background: var(--coal-2); box-shadow: 0 40px 90px -30px rgba(0,0,0,.85);
@@ -139,12 +187,19 @@
     margin-left: 10px; font-size: 12.5px; color: var(--coal-muted);
     background: rgba(255,255,255,.04); border-radius: 7px; padding: 4px 14px;
   }
+  .hero-phone {
+    position: absolute; left: -38px; bottom: -34px; width: 166px; z-index: 2;
+    border-radius: 18px; overflow: hidden; border: 1px solid var(--coal-line);
+    background: var(--coal-2); box-shadow: 0 26px 54px -14px rgba(0,0,0,.9);
+  }
   @media (max-width: 1020px) {
     .hero { padding: 56px 0 64px; }
     .hero-grid { grid-template-columns: 1fr; gap: 40px; }
     .hero-sub { max-width: 60ch; }
     .frame { width: 100%; }
+    .hero-phone { left: auto; right: -14px; bottom: -26px; width: 132px; }
   }
+  @media (max-width: 620px) { .hero-phone { display: none; } }
 
   /* facts band: three plain claims, no invented metrics */
   .facts { border-top: 1px solid var(--coal-line); background: rgba(0,0,0,.25); }
@@ -166,13 +221,78 @@
   .sec-head h2 { font-size: clamp(29px, 3.6vw, 42px); line-height: 1.08; letter-spacing: -.02em; text-wrap: balance; }
   .sec-head p { margin-top: 12px; color: var(--muted); font-size: 17.5px; }
 
+  /* ---------- the live demo ----------
+     The strongest thing on the site is that the whole product opens in a tab
+     with a real shop already in it. It used to be one nav link. */
+  .demo-band {
+    display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 52px;
+    align-items: center;
+    background: linear-gradient(150deg, #fff, #fdf3e9);
+    border: 1px solid var(--line); border-radius: 16px; padding: 44px 46px;
+    box-shadow: 0 1px 2px rgba(26,23,20,.04), 0 22px 54px rgba(26,23,20,.07);
+  }
+  .demo-band h2 { font-size: clamp(28px, 3.4vw, 38px); line-height: 1.08; letter-spacing: -.02em; text-wrap: balance; }
+  .demo-band .lead { margin-top: 14px; color: var(--muted); font-size: 17px; max-width: 48ch; }
+  /* Three across at every width. Left to wrap, the third figure dropped to its
+     own line on a phone and read as an afterthought instead of a set. */
+  .demo-figs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 26px 0 28px; }
+  .demo-figs b {
+    display: block; font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 700;
+    font-variant-numeric: tabular-nums; font-size: 27px; letter-spacing: -.02em;
+  }
+  .demo-figs span { font-size: 13.5px; color: var(--muted); }
+  @media (min-width: 901px) {
+    .demo-figs { grid-template-columns: repeat(3, auto); justify-content: start; gap: 34px; }
+  }
+  @media (max-width: 400px) { .demo-figs b { font-size: 23px; } .demo-figs span { font-size: 12.5px; } }
+  /* Block, not inline-flex: as a flex row the sentence and the PIN were two
+     items, so the break landed between them and the chip sat alone on a line. */
+  .demo-key { font-size: 14px; color: var(--muted); margin-top: 16px; }
+  .demo-key code {
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px;
+    background: rgba(26,23,20,.06); border-radius: 6px; padding: 3px 8px; color: var(--ink);
+    white-space: nowrap;
+  }
+  /* Six real lessons, each a deep link that starts that lesson inside the demo. */
+  .lessons { display: flex; flex-direction: column; }
+  .lessons > b {
+    font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 6px;
+  }
+  /* transform, not padding: the row leans toward the pointer without asking the
+     browser to lay the list out again on every frame of the transition. */
+  .lesson {
+    display: flex; align-items: center; gap: 12px; padding: 13px 4px;
+    text-decoration: none; color: inherit; border-top: 1px solid var(--line);
+    transition: transform 200ms var(--ease-out), color 160ms var(--ease-out);
+  }
+  .lesson:last-child { border-bottom: 1px solid var(--line); }
+  .lesson .n {
+    width: 26px; height: 26px; border-radius: 50%; flex: none;
+    display: grid; place-items: center;
+    background: rgba(255,92,0,.10); color: var(--flame);
+  }
+  .lesson .n svg { width: 13px; height: 13px; fill: currentColor; }
+  .lesson strong { font-weight: 600; font-size: 15.5px; }
+  .lesson em {
+    font-style: normal; margin-left: auto; font-size: 13px; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .lesson:hover { transform: translateX(8px); color: var(--flame); }
+    .lesson:hover .n { background: var(--flame); color: #fff; }
+  }
+  @media (max-width: 900px) {
+    .demo-band { grid-template-columns: 1fr; gap: 34px; padding: 34px 26px; }
+  }
+
   /* features: asymmetric bento, three real screenshots, one coal cell */
   .bento { display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
   .cell {
     background: var(--card); border: 1px solid var(--line); border-radius: 16px;
     padding: 28px 28px 0; overflow: hidden; display: flex; flex-direction: column;
     box-shadow: 0 1px 2px rgba(26,23,20,.04), 0 10px 26px rgba(26,23,20,.05);
-    transition: transform 260ms var(--ease-out), box-shadow 260ms var(--ease-out);
+    transition: transform 300ms var(--ease-out), box-shadow 300ms var(--ease-out);
   }
   @media (hover: hover) and (pointer: fine) {
     .cell:hover { transform: translateY(-3px); box-shadow: 0 2px 4px rgba(26,23,20,.05), 0 20px 44px rgba(26,23,20,.10); }
@@ -225,7 +345,7 @@
   /* devices: split header, stacked rows on the right */
   .split { display: grid; grid-template-columns: 5fr 6fr; gap: 56px; align-items: center; }
   @media (max-width: 860px) { .split { grid-template-columns: 1fr; gap: 32px; } }
-  .split h2 { font-size: clamp(28px, 3.6vw, 40px); line-height: 1.1; letter-spacing: -.02em; }
+  .split h2 { font-size: clamp(28px, 3.6vw, 40px); line-height: 1.1; letter-spacing: -.02em; text-wrap: balance; }
   .split .lead { margin-top: 14px; color: var(--muted); font-size: 17.5px; max-width: 46ch; }
   .split .go { display: inline-flex; align-items: center; gap: 8px; margin-top: 22px;
     color: var(--flame); font-weight: 600; text-decoration: none; font-size: 16.5px;
@@ -241,19 +361,80 @@
     letter-spacing: .12em; text-transform: uppercase; border-radius: 999px; padding: 3px 10px;
   }
 
-  /* gallery rail */
+  /* gallery rail. The mask fades both ends so it reads as a track that
+     continues, which is what makes people drag it. */
+  .rail-wrap {
+    position: relative; max-width: 1500px; margin: 0 auto;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 44px, #000 calc(100% - 44px), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 44px, #000 calc(100% - 44px), transparent);
+  }
   .rail {
     display: flex; gap: 18px; overflow-x: auto; padding: 6px 22px 16px;
     scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
-    max-width: 1500px; margin: 0 auto;
   }
   .rail::-webkit-scrollbar { height: 8px; }
   .rail::-webkit-scrollbar-thumb { background: var(--line); border-radius: 8px; }
   .rail img {
     height: 400px; width: auto; flex: none; border-radius: 10px;
     border: 1px solid var(--line); scroll-snap-align: center;
+    transition: transform 320ms var(--ease-out), box-shadow 320ms var(--ease-out);
   }
-  @media (max-width: 700px) { .rail img { height: 300px; } }
+  @media (hover: hover) and (pointer: fine) {
+    .rail img:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(26,23,20,.14); }
+  }
+  @media (max-width: 700px) {
+    .rail img { height: 300px; }
+    .rail-wrap { -webkit-mask-image: none; mask-image: none; }
+  }
+
+  /* ---------- everything in the box ----------
+     The whole capability list, grouped the way the app itself is grouped. No
+     row borders: forty lines with a hairline under each is the laziest table
+     on the web. A hairline above each GROUP instead, which organises real
+     content rather than decorating it. The bold lines are the ones a POS built
+     for somewhere else usually does not carry. */
+  .box { display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px 46px; }
+  .box .grp { border-top: 1px solid var(--line); padding-top: 16px; }
+  .box .grp > b {
+    display: block; font-size: 12px; letter-spacing: .13em; text-transform: uppercase;
+    color: var(--flame); margin-bottom: 10px;
+  }
+  .box ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 9px; }
+  .box li { position: relative; padding-left: 20px; font-size: 15px; color: var(--muted); line-height: 1.45; }
+  .box li::before {
+    content: ""; position: absolute; left: 0; top: 8px; width: 8px; height: 2px;
+    border-radius: 2px; background: var(--line);
+  }
+  .box li.key { color: var(--ink); font-weight: 600; }
+  .box li.key::before { background: var(--flame); width: 12px; }
+  .box-note { text-align: center; color: var(--muted); font-size: 14.5px; margin-top: 40px; }
+  .box-note b { color: var(--ink); font-weight: 600; }
+  @media (max-width: 980px) { .box { grid-template-columns: 1fr 1fr; gap: 30px 36px; } }
+  @media (max-width: 640px) { .box { grid-template-columns: 1fr; gap: 26px; } }
+
+  /* ---------- getting started ----------
+     The free menu setup was the best offer on the site and it was sentence
+     seven of FAQ item seven. Asymmetric on purpose: three routes on the left,
+     the offer that costs nothing on a coal panel to the right. */
+  .start { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 46px; align-items: start; }
+  .route { display: flex; gap: 16px; padding: 20px 4px; }
+  .route + .route { border-top: 1px solid var(--line); }
+  .route .ico { margin-top: 3px; }
+  .route h3 { font-size: 17.5px; letter-spacing: -.01em; }
+  .route p { color: var(--muted); font-size: 15px; margin-top: 4px; }
+  .offer {
+    background: linear-gradient(150deg, var(--coal-2), #221a15);
+    border: 1px solid var(--coal-line); border-radius: 16px; padding: 32px 30px;
+    color: var(--coal-ink);
+  }
+  .offer .tag {
+    display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--gold); margin-bottom: 12px;
+  }
+  .offer h3 { font-size: 22px; letter-spacing: -.015em; line-height: 1.15; }
+  .offer p { color: var(--coal-muted); font-size: 15.5px; margin-top: 12px; }
+  .offer .btn { margin-top: 22px; width: 100%; }
+  @media (max-width: 900px) { .start { grid-template-columns: 1fr; gap: 34px; } }
 
   /* pricing */
   .price-card {
@@ -276,19 +457,48 @@
   }
   .price-note { font-size: 13.5px; color: var(--muted); margin-top: 14px; }
 
-  /* FAQ */
+  /* trust: four plain assurances, hairline row, no card chrome */
+  .trust {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+    max-width: 1000px; margin: 54px auto 0; border-top: 1px solid var(--line);
+  }
+  .trust div { padding: 22px 22px 0; }
+  .trust div + div { border-left: 1px solid var(--line); }
+  .trust b { display: block; font-size: 15.5px; font-weight: 600; }
+  .trust span { display: block; color: var(--muted); font-size: 14px; margin-top: 5px; }
+  @media (max-width: 860px) {
+    .trust { grid-template-columns: 1fr 1fr; }
+    .trust div + div { border-left: 0; }
+    .trust div:nth-child(even) { border-left: 1px solid var(--line); }
+    .trust div:nth-child(n+3) { border-top: 1px solid var(--line); padding-top: 20px; }
+  }
+  @media (max-width: 520px) {
+    .trust { grid-template-columns: 1fr; }
+    .trust div:nth-child(even) { border-left: 0; }
+    .trust div + div { border-top: 1px solid var(--line); padding-top: 20px; }
+  }
+
+  /* FAQ. The marker is two hairlines so the plus can become a minus in one
+     move instead of swapping a glyph. */
   .faq { max-width: 740px; margin: 0 auto; }
   .faq details { border-bottom: 1px solid var(--line); }
   .faq summary {
-    cursor: pointer; padding: 19px 30px 19px 2px; font-weight: 600; font-size: 17px;
+    cursor: pointer; padding: 19px 40px 19px 2px; font-weight: 600; font-size: 17px;
     list-style: none; position: relative;
+    transition: color 160ms var(--ease-out);
   }
   .faq summary::-webkit-details-marker { display: none; }
-  .faq summary::after {
-    content: "+"; position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
-    color: var(--flame); font-size: 22px; font-weight: 400;
+  .faq summary::before, .faq summary::after {
+    content: ""; position: absolute; right: 8px; top: 50%; background: var(--flame);
+    border-radius: 2px;
   }
-  .faq details[open] summary::after { content: "\2212"; }
+  .faq summary::before { width: 15px; height: 2px; margin-top: -1px; }
+  .faq summary::after {
+    width: 2px; height: 15px; margin-top: -7.5px; right: 14.5px;
+    transition: transform 260ms var(--ease-out), opacity 200ms var(--ease-out);
+  }
+  .faq details[open] summary::after { transform: scaleY(0); opacity: 0; }
+  @media (hover: hover) and (pointer: fine) { .faq summary:hover { color: var(--flame); } }
   .faq details p { padding: 0 2px 20px; color: var(--muted); font-size: 15.5px; }
   .faq a { color: var(--flame); }
 
@@ -298,7 +508,7 @@
     content: ""; position: absolute; inset: 0; pointer-events: none;
     background: radial-gradient(620px 340px at 50% 108%, rgba(255,92,0,.18), transparent 70%);
   }
-  .cta-end h2 { font-size: clamp(30px, 4.2vw, 46px); letter-spacing: -.025em; max-width: 660px; margin: 0 auto; }
+  .cta-end h2 { font-size: clamp(30px, 4.2vw, 46px); letter-spacing: -.025em; max-width: 660px; margin: 0 auto; text-wrap: balance; }
   .cta-end h2 span { color: var(--gold); }
   .cta-end p { color: var(--coal-muted); margin: 16px auto 30px; max-width: 520px; }
   .cta-end .hero-ctas { justify-content: center; margin-top: 0; }
@@ -310,31 +520,119 @@
   @media (hover: hover) and (pointer: fine) { .foot a:hover { color: var(--coal-ink); } }
   @media (max-width: 700px) { .foot { flex-direction: column; align-items: flex-start; } .foot nav { margin-left: 0; } }
 
+  /* ---------- the phone dock ----------
+     Almost everyone who reads this page reads it on a phone, where the nav
+     links are hidden and the hero buttons scroll away after one swipe. The
+     dock puts them back, and only after the hero has actually gone. */
+  .dock {
+    display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    gap: 10px; padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+    background: rgba(12,10,9,.92); backdrop-filter: blur(12px);
+    border-top: 1px solid var(--coal-line);
+  }
+  .dock .btn { flex: 1; padding: 13px 12px; font-size: 15px; }
+  @media (max-width: 760px) {
+    .dock { display: flex; transform: translateY(110%); }
+    html.js .dock { transition: transform 340ms var(--ease-out); }
+    html.past-hero .dock { transform: translateY(0); }
+    footer { padding-bottom: 104px; }
+  }
+
   /* ---------- motion ----------
-     Three motivated moves and nothing else: the hero enters in reading order
-     (hierarchy), sections reveal as they arrive (storytelling), and controls
-     respond to touch (feedback). Armed only when JS runs, so the page is never
-     blank without it, and fully disabled for reduced motion. */
+     ONE authored sequence, then quiet supporting motion. The hero assembles in
+     reading order and the phone settles against the frame last: that is the
+     page's claim, one shop on every screen, said once with movement instead of
+     twice with words. The bottom-line strip is the only other authored moment,
+     because it is the one image carrying the product's argument.
+     Everything else here is feedback, state, or a group that genuinely enters
+     as a group. Armed only when JS runs, so the page is never blank without it,
+     and fully disabled for reduced motion. */
   @media (prefers-reduced-motion: no-preference) {
     html { scroll-behavior: smooth; }
+
+    /* the focal sequence */
     html.js .hero .rise { opacity: 0; transform: translateY(18px); animation: rise 720ms var(--ease-out) forwards; }
     html.js .hero .rise:nth-child(2) { animation-delay: 70ms; }
     html.js .hero .rise:nth-child(3) { animation-delay: 140ms; }
     html.js .hero .rise:nth-child(4) { animation-delay: 210ms; }
-    html.js .hero-art { opacity: 0; transform: translateY(26px) scale(.985); animation: rise 900ms var(--ease-out) 260ms forwards; }
+    html.js .hero .frame { opacity: 0; transform: translateY(26px) scale(.985); animation: rise 900ms var(--ease-out) 260ms forwards; }
+    html.js .hero-phone { opacity: 0; transform: translateY(34px) scale(.94); animation: rise 760ms var(--ease-out) 620ms forwards; }
+    html.js .hero::before { opacity: 0; transform: scale(.9); animation: bloom 1500ms var(--ease-out) 60ms forwards; }
     @keyframes rise { to { opacity: 1; transform: translateY(0) scale(1); } }
-    html.js .rev { opacity: 0; transform: translateY(16px);
-      transition: opacity 620ms var(--ease-out), transform 620ms var(--ease-out); }
+    @keyframes bloom { to { opacity: 1; transform: scale(1); } }
+
+    /* the one authored supporting moment: the calculation resolves */
+    html.js .wipe img { clip-path: inset(0 100% 0 0); }
+    html.js .wipe.in img { clip-path: inset(0 0 0 0); transition: clip-path 920ms var(--ease-out) 160ms; }
+
+    /* groups that enter as groups. Three steps of stagger, then it stops. */
+    html.js .rev { opacity: 0; transform: translateY(14px);
+      transition: opacity 520ms var(--ease-out), transform 520ms var(--ease-out); }
     html.js .rev.in { opacity: 1; transform: translateY(0); }
-    html.js .rev.d1 { transition-delay: 70ms; }
-    html.js .rev.d2 { transition-delay: 140ms; }
+    html.js .rev.d1 { transition-delay: 60ms; }
+    html.js .rev.d2 { transition-delay: 120ms; }
+    html.js .rev.d3 { transition-delay: 180ms; }
+
+    /* the FAQ opens to its own height instead of snapping */
+    .faq details::details-content {
+      block-size: 0; overflow: hidden;
+      transition: block-size 320ms var(--ease-out), content-visibility 320ms allow-discrete;
+    }
+    .faq details[open]::details-content { block-size: auto; }
   }
   @media print {
-    html.js .rev, html.js .hero .rise, html.js .hero-art { opacity: 1 !important; transform: none !important; }
+    html.js .rev, html.js .hero .rise, html.js .hero .frame, html.js .hero-phone { opacity: 1 !important; transform: none !important; }
+    html.js .wipe img { clip-path: none !important; }
+    header, .dock { display: none !important; }
   }
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "Ember POS",
+      "url": "https://emberpos.net/",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Android, Web",
+      "description": "Point of sale, inventory, kitchen display, QR ordering, utang ledger, payroll and daily profit for cafes and restaurants in the Philippines.",
+      "installUrl": "https://play.google.com/store/apps/details?id=com.emberpos.app",
+      "offers": {
+        "@type": "Offer",
+        "price": "599",
+        "priceCurrency": "PHP",
+        "description": "Per month per branch, after a 30 day free trial. No card needed to start."
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Can I use it on my laptop or desktop computer?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes, and it is the whole app, not a cut-down version. Open the web app in any browser, sign in with the same shop account, and you get the register, the kitchen screen, menu and recipes, inventory, reports, staff, payroll and settings. Changes show up on every device, live." } },
+        { "@type": "Question", "name": "Can I record utang the way we do in our notebook?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Attach the customer to the order and choose Utang at payment, and the amount goes on their tab instead of the drawer. Money then shows every person who owes, how much, and how long it has been sitting. You record payments as they pay and can set a credit limit per person." } },
+        { "@type": "Question", "name": "Do you have an iPhone app?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not in the App Store yet. In the meantime iPhone and iPad owners run the full app in Safari, including the register. Open the app, tap Share, then Add to Home Screen for an icon and a full screen app." } },
+        { "@type": "Question", "name": "Does it really work without internet?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The Android app does, fully. Ringing sales, receipts and signing in all keep working, and it syncs when the connection comes back. In a browser the page has to load once with a connection, after which it rides out short drops too." } },
+        { "@type": "Question", "name": "What hardware do I need?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Any Android phone or tablet, even an older one, or an iPhone, iPad or computer through the browser. There is nothing special to buy." } },
+        { "@type": "Question", "name": "Is my data safe? Can my staff see everything?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Your shop's data lives in the cloud, isolated per shop and backed up for you. Access rights control every screen, and sensitive actions like voids and discounts can be limited to people you choose." } },
+        { "@type": "Question", "name": "Do I have to encode my whole menu myself?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Send whatever list you already have, a spreadsheet, a document, even a photo of your menu board, and we import your items, prices, ingredients and stock levels for you, free. You can also import a CSV yourself, or load a sample menu in one tap." } },
+        { "@type": "Question", "name": "How much does Ember POS cost?",
+          "acceptedAnswer": { "@type": "Answer", "text": "599 pesos a month per branch, with everything included: unlimited staff, unlimited devices, and every feature. The first 30 days are free and no card is needed to start." } }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
+
+<div id="top-sentinel" aria-hidden="true"></div>
 
 <header>
   <div class="wrap nav">
@@ -373,6 +671,10 @@
         <img src="shots/hero-dashboard.webp" width="1400" height="875" fetchpriority="high"
              alt="The Ember POS dashboard on a computer: net sales, orders, bottom-line profit and a sales chart" />
       </div>
+      <div class="hero-phone">
+        <img src="shots/hero-phone.webp" width="420" height="909" fetchpriority="high"
+             alt="The same shop on a phone: the till, with two drinks in the order and a running total" />
+      </div>
     </div>
   </div>
 </div>
@@ -387,9 +689,36 @@
 
 <div class="light">
 
-<section id="features">
+<section id="demo">
   <div class="wrap">
-    <div class="sec-head rev">
+    <div class="demo-band rev">
+      <div>
+        <h2>A cafe that has been trading for 45 days. Open it.</h2>
+        <p class="lead">Ember Cafe is a seeded shop with a real history in it, and it opens in this tab with no sign-up and nothing to install. Ring a sale, receive a delivery, count the stock, run the payroll, close the day. Nothing you do there ever leaves your browser.</p>
+        <div class="demo-figs">
+          <div><b class="tick" data-to="45">45</b><span>days of trading</span></div>
+          <div><b class="tick" data-prefix="&#8369;" data-to="620" data-suffix="k">&#8369;620k</b><span>through the till</span></div>
+          <div><b class="tick" data-to="5">5</b><span>staff, own logins</span></div>
+        </div>
+        <a class="btn btn-ink" href="demo/">Open the live demo &rarr;</a>
+        <div class="demo-key">Sign in as Maria Santos, the owner. Her PIN is <code>1234</code></div>
+      </div>
+      <div class="lessons">
+        <b>Or start on a specific job</b>
+        <a class="lesson" href="demo/?lesson=sell"><span class="n"><svg viewBox="0 0 256 256" aria-hidden="true"><path d="M96 216a16 16 0 1 1-16-16 16 16 0 0 1 16 16Zm88-16a16 16 0 1 0 16 16 16 16 0 0 0-16-16ZM228.9 62.7 203 156a16 16 0 0 1-15.4 12H80.2a16 16 0 0 1-15.4-12L39.6 64H24a8 8 0 0 1 0-16h15.6a16 16 0 0 1 15.4 12l4.4 16h162.2a8 8 0 0 1 7.3 10.7Z"/></svg></span><strong>Ring up a sale</strong><em>2 min</em></a>
+        <a class="lesson" href="demo/?lesson=stock"><span class="n"><svg viewBox="0 0 256 256" aria-hidden="true"><path d="M223.7 66.1 135.7 18a15.9 15.9 0 0 0-15.4 0l-88 48.2a16 16 0 0 0-8.3 14v95.6a16 16 0 0 0 8.3 14l88 48.2a15.9 15.9 0 0 0 15.4 0l88-48.2a16 16 0 0 0 8.3-14V80.2a16 16 0 0 0-8.3-14.1ZM128 32l80.3 44-29.7 16.3-80.4-44Zm0 88L47.7 76l33.9-18.6 80.3 44ZM40 90l80 43.8v85.8L40 175.8Z"/></svg></span><strong>Stock on the shelf</strong><em>2 min</em></a>
+        <a class="lesson" href="demo/?lesson=receive"><span class="n"><svg viewBox="0 0 256 256" aria-hidden="true"><path d="M216 40H40a16 16 0 0 0-16 16v144a16 16 0 0 0 16 16h176a16 16 0 0 0 16-16V56a16 16 0 0 0-16-16Zm0 160H40V56h176ZM88 112a8 8 0 0 1 8-8h64a8 8 0 0 1 0 16H96a8 8 0 0 1-8-8Zm0 32a8 8 0 0 1 8-8h64a8 8 0 0 1 0 16H96a8 8 0 0 1-8-8Z"/></svg></span><strong>Receive a delivery</strong><em>2 min</em></a>
+        <a class="lesson" href="demo/?lesson=pnl"><span class="n"><svg viewBox="0 0 256 256" aria-hidden="true"><path d="M232 208a8 8 0 0 1-8 8H32a8 8 0 0 1-8-8V48a8 8 0 0 1 16 0v108.7l50.3-50.4a8 8 0 0 1 11.4 0L128 132.7 180.7 80H160a8 8 0 0 1 0-16h40a8 8 0 0 1 8 8v40a8 8 0 0 1-16 0V91.3l-58.3 58.4a8 8 0 0 1-11.4 0L96 123.3l-56 56V200h184a8 8 0 0 1 8 8Z"/></svg></span><strong>Profit &amp; Loss</strong><em>2 min</em></a>
+        <a class="lesson" href="demo/?lesson=payroll"><span class="n"><svg viewBox="0 0 256 256" aria-hidden="true"><path d="M128 24a104 104 0 1 0 104 104A104.1 104.1 0 0 0 128 24Zm12 152.9V184a8 8 0 0 1-16 0v-7a35 35 0 0 1-19.9-11.3 8 8 0 0 1 12-10.6c3.6 4.1 8.6 6.9 15.9 6.9 10 0 16-4.4 16-10.5 0-5.6-3.9-8.7-19.4-11.9-14.4-3-27.6-8.4-27.6-24.9 0-11.9 9-21.4 23-24.4V80a8 8 0 0 1 16 0v6.8a32.7 32.7 0 0 1 18.4 10.4 8 8 0 1 1-11.7 10.9c-3.4-3.6-8-5.6-14.3-5.6-9 0-15.4 3.8-15.4 9.3 0 5 3.6 7.9 18.3 11 15.9 3.3 28.7 9.2 28.7 25.8 0 12.8-9.6 22.9-24 26.3Z"/></svg></span><strong>Payroll</strong><em>1 min</em></a>
+        <a class="lesson" href="demo/?lesson=dayflow"><span class="n"><svg viewBox="0 0 256 256" aria-hidden="true"><path d="M136 80v43.5l36.1 21.7a8 8 0 0 1-8.2 13.7l-40-24A8 8 0 0 1 120 128V80a8 8 0 0 1 16 0Zm-8-48a95.4 95.4 0 0 0-67.9 28.2C52.8 67.5 46.4 74.6 40 82V64a8 8 0 0 0-16 0v40a8 8 0 0 0 8 8h40a8 8 0 0 0 0-16H49c7.2-8.4 14.3-16.4 22.4-24.6a80 80 0 1 1 1.7 114.8 8 8 0 1 0-11 11.6A96 96 0 1 0 128 32Z"/></svg></span><strong>Drawers &amp; the trading day</strong><em>2 min</em></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
       <h2>Run the day. Keep the numbers.</h2>
       <p>One app covers the counter, the kitchen, the stock room and the books.</p>
     </div>
@@ -398,7 +727,7 @@
         <h3><svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M232,208a8,8,0,0,1-8,8H32a8,8,0,0,1-8-8V48a8,8,0,0,1,16,0V156.69l50.34-50.35a8,8,0,0,1,11.32,0L128,132.69,180.69,80H160a8,8,0,0,1,0-16h40a8,8,0,0,1,8,8v40a8,8,0,0,1-16,0V91.31l-58.34,58.35a8,8,0,0,1-11.32,0L96,123.31l-56,56V200H224A8,8,0,0,1,232,208Z"/></svg>
           Profit, not just sales</h3>
         <p>Ingredients used, wages clocked and expenses paid come off the day's sales. You see what you actually kept, every day.</p>
-        <div class="shot"><img src="shots/feat-profit.webp" width="1000" height="159" loading="lazy"
+        <div class="shot wipe"><img src="shots/feat-profit.webp" width="1000" height="164" loading="lazy"
           alt="The bottom line strip: sales minus ingredients, labor and expenses leaves the real profit" /></div>
       </div>
       <div class="cell c5 rev d1">
@@ -436,7 +765,7 @@
 
 <section id="philippines" style="padding-top:0">
   <div class="wrap">
-    <div class="sec-head rev">
+    <div class="sec-head">
       <h2>Built for how Philippine shops really run</h2>
       <p>The parts a foreign POS never gets right, done properly here.</p>
     </div>
@@ -467,19 +796,19 @@
 
 <section id="backoffice" style="padding-top:0">
   <div class="wrap">
-    <div class="sec-head rev">
+    <div class="sec-head">
       <h2>The back office does the thinking</h2>
       <p>Open the app on a laptop and it tells you what needs attention today.</p>
     </div>
-    <div class="groups rev">
-      <div class="group">
+    <div class="groups">
+      <div class="group rev">
         <h3>Money</h3>
         <div class="row"><span class="dot"></span><div><b>Break-even</b><span>The daily sales you need before the shop starts earning.</span></div></div>
         <div class="row"><span class="dot"></span><div><b>Unpaid deliveries</b><span>What you still owe each supplier, and when it arrived.</span></div></div>
         <div class="row"><span class="dot"></span><div><b>Drawer bill counter</b><span>Count the cash by denomination and it adds up for you.</span></div></div>
         <div class="row"><span class="dot"></span><div><b>Cash in and out</b><span>Petty cash and owner draws, kept out of your sales figures.</span></div></div>
       </div>
-      <div class="group">
+      <div class="group rev d1">
         <h3>Selling more</h3>
         <div class="row"><span class="dot"></span><div><b>What stopped selling</b><span>Items nobody ordered this period, worth promoting or cutting.</span></div></div>
         <div class="row"><span class="dot"></span><div><b>Bought together</b><span>Real pairs from your receipts, so your combos are built on evidence.</span></div></div>
@@ -519,23 +848,157 @@
 </section>
 
 <section id="screens" style="padding-top:0">
-  <div class="sec-head wrap rev">
+  <div class="sec-head wrap">
     <h2>Real screens, real numbers</h2>
     <p>Every image below is the app itself, running a working shop.</p>
   </div>
-  <div class="rail">
-    <img src="shots/g1-profit.webp" width="1100" height="619" alt="Dashboard slide: sales minus costs, today" loading="lazy" />
-    <img src="shots/g2-pos.webp" width="480" height="853" alt="Point of sale slide: ring a sale in three taps" loading="lazy" />
-    <img src="shots/g3-kitchen.webp" width="1100" height="619" alt="Kitchen display slide" loading="lazy" />
-    <img src="shots/g4-stock.webp" width="480" height="853" alt="Inventory slide: stock counts itself" loading="lazy" />
-    <img src="shots/g5-access.webp" width="1100" height="619" alt="Access rights slide: you decide who can do what" loading="lazy" />
-    <img src="shots/g6-activity.webp" width="480" height="853" alt="Activity log slide: every action recorded" loading="lazy" />
+  <div class="rail-wrap">
+    <div class="rail" tabindex="0" role="group" aria-label="Screenshots of Ember POS, scroll sideways">
+      <img src="shots/g1-profit.webp" width="1100" height="619" alt="Dashboard slide: sales minus costs, today" loading="lazy" />
+      <img src="shots/g2-pos.webp" width="480" height="853" alt="Point of sale slide: ring a sale in three taps" loading="lazy" />
+      <img src="shots/g3-kitchen.webp" width="1100" height="619" alt="Kitchen display slide" loading="lazy" />
+      <img src="shots/g4-stock.webp" width="480" height="853" alt="Inventory slide: stock counts itself" loading="lazy" />
+      <img src="shots/g5-access.webp" width="1100" height="619" alt="Access rights slide: you decide who can do what" loading="lazy" />
+      <img src="shots/g6-activity.webp" width="480" height="853" alt="Activity log slide: every action recorded" loading="lazy" />
+    </div>
+  </div>
+</section>
+
+<section id="everything" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Everything in the box</h2>
+      <p>One price with no tiers and no add-on charges, so everything below is already switched on in your shop.</p>
+    </div>
+    <div class="box">
+      <div class="grp rev">
+        <b>At the counter</b>
+        <ul>
+          <li>Sizes, add-ons and a note per item</li>
+          <li>Held orders, split payment, refunds and voids</li>
+          <li>A floor map of your tables, plus quick tickets</li>
+          <li class="key">Utang on a tab, with a credit limit per person</li>
+          <li class="key">Senior and PWD, with the OSCA or PWD ID on the sale</li>
+          <li>Discounts, coupons, gift cards and store credit</li>
+          <li>Happy hour, and prices that change by day part</li>
+          <li>Meals and combos priced as one thing</li>
+          <li>A customer display for the guest's side of the counter</li>
+          <li>Tips, takeaway packaging, and custom one-off items</li>
+        </ul>
+      </div>
+      <div class="grp rev d1">
+        <b>Kitchen and orders</b>
+        <ul>
+          <li>A kitchen screen where tickets change colour as they age</li>
+          <li>Cooks bump one dish or the whole ticket</li>
+          <li>A Now Serving board for the wall</li>
+          <li>A prep station screen for things you batch ahead</li>
+          <li>Claim stubs and cup stickers</li>
+          <li>Printing to the kitchen the moment an order is sent</li>
+          <li class="key">QR ordering at the table, from the guest's own phone</li>
+          <li class="key">An online shop for pickup and delivery, prepaid by QR Ph</li>
+          <li>Book a delivery rider through your own Lalamove account</li>
+        </ul>
+      </div>
+      <div class="grp rev d2">
+        <b>Stock and recipes</b>
+        <ul>
+          <li class="key">A recipe per size and per add-on, so stock follows the sale</li>
+          <li>Purchase orders, supplier terms and a receiving report</li>
+          <li>Count sheets in kg and g, in L and mL, or in packs</li>
+          <li>Waste and spoilage, with a slip somebody signs</li>
+          <li>A shopping list built from what you are short of</li>
+          <li>Low stock and expiry warnings, by email if you want them</li>
+          <li>Send stock to your other branch</li>
+          <li>Sold out and back on, in one tap</li>
+        </ul>
+      </div>
+      <div class="grp rev">
+        <b>Money</b>
+        <ul>
+          <li class="key">Profit and loss with ingredients, wages and expenses taken off</li>
+          <li>Food and paper cost, per item and per batch</li>
+          <li>Break-even, cash flow, and cash in and out</li>
+          <li>Count the drawer by denomination, blind if you prefer</li>
+          <li class="key">Cash custody: the float, the hand-over and the walk to the bank</li>
+          <li class="key">Check the wallet app's statement against what the till recorded</li>
+          <li>Your own payment buttons, each landing separately</li>
+          <li class="key">A sales book in BIR columns, and an invoice gap check</li>
+          <li>Price quotes for catering and bulk orders</li>
+        </ul>
+      </div>
+      <div class="grp rev d1">
+        <b>Your people</b>
+        <ul>
+          <li>A time clock on the sign-in screen, no separate app</li>
+          <li>Schedules, timecards and a shift report</li>
+          <li>Payroll that takes its hours from the clock</li>
+          <li class="key">Access rights per screen and per action, not per role</li>
+          <li>Every void, discount and drawer open logged with a name</li>
+          <li>A logbook for what the shift needs to tell the next one</li>
+        </ul>
+      </div>
+      <div class="grp rev d2">
+        <b>The shop itself</b>
+        <ul>
+          <li class="key">Keeps selling through a brownout, syncs when the signal is back</li>
+          <li>The same shop on Android, iPhone, tablet and any computer</li>
+          <li>A second branch on one account, with the numbers kept apart</li>
+          <li>Loyalty points, and regulars who have gone quiet</li>
+          <li>Bluetooth receipt printing, drawer kick and label printing</li>
+          <li>Import a CSV, and export everything as CSV any time</li>
+          <li>A daily goal, and a reminder before a permit expires</li>
+          <li>Every update included, at no extra cost, forever</li>
+        </ul>
+      </div>
+    </div>
+    <p class="box-note rev">The lines <b>in bold</b> are the ones a point of sale built somewhere else usually does not carry. Everything on this page can be tried in <a href="demo/" style="color:var(--flame)">the live demo</a> before you install anything.</p>
+  </div>
+</section>
+
+<section id="start" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Getting your menu in is the only real work</h2>
+      <p>And you do not have to do it. Pick whichever of these suits you.</p>
+    </div>
+    <div class="start">
+      <div class="rev">
+        <div class="route">
+          <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm45.66-109.66a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L120,148.69l42.34-42.35A8,8,0,0,1,173.66,106.34Z"/></svg>
+          <div>
+            <h3>Load a sample menu, one tap</h3>
+            <p>A working cafe menu with recipes and stock behind it, so you can see the whole thing running before you type anything of your own.</p>
+          </div>
+        </div>
+        <div class="route">
+          <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Z"/></svg>
+          <div>
+            <h3>Import your spreadsheet</h3>
+            <p>Bring a CSV of items and prices straight into Settings and it lands as a real menu, sizes and all.</p>
+          </div>
+        </div>
+        <div class="route">
+          <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.71,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.43l13.63,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z"/></svg>
+          <div>
+            <h3>Photograph your menu board</h3>
+            <p>Send us the photo, or the document, or the spreadsheet, whatever you already have. We do the encoding.</p>
+          </div>
+        </div>
+      </div>
+      <div class="offer rev d1">
+        <span class="tag">Costs nothing</span>
+        <h3>Send us your menu and we set the shop up for you.</h3>
+        <p>Items, prices, sizes, add-ons, the ingredients behind each recipe and your current stock levels. We build it, you check it, then you sell. There is no fee for this and no obligation to stay.</p>
+        <a class="btn btn-flame" href="mailto:atlasco.web@gmail.com?subject=My%20menu%20for%20Ember%20POS">Email us your menu</a>
+      </div>
+    </div>
   </div>
 </section>
 
 <section id="pricing" style="padding-top:0">
   <div class="wrap">
-    <div class="sec-head rev">
+    <div class="sec-head">
       <h2>One price. Everything in it.</h2>
       <p>No per-staff fees, no per-device fees, no feature tiers.</p>
     </div>
@@ -553,16 +1016,22 @@
       <a class="btn btn-flame" style="width:100%" href="https://play.google.com/store/apps/details?id=com.emberpos.app">Get it on Google Play</a>
       <p class="price-note">Subscribe inside the app when the trial ends.<br />Each branch has its own subscription.</p>
     </div>
+    <div class="trust rev d1">
+      <div><b>Your records stay yours</b><span>Export the whole shop to spreadsheets any time, including after you leave.</span></div>
+      <div><b>One shop cannot see another</b><span>Every shop's data is isolated and backed up for you.</span></div>
+      <div><b>Month to month</b><span>No contract, no lock-in period, no cancellation fee.</span></div>
+      <div><b>Updates are included</b><span>Everything built since launch arrived free, and that is not changing.</span></div>
+    </div>
   </div>
 </section>
 
 <section id="faq" style="padding-top:0">
   <div class="wrap">
-    <div class="sec-head rev">
+    <div class="sec-head">
       <h2>Common questions</h2>
       <p><a href="faq.html" style="color:var(--flame)">See the full FAQ &rarr;</a></p>
     </div>
-    <div class="faq rev">
+    <div class="faq">
       <details>
         <summary>Can I use it on my laptop or desktop computer?</summary>
         <p>Yes, and it is the whole app, not a cut-down version. Open <a href="app/">the web app</a> in any browser, sign in with the same shop account, and you get everything: the register, the kitchen screen, menu and recipes, inventory, reports, staff, payroll and settings. Changes show up on every device, live.</p>
@@ -631,23 +1100,79 @@
   </div>
 </footer>
 
+<div class="dock" aria-label="Get Ember POS">
+  <a class="btn btn-flame" href="https://play.google.com/store/apps/details?id=com.emberpos.app">Get it on Google Play</a>
+  <a class="btn btn-ghost" href="demo/">Live demo</a>
+</div>
+
 <script>
-  // Arms the scroll reveals. Without JS the CSS never hides anything, so the
-  // page is fully readable with scripting off. IntersectionObserver only, never
-  // a scroll listener.
+  // Arms the motion. Without JS the CSS never hides anything, so the page is
+  // fully readable with scripting off. IntersectionObserver only, never a
+  // scroll listener: a listener runs on every scrolled frame and this page has
+  // nothing that needs per-frame accuracy.
   document.documentElement.classList.add('js');
   (function () {
-    var els = document.querySelectorAll('.rev');
-    if (!('IntersectionObserver' in window)) {
+    var root = document.documentElement;
+    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var hasIO = 'IntersectionObserver' in window;
+
+    // 1. Groups that enter as groups, and the one authored wipe.
+    var els = document.querySelectorAll('.rev, .wipe');
+    if (!hasIO) {
       Array.prototype.forEach.call(els, function (e) { e.classList.add('in'); });
-      return;
+    } else {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+        });
+      }, { rootMargin: '0px 0px -60px 0px', threshold: 0.1 });
+      Array.prototype.forEach.call(els, function (e) { io.observe(e); });
     }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
-      });
-    }, { rootMargin: '0px 0px -60px 0px', threshold: 0.1 });
-    Array.prototype.forEach.call(els, function (e) { io.observe(e); });
+
+    // 2. The header condenses, and the phone dock arrives, once the hero has
+    //    gone. Both hang off one sentinel so there is a single source of truth
+    //    for "we are past the top".
+    var top = document.getElementById('top-sentinel');
+    if (hasIO && top) {
+      new IntersectionObserver(function (e) {
+        root.classList.toggle('stuck', !e[0].isIntersecting);
+      }, { threshold: 0 }).observe(top);
+    }
+    var hero = document.querySelector('.hero');
+    if (hasIO && hero) {
+      new IntersectionObserver(function (e) {
+        root.classList.toggle('past-hero', !e[0].isIntersecting);
+      }, { threshold: 0 }).observe(hero);
+    } else {
+      root.classList.add('past-hero');
+    }
+
+    // 3. The three demo figures count up, once, when they arrive. They are real
+    //    numbers from the seeded shop, which is the whole reason they are worth
+    //    pointing at. Reduced motion gets the final value and no counting.
+    var ticks = document.querySelectorAll('.tick');
+    function roll(el) {
+      var to = parseInt(el.getAttribute('data-to'), 10) || 0;
+      var pre = el.getAttribute('data-prefix') || '';
+      var suf = el.getAttribute('data-suffix') || '';
+      var start = null, dur = 900;
+      function step(ts) {
+        if (start === null) start = ts;
+        var p = Math.min(1, (ts - start) / dur);
+        var eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = pre + Math.round(to * eased) + suf;
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+    if (ticks.length && hasIO && !reduced) {
+      var tio = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) { roll(en.target); tio.unobserve(en.target); }
+        });
+      }, { threshold: 0.6 });
+      Array.prototype.forEach.call(ticks, function (e) { tio.observe(e); });
+    }
   })();
 </script>
 
