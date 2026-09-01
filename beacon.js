@@ -56,7 +56,15 @@
       else if (href.indexOf('.apk') >= 0) send('download.apk', null);
       else if (href.indexOf('.exe') >= 0 || href.indexOf('windows') >= 0) send('download.windows', null);
       else if (href === 'app/' || href === '/app/' || href.indexOf('emberpos.net/app') >= 0) send('cta.webapp', null);
-      else if (href.indexOf('order.html') >= 0) send('cta.demo', null);
+      // The browser demo was never counted at all: cta.demo only ever fired on
+      // order.html, which is the QR ordering page, not the demo shop. The two
+      // are now told apart by the detail, and a lesson deep link reports which
+      // job the visitor came to try.
+      else if (href.indexOf('demo/') === 0 || href.indexOf('/demo/') >= 0 || href.indexOf('emberpos.net/demo') >= 0) {
+        var m = /[?&]lesson=([a-z]+)/.exec(href);
+        send('cta.demo', m ? m[1] : 'browser');
+      }
+      else if (href.indexOf('order.html') >= 0) send('cta.demo', 'qr');
       else if (href.indexOf('#pricing') >= 0) send('cta.pricing', null);
     } catch (e) { /* never let a counter swallow a click */ }
   }, true);
