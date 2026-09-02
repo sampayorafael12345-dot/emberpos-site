@@ -18,7 +18,7 @@
   --steel: #a39e97; --steel-dark: #6b665f;
   --paper: #f7f4ee; --paper-ink: #171411; --paper-faint: #6f685f; --paper-rule: #cfc8bd; --paper-body: #3f3a34;
   --label: #ffffff;
-  --flame: #ff5c00; --flame-deep: #d94e00;
+  --flame: #ff5c00; --flame-deep: #d94e00; --flame-ink: #b84000; /* flame for TEXT on paper, 5:1 */
   --amber: #ffb000;
   --ink: #efe9df; --muted: #a89f94;
   --display: 'Big Shoulders Display', 'Barlow', Impact, sans-serif;
@@ -40,7 +40,7 @@ body {
 }
 .mono { font-family: var(--mono); font-weight: 600; font-variant-numeric: tabular-nums; }
 :focus-visible { outline: 2px solid var(--flame); outline-offset: 3px; }
-a { color: var(--flame-deep); }
+a { color: var(--flame-ink); }
 
 /* ---------- the sheet: every page reads on paper ---------- */
 .wrap {
@@ -100,7 +100,7 @@ a.card {
   transition: transform 160ms var(--ease-out), border-color 160ms var(--ease-out);
 }
 a.card:hover { border-color: var(--flame); transform: rotate(-.6deg) translateY(-1px); }
-a.card b { color: var(--flame-deep); display: block; margin-bottom: 4px; font-family: var(--mono); font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; }
+a.card b { color: var(--flame-ink); display: block; margin-bottom: 4px; font-family: var(--mono); font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; }
 a.card span { display: block; }
 
 /* ---------- tables (privacy policy) ---------- */
@@ -166,7 +166,7 @@ button:disabled { opacity: .55; cursor: default; }
 footer { margin-top: 44px; padding-top: 18px; border-top: 1px dashed var(--paper-rule); color: var(--paper-faint); font-size: 13.5px; text-align: center; font-family: var(--mono); }
 footer nav { margin-bottom: 8px; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; }
 footer nav a { color: var(--paper-faint); text-decoration: none; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
-footer nav a:hover { color: var(--flame-deep); }
+footer nav a:hover { color: var(--flame-ink); }
 
 /* The full-bleed coal footer, for pages that carry the site chrome. */
 footer.site-foot {

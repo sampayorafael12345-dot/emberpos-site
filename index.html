@@ -53,7 +53,7 @@
     --paper: #f7f4ee; --paper-ink: #171411; --paper-faint: #6f685f; --paper-rule: #cfc8bd;
     --ticket: #f3d97c; --ticket-ink: #1c1608; --ticket-rule: #b39a3a;
     --label: #ffffff;
-    --flame: #ff5c00; --flame-deep: #d94e00;
+    --flame: #ff5c00; --flame-deep: #d94e00; --flame-ink: #b84000; /* flame for TEXT on paper, 5:1 */
     --amber: #ffb000; --glass: #0a0908; --off: #2a2114;
     --ink: #efe9df; --muted: #a89f94;
     --display: 'Big Shoulders Display', 'Barlow', Impact, sans-serif;
@@ -133,6 +133,11 @@
   }
   .rail::before { left: 22px; } .rail::after { right: 22px; }
   .rail.tight { margin: 0; }
+  .rail b {
+    position: absolute; left: 46px; top: -9px; line-height: 24px; padding: 0 9px; border-radius: 2px;
+    font-family: var(--display); font-weight: 800; font-size: 15px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--coal); background: linear-gradient(#d3cec7, var(--steel)); box-shadow: 0 1px 2px rgba(0,0,0,.6), inset 0 1px 0 #e6e2dc;
+  }
 
   /* ---------- nav ---------- */
   #top-sentinel { position: absolute; top: 0; height: 1px; width: 1px; }
@@ -158,13 +163,25 @@
 
   /* ---------- HERO BAY: the machine ---------- */
   .hero { padding: 56px 0 0; }
-  .hero-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px; align-items: start; }
-  .hero-copy { padding-top: 18px; }
+  .hero-grid {
+    display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 18px 48px; align-items: start;
+    grid-template-areas: "head art" "copy art";
+  }
+  .hero-head { grid-area: head; padding-top: 18px; }
+  .hero-copy { grid-area: copy; }
+  .hero-art { grid-area: art; }
   .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 30px; }
   .hero-note { margin-top: 26px; font-size: 14.5px; color: var(--muted); max-width: 44ch; }
   .hero-note .stamp { color: var(--muted); }
   .hero-note .stamp.ok { color: var(--ink); }
-  @media (max-width: 1020px) { .hero-grid { grid-template-columns: 1fr; gap: 40px; } .hero { padding-top: 36px; } }
+  /* On a phone the till comes right after the headline: the audience decides
+     on a phone, and a first viewport of prose shows no mechanism. */
+  @media (max-width: 1020px) {
+    .hero-grid { grid-template-columns: 1fr; grid-template-areas: "head" "art" "copy"; gap: 26px; }
+    .hero { padding-top: 32px; }
+    .hero-head .display { font-size: clamp(40px, 11vw, 60px); }
+    .hero-copy .lede { margin-top: 0; }
+  }
 
   /* the till chassis */
   .till {
@@ -181,7 +198,7 @@
     background: var(--glass); border-radius: 8px; box-shadow: var(--glass-shadow); padding: 12px 16px;
     display: flex; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid #000;
   }
-  .led .cap { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #8a6a2a; }
+  .led .cap { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #a8852f; }
   .seg { display: inline-flex; gap: 6px; align-items: flex-end; }
   .seg .d { position: relative; width: 22px; height: 38px; }
   .seg .d.sep { width: 8px; }
@@ -242,9 +259,11 @@
   .basket-keys .key.clear { font-size: 11px; padding: 14px 12px; }
 
   /* the printer slot */
-  .slot-wrap { position: relative; margin: 16px -18px 0; height: 30px; }
+  .slot-wrap { position: relative; z-index: 2; margin: 16px -18px 0; height: 30px; }
   .slot { position: absolute; left: 18px; right: 18px; top: 8px; height: 10px; background: var(--edge-dark); border-radius: 5px; box-shadow: inset 0 2px 4px #000; }
-  .printer-out { position: relative; margin: 0 auto; width: min(360px, 100%); min-height: 0; pointer-events: none; }
+  /* the lip: the paper is under it, in shadow, as it comes out */
+  .slot-wrap::after { content: ""; position: absolute; left: 18px; right: 18px; top: 18px; height: 14px; background: linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,0)); pointer-events: none; }
+  .printer-out { position: relative; z-index: 1; margin: 0 auto; width: min(360px, 100%); min-height: 0; pointer-events: none; }
   .receipt {
     position: relative; margin: -4px auto 0; width: 300px; max-width: 100%;
     max-height: 0; overflow: hidden; transition: max-height 1400ms var(--ease-liquid);
@@ -252,13 +271,15 @@
   .receipt .paper { padding: 22px 18px 26px; box-shadow: var(--paper-shadow); }
   .receipt.out { max-height: 520px; }
   .receipt .paper .ln { grid-template-columns: 28px 1fr auto; }
-  .receipt .paper .ln, .receipt .paper .rule, .receipt .paper .h, .receipt .paper .tot, .receipt .paper .ft { opacity: 0; transform: translateY(-4px); }
-  .receipt.printed .paper .ln, .receipt.printed .paper .rule, .receipt.printed .paper .h, .receipt.printed .paper .tot, .receipt.printed .paper .ft { opacity: 1; transform: none; }
+  .receipt .paper .ln, .receipt .paper .rule, .receipt .paper .h, .receipt .paper .tot, .receipt .paper .barcode, .receipt .paper .ft { opacity: 0; transform: translateY(-4px); }
+  .receipt.printed .paper .ln, .receipt.printed .paper .rule, .receipt.printed .paper .h, .receipt.printed .paper .tot, .receipt.printed .paper .barcode, .receipt.printed .paper .ft { opacity: 1; transform: none; }
   .receipt .paper > * { transition: opacity 120ms linear, transform 200ms var(--ease-out); }
   .receipt .paper .ft { font-size: 11px; color: var(--paper-faint); text-align: center; margin-top: 10px; }
+  .barcode { height: 22px; width: 68%; margin: 12px auto 6px; background: repeating-linear-gradient(90deg, var(--paper-ink) 0 2px, transparent 2px 4px, var(--paper-ink) 4px 5px, transparent 5px 8px, var(--paper-ink) 8px 11px, transparent 11px 13px, var(--paper-ink) 13px 14px, transparent 14px 17px); }
+  .jar .lbl .barcode { height: 7px; width: 100%; margin: 6px 0 0; }
   .receipt .paper .paid {
     position: absolute; right: 18px; top: 60px; transform: rotate(-12deg) scale(1.6); opacity: 0;
-    border: 3px solid var(--flame); color: var(--flame); font-weight: 700; font-size: 15px; letter-spacing: .14em;
+    border: 3px solid var(--flame); color: var(--flame); font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: .1em;
     padding: 4px 8px; border-radius: 3px; transition: transform 240ms var(--ease-out), opacity 180ms linear;
   }
   .receipt.printed.stamped .paper .paid { opacity: 1; transform: rotate(-12deg) scale(1); }
@@ -278,8 +299,9 @@
   .bay { position: relative; }
   .bay-head { max-width: 760px; margin-bottom: 40px; }
   .bay-head .lede { margin-top: 16px; }
-  .bay-head .delta { margin-top: 14px; font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--ink); letter-spacing: .02em; min-height: 1.2em; }
-  .bay-head .delta:not(:empty)::before { content: ""; display: inline-block; width: 9px; height: 9px; background: var(--flame); margin-right: 10px; vertical-align: 1px; }
+  .bay-head .delta { margin-top: 14px; font-size: 15.5px; color: var(--ink); min-height: 1.2em; padding-left: 18px; position: relative; }
+  .bay-head .delta:not(:empty)::before { content: ""; position: absolute; left: 0; top: 7px; width: 9px; height: 9px; background: var(--flame); }
+  .bay-head .delta b { font-family: var(--mono); font-weight: 600; font-variant-numeric: tabular-nums; }
   .split { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; align-items: center; }
   @media (max-width: 900px) { .split { grid-template-columns: 1fr; gap: 34px; } }
   .facts { list-style: none; padding: 0; margin: 26px 0 0; display: flex; flex-direction: column; }
@@ -287,7 +309,7 @@
   .facts li:last-child { border-bottom: 1px solid var(--edge); }
   .facts li b { display: block; font-weight: 600; }
   .facts li span { color: var(--muted); font-size: 15.5px; }
-  .facts svg { width: 20px; height: 20px; fill: var(--flame); margin-top: 3px; }
+  .facts svg { width: 20px; height: 20px; fill: var(--steel); margin-top: 3px; }
 
   /* a device on the counter: tablet, wall tablet, phone */
   .device { position: relative; background: #000; border-radius: 14px; padding: 10px; box-shadow: var(--bevel), 0 24px 50px -24px rgba(0,0,0,.95); border: 1px solid var(--edge); }
@@ -298,7 +320,7 @@
 
   /* ---------- PASS BAY: tickets on a wire ---------- */
   .wire-wrap { position: relative; padding: 26px 0 8px; overflow: hidden; }
-  .wire { position: absolute; left: -40px; right: -40px; top: 22px; height: 3px; background: linear-gradient(#e2ddd5, var(--steel), #5e5953); }
+  .wire { position: absolute; left: -40px; right: -40px; top: 37px; height: 3px; z-index: 1; background: linear-gradient(#e2ddd5, var(--steel), #5e5953); }
   .tickets { display: flex; gap: 18px; overflow-x: auto; padding: 0 4px 22px; scroll-snap-type: x proximity; }
   .tickets::-webkit-scrollbar { height: 6px; } .tickets::-webkit-scrollbar-thumb { background: var(--edge); border-radius: 6px; }
   .ticket {
@@ -317,9 +339,14 @@
   .ticket .tl { display: grid; grid-template-columns: 22px 1fr; gap: 6px; padding: 2px 0; }
   .ticket .tl em { font-style: normal; color: #6a5a1e; font-size: 11px; grid-column: 2; }
   .ticket .tf { margin-top: 10px; font-size: 11px; color: #6a5a1e; display: flex; justify-content: space-between; }
-  .ticket.new { transform: translateY(-140%) rotate(-6deg); opacity: 0; }
-  .ticket.new.clipped { transform: none; opacity: 1; }
-  .ticket.new .th { color: var(--flame-deep); }
+  .ticket.new {
+    transform: translateY(-140%) rotate(-6deg); opacity: 0;
+    max-width: 0; padding-left: 0; padding-right: 0; margin-right: -18px; overflow: hidden;
+    transition: transform 700ms var(--ease-liquid), opacity 300ms linear,
+                max-width 520ms var(--ease-liquid), padding 520ms var(--ease-liquid), margin 520ms var(--ease-liquid);
+  }
+  .ticket.new.clipped { transform: none; opacity: 1; max-width: 236px; padding-left: 14px; padding-right: 14px; margin-right: 0; }
+  .ticket.new .th { color: var(--ticket-ink); }
 
   /* ---------- SHELF BAY: containers with fill levels ---------- */
   .shelf { position: relative; padding: 0 0 22px; }
@@ -331,6 +358,7 @@
   .jar .body { position: relative; width: 100%; height: 150px; background: rgba(255,255,255,.04); border: 2px solid var(--steel-dark); border-top-width: 6px; border-radius: 4px 4px 8px 8px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,.04); }
   .jar .fill { position: absolute; left: 0; right: 0; bottom: 0; transition: height 1300ms var(--ease-liquid); }
   .jar .fill::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: rgba(255,255,255,.35); }
+  .jar .body::after { content: ""; position: absolute; left: 7%; top: 0; bottom: 0; width: 16%; background: linear-gradient(90deg, rgba(255,255,255,.12), rgba(255,255,255,0)); pointer-events: none; }
   .jar .lbl { width: 100%; background: var(--label); color: var(--paper-ink); font-family: var(--mono); font-size: 11px; line-height: 1.3; padding: 7px 8px; border-radius: 3px; box-shadow: 0 2px 4px rgba(0,0,0,.4); font-variant-numeric: tabular-nums; }
   .jar .lbl b { display: block; font-weight: 700; font-size: 11.5px; letter-spacing: .02em; }
   .jar .lbl .q { display: block; font-weight: 600; font-size: 13px; margin-top: 3px; }
@@ -350,8 +378,8 @@
   .ledger td { padding: 9px 0; border-top: 1px dashed var(--paper-rule); }
   .ledger td:last-child { text-align: right; font-weight: 600; }
   .ledger tr.total td { border-top: 2px solid var(--paper-ink); font-weight: 700; font-size: 17px; padding-top: 12px; }
-  .ledger tr.total td:last-child { color: var(--flame-deep); }
-  .ledger .plus { display: inline-block; margin-left: 10px; color: var(--flame-deep); font-weight: 700; opacity: 0; transition: opacity 240ms linear; }
+  .ledger tr.total td:last-child { color: var(--paper-ink); }
+  .ledger .plus { display: inline-block; margin-left: 10px; color: var(--flame-ink); font-weight: 700; opacity: 0; transition: opacity 240ms linear; }
   .ledger.hit .plus { opacity: 1; }
   .ledger .note { margin-top: 16px; font-size: 12px; color: var(--paper-faint); line-height: 1.5; }
   .books-display { margin-top: 18px; }
@@ -361,7 +389,8 @@
   .drawer-face { position: relative; background: var(--chassis); border-radius: 12px; box-shadow: var(--bevel); border: 1px solid var(--edge-dark); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; z-index: 2; }
   .drawer-face .handle { width: 64px; height: 12px; border-radius: 6px; background: linear-gradient(#d8d3cc, #7a756e); box-shadow: 0 1px 2px rgba(0,0,0,.6); }
   .drawer { overflow: hidden; max-height: 0; transition: max-height 1100ms var(--ease-liquid); margin: 0 10px; }
-  .drawer .device { border-radius: 0 0 12px 12px; margin-top: -2px; }
+  .drawer .tray { height: 14px; margin: 0 6px; background: linear-gradient(#cdc8c1, #8f8a83 60%, #5f5a54); box-shadow: 0 4px 10px -4px rgba(0,0,0,.8); }
+  .drawer .device { border-radius: 0 0 12px 12px; margin-top: 0; }
   .drawer.open { max-height: 900px; }
   .drawer-wrap .stamp { color: var(--muted); }
 
@@ -373,6 +402,7 @@
   .punch .role { font-size: 11px; color: var(--paper-faint); letter-spacing: .06em; text-transform: uppercase; }
   .punch .row { display: flex; justify-content: space-between; border-top: 1px dashed var(--paper-rule); padding: 6px 0; margin-top: 6px; }
   .punch .in { color: #1d6b3a; font-weight: 700; }
+  .punch .row.hit { outline: 2px solid var(--flame); outline-offset: 2px; border-radius: 2px; }
   .tape { margin-top: 18px; background: var(--paper); color: var(--paper-ink); font-family: var(--mono); font-size: 12.5px; line-height: 1.5; padding: 14px 16px; box-shadow: var(--paper-shadow); font-variant-numeric: tabular-nums; overflow: hidden; }
   .tape .row { display: grid; grid-template-columns: 56px 92px 1fr auto; gap: 10px; padding: 5px 0; border-top: 1px dashed var(--paper-rule); }
   .tape .row:first-child { border-top: 0; font-weight: 700; }
@@ -390,6 +420,9 @@
   .demo-figs span { font-size: 13.5px; color: var(--muted); }
   .demo-key { font-size: 14.5px; color: var(--muted); margin-top: 16px; }
   .demo-key code { font-family: var(--mono); background: var(--label); color: var(--paper-ink); border-radius: 3px; padding: 3px 8px; font-weight: 600; }
+  .replay-line { margin-top: 12px; }
+  .replay-line button, .close .replay button { background: none; border: 0; padding: 0; cursor: pointer; color: var(--muted); font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px; }
+  .replay-line button:hover, .close .replay button:hover { color: var(--ink); }
   .lessons { display: flex; flex-direction: column; }
   .lessons > b { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
   .lesson { display: flex; align-items: center; gap: 12px; padding: 12px 4px; text-decoration: none; border-top: 1px solid var(--edge); transition: transform 200ms var(--ease-out); }
@@ -411,16 +444,16 @@
   .box li { position: relative; padding-left: 22px; font-size: 15px; line-height: 1.4; color: #3f3a34; }
   .box li::before { content: ""; position: absolute; left: 2px; top: 8px; width: 10px; height: 3px; background: var(--paper-rule); }
   .box li.bold { color: var(--paper-ink); font-weight: 600; }
-  .box li.bold::before { background: var(--flame); width: 12px; top: 8px; }
+  .box li.bold::before { background: var(--paper-ink); width: 12px; top: 8px; }
   .manifest .mf { margin-top: 26px; padding-top: 14px; border-top: 1px dashed var(--paper-rule); font-family: var(--mono); font-size: 12.5px; color: var(--paper-faint); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-  .manifest .mf a { color: var(--flame-deep); }
+  .manifest .mf a { color: var(--flame-ink); }
   @media (max-width: 980px) { .box { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 620px) { .box { grid-template-columns: 1fr; } .manifest { padding: 26px 20px 30px; } }
 
   /* ---------- DEVICES + START BAYS ---------- */
   .routes { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 44px; align-items: start; }
   .offer { background: var(--paper); color: var(--paper-ink); box-shadow: var(--paper-shadow); padding: 30px 30px 32px; position: relative; }
-  .offer .stamp { color: var(--flame-deep); }
+  .offer .stamp { color: var(--paper-faint); }
   .offer h3 { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 32px; line-height: .98; margin-top: 8px; }
   .offer p { margin-top: 12px; color: #3f3a34; font-size: 15.5px; }
   .offer .key { margin-top: 20px; width: 100%; }
@@ -438,8 +471,8 @@
   /* Over the empty top-right corner of the receipt, never over a line. */
   .price .paper .stampbox {
     position: absolute; right: 16px; top: 22px; transform: rotate(-9deg);
-    border: 3px solid var(--flame); color: var(--flame); font-weight: 700; font-size: 11.5px; letter-spacing: .12em;
-    padding: 4px 7px; border-radius: 3px; text-transform: uppercase;
+    border: 3px solid var(--flame); color: var(--flame); font-family: var(--display); font-weight: 800; font-size: 17px; letter-spacing: .08em;
+    padding: 3px 8px; border-radius: 3px; text-transform: uppercase;
   }
   .price .paper .h { text-align: left; padding-right: 150px; }
   .price .paper .ft { font-size: 11.5px; color: var(--paper-faint); text-align: center; margin-top: 12px; line-height: 1.5; }
@@ -470,7 +503,7 @@
   .faq summary::after { width: 3px; height: 15px; margin-top: -7.5px; right: 14px; transition: transform 260ms var(--ease-out), opacity 200ms linear; }
   .faq details[open] summary::after { transform: scaleY(0); opacity: 0; }
   .faq details p { padding: 0 0 18px; color: #3f3a34; font-size: 15.5px; max-width: 68ch; }
-  .faq a { color: var(--flame-deep); }
+  .faq a { color: var(--flame-ink); }
   .faq-more { text-align: center; margin-top: 22px; }
 
   /* ---------- CLOSING BAY ---------- */
@@ -480,8 +513,6 @@
   .close .led { display: inline-flex; margin: 30px auto 0; gap: 22px; }
   .close .hero-ctas { justify-content: center; margin-top: 30px; }
   .close .replay { margin-top: 18px; }
-  .close .replay button { background: none; border: 0; cursor: pointer; color: var(--muted); font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px; }
-  .close .replay button:hover { color: var(--ink); }
 
   /* ---------- footer ---------- */
   footer { border-top: 1px solid var(--edge); padding: 40px 0 56px; color: var(--muted); font-size: 14px; margin-top: var(--bay); }
@@ -569,9 +600,7 @@
         { "@type": "Question", "name": "Is my data safe? Can my staff see everything?",
           "acceptedAnswer": { "@type": "Answer", "text": "Your shop's data lives in the cloud, isolated per shop and backed up for you. Access rights control every screen, and sensitive actions like voids and discounts can be limited to people you choose." } },
         { "@type": "Question", "name": "Do I have to encode my whole menu myself?",
-          "acceptedAnswer": { "@type": "Answer", "text": "No. Send whatever list you already have, a spreadsheet, a document, even a photo of your menu board, and we import your items, prices, ingredients and stock levels for you, free. You can also import a CSV yourself, or load a sample menu in one tap." } },
-        { "@type": "Question", "name": "How much does Ember POS cost?",
-          "acceptedAnswer": { "@type": "Answer", "text": "599 pesos a month per branch, with everything included: unlimited staff, unlimited devices, and every feature. The first 30 days are free and no card is needed to start." } }
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Send whatever list you already have, a spreadsheet, a document, even a photo of your menu board, and we import your items, prices, ingredients and stock levels for you, free. You can also import a CSV yourself, or load a sample menu in one tap." } }
       ]
     }
   ]
@@ -601,9 +630,11 @@
 <!-- ============ BAY 1: THE MACHINE ============ -->
 <div class="hero" id="till">
   <div class="wrap hero-grid">
-    <div class="hero-copy">
+    <div class="hero-head">
       <span class="stamp rise" style="color:var(--muted)">Point of sale &middot; Philippines</span>
       <h1 class="display rise" style="margin-top:14px">Ring one sale.<br />Watch the whole shop move.</h1>
+    </div>
+    <div class="hero-copy">
       <p class="lede rise">Ember POS is the register, the kitchen, the shelf, the books and the time clock as <b>one machine</b>. This till is wired to a real cafe's menu and recipes. Tap a few items, press <b>Charge</b>, and follow what happens down the page.</p>
       <div class="hero-ctas rise">
         <a class="key flame" href="https://play.google.com/store/apps/details?id=com.emberpos.app">
@@ -653,14 +684,15 @@
         <div class="printer-out">
           <div class="receipt" id="receipt" aria-live="polite">
             <div class="paper">
-              <div class="h">Ember Cafe<small>123 Sample St, Mandaluyong &middot; Till 1</small></div>
+              <div class="h">Ember Cafe<small>124 Mabini St., Poblacion, Batangas City &middot; Till 1</small></div>
               <div class="rule"></div>
               <div id="receipt-lines"></div>
               <div class="rule"></div>
               <div class="tot"><span>TOTAL</span><span id="receipt-total">&#8369;0.00</span></div>
               <div class="ln"><span class="n"></span><span>Cash</span><span class="a" id="receipt-cash">&#8369;0.00</span></div>
               <div class="ln"><span class="n"></span><span>Change</span><span class="a">&#8369;0.00</span></div>
-              <div class="ft">Order #1410 &middot; <span id="receipt-time">14:32</span> &middot; served by Ana<br />Salamat po. This is a demo receipt.</div>
+              <div class="barcode" aria-hidden="true"></div>
+              <div class="ft">Order #1410 &middot; <span id="receipt-time">14:32</span> &middot; served by Ana<br />Salamat po! See you again. This is a demo receipt.</div>
               <div class="paid">PAID</div>
             </div>
           </div>
@@ -675,7 +707,7 @@
   </div>
 </div>
 
-<div class="rail"></div>
+<div class="rail"><b>The pass</b></div>
 
 <!-- ============ BAY 2: THE PASS ============ -->
 <section class="bay wrap" id="pass">
@@ -721,7 +753,7 @@
   </div>
 </section>
 
-<div class="rail"></div>
+<div class="rail"><b>The shelf</b></div>
 
 <!-- ============ BAY 3: THE SHELF ============ -->
 <section class="bay wrap" id="shelf">
@@ -732,14 +764,14 @@
   </div>
   <div class="shelf rev">
     <div class="jars" id="jars">
-      <div class="jar" data-ing="milk" data-fill="78"><span class="d"></span><div class="body"><div class="fill" style="height:78%;background:#e9e4d6"></div></div><div class="lbl"><b>Fresh milk</b><span class="q">21.00 L</span><span class="low">low at 6 L</span></div></div>
-      <div class="jar" data-ing="beans" data-fill="62"><span class="d"></span><div class="body"><div class="fill" style="height:62%;background:#4b2f1e"></div></div><div class="lbl"><b>Coffee beans</b><span class="q">6.20 kg</span><span class="low">low at 1.5 kg</span></div></div>
-      <div class="jar" data-ing="condensed" data-fill="55"><span class="d"></span><div class="body"><div class="fill" style="height:55%;background:#efe2b8"></div></div><div class="lbl"><b>Condensed milk</b><span class="q">4,600 mL</span><span class="low">low at 1,200 mL</span></div></div>
-      <div class="jar" data-ing="matcha" data-fill="40"><span class="d"></span><div class="body"><div class="fill" style="height:40%;background:#6f9a3d"></div></div><div class="lbl"><b>Matcha powder</b><span class="q">900 g</span><span class="low">low at 250 g</span></div></div>
-      <div class="jar" data-ing="ube" data-fill="70"><span class="d"></span><div class="body"><div class="fill" style="height:70%;background:#7b4c9e"></div></div><div class="lbl"><b>Ube halaya</b><span class="q">2,100 g</span><span class="low">low at 600 g</span></div></div>
-      <div class="jar" data-ing="cup12" data-fill="66"><span class="d"></span><div class="body"><div class="fill" style="height:66%;background:#cfc9bf"></div></div><div class="lbl"><b>Cup 12 oz</b><span class="q">340 pcs</span><span class="low">low at 80</span></div></div>
-      <div class="jar" data-ing="lid" data-fill="58"><span class="d"></span><div class="body"><div class="fill" style="height:58%;background:#9c9891"></div></div><div class="lbl"><b>Dome lid</b><span class="q">380 pcs</span><span class="low">low at 100</span></div></div>
-      <div class="jar" data-ing="straw" data-fill="82"><span class="d"></span><div class="body"><div class="fill" style="height:82%;background:#d9a441"></div></div><div class="lbl"><b>Straw</b><span class="q">700 pcs</span><span class="low">low at 150</span></div></div>
+      <div class="jar" data-ing="milk" data-fill="78"><span class="d"></span><div class="body"><div class="fill" style="height:78%;background:#e9e4d6"></div></div><div class="lbl"><b>Fresh milk</b><span class="q">21.00 L</span><span class="low">low at 6 L</span><span class="barcode" aria-hidden="true"></span></div></div>
+      <div class="jar" data-ing="beans" data-fill="62"><span class="d"></span><div class="body"><div class="fill" style="height:62%;background:#4b2f1e"></div></div><div class="lbl"><b>Coffee beans</b><span class="q">6.20 kg</span><span class="low">low at 1.5 kg</span><span class="barcode" aria-hidden="true"></span></div></div>
+      <div class="jar" data-ing="condensed" data-fill="55"><span class="d"></span><div class="body"><div class="fill" style="height:55%;background:#efe2b8"></div></div><div class="lbl"><b>Condensed milk</b><span class="q">4,600 mL</span><span class="low">low at 1,200 mL</span><span class="barcode" aria-hidden="true"></span></div></div>
+      <div class="jar" data-ing="matcha" data-fill="40"><span class="d"></span><div class="body"><div class="fill" style="height:40%;background:#6f9a3d"></div></div><div class="lbl"><b>Matcha powder</b><span class="q">900 g</span><span class="low">low at 250 g</span><span class="barcode" aria-hidden="true"></span></div></div>
+      <div class="jar" data-ing="ube" data-fill="70"><span class="d"></span><div class="body"><div class="fill" style="height:70%;background:#7b4c9e"></div></div><div class="lbl"><b>Ube halaya</b><span class="q">2,100 g</span><span class="low">low at 600 g</span><span class="barcode" aria-hidden="true"></span></div></div>
+      <div class="jar" data-ing="cup12" data-fill="66"><span class="d"></span><div class="body"><div class="fill" style="height:66%;background:#cfc9bf"></div></div><div class="lbl"><b>Cup 12 oz</b><span class="q">340 pcs</span><span class="low">low at 80</span><span class="barcode" aria-hidden="true"></span></div></div>
+      <div class="jar" data-ing="lid" data-fill="58"><span class="d"></span><div class="body"><div class="fill" style="height:58%;background:#9c9891"></div></div><div class="lbl"><b>Dome lid</b><span class="q">380 pcs</span><span class="low">low at 100</span><span class="barcode" aria-hidden="true"></span></div></div>
+      <div class="jar" data-ing="straw" data-fill="82"><span class="d"></span><div class="body"><div class="fill" style="height:82%;background:#d9a441"></div></div><div class="lbl"><b>Straw</b><span class="q">700 pcs</span><span class="low">low at 150</span><span class="barcode" aria-hidden="true"></span></div></div>
     </div>
     <div class="shelf-rail" aria-hidden="true"></div>
   </div>
@@ -757,7 +789,7 @@
   </div>
 </section>
 
-<div class="rail"></div>
+<div class="rail"><b>The books</b></div>
 
 <!-- ============ BAY 4: THE BOOKS ============ -->
 <section class="bay wrap" id="books">
@@ -774,9 +806,9 @@
         <table>
           <tr><td>Sales</td><td><span id="lg-sales">&#8369;423,353.00</span><span class="plus" id="lg-sales-plus"></span></td></tr>
           <tr><td>less ingredients used</td><td><span id="lg-ing">&#8369;146,601.25</span><span class="plus" id="lg-ing-plus"></span></td></tr>
-          <tr><td>less labour, from the clock</td><td>&#8369;109,775.42</td></tr>
+          <tr><td>less labour, from the clock</td><td>&#8369;111,380.67</td></tr>
           <tr><td>less expenses</td><td>&#8369;43,050.89</td></tr>
-          <tr class="total"><td>You kept</td><td><span id="lg-profit">&#8369;123,925.44</span><span class="plus" id="lg-profit-plus"></span></td></tr>
+          <tr class="total"><td>You kept</td><td><span id="lg-profit">&#8369;122,320.19</span><span class="plus" id="lg-profit-plus"></span></td></tr>
         </table>
         <p class="note">29 centavos of every peso sold is profit in this shop. The same page shows break-even, cash flow, and food and paper cost per item.</p>
       </div>
@@ -792,8 +824,9 @@
     </ul>
   </div>
   <div class="drawer-wrap rev d1">
-    <div class="drawer-face"><span class="stamp">Cash drawer &middot; opens on the owner's screen</span><span class="handle" aria-hidden="true"></span></div>
+    <div class="drawer-face"><span class="stamp">Cash drawer &middot; the owner's screen is inside</span><span class="handle" aria-hidden="true"></span></div>
     <div class="drawer" id="drawer">
+      <div class="tray" aria-hidden="true"></div>
       <div class="device">
         <img src="shots/hero-dashboard.webp" width="1400" height="875" loading="lazy" alt="The Ember POS overview on a computer: net sales, orders, average ticket, the bottom line strip and a sales chart" />
       </div>
@@ -801,7 +834,7 @@
   </div>
 </section>
 
-<div class="rail"></div>
+<div class="rail"><b>The staff board</b></div>
 
 <!-- ============ BAY 5: THE STAFF BOARD ============ -->
 <section class="bay wrap" id="staff">
@@ -809,11 +842,12 @@
     <h2 class="headline">Every action has a name on it.</h2>
     <p class="lede">Everyone signs in as themselves. Voids, discounts, drawer opens and refunds are logged with who and when, and you decide per action who is allowed. The time clock lives on the sign-in screen, and payroll takes its hours from there.</p>
     <p class="delta" id="staff-delta"></p>
+    <p class="stamp" style="color:var(--muted);margin-top:10px">Ember Cafe &middot; today &middot; from the demo shop</p>
   </div>
   <div class="board rev">
     <div class="punch"><b>Maria Santos</b><span class="role">Owner</span><div class="row"><span>Clocked in</span><span class="in">07:00</span></div><div class="row"><span>Can void, refund, discount</span><span>yes</span></div><div class="row"><span>Sees profit</span><span>yes</span></div></div>
-    <div class="punch"><b>Ana Reyes</b><span class="role">Cashier &middot; Till 1</span><div class="row"><span>Clocked in</span><span class="in">13:00</span></div><div class="row"><span>Drawer</span><span id="ana-drawer">&#8369;5,097.00</span></div><div class="row"><span>Can void</span><span>ask a manager</span></div></div>
-    <div class="punch"><b>Jomar Cruz</b><span class="role">Kitchen</span><div class="row"><span>Clocked in</span><span class="in">06:30</span></div><div class="row"><span>Sees</span><span>kitchen only</span></div><div class="row"><span>Overtime this week</span><span>2h 15m</span></div></div>
+    <div class="punch"><b>Ana Reyes</b><span class="role">Cashier &middot; Till 1 &middot; morning</span><div class="row"><span>Clocked in</span><span class="in">07:00</span></div><div class="row"><span>Drawer</span><span id="ana-drawer">&#8369;5,097.88</span></div><div class="row"><span>Can void</span><span>ask a manager</span></div><div class="row" id="ana-sale"><span>Last sale</span><span>#1409 &middot; 14:29</span></div></div>
+    <div class="punch"><b>Jun Dela Pena</b><span class="role">Kitchen</span><div class="row"><span>On the clock</span><span class="in">yes</span></div><div class="row"><span>Sees</span><span>kitchen only</span></div><div class="row"><span>Payroll</span><span>from the clock</span></div></div>
   </div>
   <div class="tape rev d1" id="tape" aria-live="polite">
     <div class="row"><span>Time</span><span>Who</span><span class="what">What</span><span>Amount</span></div>
@@ -821,7 +855,7 @@
     <div class="row"><span data-ago="3">14:29</span><span class="who">Ana</span><span class="what">Sale #1409 &middot; GCash</span><span>&#8369;335.00</span></div>
     <div class="row"><span data-ago="8">14:24</span><span class="who">Guest</span><span class="what">QR order #1408 approved by Maria</span><span>&#8369;214.00</span></div>
     <div class="row"><span data-ago="16">14:16</span><span class="who">Ana</span><span class="what">Sale #1407 &middot; cash</span><span>&#8369;545.00</span></div>
-    <div class="row"><span data-ago="30">14:02</span><span class="who">Maria</span><span class="what">Discount 20% Senior &middot; OSCA 041-2231 &middot; #1405</span><span>&#8369;27.00</span></div>
+    <div class="row"><span data-ago="30">14:02</span><span class="who">Maria</span><span class="what">Discount 20% Senior &middot; OSCA ID on file &middot; #1405</span><span>&#8369;27.00</span></div>
     <div class="row"><span data-ago="52">13:40</span><span class="who">Maria</span><span class="what">Void #1401 &middot; wrong table</span><span>&#8369;149.00</span></div>
   </div>
   <div class="split rev d2" style="margin-top:44px">
@@ -837,7 +871,7 @@
   </div>
 </section>
 
-<div class="rail"></div>
+<div class="rail"><b>The real one</b></div>
 
 <!-- ============ BAY 6: THE LIVE DEMO ============ -->
 <section class="bay wrap" id="demo">
@@ -853,6 +887,7 @@
       </div>
       <a class="key flame" href="demo/">Open the live demo</a>
       <p class="demo-key">It opens signed in as Maria Santos, the owner. If you ever sign out, her PIN is <code>1234</code></p>
+      <p class="replay-line"><button type="button" id="replay-demo">Or ring another sale on the model till</button></p>
     </div>
     <div class="lessons">
       <b>Or start on a specific job</b>
@@ -867,7 +902,7 @@
   </div>
 </section>
 
-<div class="rail"></div>
+<div class="rail"><b>In the box</b></div>
 
 <!-- ============ BAY 7: EVERYTHING IN THE BOX ============ -->
 <section class="bay wrap" id="features">
@@ -963,7 +998,7 @@
   </div>
 </section>
 
-<div class="rail"></div>
+<div class="rail"><b>Every device</b></div>
 
 <!-- ============ BAY 8: DEVICES ============ -->
 <section class="bay wrap" id="devices">
@@ -986,7 +1021,7 @@
   </div>
 </section>
 
-<div class="rail"></div>
+<div class="rail"><b>Your menu</b></div>
 
 <!-- ============ BAY 9: GET YOUR MENU IN ============ -->
 <section class="bay wrap" id="start">
@@ -1009,7 +1044,7 @@
   </div>
 </section>
 
-<div class="rail"></div>
+<div class="rail"><b>The price</b></div>
 
 <!-- ============ BAY 10: PRICING ============ -->
 <section class="bay wrap" id="pricing">
@@ -1046,7 +1081,7 @@
   </div>
 </section>
 
-<div class="rail"></div>
+<div class="rail"><b>Questions</b></div>
 
 <!-- ============ BAY 11: FAQ ============ -->
 <section class="bay wrap" id="faq">
@@ -1087,10 +1122,10 @@
       <p>Install the app from Google Play, create your shop, and load the sample menu to try it in one tap. Or send your menu to <a href="mailto:atlasco.web@gmail.com">atlasco.web@gmail.com</a> and we will set it up for you, free.</p>
     </details>
   </div>
-  <p class="faq-more"><a class="sticker" href="faq.html">The full FAQ, forty answers</a></p>
+  <p class="faq-more"><a class="sticker" href="faq.html">The full FAQ</a></p>
 </section>
 
-<div class="rail"></div>
+<div class="rail"><b>The close</b></div>
 
 <!-- ============ CLOSING BAY ============ -->
 <section class="bay wrap close" id="end">
@@ -1174,11 +1209,11 @@ document.documentElement.classList.add('js');
   var CUP12 = [['cup12', 1], ['lid', 1], ['straw', 1]];
   var CUP16 = [['cup16', 1], ['lid', 1], ['straw', 1]];
   var MENU = {
-    spanish:    { name: 'Spanish Latte',    price: 13500, recipe: [['beans', 18], ['milk', 160], ['condensed', 30]].concat(CUP12) },
-    latte:      { name: 'Cafe Latte',       price: 12500, recipe: [['beans', 18], ['milk', 180]].concat(CUP12) },
-    americano:  { name: 'Americano',        price: 9500,  recipe: [['beans', 18]].concat(CUP12) },
-    matcha:     { name: 'Matcha Latte',     price: 14000, recipe: [['matcha', 4], ['milk', 200], ['sugar', 12]].concat(CUP12) },
-    ube:        { name: 'Ube Latte',        price: 13500, recipe: [['ube', 40], ['milk', 200], ['condensed', 20]].concat(CUP12) },
+    spanish:    { name: 'Spanish Latte',    price: 13500, recipe: [['beans', 18], ['milk', 160], ['condensed', 30]].concat(CUP12, [['bag', 1]]) },
+    latte:      { name: 'Cafe Latte',       price: 12500, recipe: [['beans', 18], ['milk', 180]].concat(CUP12, [['bag', 1]]) },
+    americano:  { name: 'Americano',        price: 9500,  recipe: [['beans', 18]].concat(CUP12, [['bag', 1]]) },
+    matcha:     { name: 'Matcha Latte',     price: 14000, recipe: [['matcha', 4], ['milk', 200], ['sugar', 12]].concat(CUP12, [['bag', 1]]) },
+    ube:        { name: 'Ube Latte',        price: 13500, recipe: [['ube', 40], ['milk', 200], ['condensed', 20]].concat(CUP12, [['bag', 1]]) },
     javachip:   { name: 'Java Chip Frappe', price: 16500, recipe: [['beans', 14], ['milk', 160], ['javachips', 30], ['choc', 20], ['whipped', 20]].concat(CUP16, [['bag', 1]]) },
     tapsilog:   { name: 'Tapsilog',         price: 14500, recipe: [['tapa', 140], ['egg', 1], ['rice', 180], ['oil', 12], ['garlic', 6], ['box', 1], ['bag', 1]] },
     cheesecake: { name: 'Cheesecake Slice', price: 12000, recipe: [['cheesecake', 1], ['bag', 1]] }
@@ -1241,7 +1276,7 @@ document.documentElement.classList.add('js');
     });
   }
   var ledTotal = $('led-total'), ledSales = $('led-sales'), ledOrders = $('led-orders');
-  var SALES30 = 42335300, ORDERS30 = 1409, ING30 = 14660125, PROFIT30 = 12392544;
+  var SALES30 = 42335300, ORDERS30 = 1409, ING30 = 14660125, PROFIT30 = 12232019;
   segWrite(ledTotal, '0.00'); segWrite(ledSales, peso(SALES30)); segWrite(ledOrders, String(ORDERS30));
 
   /* ---------- the till ---------- */
@@ -1305,7 +1340,7 @@ document.documentElement.classList.add('js');
     receipt.classList.remove('printed', 'stamped');
     receipt.classList.add('out');
     // every printed part, in reading order; a replay clears the inline state
-    var parts = receipt.querySelectorAll('.h, .rule, .ln, .tot, .ft');
+    var parts = receipt.querySelectorAll('.h, .rule, .ln, .tot, .barcode, .ft');
     Array.prototype.forEach.call(parts, function (p) { p.style.opacity = ''; p.style.transform = ''; });
     if (reduced) { receipt.classList.add('printed', 'stamped'); done(); return; }
     // print line by line, top to bottom, at the printer's pace
@@ -1326,7 +1361,7 @@ document.documentElement.classList.add('js');
     $('ticket-new-time').textContent = sale.time;
     t.removeAttribute('aria-hidden');
     requestAnimationFrame(function () { requestAnimationFrame(function () { t.classList.add('clipped'); }); });
-    $('pass-delta').textContent = 'Ticket #1410 clipped onto the pass at ' + sale.time + ', ' + sale.items.length + (sale.items.length === 1 ? ' line' : ' lines') + '. Nobody typed it twice.';
+    $('pass-delta').innerHTML = 'Ticket <b>#1410</b> clipped onto the pass at <b>' + sale.time + '</b>, ' + sale.items.length + (sale.items.length === 1 ? ' line' : ' lines') + '. Nobody typed it twice.';
   }
   function reactShelf() {
     if (reacted.shelf || !sale) return; reacted.shelf = true;
@@ -1342,35 +1377,50 @@ document.documentElement.classList.add('js');
       jar.classList.add('hit'); touched.push(ing.name.toLowerCase());
     });
     var hidden = Object.keys(sale.used).filter(function (id) { return !document.querySelector('.jar[data-ing="' + id + '"]'); }).map(function (id) { return qty(sale.used[id], ING[id].unit) + ' ' + ING[id].name.toLowerCase(); });
-    $('shelf-delta').textContent = 'Off the shelf: ' + Object.keys(sale.used).map(function (id) { return qty(sale.used[id], ING[id].unit) + ' ' + ING[id].name.toLowerCase(); }).join(', ') + '. Ingredient cost of this order: ' + peso(sale.cost) + '.';
+    var shown = Object.keys(sale.used).filter(function (id) { return !!document.querySelector('.jar[data-ing="' + id + '"]'); });
+    var rest = Object.keys(sale.used).length - shown.length;
+    $('shelf-delta').innerHTML = 'Off the shelf: ' + shown.map(function (id) { return '<b>\u2212' + qty(sale.used[id], ING[id].unit) + '</b> ' + ING[id].name.toLowerCase(); }).join(', ')
+      + (rest ? ' and ' + rest + ' more' : '') + '. Ingredient cost of this order: <b>' + peso(sale.cost) + '</b>.';
     void hidden;
+  }
+  // A figure on the ledger climbs to its new value, the way the display does.
+  function rollMoney(el, from, to) {
+    if (reduced) { el.textContent = peso(to); return; }
+    var start = null, dur = 800;
+    function step(ts) { if (start === null) start = ts; var p = Math.min(1, (ts - start) / dur); var e = 1 - Math.pow(1 - p, 3); el.textContent = peso(from + (to - from) * e); if (p < 1) requestAnimationFrame(step); }
+    requestAnimationFrame(step);
   }
   function reactBooks() {
     if (reacted.books || !sale) return; reacted.books = true;
     var profit = sale.total - sale.cost;
-    $('lg-sales').textContent = peso(SALES30 + sale.total); $('lg-sales-plus').textContent = '+' + peso(sale.total);
-    $('lg-ing').textContent = peso(ING30 + sale.cost); $('lg-ing-plus').textContent = '+' + peso(sale.cost);
-    $('lg-profit').textContent = peso(PROFIT30 + profit); $('lg-profit-plus').textContent = '+' + peso(profit);
+    rollMoney($('lg-sales'), SALES30, SALES30 + sale.total); $('lg-sales-plus').textContent = '+' + peso(sale.total);
+    rollMoney($('lg-ing'), ING30, ING30 + sale.cost); $('lg-ing-plus').textContent = '+' + peso(sale.cost);
+    rollMoney($('lg-profit'), PROFIT30, PROFIT30 + profit); $('lg-profit-plus').textContent = '+' + peso(profit);
     $('ledger').classList.add('hit');
     segWrite(ledSales, peso(SALES30 + sale.total), true);
     ledSales.setAttribute('aria-label', 'Sales ' + peso(SALES30 + sale.total));
     var pct = Math.round(profit / sale.total * 100);
-    $('books-delta').textContent = 'This order: ' + peso(sale.total) + ' sold, ' + peso(sale.cost) + ' of ingredients used, ' + peso(profit) + ' left after ingredients (' + pct + '%). Labour and expenses come off at the end of the day. Nobody typed a cost.';
+    $('books-delta').innerHTML = 'This order: <b>' + peso(sale.total) + '</b> sold, <b>' + peso(sale.cost) + '</b> of ingredients used, <b>' + peso(profit) + '</b> kept (' + pct + '%). Nobody typed a cost.';
   }
   function reactStaff() {
     if (reacted.staff || !sale) return; reacted.staff = true;
     $('tape-new-time').textContent = sale.time; $('tape-new-amt').textContent = peso(sale.total);
     $('tape-new').classList.add('in');
-    $('ana-drawer').textContent = peso(509700 + sale.total);
-    $('staff-delta').textContent = 'Logged: Ana, sale #1410, ' + peso(sale.total) + ', cash, ' + sale.time + '. Her drawer now reads ' + peso(509700 + sale.total) + '.';
+    $('ana-drawer').textContent = peso(509788 + sale.total);
+    var lastSale = $('ana-sale'); lastSale.lastElementChild.textContent = '#1410 \u00b7 ' + sale.time; lastSale.classList.add('hit');
+    $('staff-delta').innerHTML = 'Logged: Ana, sale <b>#1410</b>, <b>' + peso(sale.total) + '</b>, cash, <b>' + sale.time + '</b>. Her drawer now reads <b>' + peso(509788 + sale.total) + '</b>.';
   }
   function reactEnd() {
     if (reacted.end || !sale) return; reacted.end = true;
     segWrite(ledOrders, String(ORDERS30 + 1), true);
     ledOrders.setAttribute('aria-label', 'Orders ' + (ORDERS30 + 1));
   }
-  var REACT = { pass: reactPass, shelf: reactShelf, books: reactBooks, staff: reactStaff, end: reactEnd };
+  function reactDemo() { setState('Sale rung. The real one is a tap away', true); }
+  var REACT = { pass: reactPass, shelf: reactShelf, books: reactBooks, staff: reactStaff, demo: reactDemo, end: reactEnd };
   var bays = ['pass', 'shelf', 'books', 'staff', 'end'];
+  // The tow stops at the demo bay: one more hop from there would blur the
+  // manifest, the price and the questions past at 7,000px a second.
+  var TOW = ['pass', 'shelf', 'books', 'staff', 'demo'];
 
   // A bay reacts when it comes into view after the sale, whether the tow
   // brought the visitor there or they scrolled themselves.
@@ -1385,7 +1435,7 @@ document.documentElement.classList.add('js');
   var towing = false, towTimer = null;
   window.__tow = [];
   var towLog = function (what) { window.__tow.push(what + ' @' + Math.round(window.scrollY) + ' t' + Math.round(performance.now())); };
-  function releaseTow(why) { if (!towing) return; towing = false; clearTimeout(towTimer); towLog('released:' + why); setState('Sale rung. Scroll to follow it', true); }
+  function releaseTow(why) { if (!towing) return; towing = false; busy = false; renderBasket(); clearTimeout(towTimer); towLog('released:' + why); setState('Sale rung. Scroll to follow it', true); }
   // A wheel turn, a finger dragging, or an arrow key means the visitor wants
   // the page back; a tap or a click does not.
   ['wheel', 'touchmove', 'keydown'].forEach(function (ev) { window.addEventListener(ev, function (e) { if (towing) releaseTow(e.type); }, { passive: true }); });
@@ -1398,33 +1448,49 @@ document.documentElement.classList.add('js');
     window.scrollTo({ top: y, behavior: 'smooth' });
   }
   function tow() {
-    if (reduced || !hasIO) { bays.forEach(function (id) { REACT[id](); }); setState('Sale rung. Scroll to follow it', true); return; }
+    if (reduced || !hasIO) { bays.forEach(function (id) { REACT[id](); }); busy = false; renderBasket(); setState('Sale rung. Scroll to follow it', true); return; }
     towing = true; var i = 0;
     (function next() {
       if (!towing) return;
-      if (i >= bays.length) { towing = false; towLog('done'); setState('Sale rung. Ring another any time', true); return; }
-      var id = bays[i++];
+      if (i >= TOW.length) { towing = false; busy = false; renderBasket(); towLog('done'); return; }
+      var id = TOW[i++];
       towLog('to:' + id); scrollToBay(id);
-      towTimer = setTimeout(function () { towLog('react:' + id); REACT[id](); towTimer = setTimeout(next, id === 'end' ? 0 : 2600); }, 1000);
+      towTimer = setTimeout(function () { towLog('react:' + id); REACT[id](); towTimer = setTimeout(next, id === 'demo' ? 0 : 2600); }, 1000);
     })();
   }
 
   charge.addEventListener('click', function () {
     if (!order.length || busy) return;
     busy = true; charge.disabled = true;
+    // A second sale starts from the baseline shop: the ticket, the shelf, the
+    // books and the log go back to where the seed left them, then this sale
+    // runs through them. The basket is kept; it is the sale being rung.
+    if (sale) resetShop();
     sale = consequence(); reacted = {};
     setState('Printing…');
-    printReceipt(sale, function () {
-      setState('Following the sale down the page…');
-      towTimer = setTimeout(function () { tow(); busy = false; }, reduced ? 0 : 700);
-    });
+    // Bring the printer slot into the upper third so the paper is seen coming
+    // out, then hold on the stamped receipt before the sale leaves the till.
+    var slot = document.querySelector('.slot-wrap').getBoundingClientRect();
+    if (!reduced && (slot.top > innerHeight * 0.55 || slot.top < 90)) {
+      window.scrollTo({ top: slot.top + window.scrollY - innerHeight * 0.35, behavior: 'smooth' });
+    }
+    setTimeout(function () {
+      printReceipt(sale, function () {
+        // the order is rung: the basket clears for the next customer
+        basket = {}; order = []; renderBasket(); charge.disabled = true;
+        setState('Following the sale down the page…');
+        towTimer = setTimeout(function () { tow(); }, reduced ? 0 : 2600);
+      });
+    }, reduced ? 0 : 500);
   });
 
   /* ---------- replay: reset the shop to its baseline ---------- */
-  $('replay').addEventListener('click', function () {
+  function resetShop() {
     towing = false; clearTimeout(towTimer); busy = false; sale = null; reacted = {};
-    basket = {}; order = []; renderBasket();
     receipt.classList.remove('out', 'printed', 'stamped');
+    ledTotal.setAttribute('aria-label', 'Total 0.00');
+    ledSales.setAttribute('aria-label', 'Sales ' + peso(SALES30)); ledOrders.setAttribute('aria-label', 'Orders ' + ORDERS30);
+    Array.prototype.forEach.call(document.querySelectorAll('.ledger .plus, .jar .d'), function (e) { e.textContent = ''; });
     var t = $('ticket-new'); t.classList.remove('clipped'); t.setAttribute('aria-hidden', 'true');
     document.querySelectorAll('.jar').forEach(function (jar) {
       var id = jar.getAttribute('data-ing'); var ing = ING[id];
@@ -1432,11 +1498,18 @@ document.documentElement.classList.add('js');
     });
     $('lg-sales').textContent = peso(SALES30); $('lg-ing').textContent = peso(ING30); $('lg-profit').textContent = peso(PROFIT30);
     $('ledger').classList.remove('hit'); segWrite(ledSales, peso(SALES30)); segWrite(ledOrders, String(ORDERS30));
-    $('tape-new').classList.remove('in'); $('ana-drawer').textContent = peso(509700);
+    $('tape-new').classList.remove('in'); $('ana-drawer').textContent = peso(509788);
+    $('ana-sale').classList.remove('hit'); $('ana-sale').lastElementChild.textContent = '#1409 \u00b7 14:29';
     ['pass', 'shelf', 'books', 'staff'].forEach(function (id) { $(id + '-delta').textContent = ''; });
     setState('Waiting for a sale');
+  }
+  function replay() {
+    resetShop();
+    basket = {}; order = []; renderBasket();
     $('till').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
+  }
+  $('replay').addEventListener('click', replay);
+  $('replay-demo').addEventListener('click', replay);
 
   /* ---------- furniture: groups arrive once; the drawer opens on view ---------- */
   var els = document.querySelectorAll('.rev');

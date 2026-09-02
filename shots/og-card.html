@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<!-- The social share card. Rendered to og.png by tools/ui/site-shots.mjs at 1200x630; not linked from any page. -->
+<html lang="en"><head><meta charset="utf-8" /><meta name="robots" content="noindex" />
+<style>
+  @font-face { font-family: 'Big Shoulders Display'; src: url('../fonts/big-shoulders-display-latin-wght.woff2') format('woff2-variations'); font-weight: 100 900; }
+  @font-face { font-family: 'Azeret Mono'; src: url('../fonts/azeret-mono-latin-wght.woff2') format('woff2-variations'); font-weight: 100 900; }
+  @font-face { font-family: 'Barlow'; src: url('../fonts/barlow-latin-500.woff2') format('woff2'); font-weight: 500; }
+  * { box-sizing: border-box; margin: 0; }
+  body { width: 1200px; height: 630px; overflow: hidden; background: #16120f; color: #efe9df; font-family: 'Barlow', sans-serif; position: relative; }
+  .rail { position: absolute; left: 0; right: 0; top: 76px; height: 6px; background: linear-gradient(#c9c4bd, #a39e97 45%, #7d7871); }
+  .rail::before, .rail::after { content: ""; position: absolute; top: -3px; width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #d8d3cc, #7a756e 70%); }
+  .rail::before { left: 40px; } .rail::after { right: 40px; }
+  .brand { position: absolute; left: 60px; top: 20px; display: flex; align-items: center; gap: 14px; }
+  .brand img { height: 36px; width: auto; }
+  .brand b { font-family: 'Big Shoulders Display', Impact, sans-serif; font-weight: 800; font-size: 30px; letter-spacing: .02em; text-transform: uppercase; }
+  .stamp { position: absolute; left: 60px; top: 130px; font-family: 'Azeret Mono', monospace; font-weight: 600; font-size: 14px; letter-spacing: .12em; text-transform: uppercase; color: #ffb000; }
+  h1 { position: absolute; left: 60px; top: 160px; width: 640px; font-family: 'Big Shoulders Display', Impact, sans-serif; font-weight: 800; font-size: 86px; line-height: .9; text-transform: uppercase; letter-spacing: 0; }
+  p { position: absolute; left: 60px; top: 486px; width: 600px; font-size: 22px; line-height: 1.35; color: #a89f94; }
+  p b { color: #efe9df; font-weight: 500; }
+  .paper { position: absolute; right: 70px; top: 110px; width: 380px; background: #f7f4ee; color: #171411; padding: 26px 24px 64px; font-family: 'Azeret Mono', monospace; font-size: 17px; line-height: 1.5; box-shadow: 0 30px 60px -20px rgba(0,0,0,.8); transform: rotate(2deg);
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 9px), 95% 100%, 90% calc(100% - 9px), 85% 100%, 80% calc(100% - 9px), 75% 100%, 70% calc(100% - 9px), 65% 100%, 60% calc(100% - 9px), 55% 100%, 50% calc(100% - 9px), 45% 100%, 40% calc(100% - 9px), 35% 100%, 30% calc(100% - 9px), 25% 100%, 20% calc(100% - 9px), 15% 100%, 10% calc(100% - 9px), 5% 100%, 0 calc(100% - 9px)); }
+  .paper .h { text-align: center; font-weight: 700; letter-spacing: .06em; }
+  .paper .h small { display: block; font-weight: 500; font-size: 13px; color: #6f685f; margin-top: 2px; }
+  .paper .rule { border-top: 1px dashed #cfc8bd; margin: 12px 0; }
+  .paper .ln { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; }
+  .paper .tot { display: flex; justify-content: space-between; font-weight: 700; font-size: 20px; margin-top: 6px; }
+  .paid { position: absolute; right: 26px; bottom: 22px; transform: rotate(-12deg); border: 4px solid #ff5c00; color: #ff5c00; font-weight: 700; font-size: 22px; letter-spacing: .14em; padding: 6px 12px; border-radius: 4px; }
+  .led { position: absolute; right: 70px; bottom: 60px; background: #0a0908; border: 1px solid #000; border-radius: 8px; padding: 14px 20px; display: flex; align-items: center; gap: 22px; box-shadow: inset 0 2px 8px rgba(0,0,0,.85); }
+  .led .cap { font-family: 'Azeret Mono', monospace; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: #8a6a2a; }
+  .led .num { font-family: 'Azeret Mono', monospace; font-weight: 700; font-size: 40px; color: #ffb000; letter-spacing: .04em; }
+</style></head>
+<body>
+  <div class="brand"><img src="../logo.png" alt="" /><b>Ember POS</b></div>
+  <div class="rail"></div>
+  <div class="stamp">Point of sale &middot; Philippines</div>
+  <h1>Ring one sale. Watch the whole shop move.</h1>
+  <p>The register, the kitchen, the shelf, the books and the time clock as <b>one machine</b>. Android and any browser. Free for 30 days.</p>
+  <div class="paper">
+    <div class="h">Ember Cafe<small>Order #1410 &middot; Till 1</small></div>
+    <div class="rule"></div>
+    <div class="ln"><span>1&times; Spanish Latte</span><span>&#8369;135.00</span></div>
+    <div class="ln"><span>1&times; Tapsilog</span><span>&#8369;145.00</span></div>
+    <div class="rule"></div>
+    <div class="tot"><span>TOTAL</span><span>&#8369;280.00</span></div>
+    <div class="ln" style="color:#6f685f;font-size:14px;margin-top:8px"><span>Milk &minus;160 mL &middot; Beans &minus;18 g</span></div>
+    <div class="ln" style="color:#6f685f;font-size:14px"><span>Profit today +&#8369;150.28</span></div>
+    <div class="paid">PAID</div>
+  </div>
+  <div class="led"><span class="cap">Sales &middot; 30 days</span><span class="num">423,633.00</span></div>
+</body></html>
