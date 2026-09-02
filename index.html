@@ -3,560 +3,507 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Ember POS: Point of Sale for Cafés &amp; Restaurants in the Philippines</title>
-<meta name="description" content="Sales, stock, kitchen, staff, utang and profit in one app. Sell on Android, run the back office from any computer, keep selling through a brownout. Free for 30 days." />
+<title>Ember POS: the whole shop in one app, for cafes and food shops in the Philippines</title>
+<meta name="description" content="Ring one sale on a working till and watch the kitchen ticket, the stock, the day's profit and the staff log all move. Ember POS is the register, kitchen, shelf, books and time clock as one machine. Android and any browser. Free for 30 days." />
 <link rel="icon" href="favicon.png" type="image/png" />
-<meta name="theme-color" content="#0c0a09" />
+<meta name="theme-color" content="#16120f" />
 <!-- Social share card. Absolute URL on purpose (Facebook and Messenger will not
-     resolve a relative one). Canonical host is emberpos.net since 2026-08-08;
-     the old netlify.app address still serves this same site. -->
+     resolve a relative one). Canonical host is emberpos.net since 2026-08-08. -->
 <link rel="canonical" href="https://emberpos.net/" />
 <meta property="og:url" content="https://emberpos.net/" />
-<meta property="og:title" content="Ember POS: your whole shop, in one app" />
-<meta property="og:description" content="POS, inventory, kitchen display, QR ordering, utang, payroll and daily profit for cafés and restaurants in the Philippines. Free for 30 days." />
+<meta property="og:title" content="Ember POS: ring one sale, watch the whole shop move" />
+<meta property="og:description" content="The register, the kitchen, the shelf, the books and the time clock as one machine. For cafes and food shops in the Philippines. Free for 30 days." />
 <meta property="og:image" content="https://emberpos.net/shots/og.png" />
 <meta property="og:type" content="website" />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="preload" as="image" href="shots/hero-dashboard.webp" fetchpriority="high" />
+<link rel="preload" as="font" type="font/woff2" href="fonts/big-shoulders-display-latin-wght.woff2" crossorigin />
+<link rel="preload" as="font" type="font/woff2" href="fonts/azeret-mono-latin-wght.woff2" crossorigin />
 <style>
-  /* Ember POS landing. "Coal & Flame" is the product's own incumbent system and
-     is preserved here: flame/gold on coal, warm paper body, Space Grotesk.
-     Radius scale, documented and locked: cards 16, buttons 12, images 10,
-     chips pill. Theme: dark bookends around a single light body (a deliberate
-     one-story composition carried over from the product, not per-section
-     flipping). */
-  @font-face {
-    font-family: 'Space Grotesk';
-    src: url('fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations');
-    font-weight: 300 700; font-display: swap;
-  }
-  @font-face {
-    font-family: 'JetBrains Mono';
-    src: url('fonts/jetbrains-mono-latin-700-normal.woff2') format('woff2');
-    font-weight: 700; font-display: swap;
-  }
+  /* THE COUNTER MACHINE.
+     THESIS: the register and the stockroom are one machine, so the page IS the
+     machine: a working till whose one sale runs down the page through the
+     pass, the shelf, the books and the staff board. It refuses the category's
+     hero-screenshot-then-feature-cards page.
+     OWN-WORLD: coal chassis with bevelled edges, receipt paper with a torn
+     edge, carbonless yellow kitchen tickets on a wire, white thermal labels,
+     steel rails with screw heads, an amber seven-segment display on black
+     glass; Big Shoulders stamps, Barlow signage, Azeret Mono wherever paper is
+     printed or a quantity is measured; flame only on what can be pressed.
+     STORY: "this is the whole shop, it is real, I can try it now" - then
+     install, or open the demo.
+     FIRST VIEWPORT: headline left, the till right: display, eight menu keys,
+     the basket on paper, CHARGE in flame, the printer slot below; Google Play
+     and the live demo beneath the headline.
+     FORM: grounded direction 7 of 7 (the stockroom) fused with the dealt
+     staging "primed chain reaction" (collective-fields-cascade-trigger), seed
+     key 6297b032; the world tipped to the counter on Rafael's delegation so
+     the flame stays dominant. DESIGN.md holds the system. */
+
+  @font-face { font-family: 'Big Shoulders Display'; src: url('fonts/big-shoulders-display-latin-wght.woff2') format('woff2-variations'); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: 'Azeret Mono'; src: url('fonts/azeret-mono-latin-wght.woff2') format('woff2-variations'); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: 'Barlow'; src: url('fonts/barlow-latin-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+  @font-face { font-family: 'Barlow'; src: url('fonts/barlow-latin-400italic.woff2') format('woff2'); font-weight: 400; font-style: italic; font-display: swap; }
+  @font-face { font-family: 'Barlow'; src: url('fonts/barlow-latin-500.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+  @font-face { font-family: 'Barlow'; src: url('fonts/barlow-latin-600.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+  @font-face { font-family: 'Barlow'; src: url('fonts/barlow-latin-700.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+
   :root {
-    --flame: #ff5c00; --gold: #feb700;
-    --coal: #0c0a09; --coal-2: #171310; --coal-line: #2b2420;
-    --coal-ink: #ece7df; --coal-muted: #a89c90;
-    --paper: #f7f5f1; --card: #ffffff; --ink: #1a1714; --muted: #635a52; --line: #e6e1da;
-    /* One arrival curve for the whole page. Confident deceleration, no bounce. */
-    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-    --ease-quick: cubic-bezier(0.4, 0, 0.2, 1);
+    --coal: #16120f; --chassis: #211b17; --edge: #332a24; --edge-dark: #0b0908;
+    --steel: #a39e97; --steel-dark: #6b665f;
+    --paper: #f7f4ee; --paper-ink: #171411; --paper-faint: #6f685f; --paper-rule: #cfc8bd;
+    --ticket: #f3d97c; --ticket-ink: #1c1608; --ticket-rule: #b39a3a;
+    --label: #ffffff;
+    --flame: #ff5c00; --flame-deep: #d94e00;
+    --amber: #ffb000; --glass: #0a0908; --off: #2a2114;
+    --ink: #efe9df; --muted: #a89f94;
+    --display: 'Big Shoulders Display', 'Barlow', Impact, sans-serif;
+    --body: 'Barlow', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: 'Azeret Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
     --shell: min(1240px, 100% - 44px);
-    /* Lets the FAQ animate to its natural height instead of snapping open.
-       Ignored by browsers that do not have it; there it simply snaps, as now. */
+    --bay: clamp(72px, 10vw, 128px);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-liquid: cubic-bezier(0.2, 0.9, 0.3, 1);
+    --paper-shadow: 0 14px 30px -12px rgba(0,0,0,.6);
+    --bevel: inset 0 1px 0 var(--edge), inset 0 -1px 0 var(--edge-dark);
+    --glass-shadow: inset 0 2px 8px rgba(0,0,0,.85);
     interpolate-size: allow-keywords;
   }
   * { box-sizing: border-box; margin: 0; }
-  /* The header is sticky, so anchor jumps (#features, #pricing) must clear it
-     or the heading lands underneath it. */
-  html { scroll-padding-top: 90px; }
+  html { scroll-padding-top: 84px; }
   body {
-    background: var(--coal); color: var(--coal-ink);
-    font: 16.5px/1.6 'Space Grotesk', ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    background: var(--coal); color: var(--ink);
+    font: 17px/1.55 var(--body); -webkit-font-smoothing: antialiased; overflow-x: hidden;
   }
-  /* height:auto is load-bearing. The markup carries width/height attributes to
-     reserve space against CLS; without height:auto the width scales down and
-     the height does not, which squashed every screenshot on this page. */
   img { max-width: 100%; height: auto; display: block; }
   a { color: inherit; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--flame); outline-offset: 3px; }
   .wrap { width: var(--shell); margin: 0 auto; }
-  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .ico { width: 22px; height: 22px; fill: var(--flame); flex: none; }
-  :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+  .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-  /* ---------- buttons ---------- */
-  .btn {
-    display: inline-flex; align-items: center; gap: 10px; justify-content: center;
-    padding: 14px 24px; border-radius: 12px; font-weight: 600; font-size: 16px;
-    text-decoration: none; border: 1.5px solid transparent; line-height: 1.2;
-    white-space: nowrap;
-    transition: transform 140ms var(--ease-quick), filter 160ms var(--ease-out),
-                border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
+  /* ---------- type ---------- */
+  .display, .headline {
+    font-family: var(--display); font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0; text-wrap: balance;
   }
-  .btn:active { transform: scale(0.97); }
-  /* NO coloured shadow on the coal sections. A warm halo behind an orange
-     button on a near-black page is glow, not elevation, and it was the most
-     generated-looking thing on the page. Flame on coal has enough contrast to
-     stand up on its own. On the paper body a warm shadow is real elevation, so
-     it is scoped to there and taken back off the one coal panel that lives
-     inside it. */
-  .btn-flame { background: var(--flame); color: #fff; }
-  /* Same shadow ink as every card in the light body, so the page has one
-     elevation language rather than a special case for the orange button. */
-  .light .btn-flame { box-shadow: 0 10px 24px -10px rgba(26,23,20,.45); }
-  .light .offer .btn-flame { box-shadow: none; }
-  .btn-ghost { border-color: var(--coal-line); color: var(--coal-ink); background: rgba(255,255,255,.03); }
-  .btn-ink { background: var(--ink); color: var(--paper); }
-  @media (hover: hover) and (pointer: fine) {
-    .btn-flame:hover { filter: brightness(1.08); }
-    .light .btn-flame:hover { box-shadow: 0 14px 30px -10px rgba(26,23,20,.55); }
-    .btn-ghost:hover { border-color: var(--flame); }
-    .btn-ink:hover { filter: brightness(1.35); }
+  .display { font-size: clamp(44px, 6.2vw, 84px); line-height: .92; }
+  .headline { font-size: clamp(34px, 4.6vw, 60px); line-height: .95; }
+  .lede { font-size: 19px; color: var(--muted); max-width: 52ch; margin-top: 18px; }
+  .lede b { color: var(--ink); font-weight: 600; }
+  .stamp {
+    display: inline-block; font-family: var(--mono); font-weight: 600; font-size: 12px;
+    letter-spacing: .08em; text-transform: uppercase;
   }
 
-  /* ---------- header ----------
-     Condenses once the hero starts leaving. A sentinel plus one
-     IntersectionObserver, never a scroll listener. */
-  header {
-    position: sticky; top: 0; z-index: 20;
-    background: rgba(12,10,9,.82); backdrop-filter: blur(12px);
-    border-bottom: 1px solid transparent;
-    transition: background 260ms var(--ease-out), border-color 260ms var(--ease-out);
-  }
-  /* The height SNAPS; it is not transitioned. This header is sticky, so
-     animating its height reflows a 9,600px document for the length of the
-     animation. The background, border and mark carry the change smoothly and
-     the one instant step reads as a single deliberate state, not a glitch. */
-  .nav { display: flex; align-items: center; gap: 26px; height: 68px; }
-  .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; margin-right: auto; }
-  /* Height only - the mark is trimmed to its own bounds, so a fixed width
-     would stretch a taller-than-wide flame into a square. */
-  .nav-brand img {
-    height: 34px; width: auto; transform-origin: left center;
-    transition: transform 260ms var(--ease-out);
-  }
-  .nav-brand b { font-size: 17px; letter-spacing: .02em; }
-  .nav a.link {
-    text-decoration: none; color: var(--coal-muted); font-size: 15px;
-    position: relative; padding: 4px 0;
-    transition: color 160ms var(--ease-out);
-  }
-  /* The underline grows from the centre on hover, so the link acknowledges the
-     pointer without moving the text and reflowing the row. */
-  .nav a.link::after {
-    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1.5px;
-    background: var(--flame); transform: scaleX(0); transform-origin: center;
-    transition: transform 200ms var(--ease-out);
-  }
-  .nav .btn { padding: 9px 17px; font-size: 14.5px; }
-  @media (hover: hover) and (pointer: fine) {
-    .nav a.link:hover { color: var(--coal-ink); }
-    .nav a.link:hover::after { transform: scaleX(1); }
-  }
-  html.stuck header { background: rgba(12,10,9,.94); border-bottom-color: var(--coal-line); }
-  html.stuck .nav { height: 56px; }
-  html.stuck .nav-brand img { transform: scale(.82); }
-  @media (max-width: 760px) { .nav a.link { display: none; } }
-  #top-sentinel { position: absolute; top: 0; height: 1px; width: 1px; }
-
-  /* ---------- hero: asymmetric split, product bleeding off the right ---------- */
-  .hero { position: relative; overflow: hidden; padding: 72px 0 84px; }
-  .hero::before {
-    content: ""; position: absolute; inset: 0; pointer-events: none;
-    background: radial-gradient(900px 520px at 22% -10%, rgba(255,92,0,.20), transparent 68%);
-  }
-  .hero-grid {
-    position: relative; display: grid; grid-template-columns: minmax(0, 4.6fr) minmax(0, 7fr);
-    gap: 54px; align-items: center;
-  }
-  .eyebrow {
-    display: inline-block; font-size: 12px; letter-spacing: .2em; text-transform: uppercase;
-    color: var(--gold); border: 1px solid var(--coal-line); border-radius: 999px;
-    padding: 7px 16px; background: rgba(254,183,0,.05);
-  }
-  h1 {
-    font-size: clamp(38px, 4.6vw, 60px); line-height: 1.03; letter-spacing: -.025em;
-    font-weight: 700; margin-top: 20px; text-wrap: balance;
-  }
-  .flame-text {
-    background: linear-gradient(100deg, var(--flame), var(--gold));
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-  }
-  .hero-sub { margin-top: 18px; color: var(--coal-muted); font-size: 18.5px; max-width: 46ch; }
-  .hero-sub b { color: var(--coal-ink); font-weight: 600; }
-  .hero-ctas { display: flex; gap: 13px; flex-wrap: wrap; margin-top: 30px; }
-
-  /* The browser frame sits in the right column and runs past the viewport edge,
-     so the screenshot reads at a legible scale instead of being letterboxed
-     into the middle of a very wide screen. The phone leans on its lower-left
-     corner: the page's claim is one shop on every screen, so the hero shows
-     both screens rather than saying so twice. */
-  .hero-art { position: relative; }
-  .frame {
-    border: 1px solid var(--coal-line); border-radius: 16px; overflow: hidden;
-    background: var(--coal-2); box-shadow: 0 40px 90px -30px rgba(0,0,0,.85);
-    width: calc(100% + 20vw); max-width: none;
-  }
-  .frame-bar { display: flex; align-items: center; gap: 8px; padding: 11px 16px; border-bottom: 1px solid var(--coal-line); }
-  .frame-bar i { width: 11px; height: 11px; border-radius: 50%; background: var(--coal-line); }
-  .frame-bar span {
-    margin-left: 10px; font-size: 12.5px; color: var(--coal-muted);
-    background: rgba(255,255,255,.04); border-radius: 7px; padding: 4px 14px;
-  }
-  .hero-phone {
-    position: absolute; left: -38px; bottom: -34px; width: 166px; z-index: 2;
-    border-radius: 18px; overflow: hidden; border: 1px solid var(--coal-line);
-    background: var(--coal-2); box-shadow: 0 26px 54px -14px rgba(0,0,0,.9);
-  }
-  @media (max-width: 1020px) {
-    .hero { padding: 56px 0 64px; }
-    .hero-grid { grid-template-columns: 1fr; gap: 40px; }
-    .hero-sub { max-width: 60ch; }
-    .frame { width: 100%; }
-    .hero-phone { left: auto; right: -14px; bottom: -26px; width: 132px; }
-  }
-  @media (max-width: 620px) { .hero-phone { display: none; } }
-
-  /* facts band: three plain claims, no invented metrics */
-  .facts { border-top: 1px solid var(--coal-line); background: rgba(0,0,0,.25); }
-  .facts-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
-  .fact { padding: 26px 4px; text-align: center; }
-  .fact + .fact { border-left: 1px solid var(--coal-line); }
-  .fact b { display: block; font-size: 25px; letter-spacing: -.02em; color: var(--coal-ink); }
-  .fact span { font-size: 14px; color: var(--coal-muted); }
-  @media (max-width: 700px) {
-    .facts-grid { grid-template-columns: 1fr; }
-    .fact + .fact { border-left: 0; border-top: 1px solid var(--coal-line); }
-    .fact { padding: 18px 4px; }
-  }
-
-  /* ---------- light body ---------- */
-  .light { background: var(--paper); color: var(--ink); }
-  section { padding: 92px 0; }
-  .sec-head { max-width: 660px; margin: 0 auto 46px; text-align: center; }
-  .sec-head h2 { font-size: clamp(29px, 3.6vw, 42px); line-height: 1.08; letter-spacing: -.02em; text-wrap: balance; }
-  .sec-head p { margin-top: 12px; color: var(--muted); font-size: 17.5px; }
-
-  /* ---------- the live demo ----------
-     The strongest thing on the site is that the whole product opens in a tab
-     with a real shop already in it. It used to be one nav link. */
-  .demo-band {
-    display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 52px;
-    align-items: center;
-    background: linear-gradient(150deg, #fff, #fdf3e9);
-    border: 1px solid var(--line); border-radius: 16px; padding: 44px 46px;
-    box-shadow: 0 1px 2px rgba(26,23,20,.04), 0 22px 54px rgba(26,23,20,.07);
-  }
-  .demo-band h2 { font-size: clamp(28px, 3.4vw, 38px); line-height: 1.08; letter-spacing: -.02em; text-wrap: balance; }
-  .demo-band .lead { margin-top: 14px; color: var(--muted); font-size: 17px; max-width: 48ch; }
-  /* Three across at every width. Left to wrap, the third figure dropped to its
-     own line on a phone and read as an afterthought instead of a set. */
-  .demo-figs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 26px 0 28px; }
-  .demo-figs b {
-    display: block; font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 700;
-    font-variant-numeric: tabular-nums; font-size: 27px; letter-spacing: -.02em;
-  }
-  .demo-figs span { font-size: 13.5px; color: var(--muted); }
-  @media (min-width: 901px) {
-    .demo-figs { grid-template-columns: repeat(3, auto); justify-content: start; gap: 34px; }
-  }
-  @media (max-width: 400px) { .demo-figs b { font-size: 23px; } .demo-figs span { font-size: 12.5px; } }
-  /* Block, not inline-flex: as a flex row the sentence and the PIN were two
-     items, so the break landed between them and the chip sat alone on a line. */
-  .demo-key { font-size: 14px; color: var(--muted); margin-top: 16px; }
-  .demo-key code {
-    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px;
-    background: rgba(26,23,20,.06); border-radius: 6px; padding: 3px 8px; color: var(--ink);
+  /* ---------- keys and stickers ---------- */
+  .key {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 16px 26px; border-radius: 6px; border: 0; cursor: pointer; text-decoration: none;
+    font-family: var(--mono); font-weight: 600; font-size: 13px; letter-spacing: .08em; text-transform: uppercase;
+    background: var(--chassis); color: var(--ink); box-shadow: var(--bevel);
+    transition: background 140ms var(--ease-out), transform 90ms var(--ease-out), box-shadow 90ms var(--ease-out);
     white-space: nowrap;
   }
-  /* Six real lessons, each a deep link that starts that lesson inside the demo. */
-  .lessons { display: flex; flex-direction: column; }
-  .lessons > b {
-    font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 6px;
-  }
-  /* transform, not padding: the row leans toward the pointer without asking the
-     browser to lay the list out again on every frame of the transition. */
-  .lesson {
-    display: flex; align-items: center; gap: 12px; padding: 13px 4px;
-    text-decoration: none; color: inherit; border-top: 1px solid var(--line);
-    transition: transform 200ms var(--ease-out), color 160ms var(--ease-out);
-  }
-  .lesson:last-child { border-bottom: 1px solid var(--line); }
-  .lesson .n {
-    width: 26px; height: 26px; border-radius: 50%; flex: none;
-    display: grid; place-items: center;
-    background: rgba(255,92,0,.10); color: var(--flame);
-  }
-  .lesson .n svg { width: 13px; height: 13px; fill: currentColor; }
-  .lesson strong { font-weight: 600; font-size: 15.5px; }
-  .lesson em {
-    font-style: normal; margin-left: auto; font-size: 13px; color: var(--muted);
-    font-variant-numeric: tabular-nums;
-  }
+  .key:active { transform: translateY(1px); box-shadow: inset 0 0 0 var(--edge), inset 0 0 0 var(--edge-dark); }
+  .key.flame { background: var(--flame); color: #fff; }
+  .key.flame:disabled { background: #4a2a17; color: #b7a598; cursor: not-allowed; }
+  .key svg { width: 17px; height: 17px; fill: currentColor; flex: none; }
   @media (hover: hover) and (pointer: fine) {
-    .lesson:hover { transform: translateX(8px); color: var(--flame); }
-    .lesson:hover .n { background: var(--flame); color: #fff; }
+    .key:hover { box-shadow: inset 0 1px 0 var(--steel-dark), inset 0 -1px 0 var(--edge-dark); }
+    .key.flame:hover:not(:disabled) { background: var(--flame-deep); }
   }
-  @media (max-width: 900px) {
-    .demo-band { grid-template-columns: 1fr; gap: 34px; padding: 34px 26px; }
+  .sticker {
+    display: inline-block; background: var(--label); color: var(--paper-ink); text-decoration: none;
+    font-family: var(--mono); font-weight: 600; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+    padding: 6px 10px; border-radius: 3px; box-shadow: 0 2px 4px rgba(0,0,0,.35);
+    transition: transform 160ms var(--ease-out);
   }
+  @media (hover: hover) and (pointer: fine) { .sticker:hover { transform: rotate(-1.5deg) translateY(-1px); } }
 
-  /* features: asymmetric bento, three real screenshots, one coal cell */
-  .bento { display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
-  .cell {
-    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
-    padding: 28px 28px 0; overflow: hidden; display: flex; flex-direction: column;
-    box-shadow: 0 1px 2px rgba(26,23,20,.04), 0 10px 26px rgba(26,23,20,.05);
-    transition: transform 300ms var(--ease-out), box-shadow 300ms var(--ease-out);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .cell:hover { transform: translateY(-3px); box-shadow: 0 2px 4px rgba(26,23,20,.05), 0 20px 44px rgba(26,23,20,.10); }
-  }
-  .cell h3 { font-size: 19.5px; letter-spacing: -.01em; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
-  .cell p { color: var(--muted); font-size: 15.5px; padding-bottom: 26px; }
-  .cell .shot { margin-top: auto; padding: 0 0 28px; }
-  .cell .shot img { border: 1px solid var(--line); border-radius: 10px; }
-  .c7 { grid-column: span 7; } .c5 { grid-column: span 5; } .c6 { grid-column: span 6; }
-  .cell.dark-cell {
-    background: linear-gradient(150deg, var(--coal-2), #221a15); border-color: var(--coal-line);
-    color: var(--coal-ink); justify-content: center; padding-bottom: 28px;
-  }
-  .cell.dark-cell p { color: var(--coal-muted); padding-bottom: 0; }
-  .cell.tint {
-    background: linear-gradient(150deg, #fff, #fdf3e9); justify-content: center; padding-bottom: 28px;
-  }
-  .cell.tint p { padding-bottom: 0; }
-  @media (max-width: 860px) { .c7, .c5, .c6 { grid-column: span 12; } }
-
-  /* PH section: bordered quadrants, no card chrome, so it does not read as a
-     second bento */
-  .ph { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--card); }
-  .ph-item { padding: 32px 34px; }
-  .ph-item:nth-child(odd) { border-right: 1px solid var(--line); }
-  .ph-item:nth-child(n+3) { border-top: 1px solid var(--line); }
-  .ph-item h3 { font-size: 18.5px; letter-spacing: -.01em; display: flex; align-items: center; gap: 10px; }
-  .ph-item p { color: var(--muted); font-size: 15.5px; margin-top: 8px; }
-  .ph-item .tag {
-    display: inline-block; margin-bottom: 12px; font-size: 11px; font-weight: 700;
-    letter-spacing: .14em; text-transform: uppercase; color: var(--flame);
-  }
-  @media (max-width: 860px) {
-    .ph { grid-template-columns: 1fr; }
-    .ph-item:nth-child(odd) { border-right: 0; }
-    .ph-item + .ph-item { border-top: 1px solid var(--line); }
-    .ph-item { padding: 26px 24px; }
-  }
-
-  /* back-office: two grouped columns, hairlines only between rows */
-  .groups { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 56px; }
-  .group h3 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-  .group .row { display: flex; gap: 12px; padding: 15px 0; }
-  .group .row + .row { border-top: 1px solid var(--line); }
-  .group .row b { display: block; font-size: 16px; font-weight: 600; }
-  .group .row span { color: var(--muted); font-size: 14.5px; }
-  .group .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--flame); margin-top: 9px; flex: none; }
-  @media (max-width: 860px) { .groups { grid-template-columns: 1fr; gap: 30px; } }
-
-  /* devices: split header, stacked rows on the right */
-  .split { display: grid; grid-template-columns: 5fr 6fr; gap: 56px; align-items: center; }
-  @media (max-width: 860px) { .split { grid-template-columns: 1fr; gap: 32px; } }
-  .split h2 { font-size: clamp(28px, 3.6vw, 40px); line-height: 1.1; letter-spacing: -.02em; text-wrap: balance; }
-  .split .lead { margin-top: 14px; color: var(--muted); font-size: 17.5px; max-width: 46ch; }
-  .split .go { display: inline-flex; align-items: center; gap: 8px; margin-top: 22px;
-    color: var(--flame); font-weight: 600; text-decoration: none; font-size: 16.5px;
-    transition: gap 200ms var(--ease-out); }
-  @media (hover: hover) and (pointer: fine) { .split .go:hover { gap: 13px; } }
-  .dev-row { display: flex; gap: 18px; align-items: flex-start; padding: 22px 4px; }
-  .dev-row + .dev-row { border-top: 1px solid var(--line); }
-  .dev-row .ico { width: 26px; height: 26px; margin-top: 2px; }
-  .dev-row h3 { font-size: 17.5px; display: flex; align-items: center; gap: 10px; }
-  .dev-row p { color: var(--muted); font-size: 15px; margin-top: 4px; }
-  .chip {
-    background: var(--flame); color: #fff; font-size: 10.5px; font-weight: 700;
-    letter-spacing: .12em; text-transform: uppercase; border-radius: 999px; padding: 3px 10px;
-  }
-
-  /* gallery rail. The mask fades both ends so it reads as a track that
-     continues, which is what makes people drag it. */
-  .rail-wrap {
-    position: relative; max-width: 1500px; margin: 0 auto;
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 44px, #000 calc(100% - 44px), transparent);
-    mask-image: linear-gradient(to right, transparent, #000 44px, #000 calc(100% - 44px), transparent);
-  }
+  /* ---------- the steel rail between bays ---------- */
   .rail {
-    display: flex; gap: 18px; overflow-x: auto; padding: 6px 22px 16px;
-    scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+    position: relative; height: 6px; margin: var(--bay) 0;
+    background: linear-gradient(#c9c4bd, var(--steel) 45%, #7d7871);
   }
-  .rail::-webkit-scrollbar { height: 8px; }
-  .rail::-webkit-scrollbar-thumb { background: var(--line); border-radius: 8px; }
-  .rail img {
-    height: 400px; width: auto; flex: none; border-radius: 10px;
-    border: 1px solid var(--line); scroll-snap-align: center;
-    transition: transform 320ms var(--ease-out), box-shadow 320ms var(--ease-out);
+  .rail::before, .rail::after {
+    content: ""; position: absolute; top: -3px; width: 12px; height: 12px; border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #d8d3cc, #7a756e 70%);
+    box-shadow: 0 1px 2px rgba(0,0,0,.6);
   }
-  @media (hover: hover) and (pointer: fine) {
-    .rail img:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(26,23,20,.14); }
+  .rail::before { left: 22px; } .rail::after { right: 22px; }
+  .rail.tight { margin: 0; }
+
+  /* ---------- nav ---------- */
+  #top-sentinel { position: absolute; top: 0; height: 1px; width: 1px; }
+  header {
+    position: sticky; top: 0; z-index: 20; background: rgba(22,18,15,.9);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border-bottom: 1px solid transparent; transition: border-color 260ms var(--ease-out);
   }
-  @media (max-width: 700px) {
-    .rail img { height: 300px; }
-    .rail-wrap { -webkit-mask-image: none; mask-image: none; }
+  .nav { display: flex; align-items: center; gap: 18px; height: 72px; }
+  .nav-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; margin-right: auto; }
+  /* Height only: the mark is trimmed to its own bounds and would be stretched
+     square by a fixed width. */
+  .nav-brand img {
+    height: 34px; width: auto; transform-origin: left center; transition: transform 260ms var(--ease-out);
+  }
+  .nav-brand b { font-family: var(--display); font-weight: 800; font-size: 26px; letter-spacing: .02em; text-transform: uppercase; }
+  .nav .sticker { font-size: 11.5px; }
+  .nav .key { padding: 11px 16px; font-size: 12px; }
+  html.stuck header { border-bottom-color: var(--edge); }
+  html.stuck .nav { height: 60px; }
+  html.stuck .nav-brand img { transform: scale(.85); }
+  @media (max-width: 860px) { .nav .sticker { display: none; } }
+
+  /* ---------- HERO BAY: the machine ---------- */
+  .hero { padding: 56px 0 0; }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px; align-items: start; }
+  .hero-copy { padding-top: 18px; }
+  .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 30px; }
+  .hero-note { margin-top: 26px; font-size: 14.5px; color: var(--muted); max-width: 44ch; }
+  .hero-note .stamp { color: var(--muted); }
+  .hero-note .stamp.ok { color: var(--ink); }
+  @media (max-width: 1020px) { .hero-grid { grid-template-columns: 1fr; gap: 40px; } .hero { padding-top: 36px; } }
+
+  /* the till chassis */
+  .till {
+    position: relative; background: var(--chassis); border-radius: 14px; box-shadow: var(--bevel), 0 30px 60px -30px rgba(0,0,0,.9);
+    padding: 18px 18px 0; border: 1px solid var(--edge-dark);
+  }
+  .till-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .till-head .sticker { font-size: 11px; }
+  .till-head .light { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .till-head .light i { width: 9px; height: 9px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 2px rgba(255,176,0,.18); }
+
+  /* seven-segment display */
+  .led {
+    background: var(--glass); border-radius: 8px; box-shadow: var(--glass-shadow); padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid #000;
+  }
+  .led .cap { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #8a6a2a; }
+  .seg { display: inline-flex; gap: 6px; align-items: flex-end; }
+  .seg .d { position: relative; width: 22px; height: 38px; }
+  .seg .d.sep { width: 8px; }
+  .seg .d.sep i { position: absolute; left: 2px; bottom: 2px; width: 5px; height: 5px; border-radius: 1px; background: var(--off); }
+  .seg .d.sep.lit i { background: var(--amber); }
+  .seg .d.comma i { bottom: 4px; width: 4px; height: 8px; border-radius: 1px; }
+  .seg .d s { position: absolute; display: block; background: var(--off); border-radius: 1.5px; text-decoration: none; transition: background 60ms linear; }
+  .seg .d s.on { background: var(--amber); }
+  /* segments a-g on a 22x38 box, 4px thick */
+  .seg .d .a { left: 3px; top: 0; width: 16px; height: 4px; }
+  .seg .d .b { right: 0; top: 3px; width: 4px; height: 14px; }
+  .seg .d .c { right: 0; bottom: 3px; width: 4px; height: 14px; }
+  .seg .d .dd { left: 3px; bottom: 0; width: 16px; height: 4px; }
+  .seg .d .e { left: 0; bottom: 3px; width: 4px; height: 14px; }
+  .seg .d .f { left: 0; top: 3px; width: 4px; height: 14px; }
+  .seg .d .g { left: 3px; top: 17px; width: 16px; height: 4px; }
+  .seg.big .d { width: 30px; height: 52px; }
+  .seg.big .d.sep { width: 10px; }
+  .seg.big .d .a { left: 4px; width: 22px; height: 5px; }
+  .seg.big .d .b, .seg.big .d .c, .seg.big .d .e, .seg.big .d .f { width: 5px; height: 20px; }
+  .seg.big .d .b, .seg.big .d .f { top: 4px; }
+  .seg.big .d .c, .seg.big .d .e { bottom: 4px; }
+  .seg.big .d .dd { left: 4px; width: 22px; height: 5px; }
+  .seg.big .d .g { left: 4px; top: 23.5px; width: 22px; height: 5px; }
+  .seg.big .d.sep i { width: 6px; height: 6px; }
+  .seg.big .d.comma i { width: 5px; height: 10px; }
+
+  /* menu keys + basket */
+  .till-body { display: grid; grid-template-columns: minmax(0, 1fr) 232px; gap: 14px; margin-top: 14px; }
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; align-content: start; }
+  .tile {
+    background: var(--coal); border: 1px solid var(--edge-dark); box-shadow: var(--bevel); border-radius: 6px;
+    padding: 12px 10px 10px; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 10px; min-height: 84px;
+    transition: transform 90ms var(--ease-out), background 140ms var(--ease-out);
+  }
+  .tile b { font-family: var(--body); font-weight: 600; font-size: 14px; line-height: 1.2; color: var(--ink); }
+  .tile span { font-family: var(--mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .tile:active { transform: translateY(1px); }
+  .tile.hit { background: #3b2214; }
+  @media (hover: hover) and (pointer: fine) { .tile:hover { background: #2a221c; } }
+  .basket { display: flex; flex-direction: column; gap: 10px; }
+  .paper {
+    background: var(--paper); color: var(--paper-ink); font-family: var(--mono); font-size: 13px; line-height: 1.45;
+    font-variant-numeric: tabular-nums; box-shadow: var(--paper-shadow);
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 7px), 96% 100%, 92% calc(100% - 7px), 88% 100%, 84% calc(100% - 7px), 80% 100%, 76% calc(100% - 7px), 72% 100%, 68% calc(100% - 7px), 64% 100%, 60% calc(100% - 7px), 56% 100%, 52% calc(100% - 7px), 48% 100%, 44% calc(100% - 7px), 40% 100%, 36% calc(100% - 7px), 32% 100%, 28% calc(100% - 7px), 24% 100%, 20% calc(100% - 7px), 16% 100%, 12% calc(100% - 7px), 8% 100%, 4% calc(100% - 7px), 0 100%);
+  }
+  .basket .paper { padding: 14px 14px 20px; min-height: 178px; display: flex; flex-direction: column; }
+  .paper .h { text-align: center; font-weight: 700; letter-spacing: .06em; }
+  .paper .h small { display: block; font-weight: 500; font-size: 11px; color: var(--paper-faint); letter-spacing: .04em; margin-top: 2px; }
+  .paper .rule { border-top: 1px dashed var(--paper-rule); margin: 8px 0; }
+  .paper .ln { display: grid; grid-template-columns: 24px 1fr auto; gap: 8px; padding: 2px 0; }
+  .paper .ln .n { color: var(--paper-faint); }
+  .paper .ln .a { text-align: right; }
+  .paper .tot { display: flex; justify-content: space-between; font-weight: 700; font-size: 14px; margin-top: auto; padding-top: 6px; }
+  .paper .empty { color: var(--paper-faint); text-align: center; padding: 24px 0; font-size: 12px; }
+  .basket-keys { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+  .basket-keys .key { padding: 14px 10px; }
+  .basket-keys .key.clear { font-size: 11px; padding: 14px 12px; }
+
+  /* the printer slot */
+  .slot-wrap { position: relative; margin: 16px -18px 0; height: 30px; }
+  .slot { position: absolute; left: 18px; right: 18px; top: 8px; height: 10px; background: var(--edge-dark); border-radius: 5px; box-shadow: inset 0 2px 4px #000; }
+  .printer-out { position: relative; margin: 0 auto; width: min(360px, 100%); min-height: 0; pointer-events: none; }
+  .receipt {
+    position: relative; margin: -4px auto 0; width: 300px; max-width: 100%;
+    max-height: 0; overflow: hidden; transition: max-height 1400ms var(--ease-liquid);
+  }
+  .receipt .paper { padding: 22px 18px 26px; box-shadow: var(--paper-shadow); }
+  .receipt.out { max-height: 520px; }
+  .receipt .paper .ln { grid-template-columns: 28px 1fr auto; }
+  .receipt .paper .ln, .receipt .paper .rule, .receipt .paper .h, .receipt .paper .tot, .receipt .paper .ft { opacity: 0; transform: translateY(-4px); }
+  .receipt.printed .paper .ln, .receipt.printed .paper .rule, .receipt.printed .paper .h, .receipt.printed .paper .tot, .receipt.printed .paper .ft { opacity: 1; transform: none; }
+  .receipt .paper > * { transition: opacity 120ms linear, transform 200ms var(--ease-out); }
+  .receipt .paper .ft { font-size: 11px; color: var(--paper-faint); text-align: center; margin-top: 10px; }
+  .receipt .paper .paid {
+    position: absolute; right: 18px; top: 60px; transform: rotate(-12deg) scale(1.6); opacity: 0;
+    border: 3px solid var(--flame); color: var(--flame); font-weight: 700; font-size: 15px; letter-spacing: .14em;
+    padding: 4px 8px; border-radius: 3px; transition: transform 240ms var(--ease-out), opacity 180ms linear;
+  }
+  .receipt.printed.stamped .paper .paid { opacity: 1; transform: rotate(-12deg) scale(1); }
+  .till-foot { margin-top: 8px; padding: 0 0 14px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .till-foot span { font-size: 13px; color: var(--muted); }
+  .till-foot .stamp { color: var(--muted); }
+  @media (max-width: 640px) {
+    .till { padding: 14px 14px 0; }
+    .till-body { grid-template-columns: 1fr; }
+    .tiles { grid-template-columns: repeat(2, 1fr); }
+    .tile { min-height: 70px; }
+    .slot-wrap { margin: 16px -14px 0; }
+    .slot { left: 14px; right: 14px; }
   }
 
-  /* ---------- everything in the box ----------
-     The whole capability list, grouped the way the app itself is grouped. No
-     row borders: forty lines with a hairline under each is the laziest table
-     on the web. A hairline above each GROUP instead, which organises real
-     content rather than decorating it. The bold lines are the ones a POS built
-     for somewhere else usually does not carry. */
-  .box { display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px 46px; }
-  .box .grp { border-top: 1px solid var(--line); padding-top: 16px; }
-  .box .grp > b {
-    display: block; font-size: 12px; letter-spacing: .13em; text-transform: uppercase;
-    color: var(--flame); margin-bottom: 10px;
-  }
-  .box ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 9px; }
-  .box li { position: relative; padding-left: 20px; font-size: 15px; color: var(--muted); line-height: 1.45; }
-  .box li::before {
-    content: ""; position: absolute; left: 0; top: 8px; width: 8px; height: 2px;
-    border-radius: 2px; background: var(--line);
-  }
-  .box li.key { color: var(--ink); font-weight: 600; }
-  .box li.key::before { background: var(--flame); width: 12px; }
-  .box-note { text-align: center; color: var(--muted); font-size: 14.5px; margin-top: 40px; }
-  .box-note b { color: var(--ink); font-weight: 600; }
-  @media (max-width: 980px) { .box { grid-template-columns: 1fr 1fr; gap: 30px 36px; } }
-  @media (max-width: 640px) { .box { grid-template-columns: 1fr; gap: 26px; } }
+  /* ---------- generic bay ---------- */
+  .bay { position: relative; }
+  .bay-head { max-width: 760px; margin-bottom: 40px; }
+  .bay-head .lede { margin-top: 16px; }
+  .bay-head .delta { margin-top: 14px; font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--ink); letter-spacing: .02em; min-height: 1.2em; }
+  .bay-head .delta:not(:empty)::before { content: ""; display: inline-block; width: 9px; height: 9px; background: var(--flame); margin-right: 10px; vertical-align: 1px; }
+  .split { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; align-items: center; }
+  @media (max-width: 900px) { .split { grid-template-columns: 1fr; gap: 34px; } }
+  .facts { list-style: none; padding: 0; margin: 26px 0 0; display: flex; flex-direction: column; }
+  .facts li { padding: 14px 0; border-top: 1px solid var(--edge); display: grid; grid-template-columns: 26px 1fr; gap: 12px; align-items: start; }
+  .facts li:last-child { border-bottom: 1px solid var(--edge); }
+  .facts li b { display: block; font-weight: 600; }
+  .facts li span { color: var(--muted); font-size: 15.5px; }
+  .facts svg { width: 20px; height: 20px; fill: var(--flame); margin-top: 3px; }
 
-  /* ---------- getting started ----------
-     The free menu setup was the best offer on the site and it was sentence
-     seven of FAQ item seven. Asymmetric on purpose: three routes on the left,
-     the offer that costs nothing on a coal panel to the right. */
-  .start { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 46px; align-items: start; }
-  .route { display: flex; gap: 16px; padding: 20px 4px; }
-  .route + .route { border-top: 1px solid var(--line); }
-  .route .ico { margin-top: 3px; }
-  .route h3 { font-size: 17.5px; letter-spacing: -.01em; }
-  .route p { color: var(--muted); font-size: 15px; margin-top: 4px; }
-  .offer {
-    background: linear-gradient(150deg, var(--coal-2), #221a15);
-    border: 1px solid var(--coal-line); border-radius: 16px; padding: 32px 30px;
-    color: var(--coal-ink);
-  }
-  .offer .tag {
-    display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .14em;
-    text-transform: uppercase; color: var(--gold); margin-bottom: 12px;
-  }
-  .offer h3 { font-size: 22px; letter-spacing: -.015em; line-height: 1.15; }
-  .offer p { color: var(--coal-muted); font-size: 15.5px; margin-top: 12px; }
-  .offer .btn { margin-top: 22px; width: 100%; }
-  @media (max-width: 900px) { .start { grid-template-columns: 1fr; gap: 34px; } }
+  /* a device on the counter: tablet, wall tablet, phone */
+  .device { position: relative; background: #000; border-radius: 14px; padding: 10px; box-shadow: var(--bevel), 0 24px 50px -24px rgba(0,0,0,.95); border: 1px solid var(--edge); }
+  .device img { border-radius: 6px; }
+  .device .tag { position: absolute; left: 14px; bottom: -12px; }
+  .device.phone { width: min(300px, 100%); margin: 0 auto; border-radius: 26px; padding: 9px; }
+  .device.phone img { border-radius: 18px; }
 
-  /* pricing */
-  .price-card {
-    max-width: 540px; margin: 0 auto; background: var(--card); border: 1px solid var(--line);
-    border-radius: 16px; padding: 42px 40px; text-align: center;
-    box-shadow: 0 1px 2px rgba(26,23,20,.04), 0 22px 54px rgba(26,23,20,.09);
+  /* ---------- PASS BAY: tickets on a wire ---------- */
+  .wire-wrap { position: relative; padding: 26px 0 8px; overflow: hidden; }
+  .wire { position: absolute; left: -40px; right: -40px; top: 22px; height: 3px; background: linear-gradient(#e2ddd5, var(--steel), #5e5953); }
+  .tickets { display: flex; gap: 18px; overflow-x: auto; padding: 0 4px 22px; scroll-snap-type: x proximity; }
+  .tickets::-webkit-scrollbar { height: 6px; } .tickets::-webkit-scrollbar-thumb { background: var(--edge); border-radius: 6px; }
+  .ticket {
+    position: relative; flex: none; width: 236px; background: var(--ticket); color: var(--ticket-ink);
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.45; font-variant-numeric: tabular-nums;
+    padding: 22px 14px 16px; box-shadow: var(--paper-shadow); scroll-snap-align: start;
+    transform-origin: 50% 0; transition: transform 700ms var(--ease-liquid), opacity 300ms linear;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 6px), 95% 100%, 90% calc(100% - 6px), 85% 100%, 80% calc(100% - 6px), 75% 100%, 70% calc(100% - 6px), 65% 100%, 60% calc(100% - 6px), 55% 100%, 50% calc(100% - 6px), 45% 100%, 40% calc(100% - 6px), 35% 100%, 30% calc(100% - 6px), 25% 100%, 20% calc(100% - 6px), 15% 100%, 10% calc(100% - 6px), 5% 100%, 0 calc(100% - 6px));
   }
-  .price-card .free { font-size: 21px; font-weight: 700; }
-  .price-card .free em { font-style: normal; color: var(--flame); }
-  .price-big { font-size: 58px; letter-spacing: -.02em; margin: 12px 0 2px; }
-  .price-big small { font-size: 19px; color: var(--muted); font-weight: 400; font-family: 'Space Grotesk', sans-serif; }
-  .price-sub { color: var(--muted); font-size: 15px; }
-  .ticks { list-style: none; padding: 0; margin: 26px 0 30px; text-align: left; }
-  .ticks li { padding: 9px 0 9px 32px; position: relative; font-size: 15.5px; }
-  .ticks li + li { border-top: 1px solid var(--line); }
-  .ticks li::before {
-    content: ""; position: absolute; left: 4px; top: 14px; width: 16px; height: 16px;
-    border-radius: 50%; background: linear-gradient(135deg, var(--flame), var(--gold));
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23000' d='M6.5 12.2 2.3 8l1.4-1.4 2.8 2.8 5.8-5.8L13.7 5z'/%3E%3C/svg%3E") center/contain no-repeat;
-  }
-  .price-note { font-size: 13.5px; color: var(--muted); margin-top: 14px; }
+  .ticket::before, .ticket::after { content: ""; position: absolute; top: 8px; width: 9px; height: 9px; border-radius: 50%; background: var(--coal); box-shadow: inset 0 1px 2px rgba(0,0,0,.6); }
+  .ticket::before { left: 18px; } .ticket::after { right: 18px; }
+  .ticket .age { position: absolute; left: 0; right: 0; top: 0; height: 6px; background: var(--ticket-rule); }
+  .ticket .age.warm { background: var(--flame); }
+  .ticket .age.hot { background: #b01e00; }
+  .ticket .th { display: flex; justify-content: space-between; font-weight: 700; border-bottom: 2px solid var(--ticket-ink); padding-bottom: 6px; margin-bottom: 8px; }
+  .ticket .tl { display: grid; grid-template-columns: 22px 1fr; gap: 6px; padding: 2px 0; }
+  .ticket .tl em { font-style: normal; color: #6a5a1e; font-size: 11px; grid-column: 2; }
+  .ticket .tf { margin-top: 10px; font-size: 11px; color: #6a5a1e; display: flex; justify-content: space-between; }
+  .ticket.new { transform: translateY(-140%) rotate(-6deg); opacity: 0; }
+  .ticket.new.clipped { transform: none; opacity: 1; }
+  .ticket.new .th { color: var(--flame-deep); }
 
-  /* trust: four plain assurances, hairline row, no card chrome */
-  .trust {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
-    max-width: 1000px; margin: 54px auto 0; border-top: 1px solid var(--line);
-  }
-  .trust div { padding: 22px 22px 0; }
-  .trust div + div { border-left: 1px solid var(--line); }
-  .trust b { display: block; font-size: 15.5px; font-weight: 600; }
-  .trust span { display: block; color: var(--muted); font-size: 14px; margin-top: 5px; }
-  @media (max-width: 860px) {
-    .trust { grid-template-columns: 1fr 1fr; }
-    .trust div + div { border-left: 0; }
-    .trust div:nth-child(even) { border-left: 1px solid var(--line); }
-    .trust div:nth-child(n+3) { border-top: 1px solid var(--line); padding-top: 20px; }
-  }
-  @media (max-width: 520px) {
-    .trust { grid-template-columns: 1fr; }
-    .trust div:nth-child(even) { border-left: 0; }
-    .trust div + div { border-top: 1px solid var(--line); padding-top: 20px; }
-  }
+  /* ---------- SHELF BAY: containers with fill levels ---------- */
+  .shelf { position: relative; padding: 0 0 22px; }
+  .shelf-rail { position: relative; height: 10px; margin: 0 -8px; background: linear-gradient(#cdc8c1, var(--steel) 40%, #6e6962); border-radius: 2px; box-shadow: 0 6px 14px -4px rgba(0,0,0,.8); }
+  .shelf-rail::before, .shelf-rail::after { content: ""; position: absolute; top: 10px; width: 10px; height: 34px; background: linear-gradient(90deg, #8f8a83, #5f5a54); }
+  .shelf-rail::before { left: 8px; } .shelf-rail::after { right: 8px; }
+  .jars { display: grid; grid-template-columns: repeat(8, 1fr); gap: 14px; align-items: end; padding: 0 12px; }
+  .jar { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 24px; }
+  .jar .body { position: relative; width: 100%; height: 150px; background: rgba(255,255,255,.04); border: 2px solid var(--steel-dark); border-top-width: 6px; border-radius: 4px 4px 8px 8px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,.04); }
+  .jar .fill { position: absolute; left: 0; right: 0; bottom: 0; transition: height 1300ms var(--ease-liquid); }
+  .jar .fill::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: rgba(255,255,255,.35); }
+  .jar .lbl { width: 100%; background: var(--label); color: var(--paper-ink); font-family: var(--mono); font-size: 11px; line-height: 1.3; padding: 7px 8px; border-radius: 3px; box-shadow: 0 2px 4px rgba(0,0,0,.4); font-variant-numeric: tabular-nums; }
+  .jar .lbl b { display: block; font-weight: 700; font-size: 11.5px; letter-spacing: .02em; }
+  .jar .lbl .q { display: block; font-weight: 600; font-size: 13px; margin-top: 3px; }
+  .jar .lbl .low { display: block; color: var(--paper-faint); font-size: 10px; margin-top: 2px; }
+  .jar .d { position: absolute; top: 0; left: 50%; transform: translate(-50%, 6px); opacity: 0; font-family: var(--mono); font-weight: 700; font-size: 12px; color: var(--flame); white-space: nowrap; transition: opacity 200ms linear, transform 400ms var(--ease-out); }
+  .jar.hit .d { opacity: 1; transform: translate(-50%, 0); }
+  .jar.hit .lbl { outline: 2px solid var(--flame); outline-offset: 1px; }
+  @media (max-width: 900px) { .jars { grid-template-columns: repeat(4, 1fr); gap: 10px; } .jar .body { height: 120px; } }
+  @media (max-width: 480px) { .jars { grid-template-columns: repeat(2, 1fr); } }
+  .shelf-note { margin-top: 20px; font-size: 14px; color: var(--muted); }
 
-  /* FAQ. The marker is two hairlines so the plus can become a minus in one
-     move instead of swapping a glyph. */
-  .faq { max-width: 740px; margin: 0 auto; }
-  .faq details { border-bottom: 1px solid var(--line); }
-  .faq summary {
-    cursor: pointer; padding: 19px 40px 19px 2px; font-weight: 600; font-size: 17px;
-    list-style: none; position: relative;
-    transition: color 160ms var(--ease-out);
+  /* ---------- BOOKS BAY: the ledger, the display, the drawer ---------- */
+  .ledger { background: var(--paper); color: var(--paper-ink); box-shadow: var(--paper-shadow); padding: 30px 32px 32px; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .ledger h3 { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 30px; letter-spacing: .01em; line-height: 1; }
+  .ledger .sub { font-size: 12px; color: var(--paper-faint); letter-spacing: .06em; text-transform: uppercase; margin-top: 4px; }
+  .ledger table { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 14.5px; }
+  .ledger td { padding: 9px 0; border-top: 1px dashed var(--paper-rule); }
+  .ledger td:last-child { text-align: right; font-weight: 600; }
+  .ledger tr.total td { border-top: 2px solid var(--paper-ink); font-weight: 700; font-size: 17px; padding-top: 12px; }
+  .ledger tr.total td:last-child { color: var(--flame-deep); }
+  .ledger .plus { display: inline-block; margin-left: 10px; color: var(--flame-deep); font-weight: 700; opacity: 0; transition: opacity 240ms linear; }
+  .ledger.hit .plus { opacity: 1; }
+  .ledger .note { margin-top: 16px; font-size: 12px; color: var(--paper-faint); line-height: 1.5; }
+  .books-display { margin-top: 18px; }
+  .books-display .led { justify-content: flex-start; gap: 22px; flex-wrap: wrap; }
+  .books-display .cap { flex: none; }
+  .drawer-wrap { position: relative; margin-top: 30px; }
+  .drawer-face { position: relative; background: var(--chassis); border-radius: 12px; box-shadow: var(--bevel); border: 1px solid var(--edge-dark); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; z-index: 2; }
+  .drawer-face .handle { width: 64px; height: 12px; border-radius: 6px; background: linear-gradient(#d8d3cc, #7a756e); box-shadow: 0 1px 2px rgba(0,0,0,.6); }
+  .drawer { overflow: hidden; max-height: 0; transition: max-height 1100ms var(--ease-liquid); margin: 0 10px; }
+  .drawer .device { border-radius: 0 0 12px 12px; margin-top: -2px; }
+  .drawer.open { max-height: 900px; }
+  .drawer-wrap .stamp { color: var(--muted); }
+
+  /* ---------- STAFF BAY: punch cards and the log tape ---------- */
+  .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .punch { background: var(--paper); color: var(--paper-ink); font-family: var(--mono); font-size: 12.5px; line-height: 1.4; padding: 40px 14px 14px; box-shadow: var(--paper-shadow); position: relative; font-variant-numeric: tabular-nums; }
+  .punch::before { content: ""; position: absolute; left: 50%; top: 10px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--coal); box-shadow: inset 0 1px 2px rgba(0,0,0,.7); }
+  .punch b { display: block; font-family: var(--body); font-size: 16px; font-weight: 700; }
+  .punch .role { font-size: 11px; color: var(--paper-faint); letter-spacing: .06em; text-transform: uppercase; }
+  .punch .row { display: flex; justify-content: space-between; border-top: 1px dashed var(--paper-rule); padding: 6px 0; margin-top: 6px; }
+  .punch .in { color: #1d6b3a; font-weight: 700; }
+  .tape { margin-top: 18px; background: var(--paper); color: var(--paper-ink); font-family: var(--mono); font-size: 12.5px; line-height: 1.5; padding: 14px 16px; box-shadow: var(--paper-shadow); font-variant-numeric: tabular-nums; overflow: hidden; }
+  .tape .row { display: grid; grid-template-columns: 56px 92px 1fr auto; gap: 10px; padding: 5px 0; border-top: 1px dashed var(--paper-rule); }
+  .tape .row:first-child { border-top: 0; font-weight: 700; }
+  .tape .row.new { background: rgba(255,92,0,.10); margin: 0 -16px; padding-left: 16px; padding-right: 16px; max-height: 0; opacity: 0; overflow: hidden; border-top: 0; transition: max-height 500ms var(--ease-out), opacity 300ms linear; }
+  .tape .row.new.in { max-height: 60px; opacity: 1; }
+  .tape .row .who { font-weight: 600; }
+  @media (max-width: 900px) { .board { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .ledger { padding: 24px 20px 26px; } .ledger table { font-size: 13px; } .ledger tr.total td { font-size: 15px; } .ledger h3 { font-size: 26px; } }
+  @media (max-width: 560px) { .board { grid-template-columns: 1fr; } .tape .row { grid-template-columns: 50px 1fr auto; } .tape .row .what { grid-column: 1 / -1; } }
+
+  /* ---------- DEMO BAY ---------- */
+  .demo-bay { background: var(--chassis); border: 1px solid var(--edge-dark); box-shadow: var(--bevel); border-radius: 14px; padding: 40px 44px; display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 44px; align-items: center; }
+  .demo-figs { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 30px; margin: 26px 0 28px; }
+  .demo-figs b { display: block; font-family: var(--display); font-weight: 800; font-size: 40px; line-height: 1; }
+  .demo-figs span { font-size: 13.5px; color: var(--muted); }
+  .demo-key { font-size: 14.5px; color: var(--muted); margin-top: 16px; }
+  .demo-key code { font-family: var(--mono); background: var(--label); color: var(--paper-ink); border-radius: 3px; padding: 3px 8px; font-weight: 600; }
+  .lessons { display: flex; flex-direction: column; }
+  .lessons > b { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .lesson { display: flex; align-items: center; gap: 12px; padding: 12px 4px; text-decoration: none; border-top: 1px solid var(--edge); transition: transform 200ms var(--ease-out); }
+  .lesson:last-child { border-bottom: 1px solid var(--edge); }
+  .lesson strong { font-weight: 600; font-size: 15.5px; }
+  .lesson em { font-style: normal; margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .lesson .n { width: 26px; height: 26px; border-radius: 4px; background: var(--flame); color: #fff; display: grid; place-items: center; flex: none; font: 700 12px var(--mono); }
+  @media (hover: hover) and (pointer: fine) { .lesson:hover { transform: translateX(6px); } }
+  @media (max-width: 900px) { .demo-bay { grid-template-columns: 1fr; padding: 30px 24px; gap: 30px; } .demo-figs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; } .demo-figs b { font-size: 32px; } }
+
+  /* ---------- MANIFEST BAY: everything in the box ---------- */
+  .manifest { background: var(--paper); color: var(--paper-ink); box-shadow: var(--paper-shadow); padding: 34px 36px 40px; }
+  .manifest .mh { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; flex-wrap: wrap; border-bottom: 2px solid var(--paper-ink); padding-bottom: 12px; }
+  .manifest .mh h3 { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 34px; line-height: 1; }
+  .manifest .mh span { font-family: var(--mono); font-size: 12px; color: var(--paper-faint); letter-spacing: .06em; text-transform: uppercase; }
+  .box { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px 40px; margin-top: 24px; }
+  .box .grp > b { display: block; font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 8px; }
+  .box ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 7px; }
+  .box li { position: relative; padding-left: 22px; font-size: 15px; line-height: 1.4; color: #3f3a34; }
+  .box li::before { content: ""; position: absolute; left: 2px; top: 8px; width: 10px; height: 3px; background: var(--paper-rule); }
+  .box li.bold { color: var(--paper-ink); font-weight: 600; }
+  .box li.bold::before { background: var(--flame); width: 12px; top: 8px; }
+  .manifest .mf { margin-top: 26px; padding-top: 14px; border-top: 1px dashed var(--paper-rule); font-family: var(--mono); font-size: 12.5px; color: var(--paper-faint); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .manifest .mf a { color: var(--flame-deep); }
+  @media (max-width: 980px) { .box { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 620px) { .box { grid-template-columns: 1fr; } .manifest { padding: 26px 20px 30px; } }
+
+  /* ---------- DEVICES + START BAYS ---------- */
+  .routes { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 44px; align-items: start; }
+  .offer { background: var(--paper); color: var(--paper-ink); box-shadow: var(--paper-shadow); padding: 30px 30px 32px; position: relative; }
+  .offer .stamp { color: var(--flame-deep); }
+  .offer h3 { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 32px; line-height: .98; margin-top: 8px; }
+  .offer p { margin-top: 12px; color: #3f3a34; font-size: 15.5px; }
+  .offer .key { margin-top: 20px; width: 100%; }
+  @media (max-width: 900px) { .routes { grid-template-columns: 1fr; } }
+
+  /* ---------- PRICING BAY: one receipt ---------- */
+  .price-wrap { max-width: 440px; margin: 0 auto; }
+  .price { position: relative; }
+  .price .paper { padding: 28px 26px 30px; font-size: 14px; }
+  .price .paper .h { font-size: 15px; }
+  .price .paper .ln { grid-template-columns: 1fr auto; }
+  .price .paper .ln.free .a { color: var(--paper-faint); }
+  .price .paper .tot { font-size: 19px; }
+  .price .paper .tot small { display: block; font-size: 11px; font-weight: 500; color: var(--paper-faint); }
+  /* Over the empty top-right corner of the receipt, never over a line. */
+  .price .paper .stampbox {
+    position: absolute; right: 16px; top: 22px; transform: rotate(-9deg);
+    border: 3px solid var(--flame); color: var(--flame); font-weight: 700; font-size: 11.5px; letter-spacing: .12em;
+    padding: 4px 7px; border-radius: 3px; text-transform: uppercase;
   }
+  .price .paper .h { text-align: left; padding-right: 150px; }
+  .price .paper .ft { font-size: 11.5px; color: var(--paper-faint); text-align: center; margin-top: 12px; line-height: 1.5; }
+  .price .key { width: 100%; margin-top: 18px; }
+  @media (max-width: 560px) {
+    .price .paper { font-size: 13px; }
+    /* no room beside the header on a phone: the stamp lands at the foot of the receipt */
+    .price .paper .stampbox { position: static; display: inline-block; margin: 14px 0 0; transform: rotate(-3deg); }
+    .price .paper { text-align: left; }
+    .price .paper .stampbox { margin-left: 50%; transform: translateX(-50%) rotate(-3deg); }
+  }
+  .trust { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; max-width: 1000px; margin: 54px auto 0; border-top: 1px solid var(--edge); }
+  .trust div { padding: 20px 20px 0; }
+  .trust div + div { border-left: 1px solid var(--edge); }
+  .trust b { display: block; font-weight: 600; }
+  .trust span { display: block; color: var(--muted); font-size: 14.5px; margin-top: 5px; }
+  @media (max-width: 860px) { .trust { grid-template-columns: 1fr 1fr; } .trust div + div { border-left: 0; } .trust div:nth-child(even) { border-left: 1px solid var(--edge); } .trust div:nth-child(n+3) { border-top: 1px solid var(--edge); padding-top: 18px; } }
+  @media (max-width: 520px) { .trust { grid-template-columns: 1fr; } .trust div:nth-child(even) { border-left: 0; } .trust div + div { border-top: 1px solid var(--edge); padding-top: 18px; } }
+
+  /* ---------- FAQ BAY: the paper strip ---------- */
+  .faq { max-width: 780px; margin: 0 auto; background: var(--paper); color: var(--paper-ink); box-shadow: var(--paper-shadow); padding: 10px 26px 16px; }
+  .faq details { border-bottom: 1px dashed var(--paper-rule); }
+  .faq details:last-child { border-bottom: 0; }
+  .faq summary { cursor: pointer; list-style: none; padding: 17px 40px 17px 0; font-weight: 600; font-size: 17px; position: relative; }
   .faq summary::-webkit-details-marker { display: none; }
-  .faq summary::before, .faq summary::after {
-    content: ""; position: absolute; right: 8px; top: 50%; background: var(--flame);
-    border-radius: 2px;
-  }
-  .faq summary::before { width: 15px; height: 2px; margin-top: -1px; }
-  .faq summary::after {
-    width: 2px; height: 15px; margin-top: -7.5px; right: 14.5px;
-    transition: transform 260ms var(--ease-out), opacity 200ms var(--ease-out);
-  }
+  .faq summary::before, .faq summary::after { content: ""; position: absolute; right: 8px; top: 50%; background: var(--flame); border-radius: 2px; }
+  .faq summary::before { width: 15px; height: 3px; margin-top: -1.5px; }
+  .faq summary::after { width: 3px; height: 15px; margin-top: -7.5px; right: 14px; transition: transform 260ms var(--ease-out), opacity 200ms linear; }
   .faq details[open] summary::after { transform: scaleY(0); opacity: 0; }
-  @media (hover: hover) and (pointer: fine) { .faq summary:hover { color: var(--flame); } }
-  .faq details p { padding: 0 2px 20px; color: var(--muted); font-size: 15.5px; }
-  .faq a { color: var(--flame); }
+  .faq details p { padding: 0 0 18px; color: #3f3a34; font-size: 15.5px; max-width: 68ch; }
+  .faq a { color: var(--flame-deep); }
+  .faq-more { text-align: center; margin-top: 22px; }
 
-  /* closing */
-  .cta-end { text-align: center; position: relative; overflow: hidden; }
-  .cta-end::before {
-    content: ""; position: absolute; inset: 0; pointer-events: none;
-    background: radial-gradient(620px 340px at 50% 108%, rgba(255,92,0,.18), transparent 70%);
-  }
-  .cta-end h2 { font-size: clamp(30px, 4.2vw, 46px); letter-spacing: -.025em; max-width: 660px; margin: 0 auto; text-wrap: balance; }
-  .cta-end h2 span { color: var(--gold); }
-  .cta-end p { color: var(--coal-muted); margin: 16px auto 30px; max-width: 520px; }
-  .cta-end .hero-ctas { justify-content: center; margin-top: 0; }
+  /* ---------- CLOSING BAY ---------- */
+  .close { text-align: center; padding-bottom: 12px; }
+  .close .display { font-size: clamp(40px, 6.6vw, 84px); max-width: 15ch; margin: 0 auto; }
+  .close .lede { margin: 18px auto 0; max-width: 46ch; }
+  .close .led { display: inline-flex; margin: 30px auto 0; gap: 22px; }
+  .close .hero-ctas { justify-content: center; margin-top: 30px; }
+  .close .replay { margin-top: 18px; }
+  .close .replay button { background: none; border: 0; cursor: pointer; color: var(--muted); font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px; }
+  .close .replay button:hover { color: var(--ink); }
 
-  footer { border-top: 1px solid var(--coal-line); padding: 40px 0 56px; color: var(--coal-muted); font-size: 14px; }
-  .foot { display: flex; flex-wrap: wrap; gap: 26px; align-items: center; }
-  .foot nav { display: flex; flex-wrap: wrap; gap: 20px; margin-left: auto; }
-  .foot a { color: var(--coal-muted); text-decoration: none; transition: color 160ms var(--ease-out); }
-  @media (hover: hover) and (pointer: fine) { .foot a:hover { color: var(--coal-ink); } }
-  @media (max-width: 700px) { .foot { flex-direction: column; align-items: flex-start; } .foot nav { margin-left: 0; } }
-
-  /* The BIR Registration Seal Badge (RMC 38-2026). BIR issues this with the
-     Certificate of Registration and requires online businesses to display it
-     where the public can see and SCAN it - so the QR is sized to stay usable
-     (~100px on screen), not shrunk to a decorative mark. It sits on a white
-     card because the badge artwork is BIR's own and must not be recoloured.
-     The caption is load-bearing: this seal says the BUSINESS is registered,
-     which is not the same claim as the software being accredited. */
-  .bir-seal {
-    width: 100%; margin-top: 26px; padding-top: 24px;
-    border-top: 1px solid var(--coal-line);
-    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
-  }
-  .bir-seal img {
-    width: 420px; max-width: 100%; height: auto;
-    background: #fff; border-radius: 10px; padding: 12px 14px;
-  }
-  .bir-seal p {
-    margin: 0; flex: 1 1 260px; max-width: 46ch;
-    font-size: 13px; line-height: 1.55; color: #8b8078;
-  }
+  /* ---------- footer ---------- */
+  footer { border-top: 1px solid var(--edge); padding: 40px 0 56px; color: var(--muted); font-size: 14px; margin-top: var(--bay); }
+  .foot { display: flex; flex-wrap: wrap; gap: 22px; align-items: center; }
+  .foot nav { display: flex; flex-wrap: wrap; gap: 8px 10px; margin-left: auto; }
+  .foot nav a { color: var(--muted); text-decoration: none; font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+  .foot nav a:hover { color: var(--ink); }
+  .foot > span a { color: var(--ink); text-decoration: none; }
+  @media (max-width: 760px) { .foot { flex-direction: column; align-items: flex-start; } .foot nav { margin-left: 0; } }
+  /* The BIR Registration Seal Badge (RMC 38-2026). BIR's own artwork on a
+     white card, sized so the QR stays scannable (~100px). The caption is
+     load-bearing: this seal says the BUSINESS is registered, which is not the
+     same claim as the software being accredited. */
+  .bir-seal { width: 100%; margin-top: 26px; padding-top: 24px; border-top: 1px solid var(--edge); display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .bir-seal img { width: 420px; max-width: 100%; height: auto; background: #fff; border-radius: 6px; padding: 12px 14px; }
+  .bir-seal p { margin: 0; flex: 1 1 260px; max-width: 46ch; font-size: 13px; line-height: 1.55; color: var(--muted); }
   .bir-seal a { text-decoration: underline; text-underline-offset: 2px; }
-  /* On a phone the card is already the full column, so the only room left for
-     the QR is the card's own padding. Give some of it back - BIR asks for the
-     badge to be "readily scannable", not merely present. */
   @media (max-width: 560px) { .bir-seal img { padding: 8px 10px; } }
 
-  /* ---------- the phone dock ----------
-     Almost everyone who reads this page reads it on a phone, where the nav
-     links are hidden and the hero buttons scroll away after one swipe. The
-     dock puts them back, and only after the hero has actually gone. */
-  .dock {
-    display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
-    gap: 10px; padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
-    background: rgba(12,10,9,.92); backdrop-filter: blur(12px);
-    border-top: 1px solid var(--coal-line);
-  }
-  .dock .btn { flex: 1; padding: 13px 12px; font-size: 15px; }
+  /* ---------- the phone dock: the till's key row ---------- */
+  .dock { display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; gap: 10px; padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); background: rgba(22,18,15,.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-top: 1px solid var(--edge); }
+  .dock .key { flex: 1; padding: 14px 10px; font-size: 12px; }
   @media (max-width: 760px) {
     .dock { display: flex; transform: translateY(110%); }
     html.js .dock { transition: transform 340ms var(--ease-out); }
@@ -564,51 +511,31 @@
     footer { padding-bottom: 104px; }
   }
 
-  /* ---------- motion ----------
-     ONE authored sequence, then quiet supporting motion. The hero assembles in
-     reading order and the phone settles against the frame last: that is the
-     page's claim, one shop on every screen, said once with movement instead of
-     twice with words. The bottom-line strip is the only other authored moment,
-     because it is the one image carrying the product's argument.
-     Everything else here is feedback, state, or a group that genuinely enters
-     as a group. Armed only when JS runs, so the page is never blank without it,
-     and fully disabled for reduced motion. */
+  /* ---------- motion ---------- */
   @media (prefers-reduced-motion: no-preference) {
     html { scroll-behavior: smooth; }
-
-    /* the focal sequence */
-    html.js .hero .rise { opacity: 0; transform: translateY(18px); animation: rise 720ms var(--ease-out) forwards; }
-    html.js .hero .rise:nth-child(2) { animation-delay: 70ms; }
-    html.js .hero .rise:nth-child(3) { animation-delay: 140ms; }
-    html.js .hero .rise:nth-child(4) { animation-delay: 210ms; }
-    html.js .hero .frame { opacity: 0; transform: translateY(26px) scale(.985); animation: rise 900ms var(--ease-out) 260ms forwards; }
-    html.js .hero-phone { opacity: 0; transform: translateY(34px) scale(.94); animation: rise 760ms var(--ease-out) 620ms forwards; }
-    html.js .hero::before { opacity: 0; transform: scale(.9); animation: bloom 1500ms var(--ease-out) 60ms forwards; }
-    @keyframes rise { to { opacity: 1; transform: translateY(0) scale(1); } }
-    @keyframes bloom { to { opacity: 1; transform: scale(1); } }
-
-    /* the one authored supporting moment: the calculation resolves */
-    html.js .wipe img { clip-path: inset(0 100% 0 0); }
-    html.js .wipe.in img { clip-path: inset(0 0 0 0); transition: clip-path 920ms var(--ease-out) 160ms; }
-
-    /* groups that enter as groups. Three steps of stagger, then it stops. */
-    html.js .rev { opacity: 0; transform: translateY(14px);
-      transition: opacity 520ms var(--ease-out), transform 520ms var(--ease-out); }
-    html.js .rev.in { opacity: 1; transform: translateY(0); }
-    html.js .rev.d1 { transition-delay: 60ms; }
-    html.js .rev.d2 { transition-delay: 120ms; }
-    html.js .rev.d3 { transition-delay: 180ms; }
-
-    /* the FAQ opens to its own height instead of snapping */
-    .faq details::details-content {
-      block-size: 0; overflow: hidden;
-      transition: block-size 320ms var(--ease-out), content-visibility 320ms allow-discrete;
-    }
+    html.js .hero .rise { opacity: 0; transform: translateY(16px); animation: rise 640ms var(--ease-out) forwards; }
+    html.js .hero .rise:nth-child(2) { animation-delay: 60ms; }
+    html.js .hero .rise:nth-child(3) { animation-delay: 120ms; }
+    html.js .hero .rise:nth-child(4) { animation-delay: 180ms; }
+    html.js .hero .till { opacity: 0; transform: translateY(22px); animation: rise 820ms var(--ease-out) 220ms forwards; }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+    @keyframes rise-phone { to { opacity: 1; transform: rotate(-3deg); } }
+    /* a bay's furniture arrives as a group, once */
+    html.js .rev { opacity: 0; transform: translateY(14px); transition: opacity 520ms var(--ease-out), transform 520ms var(--ease-out); }
+    html.js .rev.in { opacity: 1; transform: none; }
+    html.js .rev.d1 { transition-delay: 70ms; } html.js .rev.d2 { transition-delay: 140ms; }
+    .faq details::details-content { block-size: 0; overflow: hidden; transition: block-size 320ms var(--ease-out), content-visibility 320ms allow-discrete; }
     .faq details[open]::details-content { block-size: auto; }
+    /* the shift light breathes like the real one */
+    .till-head .light i { animation: breathe 2.4s ease-in-out infinite; }
+    @keyframes breathe { 50% { box-shadow: 0 0 0 4px rgba(255,176,0,.12); } }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .receipt, .drawer, .jar .fill, .ticket, .tape .row.new { transition: none !important; }
   }
   @media print {
-    html.js .rev, html.js .hero .rise, html.js .hero .frame, html.js .hero-phone { opacity: 1 !important; transform: none !important; }
-    html.js .wipe img { clip-path: none !important; }
+    html.js .rev, html.js .hero .rise, html.js .hero .till { opacity: 1 !important; transform: none !important; animation: none !important; }
     header, .dock { display: none !important; }
   }
 </style>
@@ -624,12 +551,7 @@
       "operatingSystem": "Android, Web",
       "description": "Point of sale, inventory, kitchen display, QR ordering, utang ledger, payroll and daily profit for cafes and restaurants in the Philippines.",
       "installUrl": "https://play.google.com/store/apps/details?id=com.emberpos.app",
-      "offers": {
-        "@type": "Offer",
-        "price": "599",
-        "priceCurrency": "PHP",
-        "description": "Per month per branch, after a 30 day free trial. No card needed to start."
-      }
+      "offers": { "@type": "Offer", "price": "599", "priceCurrency": "PHP", "description": "Per month per branch, after a 30 day free trial. No card needed to start." }
     },
     {
       "@type": "FAQPage",
@@ -664,247 +586,306 @@
   <div class="wrap nav">
     <a class="nav-brand" href="index.html">
       <img src="logo.png" height="34" alt="Ember POS logo" />
-      <span><b>Ember POS</b></span>
+      <b>Ember POS</b>
     </a>
-    <a class="link" href="#features">Features</a>
-    <a class="link" href="#pricing">Pricing</a>
-    <a class="link" href="demo/">Live&nbsp;demo</a>
-    <a class="link" href="faq.html">FAQ</a>
-    <!-- The owner's cross-branch console. Linked on Rafael's word (2026-08-23);
-         it keeps its own owner-only sign-in, so the link is a door, not a hole. -->
-    <a class="link" href="office/">Back&nbsp;Office</a>
-    <a class="btn btn-flame" href="app/">Open the app</a>
+    <a class="sticker" href="#till">The till</a>
+    <a class="sticker" href="#features">In the box</a>
+    <a class="sticker" href="#pricing">Pricing</a>
+    <a class="sticker" href="demo/">Live demo</a>
+    <a class="sticker" href="faq.html">FAQ</a>
+    <a class="sticker" href="office/">Back Office</a>
+    <a class="key flame" href="app/">Open the app</a>
   </div>
 </header>
 
-<div class="hero">
+<!-- ============ BAY 1: THE MACHINE ============ -->
+<div class="hero" id="till">
   <div class="wrap hero-grid">
-    <div>
-      <span class="eyebrow rise">Point of Sale &middot; Philippines</span>
-      <h1 class="rise">Your whole shop,<br /><span class="flame-text">in one app.</span></h1>
-      <p class="hero-sub rise">Sell, track stock, run the kitchen, keep the utang and see your real profit. On Android, and <b>in any browser</b>.</p>
+    <div class="hero-copy">
+      <span class="stamp rise" style="color:var(--muted)">Point of sale &middot; Philippines</span>
+      <h1 class="display rise" style="margin-top:14px">Ring one sale.<br />Watch the whole shop move.</h1>
+      <p class="lede rise">Ember POS is the register, the kitchen, the shelf, the books and the time clock as <b>one machine</b>. This till is wired to a real cafe's menu and recipes. Tap a few items, press <b>Charge</b>, and follow what happens down the page.</p>
       <div class="hero-ctas rise">
-        <a class="btn btn-flame" href="https://play.google.com/store/apps/details?id=com.emberpos.app">
-          <svg width="18" height="20" viewBox="0 0 24 26" fill="none" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z" fill="currentColor"/></svg>
+        <a class="key flame" href="https://play.google.com/store/apps/details?id=com.emberpos.app">
+          <svg viewBox="0 0 24 26" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z"/></svg>
           Get it on Google Play
         </a>
-        <a class="btn btn-ghost" href="demo/">Try the live demo &rarr;</a>
+        <a class="key" href="demo/">Open the live demo</a>
       </div>
+      <p class="hero-note"><span class="stamp" id="tow-state">Waiting for a sale</span><br />Android and any browser. Free for 30 days, no card. <b>&#8369;599</b> a month per branch after that, everything included.</p>
     </div>
+
     <div class="hero-art">
-      <div class="frame">
-        <div class="frame-bar"><i></i><i></i><i></i><span>The full app, running in a browser</span></div>
-        <img src="shots/hero-dashboard.webp" width="1400" height="875" fetchpriority="high"
-             alt="The Ember POS dashboard on a computer: net sales, orders, bottom-line profit and a sales chart" />
-      </div>
-      <div class="hero-phone">
-        <img src="shots/hero-phone.webp" width="420" height="909" fetchpriority="high"
-             alt="The same shop on a phone: the till, with two drinks in the order and a running total" />
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="facts">
-  <div class="wrap facts-grid">
-    <div class="fact"><b class="mono">&#8369;599</b><span>a month, everything included</span></div>
-    <div class="fact"><b>30 days free</b><span>no card, no commitment</span></div>
-    <div class="fact"><b>Works offline</b><span>keep selling through a brownout</span></div>
-  </div>
-</div>
-
-<div class="light">
-
-<section id="demo">
-  <div class="wrap">
-    <div class="demo-band rev">
-      <div>
-        <h2>A cafe that has been trading for 45 days. Open it.</h2>
-        <p class="lead">Ember Cafe is a seeded shop with a real history in it, and it opens in this tab with no sign-up and nothing to install. Ring a sale, receive a delivery, count the stock, run the payroll, close the day. Nothing you do there ever leaves your browser.</p>
-        <div class="demo-figs">
-          <div><b class="tick" data-to="45">45</b><span>days of trading</span></div>
-          <div><b class="tick" data-prefix="&#8369;" data-to="620" data-suffix="k">&#8369;620k</b><span>through the till</span></div>
-          <div><b class="tick" data-to="5">5</b><span>staff, own logins</span></div>
+      <div class="till" id="machine">
+        <div class="till-head">
+          <span class="sticker">Ember Cafe &middot; Till 1 &middot; demo shop</span>
+          <span class="light"><i></i>Shift open</span>
         </div>
-        <a class="btn btn-ink" href="demo/">Open the live demo &rarr;</a>
-        <div class="demo-key">Sign in as Maria Santos, the owner. Her PIN is <code>1234</code></div>
+        <div class="led" aria-live="polite">
+          <span class="cap">Total</span>
+          <span class="seg big" id="led-total" aria-label="Total 0.00"></span>
+        </div>
+        <div class="till-body">
+          <div class="tiles" id="tiles" role="group" aria-label="Menu">
+            <button type="button" class="tile" data-item="spanish"><b>Spanish Latte</b><span>&#8369;135</span></button>
+            <button type="button" class="tile" data-item="latte"><b>Cafe Latte</b><span>&#8369;125</span></button>
+            <button type="button" class="tile" data-item="americano"><b>Americano</b><span>&#8369;95</span></button>
+            <button type="button" class="tile" data-item="matcha"><b>Matcha Latte</b><span>&#8369;140</span></button>
+            <button type="button" class="tile" data-item="ube"><b>Ube Latte</b><span>&#8369;135</span></button>
+            <button type="button" class="tile" data-item="javachip"><b>Java Chip Frappe</b><span>&#8369;165</span></button>
+            <button type="button" class="tile" data-item="tapsilog"><b>Tapsilog</b><span>&#8369;145</span></button>
+            <button type="button" class="tile" data-item="cheesecake"><b>Cheesecake Slice</b><span>&#8369;120</span></button>
+          </div>
+          <div class="basket">
+            <div class="paper" id="basket">
+              <div class="h">Ember Cafe<small>Order #1410 &middot; Till 1</small></div>
+              <div class="rule"></div>
+              <div id="basket-lines"><div class="empty">Tap an item to start the order</div></div>
+              <div class="tot"><span>TOTAL</span><span id="basket-total">&#8369;0.00</span></div>
+            </div>
+            <div class="basket-keys">
+              <button type="button" class="key flame" id="charge" disabled>Charge</button>
+              <button type="button" class="key clear" id="clear">Clear</button>
+            </div>
+          </div>
+        </div>
+        <div class="slot-wrap"><div class="slot"></div></div>
+        <div class="printer-out">
+          <div class="receipt" id="receipt" aria-live="polite">
+            <div class="paper">
+              <div class="h">Ember Cafe<small>123 Sample St, Mandaluyong &middot; Till 1</small></div>
+              <div class="rule"></div>
+              <div id="receipt-lines"></div>
+              <div class="rule"></div>
+              <div class="tot"><span>TOTAL</span><span id="receipt-total">&#8369;0.00</span></div>
+              <div class="ln"><span class="n"></span><span>Cash</span><span class="a" id="receipt-cash">&#8369;0.00</span></div>
+              <div class="ln"><span class="n"></span><span>Change</span><span class="a">&#8369;0.00</span></div>
+              <div class="ft">Order #1410 &middot; <span id="receipt-time">14:32</span> &middot; served by Ana<br />Salamat po. This is a demo receipt.</div>
+              <div class="paid">PAID</div>
+            </div>
+          </div>
+        </div>
+        <div class="till-foot">
+          <span>Prices, recipes and stock are the demo shop's own. Nothing here is saved.</span>
+          <span class="stamp">Ember POS &middot; v1.1.98</span>
+        </div>
+        <noscript><p style="padding:0 0 14px;color:var(--muted);font-size:14px">Turn on JavaScript to ring a sale on this till. Everything below still reads as a normal page.</p></noscript>
       </div>
-      <div class="lessons">
-        <b>Or start on a specific job</b>
-        <a class="lesson" href="demo/?lesson=sell"><span class="n"><svg viewBox="0 0 256 256" aria-hidden="true"><path d="M96 216a16 16 0 1 1-16-16 16 16 0 0 1 16 16Zm88-16a16 16 0 1 0 16 16 16 16 0 0 0-16-16ZM228.9 62.7 203 156a16 16 0 0 1-15.4 12H80.2a16 16 0 0 1-15.4-12L39.6 64H24a8 8 0 0 1 0-16h15.6a16 16 0 0 1 15.4 12l4.4 16h162.2a8 8 0 0 1 7.3 10.7Z"/></svg></span><strong>Ring up a sale</strong><em>2 min</em></a>
-        <a class="lesson" href="demo/?lesson=stock"><span class="n"><svg viewBox="0 0 256 256" aria-hidden="true"><path d="M223.7 66.1 135.7 18a15.9 15.9 0 0 0-15.4 0l-88 48.2a16 16 0 0 0-8.3 14v95.6a16 16 0 0 0 8.3 14l88 48.2a15.9 15.9 0 0 0 15.4 0l88-48.2a16 16 0 0 0 8.3-14V80.2a16 16 0 0 0-8.3-14.1ZM128 32l80.3 44-29.7 16.3-80.4-44Zm0 88L47.7 76l33.9-18.6 80.3 44ZM40 90l80 43.8v85.8L40 175.8Z"/></svg></span><strong>Stock on the shelf</strong><em>2 min</em></a>
-        <a class="lesson" href="demo/?lesson=receive"><span class="n"><svg viewBox="0 0 256 256" aria-hidden="true"><path d="M216 40H40a16 16 0 0 0-16 16v144a16 16 0 0 0 16 16h176a16 16 0 0 0 16-16V56a16 16 0 0 0-16-16Zm0 160H40V56h176ZM88 112a8 8 0 0 1 8-8h64a8 8 0 0 1 0 16H96a8 8 0 0 1-8-8Zm0 32a8 8 0 0 1 8-8h64a8 8 0 0 1 0 16H96a8 8 0 0 1-8-8Z"/></svg></span><strong>Receive a delivery</strong><em>2 min</em></a>
-        <a class="lesson" href="demo/?lesson=pnl"><span class="n"><svg viewBox="0 0 256 256" aria-hidden="true"><path d="M232 208a8 8 0 0 1-8 8H32a8 8 0 0 1-8-8V48a8 8 0 0 1 16 0v108.7l50.3-50.4a8 8 0 0 1 11.4 0L128 132.7 180.7 80H160a8 8 0 0 1 0-16h40a8 8 0 0 1 8 8v40a8 8 0 0 1-16 0V91.3l-58.3 58.4a8 8 0 0 1-11.4 0L96 123.3l-56 56V200h184a8 8 0 0 1 8 8Z"/></svg></span><strong>Profit &amp; Loss</strong><em>2 min</em></a>
-        <a class="lesson" href="demo/?lesson=payroll"><span class="n"><svg viewBox="0 0 256 256" aria-hidden="true"><path d="M128 24a104 104 0 1 0 104 104A104.1 104.1 0 0 0 128 24Zm12 152.9V184a8 8 0 0 1-16 0v-7a35 35 0 0 1-19.9-11.3 8 8 0 0 1 12-10.6c3.6 4.1 8.6 6.9 15.9 6.9 10 0 16-4.4 16-10.5 0-5.6-3.9-8.7-19.4-11.9-14.4-3-27.6-8.4-27.6-24.9 0-11.9 9-21.4 23-24.4V80a8 8 0 0 1 16 0v6.8a32.7 32.7 0 0 1 18.4 10.4 8 8 0 1 1-11.7 10.9c-3.4-3.6-8-5.6-14.3-5.6-9 0-15.4 3.8-15.4 9.3 0 5 3.6 7.9 18.3 11 15.9 3.3 28.7 9.2 28.7 25.8 0 12.8-9.6 22.9-24 26.3Z"/></svg></span><strong>Payroll</strong><em>1 min</em></a>
-        <a class="lesson" href="demo/?lesson=dayflow"><span class="n"><svg viewBox="0 0 256 256" aria-hidden="true"><path d="M136 80v43.5l36.1 21.7a8 8 0 0 1-8.2 13.7l-40-24A8 8 0 0 1 120 128V80a8 8 0 0 1 16 0Zm-8-48a95.4 95.4 0 0 0-67.9 28.2C52.8 67.5 46.4 74.6 40 82V64a8 8 0 0 0-16 0v40a8 8 0 0 0 8 8h40a8 8 0 0 0 0-16H49c7.2-8.4 14.3-16.4 22.4-24.6a80 80 0 1 1 1.7 114.8 8 8 0 1 0-11 11.6A96 96 0 1 0 128 32Z"/></svg></span><strong>Drawers &amp; the trading day</strong><em>2 min</em></a>
+    </div>
+  </div>
+</div>
+
+<div class="rail"></div>
+
+<!-- ============ BAY 2: THE PASS ============ -->
+<section class="bay wrap" id="pass">
+  <div class="bay-head">
+    <h2 class="headline">The ticket is already in the kitchen.</h2>
+    <p class="lede">Paying an order, or sending it, puts a ticket on the kitchen screen the same second, size and add-ons exactly as typed. Tickets change colour as they age, so a cook sees what is late without reading a clock. Orders scanned from a QR code at the table land here too.</p>
+    <p class="delta" id="pass-delta"></p>
+  </div>
+  <div class="wire-wrap rev">
+    <div class="wire" aria-hidden="true"></div>
+    <div class="tickets" id="tickets" role="group" aria-label="Kitchen tickets on the rail">
+      <div class="ticket new" id="ticket-new" aria-hidden="true">
+        <span class="age"></span>
+        <div class="th"><span>#1410</span><span>Takeout</span></div>
+        <div id="ticket-new-lines"></div>
+        <div class="tf"><span>Ana &middot; Till 1</span><span id="ticket-new-time">14:32</span></div>
+      </div>
+      <div class="ticket"><span class="age"></span><div class="th"><span>#1409</span><span>Table 4</span></div>
+        <div class="tl"><span>1&times;</span><span>Caramel Macchiato</span><em>less ice</em></div>
+        <div class="tl"><span>2&times;</span><span>Butter Croissant</span></div>
+        <div class="tf"><span>Ana &middot; Till 1</span><span data-ago="3">14:29</span></div></div>
+      <div class="ticket"><span class="age warm"></span><div class="th"><span>#1408</span><span>QR &middot; Table 2</span></div>
+        <div class="tl"><span>1&times;</span><span>Pork Sisig Rice</span><em>extra rice</em></div>
+        <div class="tl"><span>1&times;</span><span>House Iced Tea</span></div>
+        <div class="tf"><span>Guest &middot; QR</span><span data-ago="8">14:24</span></div></div>
+      <div class="ticket"><span class="age hot"></span><div class="th"><span>#1407</span><span>Takeout</span></div>
+        <div class="tl"><span>3&times;</span><span>Tapsilog</span></div>
+        <div class="tl"><span>1&times;</span><span>Hot Choco</span><em>for a kid</em></div>
+        <div class="tf"><span>Ana &middot; Till 1</span><span data-ago="16">14:16</span></div></div>
+    </div>
+  </div>
+  <div class="split rev d1" style="margin-top:34px">
+    <div class="device">
+      <img src="shots/kitchen.webp" width="1400" height="875" loading="lazy" alt="The kitchen screen in Ember POS: tickets in columns, each line with its size and add-ons, ageing by colour" />
+      <span class="tag sticker">The kitchen screen</span>
+    </div>
+    <ul class="facts">
+      <li><svg viewBox="0 0 256 256"><path d="M128 24a104 104 0 1 0 104 104A104.1 104.1 0 0 0 128 24Zm45.7 82.3-48 48a8 8 0 0 1-11.4 0l-24-24a8 8 0 0 1 11.4-11.3L120 137.4l42.3-42.4a8 8 0 0 1 11.4 11.3Z"/></svg><div><b>Cooks bump one dish or the whole ticket</b><span>Half a table can go out while the sisig is still on the grill.</span></div></li>
+      <li><svg viewBox="0 0 256 256"><path d="M216 40H40a16 16 0 0 0-16 16v144a16 16 0 0 0 16 16h176a16 16 0 0 0 16-16V56a16 16 0 0 0-16-16Zm0 160H40V56h176Z"/></svg><div><b>A Now Serving board for the wall</b><span>Order numbers move from preparing to ready by themselves. Nobody types anything.</span></div></li>
+      <li><svg viewBox="0 0 256 256"><path d="M208 32H48a16 16 0 0 0-16 16v160a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16ZM48 48h160v160H48Zm32 32h32v32H80Zm64 0h32v32h-32Zm-64 64h32v32H80Zm64 0h32v32h-32Z"/></svg><div><b>QR ordering from the guest's own phone</b><span>You approve it before it cooks, so a walk-away never costs you food.</span></div></li>
+      <li><svg viewBox="0 0 256 256"><path d="M224 96H32a8 8 0 0 0-8 8v64a8 8 0 0 0 8 8h192a8 8 0 0 0 8-8v-64a8 8 0 0 0-8-8Zm-8 64H40v-48h176ZM48 72a8 8 0 0 1 8-8h144a8 8 0 0 1 0 16H56a8 8 0 0 1-8-8Zm0 120a8 8 0 0 1 8-8h144a8 8 0 0 1 0 16H56a8 8 0 0 1-8-8Z"/></svg><div><b>A paper ticket prints at send, if you want one</b><span>Pair a kitchen printer in Settings and the ticket comes out on the pass.</span></div></li>
+    </ul>
+  </div>
+</section>
+
+<div class="rail"></div>
+
+<!-- ============ BAY 3: THE SHELF ============ -->
+<section class="bay wrap" id="shelf">
+  <div class="bay-head">
+    <h2 class="headline">The shelf knows what you sold.</h2>
+    <p class="lede">Every item carries a recipe, per size and per add-on. Paying the order takes the milk, the beans, the cup and the lid off the shelf on its own, so the count is true at closing without anyone encoding it. It warns you before you run out mid-rush.</p>
+    <p class="delta" id="shelf-delta"></p>
+  </div>
+  <div class="shelf rev">
+    <div class="jars" id="jars">
+      <div class="jar" data-ing="milk" data-fill="78"><span class="d"></span><div class="body"><div class="fill" style="height:78%;background:#e9e4d6"></div></div><div class="lbl"><b>Fresh milk</b><span class="q">21.00 L</span><span class="low">low at 6 L</span></div></div>
+      <div class="jar" data-ing="beans" data-fill="62"><span class="d"></span><div class="body"><div class="fill" style="height:62%;background:#4b2f1e"></div></div><div class="lbl"><b>Coffee beans</b><span class="q">6.20 kg</span><span class="low">low at 1.5 kg</span></div></div>
+      <div class="jar" data-ing="condensed" data-fill="55"><span class="d"></span><div class="body"><div class="fill" style="height:55%;background:#efe2b8"></div></div><div class="lbl"><b>Condensed milk</b><span class="q">4,600 mL</span><span class="low">low at 1,200 mL</span></div></div>
+      <div class="jar" data-ing="matcha" data-fill="40"><span class="d"></span><div class="body"><div class="fill" style="height:40%;background:#6f9a3d"></div></div><div class="lbl"><b>Matcha powder</b><span class="q">900 g</span><span class="low">low at 250 g</span></div></div>
+      <div class="jar" data-ing="ube" data-fill="70"><span class="d"></span><div class="body"><div class="fill" style="height:70%;background:#7b4c9e"></div></div><div class="lbl"><b>Ube halaya</b><span class="q">2,100 g</span><span class="low">low at 600 g</span></div></div>
+      <div class="jar" data-ing="cup12" data-fill="66"><span class="d"></span><div class="body"><div class="fill" style="height:66%;background:#cfc9bf"></div></div><div class="lbl"><b>Cup 12 oz</b><span class="q">340 pcs</span><span class="low">low at 80</span></div></div>
+      <div class="jar" data-ing="lid" data-fill="58"><span class="d"></span><div class="body"><div class="fill" style="height:58%;background:#9c9891"></div></div><div class="lbl"><b>Dome lid</b><span class="q">380 pcs</span><span class="low">low at 100</span></div></div>
+      <div class="jar" data-ing="straw" data-fill="82"><span class="d"></span><div class="body"><div class="fill" style="height:82%;background:#d9a441"></div></div><div class="lbl"><b>Straw</b><span class="q">700 pcs</span><span class="low">low at 150</span></div></div>
+    </div>
+    <div class="shelf-rail" aria-hidden="true"></div>
+  </div>
+  <p class="shelf-note rev">Opening quantities from the demo shop, Ember Cafe. Levels show each item against its own container.</p>
+  <div class="split rev d1" style="margin-top:44px">
+    <ul class="facts">
+      <li><svg viewBox="0 0 256 256"><path d="M223.7 66.1 135.7 18a15.9 15.9 0 0 0-15.4 0l-88 48.2a16 16 0 0 0-8.3 14v95.6a16 16 0 0 0 8.3 14l88 48.2a15.9 15.9 0 0 0 15.4 0l88-48.2a16 16 0 0 0 8.3-14V80.2a16 16 0 0 0-8.3-14.1ZM128 32l80.3 44-29.7 16.3-80.4-44Zm0 88L47.7 76l33.9-18.6 80.3 44ZM40 90l80 43.8v85.8L40 175.8Z"/></svg><div><b>Deliveries are counted off the truck</b><span>Your crew types what actually came, line by line, and the bill follows the count. The report says where the two disagree.</span></div></li>
+      <li><svg viewBox="0 0 256 256"><path d="M216 40H40a16 16 0 0 0-16 16v144a16 16 0 0 0 16 16h176a16 16 0 0 0 16-16V56a16 16 0 0 0-16-16ZM88 112a8 8 0 0 1 8-8h64a8 8 0 0 1 0 16H96a8 8 0 0 1-8-8Zm0 32a8 8 0 0 1 8-8h64a8 8 0 0 1 0 16H96a8 8 0 0 1-8-8Z"/></svg><div><b>Count sheets in kg and g, L and mL, or packs</b><span>The sheet refuses an impossible count at the door instead of in the report.</span></div></li>
+      <li><svg viewBox="0 0 256 256"><path d="M128 24a104 104 0 1 0 104 104A104.1 104.1 0 0 0 128 24Zm8 152a8 8 0 0 1-16 0v-48a8 8 0 0 1 16 0Zm-8-72a12 12 0 1 1 12-12 12 12 0 0 1-12 12Z"/></svg><div><b>Waste and spoilage, with a slip somebody signs</b><span>The milk that turned and the wrong latte both come off the shelf, in pesos, with a witness.</span></div></li>
+      <li><svg viewBox="0 0 256 256"><path d="M232 208a8 8 0 0 1-8 8H32a8 8 0 0 1-8-8V48a8 8 0 0 1 16 0v108.7l50.3-50.4a8 8 0 0 1 11.4 0L128 132.7 180.7 80H160a8 8 0 0 1 0-16h40a8 8 0 0 1 8 8v40a8 8 0 0 1-16 0V91.3l-58.3 58.4a8 8 0 0 1-11.4 0L96 123.3l-56 56V200h184a8 8 0 0 1 8 8Z"/></svg><div><b>A shopping list built from how fast things move</b><span>"What do I need for the next five days?" comes back in packs, by supplier, ready to become purchase orders.</span></div></li>
+    </ul>
+    <div class="device phone">
+      <img src="shots/stock-phone.webp" width="420" height="909" loading="lazy" alt="Stock on the shelf in Ember POS on a phone: each ingredient with its quantity on hand and its value" />
+    </div>
+  </div>
+</section>
+
+<div class="rail"></div>
+
+<!-- ============ BAY 4: THE BOOKS ============ -->
+<section class="bay wrap" id="books">
+  <div class="bay-head">
+    <h2 class="headline">The day adds itself up.</h2>
+    <p class="lede">Sales come from the till, ingredient cost from the recipes and the stock ledger, wages from the time clock, expenses from what you record. Nothing is typed in between, so the bottom line is the real one, every day.</p>
+    <p class="delta" id="books-delta"></p>
+  </div>
+  <div class="split rev">
+    <div>
+      <div class="ledger" id="ledger">
+        <h3>Bottom line</h3>
+        <div class="sub">Ember Cafe &middot; last 30 days &middot; from the demo shop</div>
+        <table>
+          <tr><td>Sales</td><td><span id="lg-sales">&#8369;423,353.00</span><span class="plus" id="lg-sales-plus"></span></td></tr>
+          <tr><td>less ingredients used</td><td><span id="lg-ing">&#8369;146,601.25</span><span class="plus" id="lg-ing-plus"></span></td></tr>
+          <tr><td>less labour, from the clock</td><td>&#8369;109,775.42</td></tr>
+          <tr><td>less expenses</td><td>&#8369;43,050.89</td></tr>
+          <tr class="total"><td>You kept</td><td><span id="lg-profit">&#8369;123,925.44</span><span class="plus" id="lg-profit-plus"></span></td></tr>
+        </table>
+        <p class="note">29 centavos of every peso sold is profit in this shop. The same page shows break-even, cash flow, and food and paper cost per item.</p>
+      </div>
+      <div class="books-display">
+        <div class="led"><span class="cap">Sales &middot; 30 days</span><span class="seg" id="led-sales" aria-label="Sales 423,353.00"></span></div>
+      </div>
+    </div>
+    <ul class="facts">
+      <li><svg viewBox="0 0 256 256"><path d="M216 64H40a16 16 0 0 0-16 16v96a16 16 0 0 0 16 16h176a16 16 0 0 0 16-16V80a16 16 0 0 0-16-16ZM40 80h176v16H40Zm176 96H40v-64h176ZM72 144a8 8 0 0 1 8-8h32a8 8 0 0 1 0 16H80a8 8 0 0 1-8-8Z"/></svg><div><b>Utang on a tab, with a limit per person</b><span>Who owes, how much, how long. Payments recorded as they come, and a polite reminder ready to paste into Messenger.</span></div></li>
+      <li><svg viewBox="0 0 256 256"><path d="M128 24a104 104 0 1 0 104 104A104.1 104.1 0 0 0 128 24Zm12 152.9V184a8 8 0 0 1-16 0v-7a35 35 0 0 1-19.9-11.3 8 8 0 0 1 12-10.6c3.6 4.1 8.6 6.9 15.9 6.9 10 0 16-4.4 16-10.5 0-5.6-3.9-8.7-19.4-11.9-14.4-3-27.6-8.4-27.6-24.9 0-11.9 9-21.4 23-24.4V80a8 8 0 0 1 16 0v6.8a32.7 32.7 0 0 1 18.4 10.4 8 8 0 1 1-11.7 10.9c-3.4-3.6-8-5.6-14.3-5.6-9 0-15.4 3.8-15.4 9.3 0 5 3.6 7.9 18.3 11 15.9 3.3 28.7 9.2 28.7 25.8 0 12.8-9.6 22.9-24 26.3Z"/></svg><div><b>GCash, Maya and the delivery apps, each their own button</b><span>At closing, check the wallet's statement against what the till recorded and find the gap before it becomes an argument.</span></div></li>
+      <li><svg viewBox="0 0 256 256"><path d="M213.7 82.3l-56-56A8 8 0 0 0 152 24H56a16 16 0 0 0-16 16v176a16 16 0 0 0 16 16h144a16 16 0 0 0 16-16V88a8 8 0 0 0-2.3-5.7ZM160 51.3 188.7 80H160ZM200 216H56V40h88v48a8 8 0 0 0 8 8h48Z"/></svg><div><b>A sales book in the columns your bookkeeper asks for</b><span>Senior and PWD discounts with the ID number on the sale, and an invoice gap check in one tap.</span></div></li>
+      <li><svg viewBox="0 0 256 256"><path d="M208 40H48a24 24 0 0 0-24 24v128a24 24 0 0 0 24 24h160a24 24 0 0 0 24-24V64a24 24 0 0 0-24-24Zm8 152a8 8 0 0 1-8 8H48a8 8 0 0 1-8-8v-72h176Zm0-88H40V64a8 8 0 0 1 8-8h160a8 8 0 0 1 8 8Z"/></svg><div><b>Cash custody: the float, the hand-over, the walk to the bank</b><span>Every step stamps the amount, the time and the person, so cash is never unaccounted for between the count and the deposit.</span></div></li>
+    </ul>
+  </div>
+  <div class="drawer-wrap rev d1">
+    <div class="drawer-face"><span class="stamp">Cash drawer &middot; opens on the owner's screen</span><span class="handle" aria-hidden="true"></span></div>
+    <div class="drawer" id="drawer">
+      <div class="device">
+        <img src="shots/hero-dashboard.webp" width="1400" height="875" loading="lazy" alt="The Ember POS overview on a computer: net sales, orders, average ticket, the bottom line strip and a sales chart" />
       </div>
     </div>
   </div>
 </section>
 
-<section id="features" style="padding-top:0">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>Run the day. Keep the numbers.</h2>
-      <p>One app covers the counter, the kitchen, the stock room and the books.</p>
+<div class="rail"></div>
+
+<!-- ============ BAY 5: THE STAFF BOARD ============ -->
+<section class="bay wrap" id="staff">
+  <div class="bay-head">
+    <h2 class="headline">Every action has a name on it.</h2>
+    <p class="lede">Everyone signs in as themselves. Voids, discounts, drawer opens and refunds are logged with who and when, and you decide per action who is allowed. The time clock lives on the sign-in screen, and payroll takes its hours from there.</p>
+    <p class="delta" id="staff-delta"></p>
+  </div>
+  <div class="board rev">
+    <div class="punch"><b>Maria Santos</b><span class="role">Owner</span><div class="row"><span>Clocked in</span><span class="in">07:00</span></div><div class="row"><span>Can void, refund, discount</span><span>yes</span></div><div class="row"><span>Sees profit</span><span>yes</span></div></div>
+    <div class="punch"><b>Ana Reyes</b><span class="role">Cashier &middot; Till 1</span><div class="row"><span>Clocked in</span><span class="in">13:00</span></div><div class="row"><span>Drawer</span><span id="ana-drawer">&#8369;5,097.00</span></div><div class="row"><span>Can void</span><span>ask a manager</span></div></div>
+    <div class="punch"><b>Jomar Cruz</b><span class="role">Kitchen</span><div class="row"><span>Clocked in</span><span class="in">06:30</span></div><div class="row"><span>Sees</span><span>kitchen only</span></div><div class="row"><span>Overtime this week</span><span>2h 15m</span></div></div>
+  </div>
+  <div class="tape rev d1" id="tape" aria-live="polite">
+    <div class="row"><span>Time</span><span>Who</span><span class="what">What</span><span>Amount</span></div>
+    <div class="row new" id="tape-new"><span id="tape-new-time">14:32</span><span class="who">Ana</span><span class="what" id="tape-new-what">Sale #1410 &middot; cash</span><span id="tape-new-amt">&#8369;0.00</span></div>
+    <div class="row"><span data-ago="3">14:29</span><span class="who">Ana</span><span class="what">Sale #1409 &middot; GCash</span><span>&#8369;335.00</span></div>
+    <div class="row"><span data-ago="8">14:24</span><span class="who">Guest</span><span class="what">QR order #1408 approved by Maria</span><span>&#8369;214.00</span></div>
+    <div class="row"><span data-ago="16">14:16</span><span class="who">Ana</span><span class="what">Sale #1407 &middot; cash</span><span>&#8369;545.00</span></div>
+    <div class="row"><span data-ago="30">14:02</span><span class="who">Maria</span><span class="what">Discount 20% Senior &middot; OSCA 041-2231 &middot; #1405</span><span>&#8369;27.00</span></div>
+    <div class="row"><span data-ago="52">13:40</span><span class="who">Maria</span><span class="what">Void #1401 &middot; wrong table</span><span>&#8369;149.00</span></div>
+  </div>
+  <div class="split rev d2" style="margin-top:44px">
+    <div class="device">
+      <img src="shots/access.webp" width="1400" height="875" loading="lazy" alt="Access rights in Ember POS: a grid of screens and actions against roles, each a switch" />
+      <span class="tag sticker">Access rights, per action</span>
     </div>
-    <div class="bento">
-      <div class="cell c7 rev">
-        <h3><svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M232,208a8,8,0,0,1-8,8H32a8,8,0,0,1-8-8V48a8,8,0,0,1,16,0V156.69l50.34-50.35a8,8,0,0,1,11.32,0L128,132.69,180.69,80H160a8,8,0,0,1,0-16h40a8,8,0,0,1,8,8v40a8,8,0,0,1-16,0V91.31l-58.34,58.35a8,8,0,0,1-11.32,0L96,123.31l-56,56V200H224A8,8,0,0,1,232,208Z"/></svg>
-          Profit, not just sales</h3>
-        <p>Ingredients used, wages clocked and expenses paid come off the day's sales. You see what you actually kept, every day.</p>
-        <div class="shot wipe"><img src="shots/feat-profit.webp" width="1000" height="164" loading="lazy"
-          alt="The bottom line strip: sales minus ingredients, labor and expenses leaves the real profit" /></div>
+    <ul class="facts">
+      <li><svg viewBox="0 0 256 256"><path d="M136 80v43.5l36.1 21.7a8 8 0 0 1-8.2 13.7l-40-24A8 8 0 0 1 120 128V80a8 8 0 0 1 16 0Zm-8-48a96 96 0 1 0 96 96 96.1 96.1 0 0 0-96-96Z"/></svg><div><b>Payroll from the clock</b><span>Regular hours, overtime at 1.25, each person's wage, less the SSS, PhilHealth and Pag-IBIG amounts you set.</span></div></li>
+      <li><svg viewBox="0 0 256 256"><path d="M216 40H40a16 16 0 0 0-16 16v144a16 16 0 0 0 16 16h176a16 16 0 0 0 16-16V56a16 16 0 0 0-16-16Zm0 160H40V56h176ZM72 104a8 8 0 0 1 8-8h96a8 8 0 0 1 0 16H80a8 8 0 0 1-8-8Zm0 40a8 8 0 0 1 8-8h64a8 8 0 0 1 0 16H80a8 8 0 0 1-8-8Z"/></svg><div><b>A logbook for what one shift needs to tell the next</b><span>And a monitor for the owner: who is in, what the drawer holds, what the kitchen is holding.</span></div></li>
+      <li><svg viewBox="0 0 256 256"><path d="M128 24a104 104 0 1 0 104 104A104.1 104.1 0 0 0 128 24Zm0 192a88 88 0 1 1 88-88 88.1 88.1 0 0 1-88 88Zm45.7-109.7a8 8 0 0 1 0 11.4l-48 48a8 8 0 0 1-11.4 0l-24-24a8 8 0 0 1 11.4-11.4L120 148.7l42.3-42.4a8 8 0 0 1 11.4 0Z"/></svg><div><b>A shortage belongs to exactly one person</b><span>Each drawer belongs to whoever opened it; a break hands it over with a count. That protects the honest ones.</span></div></li>
+    </ul>
+  </div>
+</section>
+
+<div class="rail"></div>
+
+<!-- ============ BAY 6: THE LIVE DEMO ============ -->
+<section class="bay wrap" id="demo">
+  <div class="demo-bay rev">
+    <div>
+      <span class="stamp" style="color:var(--muted)">The real one</span>
+      <h2 class="headline" style="margin-top:10px">This till is a model. The real one is a tap away.</h2>
+      <p class="lede">Ember Cafe is a seeded shop with 45 days of real trading in it, and the whole app opens in this tab with nothing to install, no sign-up and no sign-in. Ring a sale, receive a delivery, count the stock, run the payroll, close the day. Nothing you do there leaves your browser.</p>
+      <div class="demo-figs">
+        <div><b class="tick" data-to="45">45</b><span>days of trading</span></div>
+        <div><b class="tick" data-prefix="&#8369;" data-to="620" data-suffix="k">&#8369;620k</b><span>through the till</span></div>
+        <div><b class="tick" data-to="5">5</b><span>staff, own logins</span></div>
       </div>
-      <div class="cell c5 rev d1">
-        <h3><svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M223.68,66.15,135.68,18a15.88,15.88,0,0,0-15.36,0l-88,48.17a16,16,0,0,0-8.32,14v95.64a16,16,0,0,0,8.32,14l88,48.17a15.88,15.88,0,0,0,15.36,0l88-48.17a16,16,0,0,0,8.32-14V80.18A16,16,0,0,0,223.68,66.15ZM128,32l80.34,44-29.77,16.3-80.35-44ZM128,120,47.66,76l33.9-18.56,80.34,44ZM40,90l80,43.78v85.79L40,175.82Zm176,85.78h0l-80,43.79V133.82l32-17.51V152a8,8,0,0,0,16,0V107.55L216,90v85.77Z"/></svg>
-          Stock counts itself</h3>
-        <p>Sell a latte and the milk, beans and cup go down on their own. It warns you before you run out mid-rush, and flags what to use before it expires.</p>
-        <div class="shot"><img src="shots/feat-stock.webp" width="800" height="325" loading="lazy"
-          alt="Two ingredient cards showing stock on hand, value and the recipes each is used in" /></div>
-      </div>
-      <div class="cell dark-cell c5 rev">
-        <h3><svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M213.92,210.62a8,8,0,1,1-11.84,10.76l-52-57.15a60,60,0,0,0-57.41,7.24,8,8,0,1,1-9.42-12.93A75.43,75.43,0,0,1,128,144c1.28,0,2.55,0,3.82.1L104.9,114.49A108,108,0,0,0,61,135.31,8,8,0,0,1,49.73,134,8,8,0,0,1,51,122.77a124.27,124.27,0,0,1,41.71-21.66L69.37,75.4a155.43,155.43,0,0,0-40.29,24A8,8,0,0,1,18.92,87,171.87,171.87,0,0,1,58,62.86L42.08,45.38A8,8,0,1,1,53.92,34.62ZM128,192a12,12,0,1,0,12,12A12,12,0,0,0,128,192ZM237.08,87A172.3,172.3,0,0,0,106,49.4a8,8,0,1,0,2,15.87A158.33,158.33,0,0,1,128,64a156.25,156.25,0,0,1,98.92,35.37A8,8,0,0,0,237.08,87ZM195,135.31a8,8,0,0,0,11.24-1.3,8,8,0,0,0-1.3-11.24,124.25,124.25,0,0,0-51.73-24.2A8,8,0,1,0,150,114.24,108.12,108.12,0,0,1,195,135.31Z"/></svg>
-          Brownout-proof</h3>
-        <p>No signal? Keep selling. Orders, receipts and sign-ins all work offline, then sync themselves when the internet returns.</p>
-      </div>
-      <div class="cell c7 rev d1">
-        <h3><svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,60.08,60.15C52.81,67.51,46.35,74.59,40,82V64a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H72a8,8,0,0,0,0-16H49c7.15-8.42,14.27-16.35,22.39-24.57a80,80,0,1,1,1.66,114.75,8,8,0,1,0-11,11.64A96,96,0,1,0,128,32Z"/></svg>
-          Every action on the record</h3>
-        <p>Voids, discounts and drawer opens are logged with a name and a time. You choose who is allowed to do what.</p>
-        <div class="shot"><img src="shots/feat-record.webp" width="1000" height="313" loading="lazy"
-          alt="Activity log rows: who did what, and when" /></div>
-      </div>
-      <div class="cell tint c6 rev">
-        <h3><svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M88,48V16a8,8,0,0,1,16,0V48a8,8,0,0,1-16,0Zm40,8a8,8,0,0,0,8-8V16a8,8,0,0,0-16,0V48A8,8,0,0,0,128,56Zm32,0a8,8,0,0,0,8-8V16a8,8,0,0,0-16,0V48A8,8,0,0,0,160,56Zm92.8,46.4L224,124v60a32,32,0,0,1-32,32H64a32,32,0,0,1-32-32V124L3.2,102.4a8,8,0,0,1,9.6-12.8L32,104V80a8,8,0,0,1,8-8H216a8,8,0,0,1,8,8v24l19.2-14.4a8,8,0,0,1,9.6,12.8ZM208,88H48v96a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16Z"/></svg>
-          Kitchen and QR ordering</h3>
-        <p>Orders flow straight to a kitchen screen, notes and photos included, and it warns you when the kitchen is falling behind. Guests can scan a QR at the table and order from their own phone.</p>
-      </div>
-      <div class="cell tint c6 rev d1">
-        <h3><svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M232,96a7.89,7.89,0,0,0-.3-2.2L217.35,43.6A16.07,16.07,0,0,0,202,32H54A16.07,16.07,0,0,0,38.65,43.6L24.31,93.8A7.89,7.89,0,0,0,24,96h0v16a40,40,0,0,0,16,32v72a8,8,0,0,0,8,8H208a8,8,0,0,0,8-8V144a40,40,0,0,0,16-32V96ZM54,48H202l11.42,40H42.61Zm50,56h48v8a24,24,0,0,1-48,0Zm-16,0v8a24,24,0,0,1-35.12,21.26,7.88,7.88,0,0,0-1.82-1.06A24,24,0,0,1,40,112v-8ZM200,208H56V151.2a40.57,40.57,0,0,0,8,.8,40,40,0,0,0,32-16,40,40,0,0,0,64,0,40,40,0,0,0,32,16,40.57,40.57,0,0,0,8-.8Zm4.93-75.8a8.08,8.08,0,0,0-1.8,1.05A24,24,0,0,1,168,112v-8h48v8A24,24,0,0,1,204.93,132.2Z"/></svg>
-          Grows with you</h3>
-        <p>Payroll, time clock and schedules are built in. Open a second branch and run both from one account, with each branch's numbers kept apart.</p>
-      </div>
+      <a class="key flame" href="demo/">Open the live demo</a>
+      <p class="demo-key">It opens signed in as Maria Santos, the owner. If you ever sign out, her PIN is <code>1234</code></p>
+    </div>
+    <div class="lessons">
+      <b>Or start on a specific job</b>
+      <a class="lesson" href="demo/?lesson=sell"><span class="n">1</span><strong>Ring up a sale</strong><em>2 min</em></a>
+      <a class="lesson" href="demo/?lesson=kitchen"><span class="n">2</span><strong>The kitchen screen</strong><em>1 min</em></a>
+      <a class="lesson" href="demo/?lesson=stock"><span class="n">3</span><strong>Stock on the shelf</strong><em>2 min</em></a>
+      <a class="lesson" href="demo/?lesson=receive"><span class="n">4</span><strong>Receive a delivery</strong><em>2 min</em></a>
+      <a class="lesson" href="demo/?lesson=pnl"><span class="n">5</span><strong>Profit &amp; Loss</strong><em>2 min</em></a>
+      <a class="lesson" href="demo/?lesson=payroll"><span class="n">6</span><strong>Payroll</strong><em>1 min</em></a>
+      <a class="lesson" href="demo/?lesson=dayflow"><span class="n">7</span><strong>Drawers &amp; the trading day</strong><em>2 min</em></a>
     </div>
   </div>
 </section>
 
-<section id="philippines" style="padding-top:0">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>Built for how Philippine shops really run</h2>
-      <p>The parts a foreign POS never gets right, done properly here.</p>
-    </div>
-    <div class="ph rev">
-      <div class="ph-item">
-        <span class="tag">Utang / Lista</span>
-        <h3>The notebook, finally digital</h3>
-        <p>Put a sale on a suki's tab in one tap. See who owes what, how long it has been, and record payments as they come. Set a limit per person and the till warns your cashier, without blocking the sale. Tap a name and you get a polite reminder message ready to paste into Messenger.</p>
-      </div>
-      <div class="ph-item">
-        <span class="tag">Senior &amp; PWD</span>
-        <h3>The 20% and the ID, recorded</h3>
-        <p>The discount covers only what the cardholder actually ordered, VAT handled correctly, with the OSCA or PWD ID number captured on the sale the way BIR expects it. No more separate notebook at the counter.</p>
-      </div>
-      <div class="ph-item">
-        <span class="tag">Your books</span>
-        <h3>Ready for your bookkeeper</h3>
-        <p>Download a sales book in the columns an accountant actually asks for, and check your invoice numbers for gaps in one tap. Export your whole shop to spreadsheets any time. Your records stay yours.</p>
-      </div>
-      <div class="ph-item">
-        <span class="tag">Getting paid</span>
-        <h3>GCash, Maya and the delivery apps</h3>
-        <p>Add GCash, Maya, FoodPanda and GrabFood as their own buttons, so each one lands separately in your reports. At closing, check what the wallet app says against what the till recorded and find the gap before it becomes an argument.</p>
-      </div>
-    </div>
-  </div>
-</section>
+<div class="rail"></div>
 
-<section id="backoffice" style="padding-top:0">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>The back office does the thinking</h2>
-      <p>Open the app on a laptop and it tells you what needs attention today.</p>
-    </div>
-    <div class="groups">
-      <div class="group rev">
-        <h3>Money</h3>
-        <div class="row"><span class="dot"></span><div><b>Break-even</b><span>The daily sales you need before the shop starts earning.</span></div></div>
-        <div class="row"><span class="dot"></span><div><b>Unpaid deliveries</b><span>What you still owe each supplier, and when it arrived.</span></div></div>
-        <div class="row"><span class="dot"></span><div><b>Drawer bill counter</b><span>Count the cash by denomination and it adds up for you.</span></div></div>
-        <div class="row"><span class="dot"></span><div><b>Cash in and out</b><span>Petty cash and owner draws, kept out of your sales figures.</span></div></div>
-      </div>
-      <div class="group rev d1">
-        <h3>Selling more</h3>
-        <div class="row"><span class="dot"></span><div><b>What stopped selling</b><span>Items nobody ordered this period, worth promoting or cutting.</span></div></div>
-        <div class="row"><span class="dot"></span><div><b>Bought together</b><span>Real pairs from your receipts, so your combos are built on evidence.</span></div></div>
-        <div class="row"><span class="dot"></span><div><b>Customers gone quiet</b><span>Regulars who stopped coming, with a message ready to send.</span></div></div>
-        <div class="row"><span class="dot"></span><div><b>Busiest hours</b><span>When the rush really lands, so you staff for it.</span></div></div>
-      </div>
-    </div>
+<!-- ============ BAY 7: EVERYTHING IN THE BOX ============ -->
+<section class="bay wrap" id="features">
+  <div class="bay-head">
+    <h2 class="headline">Everything in the box.</h2>
+    <p class="lede">One price, no tiers, no add-on charges. Everything on this manifest is already switched on in your shop. The bold lines are the ones a point of sale built somewhere else usually does not carry.</p>
   </div>
-</section>
-
-<section id="devices" style="padding-top:0">
-  <div class="wrap split">
-    <div class="rev">
-      <h2>Android, iPhone, tablet or computer</h2>
-      <p class="lead">One shop, live everywhere. Ring sales at the counter while you check the numbers from home. No iPhone app needed: it runs in Safari.</p>
-      <a class="go" href="app/">Open the app &rarr;</a>
-    </div>
-    <div class="rev d1">
-      <div class="dev-row">
-        <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M176,16H80A24,24,0,0,0,56,40V216a24,24,0,0,0,24,24h96a24,24,0,0,0,24-24V40A24,24,0,0,0,176,16ZM72,64H184V192H72Zm8-32h96a8,8,0,0,1,8,8v8H72V40A8,8,0,0,1,80,32Zm96,192H80a8,8,0,0,1-8-8v-8H184v8A8,8,0,0,1,176,224Z"/></svg>
-        <div><h3>Android phone</h3><p>The full app from Google Play. POS, kitchen, reports, everything.</p></div>
-      </div>
-      <div class="dev-row">
-        <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M176,16H80A24,24,0,0,0,56,40V216a24,24,0,0,0,24,24h96a24,24,0,0,0,24-24V40A24,24,0,0,0,176,16ZM72,64H184V192H72Zm8-32h96a8,8,0,0,1,8,8v8H72V40A8,8,0,0,1,80,32Zm96,192H80a8,8,0,0,1-8-8v-8H184v8A8,8,0,0,1,176,224Z"/></svg>
-        <div><h3>iPhone <span class="chip">New</span></h3><p>No App Store version yet, so open it in Safari and tap Share, then Add to Home Screen. You get an icon and the full app.</p></div>
-      </div>
-      <div class="dev-row">
-        <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M192,24H64A24,24,0,0,0,40,48V208a24,24,0,0,0,24,24H192a24,24,0,0,0,24-24V48A24,24,0,0,0,192,24Zm8,184a8,8,0,0,1-8,8H64a8,8,0,0,1-8-8V48a8,8,0,0,1,8-8H192a8,8,0,0,1,8,8ZM168,64a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,64Z"/></svg>
-        <div><h3>Tablet</h3><p>A bigger grid at the counter, or a dedicated kitchen display.</p></div>
-      </div>
-      <div class="dev-row">
-        <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24h72v16H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16H136V200h72a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40ZM48,56H208a8,8,0,0,1,8,8v80H40V64A8,8,0,0,1,48,56ZM208,184H48a8,8,0,0,1-8-8V160H216v16A8,8,0,0,1,208,184Z"/></svg>
-        <div><h3>Any computer <span class="chip">New</span></h3><p>The whole app in a browser, no install. Sell, manage stock, run reports and payroll.</p></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="screens" style="padding-top:0">
-  <div class="sec-head wrap">
-    <h2>Real screens, real numbers</h2>
-    <p>Every image below is the app itself, running a working shop.</p>
-  </div>
-  <div class="rail-wrap">
-    <div class="rail" tabindex="0" role="group" aria-label="Screenshots of Ember POS, scroll sideways">
-      <img src="shots/g1-profit.webp" width="1100" height="619" alt="Dashboard slide: sales minus costs, today" loading="lazy" />
-      <img src="shots/g2-pos.webp" width="480" height="853" alt="Point of sale slide: ring a sale in three taps" loading="lazy" />
-      <img src="shots/g3-kitchen.webp" width="1100" height="619" alt="Kitchen display slide" loading="lazy" />
-      <img src="shots/g4-stock.webp" width="480" height="853" alt="Inventory slide: stock counts itself" loading="lazy" />
-      <img src="shots/g5-access.webp" width="1100" height="619" alt="Access rights slide: you decide who can do what" loading="lazy" />
-      <img src="shots/g6-activity.webp" width="480" height="853" alt="Activity log slide: every action recorded" loading="lazy" />
-    </div>
-  </div>
-</section>
-
-<section id="everything" style="padding-top:0">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>Everything in the box</h2>
-      <p>One price with no tiers and no add-on charges, so everything below is already switched on in your shop.</p>
-    </div>
+  <div class="manifest rev">
+    <div class="mh"><h3>Packing manifest</h3><span>Ember POS &middot; every branch &middot; no extras</span></div>
     <div class="box">
-      <div class="grp rev">
+      <div class="grp">
         <b>At the counter</b>
         <ul>
           <li>Sizes, add-ons and a note per item</li>
           <li>Held orders, split payment, refunds and voids</li>
           <li>A floor map of your tables, plus quick tickets</li>
-          <li class="key">Utang on a tab, with a credit limit per person</li>
-          <li class="key">Senior and PWD, with the OSCA or PWD ID on the sale</li>
+          <li class="bold">Utang on a tab, with a credit limit per person</li>
+          <li class="bold">Senior and PWD, with the OSCA or PWD ID on the sale</li>
           <li>Discounts, coupons, gift cards and store credit</li>
           <li>Happy hour, and prices that change by day part</li>
           <li>Meals and combos priced as one thing</li>
@@ -912,7 +893,7 @@
           <li>Tips, takeaway packaging, and custom one-off items</li>
         </ul>
       </div>
-      <div class="grp rev d1">
+      <div class="grp">
         <b>Kitchen and orders</b>
         <ul>
           <li>A kitchen screen where tickets change colour as they age</li>
@@ -921,15 +902,15 @@
           <li>A prep station screen for things you batch ahead</li>
           <li>Claim stubs and cup stickers</li>
           <li>Printing to the kitchen the moment an order is sent</li>
-          <li class="key">QR ordering at the table, from the guest's own phone</li>
-          <li class="key">An online shop for pickup and delivery, prepaid by QR Ph</li>
+          <li class="bold">QR ordering at the table, from the guest's own phone</li>
+          <li class="bold">An online shop for pickup and delivery, prepaid by QR Ph</li>
           <li>Book a delivery rider through your own Lalamove account</li>
         </ul>
       </div>
-      <div class="grp rev d2">
+      <div class="grp">
         <b>Stock and recipes</b>
         <ul>
-          <li class="key">A recipe per size and per add-on, so stock follows the sale</li>
+          <li class="bold">A recipe per size and per add-on, so stock follows the sale</li>
           <li>Purchase orders, supplier terms and a receiving report</li>
           <li>Count sheets in kg and g, in L and mL, or in packs</li>
           <li>Waste and spoilage, with a slip somebody signs</li>
@@ -939,35 +920,35 @@
           <li>Sold out and back on, in one tap</li>
         </ul>
       </div>
-      <div class="grp rev">
+      <div class="grp">
         <b>Money</b>
         <ul>
-          <li class="key">Profit and loss with ingredients, wages and expenses taken off</li>
+          <li class="bold">Profit and loss with ingredients, wages and expenses taken off</li>
           <li>Food and paper cost, per item and per batch</li>
           <li>Break-even, cash flow, and cash in and out</li>
           <li>Count the drawer by denomination, blind if you prefer</li>
-          <li class="key">Cash custody: the float, the hand-over and the walk to the bank</li>
-          <li class="key">Check the wallet app's statement against what the till recorded</li>
+          <li class="bold">Cash custody: the float, the hand-over and the walk to the bank</li>
+          <li class="bold">Check the wallet app's statement against what the till recorded</li>
           <li>Your own payment buttons, each landing separately</li>
-          <li class="key">A sales book in BIR columns, and an invoice gap check</li>
+          <li class="bold">A sales book in BIR columns, and an invoice gap check</li>
           <li>Price quotes for catering and bulk orders</li>
         </ul>
       </div>
-      <div class="grp rev d1">
+      <div class="grp">
         <b>Your people</b>
         <ul>
           <li>A time clock on the sign-in screen, no separate app</li>
           <li>Schedules, timecards and a shift report</li>
           <li>Payroll that takes its hours from the clock</li>
-          <li class="key">Access rights per screen and per action, not per role</li>
+          <li class="bold">Access rights per screen and per action, not per role</li>
           <li>Every void, discount and drawer open logged with a name</li>
           <li>A logbook for what the shift needs to tell the next one</li>
         </ul>
       </div>
-      <div class="grp rev d2">
+      <div class="grp">
         <b>The shop itself</b>
         <ul>
-          <li class="key">Keeps selling through a brownout, syncs when the signal is back</li>
+          <li class="bold">Keeps selling through a brownout, syncs when the signal is back</li>
           <li>The same shop on Android, iPhone, tablet and any computer</li>
           <li>A second branch on one account, with the numbers kept apart</li>
           <li>Loyalty points, and regulars who have gone quiet</li>
@@ -978,136 +959,153 @@
         </ul>
       </div>
     </div>
-    <p class="box-note rev">The lines <b>in bold</b> are the ones a point of sale built somewhere else usually does not carry. Everything on this page can be tried in <a href="demo/" style="color:var(--flame)">the live demo</a> before you install anything.</p>
+    <div class="mf"><span>Checked against the app, v1.1.98</span><span>Try any line in <a href="demo/">the live demo</a> before you install anything</span></div>
   </div>
 </section>
 
-<section id="start" style="padding-top:0">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>Getting your menu in is the only real work</h2>
-      <p>And you do not have to do it. Pick whichever of these suits you.</p>
+<div class="rail"></div>
+
+<!-- ============ BAY 8: DEVICES ============ -->
+<section class="bay wrap" id="devices">
+  <div class="split rev">
+    <div>
+      <h2 class="headline">Android, iPhone, tablet, any computer. And through a brownout.</h2>
+      <p class="lede">One shop, live everywhere. Ring sales at the counter while you check the numbers from home. The Android app keeps selling with no signal at all and syncs when it returns. In a browser, the page loads once online and then rides out short drops.</p>
+      <div class="hero-ctas"><a class="key" href="app/">Open the app in a browser</a><a class="key" href="office/">The Back Office</a></div>
     </div>
-    <div class="start">
-      <div class="rev">
-        <div class="route">
-          <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm45.66-109.66a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L120,148.69l42.34-42.35A8,8,0,0,1,173.66,106.34Z"/></svg>
-          <div>
-            <h3>Load a sample menu, one tap</h3>
-            <p>A working cafe menu with recipes and stock behind it, so you can see the whole thing running before you type anything of your own.</p>
-          </div>
-        </div>
-        <div class="route">
-          <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Z"/></svg>
-          <div>
-            <h3>Import your spreadsheet</h3>
-            <p>Bring a CSV of items and prices straight into Settings and it lands as a real menu, sizes and all.</p>
-          </div>
-        </div>
-        <div class="route">
-          <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.71,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.43l13.63,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z"/></svg>
-          <div>
-            <h3>Photograph your menu board</h3>
-            <p>Send us the photo, or the document, or the spreadsheet, whatever you already have. We do the encoding.</p>
-          </div>
-        </div>
+    <div class="device phone">
+      <img src="shots/hero-phone.webp" width="420" height="909" loading="lazy" alt="The till on a phone: the menu grid, two drinks in the order and a running total" />
+    </div>
+  </div>
+  <div class="rev d1" style="margin-top:34px">
+    <ul class="facts" style="margin-top:0">
+      <li><svg viewBox="0 0 256 256"><path d="M176 16H80a24 24 0 0 0-24 24v176a24 24 0 0 0 24 24h96a24 24 0 0 0 24-24V40a24 24 0 0 0-24-24ZM72 64h112v128H72Zm8-32h96a8 8 0 0 1 8 8v8H72v-8a8 8 0 0 1 8-8Zm96 192H80a8 8 0 0 1-8-8v-8h112v8a8 8 0 0 1-8 8Z"/></svg><div><b>Android phone or tablet</b><span>The full app from Google Play: till, kitchen, reports, everything. A bigger grid on a tablet, or a dedicated kitchen display.</span></div></li>
+      <li><svg viewBox="0 0 256 256"><path d="M176 16H80a24 24 0 0 0-24 24v176a24 24 0 0 0 24 24h96a24 24 0 0 0 24-24V40a24 24 0 0 0-24-24Zm8 200a8 8 0 0 1-8 8H80a8 8 0 0 1-8-8V40a8 8 0 0 1 8-8h96a8 8 0 0 1 8 8Z"/></svg><div><b>iPhone and iPad</b><span>No App Store version yet. Open the app in Safari, tap Share, then Add to Home Screen. You get an icon and the full app, register included.</span></div></li>
+      <li><svg viewBox="0 0 256 256"><path d="M208 40H48a24 24 0 0 0-24 24v112a24 24 0 0 0 24 24h72v16H96a8 8 0 0 0 0 16h64a8 8 0 0 0 0-16h-24v-16h72a24 24 0 0 0 24-24V64a24 24 0 0 0-24-24Zm8 136a8 8 0 0 1-8 8H48a8 8 0 0 1-8-8V64a8 8 0 0 1 8-8h160a8 8 0 0 1 8 8Z"/></svg><div><b>Any computer, no install</b><span>The whole app in a browser: sell, manage stock, run reports and payroll. The Back Office puts every branch on one page.</span></div></li>
+    </ul>
+  </div>
+</section>
+
+<div class="rail"></div>
+
+<!-- ============ BAY 9: GET YOUR MENU IN ============ -->
+<section class="bay wrap" id="start">
+  <div class="bay-head">
+    <h2 class="headline">Getting your menu in is the only real work.</h2>
+    <p class="lede">And you do not have to do it yourself. Pick whichever of these suits you.</p>
+  </div>
+  <div class="routes">
+    <ul class="facts rev" style="margin-top:0">
+      <li><svg viewBox="0 0 256 256"><path d="M128 24a104 104 0 1 0 104 104A104.1 104.1 0 0 0 128 24Zm45.7 82.3-48 48a8 8 0 0 1-11.4 0l-24-24a8 8 0 0 1 11.4-11.3L120 137.4l42.3-42.4a8 8 0 0 1 11.4 11.3Z"/></svg><div><b>Load a sample menu, one tap</b><span>A working cafe menu with recipes and stock behind it, so you see the whole thing running before you type anything of your own.</span></div></li>
+      <li><svg viewBox="0 0 256 256"><path d="M213.7 82.3l-56-56A8 8 0 0 0 152 24H56a16 16 0 0 0-16 16v176a16 16 0 0 0 16 16h144a16 16 0 0 0 16-16V88a8 8 0 0 0-2.3-5.7ZM160 51.3 188.7 80H160ZM200 216H56V40h88v48a8 8 0 0 0 8 8h48Z"/></svg><div><b>Import your spreadsheet</b><span>Bring a CSV of items and prices straight into Settings and it lands as a real menu, sizes and all.</span></div></li>
+      <li><svg viewBox="0 0 256 256"><path d="M208 56h-27.7L166.7 35.6A8 8 0 0 0 160 32H96a8 8 0 0 0-6.7 3.6L75.7 56H48a24 24 0 0 0-24 24v112a24 24 0 0 0 24 24h160a24 24 0 0 0 24-24V80a24 24 0 0 0-24-24Zm8 136a8 8 0 0 1-8 8H48a8 8 0 0 1-8-8V80a8 8 0 0 1 8-8h32a8 8 0 0 0 6.7-3.6L100.3 48h55.4l13.6 20.4A8 8 0 0 0 176 72h32a8 8 0 0 1 8 8ZM128 88a44 44 0 1 0 44 44 44 44 0 0 0-44-44Zm0 72a28 28 0 1 1 28-28 28 28 0 0 1-28 28Z"/></svg><div><b>Photograph your menu board</b><span>Send the photo, the document or the spreadsheet, whatever you already have. We do the encoding.</span></div></li>
+    </ul>
+    <div class="offer rev d1">
+      <span class="stamp">Costs nothing</span>
+      <h3>Send us your menu and we set the shop up for you.</h3>
+      <p>Items, prices, sizes, add-ons, the ingredients behind each recipe and your current stock levels. We build it, you check it, then you sell. No fee, no obligation to stay.</p>
+      <a class="key flame" href="mailto:atlasco.web@gmail.com?subject=My%20menu%20for%20Ember%20POS">Email us your menu</a>
+    </div>
+  </div>
+</section>
+
+<div class="rail"></div>
+
+<!-- ============ BAY 10: PRICING ============ -->
+<section class="bay wrap" id="pricing">
+  <div class="bay-head" style="text-align:center;margin-left:auto;margin-right:auto">
+    <h2 class="headline">One price. Everything on the receipt.</h2>
+    <p class="lede" style="margin-left:auto;margin-right:auto">No per-staff fees, no per-device fees, no feature tiers.</p>
+  </div>
+  <div class="price-wrap rev">
+    <div class="price">
+      <div class="paper">
+        <div class="h">Ember POS<small>Monthly &middot; per branch</small></div>
+        <div class="rule"></div>
+        <div class="ln free"><span>Register, kitchen screen, QR ordering</span><span class="a">&#8369;0.00</span></div>
+        <div class="ln free"><span>Stock, recipes, receiving, counts</span><span class="a">&#8369;0.00</span></div>
+        <div class="ln free"><span>Utang, Senior and PWD, sales book</span><span class="a">&#8369;0.00</span></div>
+        <div class="ln free"><span>Payroll, time clock, access rights</span><span class="a">&#8369;0.00</span></div>
+        <div class="ln free"><span>Unlimited staff and devices</span><span class="a">&#8369;0.00</span></div>
+        <div class="ln free"><span>Works offline, every update</span><span class="a">&#8369;0.00</span></div>
+        <div class="ln"><span>One branch, one month</span><span class="a">&#8369;599.00</span></div>
+        <div class="ln free"><span>First 30 days</span><span class="a">&minus;&#8369;599.00</span></div>
+        <div class="rule"></div>
+        <div class="tot"><span>Due today<small>then &#8369;599 a month if you stay</small></span><span>&#8369;0.00</span></div>
+        <div class="ft">No card needed to start. Subscribe inside the app when the trial ends.<br />Each branch has its own subscription.</div>
+        <div class="stampbox">Everything included</div>
       </div>
-      <div class="offer rev d1">
-        <span class="tag">Costs nothing</span>
-        <h3>Send us your menu and we set the shop up for you.</h3>
-        <p>Items, prices, sizes, add-ons, the ingredients behind each recipe and your current stock levels. We build it, you check it, then you sell. There is no fee for this and no obligation to stay.</p>
-        <a class="btn btn-flame" href="mailto:atlasco.web@gmail.com?subject=My%20menu%20for%20Ember%20POS">Email us your menu</a>
-      </div>
     </div>
+    <a class="key flame" href="https://play.google.com/store/apps/details?id=com.emberpos.app">Get it on Google Play</a>
+  </div>
+  <div class="trust rev d1">
+    <div><b>Your records stay yours</b><span>Export the whole shop to spreadsheets any time, including after you leave.</span></div>
+    <div><b>One shop cannot see another</b><span>Every shop's data is isolated and backed up for you.</span></div>
+    <div><b>Month to month</b><span>No contract, no lock-in period, no cancellation fee.</span></div>
+    <div><b>Updates are included</b><span>Everything built since launch arrived free, and that is not changing.</span></div>
   </div>
 </section>
 
-<section id="pricing" style="padding-top:0">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>One price. Everything in it.</h2>
-      <p>No per-staff fees, no per-device fees, no feature tiers.</p>
-    </div>
-    <div class="price-card rev">
-      <div class="free">First 30 days: <em>free</em>. No card needed</div>
-      <div class="price-big mono">&#8369;599<small>/month</small></div>
-      <div class="price-sub">after your free month, if you decide to stay</div>
-      <ul class="ticks">
-        <li>Unlimited staff accounts and unlimited devices</li>
-        <li>POS, inventory, recipes, kitchen display and QR ordering</li>
-        <li>Utang ledger, Senior and PWD handling, and your sales book</li>
-        <li>Payroll, time clock, schedules and access rights</li>
-        <li>Works offline, and every update is included</li>
-      </ul>
-      <a class="btn btn-flame" style="width:100%" href="https://play.google.com/store/apps/details?id=com.emberpos.app">Get it on Google Play</a>
-      <p class="price-note">Subscribe inside the app when the trial ends.<br />Each branch has its own subscription.</p>
-    </div>
-    <div class="trust rev d1">
-      <div><b>Your records stay yours</b><span>Export the whole shop to spreadsheets any time, including after you leave.</span></div>
-      <div><b>One shop cannot see another</b><span>Every shop's data is isolated and backed up for you.</span></div>
-      <div><b>Month to month</b><span>No contract, no lock-in period, no cancellation fee.</span></div>
-      <div><b>Updates are included</b><span>Everything built since launch arrived free, and that is not changing.</span></div>
-    </div>
+<div class="rail"></div>
+
+<!-- ============ BAY 11: FAQ ============ -->
+<section class="bay wrap" id="faq">
+  <div class="bay-head" style="text-align:center;margin-left:auto;margin-right:auto">
+    <h2 class="headline">Common questions.</h2>
   </div>
+  <div class="faq rev">
+    <details>
+      <summary>Can I use it on my laptop or desktop computer?</summary>
+      <p>Yes, and it is the whole app, not a cut-down version. Open <a href="app/">the web app</a> in any browser, sign in with the same shop account, and you get everything: the register, the kitchen screen, menu and recipes, inventory, reports, staff, payroll and settings. Changes show up on every device, live.</p>
+    </details>
+    <details>
+      <summary>Can I record utang the way we do in our notebook?</summary>
+      <p>Yes. Attach the customer to the order and choose Utang at payment, and the amount goes on their tab instead of the drawer. Money then shows every person who owes, how much, and how long it has been sitting. You record payments as they pay, set a credit limit per person if you want one, and tap a name to copy a polite reminder message you can send on Messenger.</p>
+    </details>
+    <details>
+      <summary>Do you have an iPhone app?</summary>
+      <p>Not in the App Store yet, it is being prepared. In the meantime iPhone and iPad owners run the full app in Safari, including the register. Open <a href="app/">the app</a>, tap the Share button, then <b>Add to Home Screen</b>. You get an Ember POS icon and it opens full screen with no browser bars.</p>
+    </details>
+    <details>
+      <summary>Does it really work without internet?</summary>
+      <p>The Android app does, fully. Ringing sales, receipts, even signing in all keep working, and it syncs itself when the connection comes back. In a browser the page has to load once with a connection; after that it rides out short drops too. For a shop with unreliable signal, the Android app is the safer choice.</p>
+    </details>
+    <details>
+      <summary>What hardware do I need?</summary>
+      <p>Any Android phone or tablet, even an older one, or an iPhone, iPad or computer through the browser. There is nothing special to buy; it runs on ordinary devices you may already own.</p>
+    </details>
+    <details>
+      <summary>Is my data safe? Can my staff see everything?</summary>
+      <p>Your shop's data lives in the cloud, isolated per shop and backed up for you. Inside the shop, <b>you</b> decide who sees what. Access rights control every screen, and sensitive actions like voids and discounts can be limited to people you choose.</p>
+    </details>
+    <details>
+      <summary>Do I have to encode my whole menu myself?</summary>
+      <p>No. Send us whatever list you already have, a spreadsheet, a document, even a photo of your menu board, and we import your items, prices, ingredients and current stock levels for you. Free. You can also import a CSV yourself from Settings, or load a sample menu in one tap to look around first.</p>
+    </details>
+    <details>
+      <summary>How do I start?</summary>
+      <p>Install the app from Google Play, create your shop, and load the sample menu to try it in one tap. Or send your menu to <a href="mailto:atlasco.web@gmail.com">atlasco.web@gmail.com</a> and we will set it up for you, free.</p>
+    </details>
+  </div>
+  <p class="faq-more"><a class="sticker" href="faq.html">The full FAQ, forty answers</a></p>
 </section>
 
-<section id="faq" style="padding-top:0">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>Common questions</h2>
-      <p><a href="faq.html" style="color:var(--flame)">See the full FAQ &rarr;</a></p>
-    </div>
-    <div class="faq">
-      <details>
-        <summary>Can I use it on my laptop or desktop computer?</summary>
-        <p>Yes, and it is the whole app, not a cut-down version. Open <a href="app/">the web app</a> in any browser, sign in with the same shop account, and you get everything: the register, the kitchen screen, menu and recipes, inventory, reports, staff, payroll and settings. Changes show up on every device, live.</p>
-      </details>
-      <details>
-        <summary>Can I record utang the way we do in our notebook?</summary>
-        <p>Yes. Attach the customer to the order and choose Utang at payment, and the amount goes on their tab instead of the drawer. Money then shows every person who owes, how much, and how long it has been sitting. You record payments as they pay, set a credit limit per person if you want one, and tap a name to copy a polite reminder message you can send on Messenger.</p>
-      </details>
-      <details>
-        <summary>Do you have an iPhone app?</summary>
-        <p>Not in the App Store yet, it is being prepared. In the meantime iPhone and iPad owners run the full app in Safari, including the register. For the best result open <a href="app/">the app</a>, tap the Share button, then <b>Add to Home Screen</b>. You get an Ember POS icon on your phone and it opens full screen with no browser bars, the same as a normal app.</p>
-      </details>
-      <details>
-        <summary>Does it really work without internet?</summary>
-        <p>The Android app does, fully. Ringing sales, receipts, even signing in all keep working, and it syncs itself when the connection comes back. In a browser the page has to load once with a connection; after that it rides out short drops too. For a shop with unreliable signal, the Android app is the safer choice.</p>
-      </details>
-      <details>
-        <summary>What hardware do I need?</summary>
-        <p>Any Android phone or tablet, even an older one, or an iPhone, iPad or computer through the browser. There is nothing special to buy; it runs on ordinary devices you may already own.</p>
-      </details>
-      <details>
-        <summary>Is my data safe? Can my staff see everything?</summary>
-        <p>Your shop's data lives in the cloud, isolated per shop and backed up for you. Inside the shop, <b>you</b> decide who sees what. Access rights control every screen, and sensitive actions like voids and discounts can be limited to people you choose.</p>
-      </details>
-      <details>
-        <summary>Do I have to encode my whole menu myself?</summary>
-        <p>No. Send us whatever list you already have, a spreadsheet, a document, even a photo of your menu board, and we import your items, prices, ingredients and current stock levels for you. Free. You can also import a CSV yourself from Settings, or load a sample menu in one tap to look around first.</p>
-      </details>
-      <details>
-        <summary>How do I start?</summary>
-        <p>Install the app from Google Play, create your shop, and load the sample menu to try it in one tap. Or send your menu to <a href="mailto:atlasco.web@gmail.com">atlasco.web@gmail.com</a> and we will set it up for you, free.</p>
-      </details>
-    </div>
-  </div>
-</section>
+<div class="rail"></div>
 
-</div>
-
-<section class="cta-end">
-  <div class="wrap">
-    <h2 class="rev">Try it with your <span>own menu</span> tonight.</h2>
-    <p class="rev d1">The first thirty days are free, without a card. If it does not earn its keep, walk away.</p>
-    <div class="hero-ctas rev d2">
-      <a class="btn btn-flame" href="https://play.google.com/store/apps/details?id=com.emberpos.app">
-        <svg width="18" height="20" viewBox="0 0 24 26" fill="none" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z" fill="currentColor"/></svg>
-        Get it on Google Play
-      </a>
-      <a class="btn btn-ghost" href="app/">Open the app &rarr;</a>
-    </div>
+<!-- ============ CLOSING BAY ============ -->
+<section class="bay wrap close" id="end">
+  <span class="stamp rev" style="color:var(--muted)">That was one sale</span>
+  <h2 class="display rev d1" style="margin-top:14px">Ember Cafe rang 1,409 more last month.</h2>
+  <p class="lede rev d1">Every one of them printed, cooked, deducted, booked and logged the same way, by nobody. The first thirty days are free, without a card. If it does not earn its keep, walk away with your records.</p>
+  <div class="led rev d2"><span class="cap">Orders &middot; 30 days</span><span class="seg" id="led-orders" aria-label="Orders 1409"></span></div>
+  <div class="hero-ctas rev d2">
+    <a class="key flame" href="https://play.google.com/store/apps/details?id=com.emberpos.app">
+      <svg viewBox="0 0 24 26" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z"/></svg>
+      Get it on Google Play
+    </a>
+    <a class="key" href="app/">Open the app</a>
   </div>
+  <p class="replay rev d2"><button type="button" id="replay">Ring another sale</button></p>
 </section>
 
 <footer>
@@ -1134,79 +1132,355 @@
 </footer>
 
 <div class="dock" aria-label="Get Ember POS">
-  <a class="btn btn-flame" href="https://play.google.com/store/apps/details?id=com.emberpos.app">Get it on Google Play</a>
-  <a class="btn btn-ghost" href="demo/">Live demo</a>
+  <a class="key flame" href="https://play.google.com/store/apps/details?id=com.emberpos.app">Get it on Google Play</a>
+  <a class="key" href="demo/">Live demo</a>
 </div>
 
 <script>
-  // Arms the motion. Without JS the CSS never hides anything, so the page is
-  // fully readable with scripting off. IntersectionObserver only, never a
-  // scroll listener: a listener runs on every scrolled frame and this page has
-  // nothing that needs per-frame accuracy.
-  document.documentElement.classList.add('js');
-  (function () {
-    var root = document.documentElement;
-    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var hasIO = 'IntersectionObserver' in window;
+document.documentElement.classList.add('js');
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var hasIO = 'IntersectionObserver' in window;
+  var $ = function (id) { return document.getElementById(id); };
 
-    // 1. Groups that enter as groups, and the one authored wipe.
-    var els = document.querySelectorAll('.rev, .wipe');
-    if (!hasIO) {
-      Array.prototype.forEach.call(els, function (e) { e.classList.add('in'); });
-    } else {
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (en) {
-          if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
-        });
-      }, { rootMargin: '0px 0px -60px 0px', threshold: 0.1 });
-      Array.prototype.forEach.call(els, function (e) { io.observe(e); });
-    }
+  /* ---------- the demo shop's own data (tools/demo/seed-main.ts) ----------
+     Prices in centavos. Recipes in the ingredient's own unit. Costs are the
+     seed's centavos per unit, so the profit delta is the shop's real margin. */
+  var ING = {
+    beans:     { name: 'Coffee beans',   unit: 'g',  cost: 62,  start: 6200,  low: 1500, show: 'kg' },
+    milk:      { name: 'Fresh milk',     unit: 'mL', cost: 9,   start: 21000, low: 6000, show: 'L' },
+    condensed: { name: 'Condensed milk', unit: 'mL', cost: 15,  start: 4600,  low: 1200 },
+    sugar:     { name: 'White sugar',    unit: 'g',  cost: 6,   start: 7800,  low: 2000 },
+    matcha:    { name: 'Matcha powder',  unit: 'g',  cost: 260, start: 900,   low: 250 },
+    ube:       { name: 'Ube halaya',     unit: 'g',  cost: 32,  start: 2100,  low: 600 },
+    javachips: { name: 'Java chips',     unit: 'g',  cost: 34,  start: 1400,  low: 400 },
+    choc:      { name: 'Chocolate sauce',unit: 'mL', cost: 21,  start: 2500,  low: 700 },
+    whipped:   { name: 'Whipped cream',  unit: 'g',  cost: 26,  start: 1500,  low: 400 },
+    cup12:     { name: 'Cup 12 oz',      unit: 'pc', cost: 450, start: 340,   low: 80 },
+    cup16:     { name: 'Cup 16 oz',      unit: 'pc', cost: 560, start: 300,   low: 80 },
+    lid:       { name: 'Dome lid',       unit: 'pc', cost: 180, start: 380,   low: 100 },
+    straw:     { name: 'Straw',          unit: 'pc', cost: 60,  start: 700,   low: 150 },
+    tapa:      { name: 'Beef tapa',      unit: 'g',  cost: 44,  start: 5200,  low: 1500 },
+    egg:       { name: 'Egg',            unit: 'pc', cost: 950, start: 150,   low: 40 },
+    rice:      { name: 'Rice',           unit: 'g',  cost: 6,   start: 26000, low: 8000 },
+    oil:       { name: 'Cooking oil',    unit: 'mL', cost: 11,  start: 6600,  low: 2000 },
+    garlic:    { name: 'Garlic',         unit: 'g',  cost: 14,  start: 1500,  low: 400 },
+    box:       { name: 'Meal box',       unit: 'pc', cost: 650, start: 240,   low: 60 },
+    bag:       { name: 'Takeout bag',    unit: 'pc', cost: 220, start: 310,   low: 80 },
+    cheesecake:{ name: 'Cheesecake slice', unit: 'pc', cost: 6500, start: 18, low: 6 }
+  };
+  var CUP12 = [['cup12', 1], ['lid', 1], ['straw', 1]];
+  var CUP16 = [['cup16', 1], ['lid', 1], ['straw', 1]];
+  var MENU = {
+    spanish:    { name: 'Spanish Latte',    price: 13500, recipe: [['beans', 18], ['milk', 160], ['condensed', 30]].concat(CUP12) },
+    latte:      { name: 'Cafe Latte',       price: 12500, recipe: [['beans', 18], ['milk', 180]].concat(CUP12) },
+    americano:  { name: 'Americano',        price: 9500,  recipe: [['beans', 18]].concat(CUP12) },
+    matcha:     { name: 'Matcha Latte',     price: 14000, recipe: [['matcha', 4], ['milk', 200], ['sugar', 12]].concat(CUP12) },
+    ube:        { name: 'Ube Latte',        price: 13500, recipe: [['ube', 40], ['milk', 200], ['condensed', 20]].concat(CUP12) },
+    javachip:   { name: 'Java Chip Frappe', price: 16500, recipe: [['beans', 14], ['milk', 160], ['javachips', 30], ['choc', 20], ['whipped', 20]].concat(CUP16, [['bag', 1]]) },
+    tapsilog:   { name: 'Tapsilog',         price: 14500, recipe: [['tapa', 140], ['egg', 1], ['rice', 180], ['oil', 12], ['garlic', 6], ['box', 1], ['bag', 1]] },
+    cheesecake: { name: 'Cheesecake Slice', price: 12000, recipe: [['cheesecake', 1], ['bag', 1]] }
+  };
+  var peso = function (c) {
+    var n = Math.round(c) / 100;
+    return '₱' + n.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+  var qty = function (n, unit) {
+    if (unit === 'g' && n >= 1000) return (n / 1000).toFixed(2) + ' kg';
+    if (unit === 'mL' && n >= 1000) return (n / 1000).toFixed(2) + ' L';
+    return n.toLocaleString('en-PH') + (unit === 'pc' ? ' pcs' : ' ' + unit);
+  };
 
-    // 2. The header condenses, and the phone dock arrives, once the hero has
-    //    gone. Both hang off one sentinel so there is a single source of truth
-    //    for "we are past the top".
-    var top = document.getElementById('top-sentinel');
-    if (hasIO && top) {
-      new IntersectionObserver(function (e) {
-        root.classList.toggle('stuck', !e[0].isIntersecting);
-      }, { threshold: 0 }).observe(top);
+  /* ---------- seven-segment display ---------- */
+  var SEGS = { '0': 'abcdef', '1': 'bc', '2': 'abged', '3': 'abgcd', '4': 'fgbc', '5': 'afgcd', '6': 'afgedc', '7': 'abc', '8': 'abcdefg', '9': 'abfgcd', ' ': '' };
+  function segBuild(el, chars) {
+    el.innerHTML = '';
+    for (var i = 0; i < chars; i++) {
+      var d = document.createElement('span'); d.className = 'd';
+      ['a', 'b', 'c', 'dd', 'e', 'f', 'g'].forEach(function (k) { var s = document.createElement('s'); s.className = k; d.appendChild(s); });
+      el.appendChild(d);
     }
-    var hero = document.querySelector('.hero');
-    if (hasIO && hero) {
-      new IntersectionObserver(function (e) {
-        root.classList.toggle('past-hero', !e[0].isIntersecting);
-      }, { threshold: 0 }).observe(hero);
-    } else {
-      root.classList.add('past-hero');
+  }
+  /* Writes a string like "1,234.50" into a display of fixed width, right
+     aligned; separators are drawn as small dots so the digit count is stable. */
+  function segWrite(el, text, animate) {
+    var digits = String(text).replace(/[^0-9.,]/g, '');
+    var want = [];
+    for (var i = 0; i < digits.length; i++) {
+      var ch = digits[i];
+      if (ch === ',' || ch === '.') { want.push({ sep: ch }); } else { want.push({ ch: ch }); }
     }
+    // rebuild if the shape changed
+    var shape = want.map(function (w) { return w.sep ? w.sep : 'd'; }).join('');
+    if (el.getAttribute('data-shape') !== shape) {
+      el.innerHTML = '';
+      want.forEach(function (w) {
+        var d = document.createElement('span');
+        if (w.sep) { d.className = 'd sep lit' + (w.sep === ',' ? ' comma' : ''); var dot = document.createElement('i'); d.appendChild(dot); }
+        else { d.className = 'd'; ['a', 'b', 'c', 'dd', 'e', 'f', 'g'].forEach(function (k) { var s = document.createElement('s'); s.className = k; d.appendChild(s); }); }
+        el.appendChild(d);
+      });
+      el.setAttribute('data-shape', shape);
+    }
+    var ds = el.querySelectorAll('.d:not(.sep)');
+    var di = 0;
+    want.forEach(function (w) {
+      if (w.sep) return;
+      var d = ds[di++]; var on = SEGS[w.ch] || '';
+      var delay = animate && !reduced ? di * 45 : 0;
+      (function (d, on, delay) {
+        setTimeout(function () {
+          ['a', 'b', 'c', 'dd', 'e', 'f', 'g'].forEach(function (k) {
+            var s = d.querySelector('.' + k); var key = k === 'dd' ? 'd' : k;
+            s.classList.toggle('on', on.indexOf(key) >= 0);
+          });
+        }, delay);
+      })(d, on, delay);
+    });
+  }
+  var ledTotal = $('led-total'), ledSales = $('led-sales'), ledOrders = $('led-orders');
+  var SALES30 = 42335300, ORDERS30 = 1409, ING30 = 14660125, PROFIT30 = 12392544;
+  segWrite(ledTotal, '0.00'); segWrite(ledSales, peso(SALES30)); segWrite(ledOrders, String(ORDERS30));
 
-    // 3. The three demo figures count up, once, when they arrive. They are real
-    //    numbers from the seeded shop, which is the whole reason they are worth
-    //    pointing at. Reduced motion gets the final value and no counting.
-    var ticks = document.querySelectorAll('.tick');
-    function roll(el) {
-      var to = parseInt(el.getAttribute('data-to'), 10) || 0;
-      var pre = el.getAttribute('data-prefix') || '';
-      var suf = el.getAttribute('data-suffix') || '';
-      var start = null, dur = 900;
-      function step(ts) {
-        if (start === null) start = ts;
-        var p = Math.min(1, (ts - start) / dur);
-        var eased = 1 - Math.pow(1 - p, 3);
-        el.textContent = pre + Math.round(to * eased) + suf;
-        if (p < 1) requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
+  /* ---------- the till ---------- */
+  var basket = {}; var order = [];
+  var tiles = $('tiles'), basketLines = $('basket-lines'), basketTotal = $('basket-total'), charge = $('charge'), clear = $('clear');
+  function total() { var t = 0; order.forEach(function (k) { t += MENU[k].price * basket[k]; }); return t; }
+  function renderBasket() {
+    if (!order.length) { basketLines.innerHTML = '<div class="empty">Tap an item to start the order</div>'; }
+    else {
+      basketLines.innerHTML = order.map(function (k) {
+        return '<div class="ln"><span class="n">' + basket[k] + '×</span><span>' + MENU[k].name + '</span><span class="a">' + peso(MENU[k].price * basket[k]) + '</span></div>';
+      }).join('');
     }
-    if (ticks.length && hasIO && !reduced) {
-      var tio = new IntersectionObserver(function (entries) {
-        entries.forEach(function (en) {
-          if (en.isIntersecting) { roll(en.target); tio.unobserve(en.target); }
-        });
-      }, { threshold: 0.6 });
-      Array.prototype.forEach.call(ticks, function (e) { tio.observe(e); });
-    }
-  })();
+    var t = total();
+    basketTotal.textContent = peso(t);
+    segWrite(ledTotal, peso(t), true);
+    ledTotal.setAttribute('aria-label', 'Total ' + peso(t));
+    charge.disabled = !order.length || busy;
+  }
+  var busy = false;
+  tiles.addEventListener('click', function (ev) {
+    var b = ev.target.closest('.tile'); if (!b || busy) return;
+    var k = b.getAttribute('data-item');
+    if (!basket[k]) { basket[k] = 0; order.push(k); }
+    basket[k]++;
+    b.classList.add('hit'); setTimeout(function () { b.classList.remove('hit'); }, 160);
+    renderBasket();
+  });
+  clear.addEventListener('click', function () { if (busy) return; basket = {}; order = []; renderBasket(); });
+
+  /* ---------- what one sale does to the shop ---------- */
+  var sale = null;
+  function consequence() {
+    var used = {}; var cost = 0;
+    order.forEach(function (k) {
+      MENU[k].recipe.forEach(function (r) {
+        var id = r[0], n = r[1] * basket[k];
+        used[id] = (used[id] || 0) + n; cost += ING[id].cost * n;
+      });
+    });
+    var t = total();
+    return { total: t, cost: cost, used: used, items: order.map(function (k) { return { q: basket[k], name: MENU[k].name }; }), time: clock() };
+  }
+  function clock(ago) { var d = new Date(Date.now() - (ago || 0) * 60000); var h = d.getHours(), m = d.getMinutes(); return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m; }
+  // The tickets on the rail and the log tape are "a few minutes ago", whatever
+  // time the visitor arrives, so the new sale's clock time sits among them.
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ago]'), function (el) { el.textContent = clock(parseInt(el.getAttribute('data-ago'), 10)); });
+
+  /* ---------- printing the receipt ---------- */
+  var receipt = $('receipt');
+  function printReceipt(s, done) {
+    var lines = $('receipt-lines');
+    lines.innerHTML = s.items.map(function (it) {
+      return '<div class="ln"><span class="n">' + it.q + '×</span><span>' + it.name + '</span><span class="a">' + peso(0) + '</span></div>';
+    }).join('');
+    // amounts per line
+    var i = 0; order.forEach(function (k) { lines.children[i++].querySelector('.a').textContent = peso(MENU[k].price * basket[k]); });
+    $('receipt-total').textContent = peso(s.total);
+    $('receipt-cash').textContent = peso(s.total);
+    $('receipt-time').textContent = s.time;
+    receipt.classList.remove('printed', 'stamped');
+    receipt.classList.add('out');
+    // every printed part, in reading order; a replay clears the inline state
+    var parts = receipt.querySelectorAll('.h, .rule, .ln, .tot, .ft');
+    Array.prototype.forEach.call(parts, function (p) { p.style.opacity = ''; p.style.transform = ''; });
+    if (reduced) { receipt.classList.add('printed', 'stamped'); done(); return; }
+    // print line by line, top to bottom, at the printer's pace
+    var k = 0;
+    (function step() {
+      if (k >= parts.length) { receipt.classList.add('printed'); setTimeout(function () { receipt.classList.add('stamped'); done(); }, 260); return; }
+      var p = parts[k++]; p.style.opacity = '1'; p.style.transform = 'none';
+      setTimeout(step, p.classList.contains('ln') ? 70 : 110);
+    })();
+  }
+
+  /* ---------- the bays react when the sale reaches them ---------- */
+  var reacted = {};
+  function reactPass() {
+    if (reacted.pass || !sale) return; reacted.pass = true;
+    var t = $('ticket-new');
+    $('ticket-new-lines').innerHTML = sale.items.map(function (it) { return '<div class="tl"><span>' + it.q + '×</span><span>' + it.name + '</span></div>'; }).join('');
+    $('ticket-new-time').textContent = sale.time;
+    t.removeAttribute('aria-hidden');
+    requestAnimationFrame(function () { requestAnimationFrame(function () { t.classList.add('clipped'); }); });
+    $('pass-delta').textContent = 'Ticket #1410 clipped onto the pass at ' + sale.time + ', ' + sale.items.length + (sale.items.length === 1 ? ' line' : ' lines') + '. Nobody typed it twice.';
+  }
+  function reactShelf() {
+    if (reacted.shelf || !sale) return; reacted.shelf = true;
+    var touched = [];
+    Object.keys(sale.used).forEach(function (id) {
+      var jar = document.querySelector('.jar[data-ing="' + id + '"]'); var ing = ING[id];
+      if (!jar) return;
+      var left = ing.start - sale.used[id];
+      var base = parseFloat(jar.getAttribute('data-fill')) || 60;
+      var fill = jar.querySelector('.fill'); fill.style.height = Math.max(2, left / ing.start * base) + '%';
+      jar.querySelector('.q').textContent = qty(left, ing.unit);
+      jar.querySelector('.d').textContent = '−' + qty(sale.used[id], ing.unit);
+      jar.classList.add('hit'); touched.push(ing.name.toLowerCase());
+    });
+    var hidden = Object.keys(sale.used).filter(function (id) { return !document.querySelector('.jar[data-ing="' + id + '"]'); }).map(function (id) { return qty(sale.used[id], ING[id].unit) + ' ' + ING[id].name.toLowerCase(); });
+    $('shelf-delta').textContent = 'Off the shelf: ' + Object.keys(sale.used).map(function (id) { return qty(sale.used[id], ING[id].unit) + ' ' + ING[id].name.toLowerCase(); }).join(', ') + '. Ingredient cost of this order: ' + peso(sale.cost) + '.';
+    void hidden;
+  }
+  function reactBooks() {
+    if (reacted.books || !sale) return; reacted.books = true;
+    var profit = sale.total - sale.cost;
+    $('lg-sales').textContent = peso(SALES30 + sale.total); $('lg-sales-plus').textContent = '+' + peso(sale.total);
+    $('lg-ing').textContent = peso(ING30 + sale.cost); $('lg-ing-plus').textContent = '+' + peso(sale.cost);
+    $('lg-profit').textContent = peso(PROFIT30 + profit); $('lg-profit-plus').textContent = '+' + peso(profit);
+    $('ledger').classList.add('hit');
+    segWrite(ledSales, peso(SALES30 + sale.total), true);
+    ledSales.setAttribute('aria-label', 'Sales ' + peso(SALES30 + sale.total));
+    var pct = Math.round(profit / sale.total * 100);
+    $('books-delta').textContent = 'This order: ' + peso(sale.total) + ' sold, ' + peso(sale.cost) + ' of ingredients used, ' + peso(profit) + ' left after ingredients (' + pct + '%). Labour and expenses come off at the end of the day. Nobody typed a cost.';
+  }
+  function reactStaff() {
+    if (reacted.staff || !sale) return; reacted.staff = true;
+    $('tape-new-time').textContent = sale.time; $('tape-new-amt').textContent = peso(sale.total);
+    $('tape-new').classList.add('in');
+    $('ana-drawer').textContent = peso(509700 + sale.total);
+    $('staff-delta').textContent = 'Logged: Ana, sale #1410, ' + peso(sale.total) + ', cash, ' + sale.time + '. Her drawer now reads ' + peso(509700 + sale.total) + '.';
+  }
+  function reactEnd() {
+    if (reacted.end || !sale) return; reacted.end = true;
+    segWrite(ledOrders, String(ORDERS30 + 1), true);
+    ledOrders.setAttribute('aria-label', 'Orders ' + (ORDERS30 + 1));
+  }
+  var REACT = { pass: reactPass, shelf: reactShelf, books: reactBooks, staff: reactStaff, end: reactEnd };
+  var bays = ['pass', 'shelf', 'books', 'staff', 'end'];
+
+  // A bay reacts when it comes into view after the sale, whether the tow
+  // brought the visitor there or they scrolled themselves.
+  if (hasIO) {
+    var bio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting && sale) REACT[en.target.id](); });
+    }, { threshold: 0.35 });
+    bays.forEach(function (id) { bio.observe($(id)); });
+  }
+
+  /* ---------- the tow: attention runs with the sale ---------- */
+  var towing = false, towTimer = null;
+  window.__tow = [];
+  var towLog = function (what) { window.__tow.push(what + ' @' + Math.round(window.scrollY) + ' t' + Math.round(performance.now())); };
+  function releaseTow(why) { if (!towing) return; towing = false; clearTimeout(towTimer); towLog('released:' + why); setState('Sale rung. Scroll to follow it', true); }
+  // A wheel turn, a finger dragging, or an arrow key means the visitor wants
+  // the page back; a tap or a click does not.
+  ['wheel', 'touchmove', 'keydown'].forEach(function (ev) { window.addEventListener(ev, function (e) { if (towing) releaseTow(e.type); }, { passive: true }); });
+  function setState(text, ok) { var s = $('tow-state'); s.textContent = text; s.classList.toggle('ok', !!ok); }
+  function scrollToBay(id) {
+    // Drive the window ourselves: scrollIntoView with the CSS smooth scroll
+    // on the root was refusing to start a second journey while the first
+    // one's easing was still settling.
+    var y = $(id).getBoundingClientRect().top + window.scrollY - 76;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
+  function tow() {
+    if (reduced || !hasIO) { bays.forEach(function (id) { REACT[id](); }); setState('Sale rung. Scroll to follow it', true); return; }
+    towing = true; var i = 0;
+    (function next() {
+      if (!towing) return;
+      if (i >= bays.length) { towing = false; towLog('done'); setState('Sale rung. Ring another any time', true); return; }
+      var id = bays[i++];
+      towLog('to:' + id); scrollToBay(id);
+      towTimer = setTimeout(function () { towLog('react:' + id); REACT[id](); towTimer = setTimeout(next, id === 'end' ? 0 : 2600); }, 1000);
+    })();
+  }
+
+  charge.addEventListener('click', function () {
+    if (!order.length || busy) return;
+    busy = true; charge.disabled = true;
+    sale = consequence(); reacted = {};
+    setState('Printing…');
+    printReceipt(sale, function () {
+      setState('Following the sale down the page…');
+      towTimer = setTimeout(function () { tow(); busy = false; }, reduced ? 0 : 700);
+    });
+  });
+
+  /* ---------- replay: reset the shop to its baseline ---------- */
+  $('replay').addEventListener('click', function () {
+    towing = false; clearTimeout(towTimer); busy = false; sale = null; reacted = {};
+    basket = {}; order = []; renderBasket();
+    receipt.classList.remove('out', 'printed', 'stamped');
+    var t = $('ticket-new'); t.classList.remove('clipped'); t.setAttribute('aria-hidden', 'true');
+    document.querySelectorAll('.jar').forEach(function (jar) {
+      var id = jar.getAttribute('data-ing'); var ing = ING[id];
+      jar.classList.remove('hit'); jar.querySelector('.fill').style.height = (jar.getAttribute('data-fill') || 60) + '%'; jar.querySelector('.q').textContent = qty(ing.start, ing.unit);
+    });
+    $('lg-sales').textContent = peso(SALES30); $('lg-ing').textContent = peso(ING30); $('lg-profit').textContent = peso(PROFIT30);
+    $('ledger').classList.remove('hit'); segWrite(ledSales, peso(SALES30)); segWrite(ledOrders, String(ORDERS30));
+    $('tape-new').classList.remove('in'); $('ana-drawer').textContent = peso(509700);
+    ['pass', 'shelf', 'books', 'staff'].forEach(function (id) { $(id + '-delta').textContent = ''; });
+    setState('Waiting for a sale');
+    $('till').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  /* ---------- furniture: groups arrive once; the drawer opens on view ---------- */
+  var els = document.querySelectorAll('.rev');
+  if (!hasIO) { Array.prototype.forEach.call(els, function (e) { e.classList.add('in'); }); $('drawer').classList.add('open'); }
+  else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { rootMargin: '0px 0px -60px 0px', threshold: 0.1 });
+    Array.prototype.forEach.call(els, function (e) { io.observe(e); });
+    new IntersectionObserver(function (e) { if (e[0].isIntersecting) { $('drawer').classList.add('open'); } }, { threshold: 0.6 }).observe(document.querySelector('.drawer-wrap'));
+  }
+
+  /* ---------- header condenses, dock arrives, past the hero ---------- */
+  var top = $('top-sentinel');
+  if (hasIO && top) new IntersectionObserver(function (e) { root.classList.toggle('stuck', !e[0].isIntersecting); }, { threshold: 0 }).observe(top);
+  var hero = document.querySelector('.hero');
+  if (hasIO && hero) new IntersectionObserver(function (e) { root.classList.toggle('past-hero', !e[0].isIntersecting); }, { threshold: 0 }).observe(hero);
+  else root.classList.add('past-hero');
+
+  /* ---------- the demo figures count up once ---------- */
+  var ticks = document.querySelectorAll('.tick');
+  function roll(el) {
+    var to = parseInt(el.getAttribute('data-to'), 10) || 0, pre = el.getAttribute('data-prefix') || '', suf = el.getAttribute('data-suffix') || '';
+    var start = null, dur = 900;
+    function step(ts) { if (start === null) start = ts; var p = Math.min(1, (ts - start) / dur); var e = 1 - Math.pow(1 - p, 3); el.textContent = pre + Math.round(to * e) + suf; if (p < 1) requestAnimationFrame(step); }
+    requestAnimationFrame(step);
+  }
+  if (ticks.length && hasIO && !reduced) {
+    var tio = new IntersectionObserver(function (entries) { entries.forEach(function (en) { if (en.isIntersecting) { roll(en.target); tio.unobserve(en.target); } }); }, { threshold: 0.6 });
+    Array.prototype.forEach.call(ticks, function (e) { tio.observe(e); });
+  }
+
+  /* ---------- the tickets on the rail age like real ones ---------- */
+  if (!reduced) {
+    var ages = document.querySelectorAll('#tickets .ticket:not(.new) .age');
+    var stages = ['', 'warm', 'hot'];
+    setInterval(function () {
+      Array.prototype.forEach.call(ages, function (a) {
+        var i = stages.indexOf(a.classList.contains('hot') ? 'hot' : a.classList.contains('warm') ? 'warm' : '');
+        a.className = 'age ' + stages[(i + 1) % 3];
+      });
+    }, 9000);
+  }
+})();
 </script>
 
 <script src="beacon.js" defer></script>
