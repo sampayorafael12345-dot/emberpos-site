@@ -6,9 +6,30 @@
     <!--
       CSP for the public demo. As strict as the desktop renderer's, plus the
       one thing sql.js needs in a browser: 'wasm-unsafe-eval' to instantiate
-      its WebAssembly. connect-src stays 'self' — the page fetches its own
-      wasm and the seeded demo-shop.db and nothing else, which is the promise
-      the demo makes: your playing never leaves this tab.
+      its WebAssembly.
+
+      connect-src is the promise this page makes, ENFORCED rather than
+      described: the sample shop fetches its own wasm and its own seeded
+      demo-shop.db, and the only other address it may reach in the world is
+      the one named below. That is the demo-ping function, which takes a
+      random id the device made up for itself and nothing else — no account,
+      no shop, nothing typed in here (see src/demo/ping.ts and migration
+      0154). Anything else the code might one day try to send anywhere is
+      stopped by the browser, not by a comment.
+
+      NOTE THE PATH. What is allowed is not the Supabase ORIGIN but one exact
+      endpoint, and that distinction is the whole control — because this
+      bundle is NOT free of the cloud client. It bundles the shared app code,
+      which drags supabase-js and the publishable key in with it. Allowing the
+      bare origin would have left the REST and auth APIs reachable from this
+      page; scoped to this path they are not, whatever the code tries, because
+      the browser refuses the request before it is sent.
+
+      Adding a host here is therefore a deliberate act, and there should never
+      be a second one. Note also that a blocked request FAILS SILENTLY by
+      design (the ping swallows its own errors so it can never break the cafe)
+      — so a ping added without its path here would ship dead and look fine,
+      which is exactly what happened before this line existed.
     -->
     <meta http-equiv="Content-Security-Policy" content="
       default-src 'self';
@@ -16,7 +37,7 @@
       style-src 'self' 'unsafe-inline';
       img-src 'self' data: blob:;
       font-src 'self' data:;
-      connect-src 'self';
+      connect-src 'self' https://qqmkgafyfxrcnwdkkyxc.supabase.co/functions/v1/demo-ping;
       object-src 'none';
       base-uri 'self';
       form-action 'none';
@@ -38,7 +59,7 @@
         animation: demoboot 1.1s ease-in-out infinite alternate; }
       @keyframes demoboot { from { margin-left: 0 } to { margin-left: 60% } }
     </style>
-    <script type="module" crossorigin src="/demo/assets/index.demo-DSfV0iMx.js"></script>
+    <script type="module" crossorigin src="/demo/assets/index.demo-Be-WxMPr.js"></script>
   </head>
   <body class="bg-ember-coal text-white">
     <div id="demo-boot">
