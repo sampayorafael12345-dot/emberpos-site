@@ -166,6 +166,33 @@
   .grab { width: 38px; height: 4px; border-radius: 99px; background: var(--line); margin: 6px auto 14px; }
   .sheet h2 { margin: 0 0 4px; font-size: 20px; letter-spacing: -.01em; }
   .sheet .lede { color: var(--muted); font-size: 14px; margin: 0 0 4px; }
+  /* WHAT IS IN THE FOOD (10 Sep 2026). The allergen line is deliberately the
+     loudest thing under the name: it is the one line on this page that can
+     matter medically, and burying it in grey beside the calories would be a
+     design decision with a consequence. */
+  .sheet .allergens {
+    margin: 6px 0 2px; padding: 8px 10px; border-radius: 10px;
+    background: rgba(255,176,32,0.10); border: 1px solid rgba(255,176,32,0.34);
+    color: #ffd79a; font-size: 13px; line-height: 1.45;
+  }
+  .sheet .diet { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px; }
+  .sheet .diet span {
+    font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 3px 7px; border-radius: 999px;
+    background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.30); color: #86efac;
+  }
+  .sheet .nutri { color: var(--muted); font-size: 12px; margin: 4px 0 2px; }
+  /* The one-tap "how was it?" on the confirmation screen. */
+  .csat { margin-top: 18px; text-align: center; }
+  .csat .q { color: var(--muted); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 8px; }
+  .csat .row { display: flex; justify-content: center; gap: 10px; }
+  .csat button {
+    font: inherit; font-size: 20px; line-height: 1; cursor: pointer; color: var(--muted);
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 999px; min-width: 52px; min-height: 52px;
+  }
+  .csat button:active { background: rgba(255,92,0,0.18); color: #fff; }
+  .csat .done { color: #86efac; font-size: 14px; }
   .label { font-size: 12.5px; font-weight: 700; color: var(--muted); margin: 18px 0 8px; letter-spacing: .04em; text-transform: uppercase; }
   /* "Required" sits inside its section heading so the ask reads as part of it. */
   .req {
@@ -566,6 +593,80 @@ function closeSheet() {
 el('scrim').onclick = (e) => { if (e.target.id === 'scrim') closeSheet(); };
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheet(); });
 
+/**
+ * WHAT THE SHOP HAS SAID ABOUT THIS DISH.
+ *
+ * A BLANK ALLERGEN FIELD PRINTS NOTHING AT ALL. It is never rendered as "no
+ * allergens" and never as an empty reassuring row: the shop has said nothing,
+ * and a false all-clear about peanuts is worse than silence. Same for the
+ * calories - blank stays blank rather than becoming a zero.
+ */
+const DIET_LABELS = {
+  veg: 'Vegetarian', vegan: 'Vegan', halal: 'Halal',
+  no_pork: 'No pork', gluten_free: 'Gluten free', spicy: 'Spicy',
+};
+/**
+ * "HOW WAS IT?" - one tap, on the screen a customer is already looking at
+ * while they wait for their order.
+ *
+ * ONLY ON THE ORDERS SCREEN, never over the menu: asking somebody how it was
+ * before they have eaten is how a shop collects noise. Asked once per visit,
+ * remembered in this browser so a customer refreshing the tracker is not asked
+ * again and again.
+ *
+ * NEVER SHOWS AN ERROR. The person tapping just ordered food from this shop; a
+ * red box about a failed write is worse than losing one score, and there is
+ * nothing they could do about it.
+ */
+const CSAT_FACES = [[1, ':-('], [2, ':-/'], [3, ':-|'], [4, ':-)'], [5, ':-D']];
+const CSAT_KEY = 'ember.qr.csat';
+let ASK_CSAT = false;
+function csatAnswered() {
+  try {
+    const at = Number(localStorage.getItem(CSAT_KEY) || 0);
+    // A day. The same person tomorrow is a new visit worth asking about.
+    return at > 0 && (Date.now() - at) < 86400000;
+  } catch (e) { return false; }
+}
+function csatHtml() {
+  if (!ASK_CSAT) return '';
+  if (csatAnswered()) return '<div class="csat"><div class="done">Thank you for telling us.</div></div>';
+  return '<div class="csat" id="csat"><div class="q">How was it?</div><div class="row">'
+    + CSAT_FACES.map((f) => '<button type="button" data-csat="' + f[0] + '" aria-label="' + f[0] + ' out of 5">' + f[1] + '</button>').join('')
+    + '</div></div>';
+}
+function wireCsat() {
+  document.querySelectorAll('[data-csat]').forEach((b) => {
+    b.onclick = () => {
+      const score = Number(b.getAttribute('data-csat')) || 0;
+      try { localStorage.setItem(CSAT_KEY, String(Date.now())); } catch (e) { /* private window */ }
+      const box = el('csat');
+      if (box) box.innerHTML = '<div class="done">Thank you for telling us.</div>';
+      try {
+        rpc('kiosk_csat', { p_token: TOKEN, p_score: score, p_comment: null })
+          .catch(() => { /* already said thank you */ });
+      } catch (e) { /* the thank-you stands either way */ }
+    };
+  });
+}
+
+function foodFacts(it) {
+  const list = (v) => String(v || '').split(',').map((x) => x.trim()).filter(Boolean);
+  const allergens = list(it.allergens);
+  const diets = list(it.diet_tags).map((k) => DIET_LABELS[k]).filter(Boolean);
+  const macro = [];
+  const g = (v, label) => { const n = Number(v); if (isFinite(n) && n > 0) macro.push((Math.round(n * 10) / 10) + 'g ' + label); };
+  g(it.protein_g, 'protein'); g(it.fat_g, 'fat'); g(it.carbs_g, 'carbs');
+  const kcal = Number(it.kcal);
+  const nutri = [];
+  if (isFinite(kcal) && kcal > 0) nutri.push(Math.round(kcal) + ' kcal');
+  if (macro.length) nutri.push(macro.join(', '));
+
+  return (allergens.length ? '<div class="allergens">Contains: ' + esc(allergens.join(', ')) + '</div>' : '')
+    + (diets.length ? '<div class="diet">' + diets.map((d) => '<span>' + esc(d) + '</span>').join('') + '</div>' : '')
+    + (nutri.length ? '<div class="nutri">' + esc(nutri.join(' \u00b7 ')) + '</div>' : '');
+}
+
 function openItem(id) {
   const it = MENU.items.find((x) => x.id === id);
   if (soldOut(it)) { toast(it.name + ' is sold out right now.'); return; }
@@ -677,6 +778,7 @@ function openItem(id) {
     openSheet(
       '<h2>' + esc(it.name) + '</h2>' +
       (it.description ? '<p class="lede">' + esc(it.description) + '</p>' : '') +
+      foodFacts(it) +
       ((it.sizes && it.sizes.length) ? '<div class="label">Size</div>' + it.sizes.map((s) =>
         '<button class="opt" data-sz="' + s.id + '" aria-pressed="' + (size === s.id) + '"><span>' + esc(s.label) + '</span>' +
         '<span class="delta">' + (s.delta ? (s.delta > 0 ? '+' : '') + money(s.delta) : 'Included') + '</span></button>').join('') : '') +
@@ -1357,9 +1459,11 @@ function showOrders(highlight) {
         '<div class="steps" data-track="' + esc(o.num) + '">' + stepsHtml(o.state || 'waiting', o.type) + '</div>' +
       '</div>';
     }).join('') + '</div>' +
+    csatHtml() +
     '<div class="bar"><button class="primary" id="tomenu">Order more</button></div>';
 
   el('tomenu').onclick = () => { render(); };
+  wireCsat();
   document.querySelectorAll('[data-ack]').forEach((b) => {
     b.onclick = () => ackOrder(b.getAttribute('data-ack'));
   });
@@ -1441,6 +1545,12 @@ function fatal(title, msg) {
       return;
     }
     MENU = m;
+    // Does this shop want to be asked about? One extra call, fired and
+    // forgotten: a failure here simply means the question is not asked, which
+    // is the same as the shop not having switched it on.
+    try {
+      ASK_CSAT = (await rpc('kiosk_asks_csat', { p_token: TOKEN })) === true;
+    } catch (e) { ASK_CSAT = false; }
     CUR = (m.shop && m.shop.currency) || '₱';
     TAXPCT = Number((m.shop && m.shop.tax_percent) || 0);
     if (m.link && m.link.kind === 'store') {
