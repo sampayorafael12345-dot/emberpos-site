@@ -1,0 +1,1 @@
+System.register(["./index.web-legacy-MPPaUDUp.js"],function(e,n){"use strict";var t,r;return{setters:[function(e){t=e.r,r=e._}],execute:function(){e("App",t("App",{web:function(){return r(function(){return n.import("./web-legacy-CSR6d1_5.js")},void 0).then(function(e){return new e.AppWeb})}}))}}});
