@@ -3,6 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- THIS PAGE ALREADY HAS A DARK THEME - DO NOT RE-TINT IT.
+         Android WebView will otherwise "force dark" the page whenever the
+         tablet's own system theme is dark, guessing element by element: it
+         flipped the Menu screen's near-black tab strip to light grey and left
+         the white writing on it untouched, which on the shop's iMin terminal
+         was an unreadable strip that a laptop never showed. Declared here as
+         well as in the stylesheet so it is true before any CSS has parsed. -->
+    <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#151210" />
     <!--
       Content Security Policy.
@@ -126,6 +134,6 @@
       })();
     </script>
     <script crossorigin id="vite-legacy-polyfill" src="/app/assets/polyfills-legacy--HFgWo4c.js"></script>
-    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-MPPaUDUp.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-D1RK6_Qc.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
   </body>
 </html>
