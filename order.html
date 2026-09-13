@@ -385,6 +385,10 @@
   .opt .delta { margin-left: auto; color: var(--muted); font-size: 14px; }
   .opt[aria-pressed="true"] .delta { color: var(--accent-text); }
   .note-in { width: 100%; padding: 12px; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--bg-sub); }
+  /* A coupon code reads as capitals whatever the customer typed - but the
+     placeholder is our words, not theirs, and text-transform paints it too. */
+  #ocpn { text-transform: uppercase; letter-spacing: .5px; }
+  #ocpn::placeholder { text-transform: none; letter-spacing: 0; }
   .stepper { display: flex; align-items: center; gap: 14px; }
   .stepper button { width: 42px; height: 42px; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--bg-sub); font-size: 20px; font-weight: 700; }
   .stepper span { min-width: 26px; text-align: center; font-weight: 700; font-size: 17px; }
@@ -530,6 +534,11 @@ let PAYCHOICE = 'later';    // 'now' | 'later'
    their seats. Both halves are decided by the server in kiosk_menu; this is
    the answer, not the rule. */
 let PAYON = false;
+/* 0175: does this shop take a coupon code from this page? Opt-in, default
+   off - see the migration for why a public page onto a shop's codes is the
+   shop's decision. COUPON is what the customer typed, kept across redraws. */
+let COUPONS_ON = false;
+let COUPON = '';
 /* A KIOSK TABLET IS SHARED. Everything this page remembers on a kiosk link
    belongs to whoever used it last, which is why the retry payment button below
    is limited to orders placed since this page loaded. */
@@ -1330,6 +1339,7 @@ function openCart() {
       storeFields() +
       '<div class="label">Your name</div>' +
       '<input class="note-in" id="who" type="text" maxlength="40" placeholder="' + (STORE ? 'Who is this order for?' : 'So the staff can call you') + '" aria-label="Your name">' +
+      couponFieldHtml() +
       payChoiceHtml() +
       '<div class="foot">' +
         '<button class="ghost" id="back">Add more</button>' +
@@ -1374,6 +1384,15 @@ function openCart() {
     document.querySelectorAll('[data-paych]').forEach(function (b) {
       b.onclick = function () { PAYCHOICE = b.getAttribute('data-paych'); redrawKeeping(); };
     });
+    if (el('ocpn')) {
+      el('ocpn').oninput = function () {
+        var had = COUPON.trim() !== '';
+        COUPON = el('ocpn').value;
+        // Only redraw when the BUTTON has to change its words. Redrawing on
+        // every keystroke would take the keyboard down mid-code.
+        if (had !== (COUPON.trim() !== '')) redrawKeeping();
+      };
+    }
     el('back').onclick = closeSheet;
     el('send').onclick = send;
   }
@@ -1382,6 +1401,8 @@ function openCart() {
     var w = el('who') ? el('who').value : '';
     var ph = el('oph') ? el('oph').value : '';
     var ad = el('oaddr') ? el('oaddr').value : '';
+    // 0175: through the module variable, because the send label reads it too.
+    if (el('ocpn')) COUPON = el('ocpn').value;
     draw();
     if (el('who') && w) el('who').value = w;
     if (el('oph') && ph) el('oph').value = ph;
@@ -1509,6 +1530,21 @@ function counterPayAllowed() {
   return OMODE === 'pickup' ? !STORE.pickup_prepay : STORE.cod !== false;
 }
 
+/* THE CODE FROM THE FLYER (0175).
+
+   No "check" button and no running total: the code is spent by the server in
+   the same breath as the order, so anything this page showed beforehand would
+   be a guess it might have to take back. The customer types it, sends, and
+   the confirmation carries the real figure. A bad code refuses the send and
+   nothing is ordered. */
+function couponFieldHtml() {
+  if (!COUPONS_ON) return '';
+  return '<div class="label">Coupon code (optional)</div>' +
+    '<input class="note-in" id="ocpn" type="text" maxlength="24" autocapitalize="characters" ' +
+      'autocomplete="off" spellcheck="false" ' +
+      'placeholder="From your voucher or flyer" aria-label="Coupon code" value="' + esc(COUPON) + '">';
+}
+
 function payChoiceHtml() {
   var canNow = PAYON && total() >= minPay();
   var canLater = counterPayAllowed();
@@ -1529,7 +1565,13 @@ function payChoiceHtml() {
 }
 
 function sendLabel() {
-  if (PAYON && PAYCHOICE === 'now' && total() >= minPay()) return 'Place order & pay ' + money(total());
+  // WITH A CODE TYPED, THE AMOUNT IS NOT OURS TO STATE. The server works out
+  // what the code is worth; a button that said "pay 280" and then charged 230
+  // would be wrong twice over - once about the money, once about who decided.
+  var withCode = COUPONS_ON && COUPON.trim() !== '';
+  if (PAYON && PAYCHOICE === 'now' && total() >= minPay()) {
+    return withCode ? 'Place order & pay' : 'Place order & pay ' + money(total());
+  }
   if (!STORE) return 'Send to the cashier for payment';
   return OMODE === 'delivery' ? 'Place delivery order' : 'Place pickup order';
 }
@@ -1568,6 +1610,9 @@ async function send() {
       // resolves it in the SHOP's timezone and ignores anything it cannot
       // read - a bad time must never cost somebody their order.
       p_wanted_hhmm: (STORE && OMODE === 'pickup' && STORE.pickup_times) ? WHEN : null,
+      // 0175. Always sent so the argument binds by name; the server treats an
+      // empty code as no code at all.
+      p_coupon: (COUPONS_ON && COUPON.trim()) ? COUPON.trim().toUpperCase() : null,
     });
     if (!res || !res.ok) {
       toast((res && res.error) || 'Could not send. Please ask a staff member.');
@@ -1588,13 +1633,18 @@ async function send() {
       })),
     });
     MINE[res.order_number] = 1;      // see SHARED: this one is really theirs
+    // 0175: the code is spent now, whether or not this phone sends again.
+    var saved = Number(res.discount_cents || 0);
+    COUPON = '';
     var payNow = PAYON && PAYCHOICE === 'now' && (res.total_cents || 0) >= minPay() && !res.duplicate;
     CART = []; SEND_REF = null; closeSheet(); showOrders(res.order_number);
     // The unmistakable confirmation the shop asked for — the screen also
     // switches to "Your orders" with this order on top.
     toast(res.duplicate
       ? (STORE ? 'This order was already sent to the shop — here it is.' : 'This order was already sent to the cashier — here it is.')
-      : (STORE ? 'Order sent to the shop!' : 'Order sent to the cashier!'));
+      : saved > 0
+        ? 'Code accepted — ' + money(saved) + ' off. ' + (STORE ? 'Order sent to the shop!' : 'Order sent to the cashier!')
+        : (STORE ? 'Order sent to the shop!' : 'Order sent to the cashier!'));
     if (payNow) openPaySheet(res.order_number);
   } catch (e) {
     toast('No connection. Try again in a moment — your order was NOT sent twice.');
@@ -2168,6 +2218,9 @@ function fatal(title, msg) {
     PAYON = STORE ? STORE.prepay === true : instore.pay_now === true;
     PAYMIN = Number(STORE ? STORE.min_prepay_cents : instore.min_prepay_cents) || 2000;
     FORGET = SHARED && instore.forget_between === true;
+    // 0175: the same switch reaches both blocks, because a customer holding
+    // a flyer can be at a table just as easily as on the storefront.
+    COUPONS_ON = (STORE ? STORE.coupons : instore.coupons) === true;
     render();
   } catch (e) {
     fatal('No connection', 'Check your signal and try again.');
