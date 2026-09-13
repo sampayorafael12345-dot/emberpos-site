@@ -1483,18 +1483,35 @@ function defaultPayChoice() {
   return 'now';
 }
 
+/**
+ * CAN THIS CUSTOMER PAY AT THE COUNTER / IN CASH, OR MUST THEY PAY NOW?
+ *
+ * PICKUP CAN REFUSE CASH (0162). Delivery has been able to since 0137;
+ * pickup had `true` hardcoded, which is the entire reason a shop could not
+ * ask to be paid before making a pickup order. Macoi: "baka po kasi mangyari
+ * yung maraming ooorder online for pick-up tapos walang dadating kasi scam
+ * pala".
+ *
+ * IN-STORE, PAYING AT THE COUNTER IS ALWAYS ALLOWED (0165). The diner is
+ * standing in the shop; there is nothing for a prepayment to protect against,
+ * and a table QR that could refuse cash would be a worse shop.
+ *
+ * THIS IS A FUNCTION BECAUSE TWO SCREENS ASK IT AND ONE OF THEM WAS NOT
+ * ASKING (13 Sep 2026). The rule lived inline in payChoiceHtml, so the
+ * ordering screen correctly hid "Pay at the counter" for a pay-first shop -
+ * and then the QR sheet offered 'Pay at the counter instead' anyway, on a
+ * hardcoded line. Macoi, with the box ticked: "Eventhough naka-tick na po
+ * yung pick up orders must be paid first - nasend pa rin po siya sa cashier."
+ * He was right. One button undid the whole setting.
+ */
+function counterPayAllowed() {
+  if (!STORE) return true;
+  return OMODE === 'pickup' ? !STORE.pickup_prepay : STORE.cod !== false;
+}
+
 function payChoiceHtml() {
   var canNow = PAYON && total() >= minPay();
-  // PICKUP CAN NOW REFUSE CASH TOO (0162). Delivery has been able to since
-  // 0137; pickup had `true` hardcoded here, which is the entire reason a shop
-  // could not ask to be paid before making a pickup order. Macoi: "baka po
-  // kasi mangyari yung maraming ooorder online for pick-up tapos walang
-  // dadating kasi scam pala".
-  // IN-STORE, PAYING AT THE COUNTER IS ALWAYS ALLOWED (0165). The diner is
-  // standing in the shop; there is nothing here for a prepayment to protect
-  // against, and a table QR that could refuse cash would be a worse shop.
-  var canLater = !STORE ? true
-    : OMODE === 'pickup' ? !STORE.pickup_prepay : STORE.cod !== false;
+  var canLater = counterPayAllowed();
   if (!canNow && canLater) { PAYCHOICE = 'later'; return ''; }
   if (!canNow && !canLater) {
     return '<div class="lede" style="font-size:12.5px;margin-top:10px;display:flex;gap:7px;align-items:flex-start">' + ICON_WARN + '<span>This shop takes delivery orders with online payment only' +
@@ -1617,9 +1634,22 @@ async function openPaySheet(num) {
     '<p class="lede" style="text-align:center;font-size:13px">Open GCash, Maya or your bank app and scan this QR Ph code' +
     ' — or screenshot it and upload inside the app.<br>This screen confirms by itself the moment the money lands.</p>' +
     '<div class="lede" id="paystate" style="text-align:center;padding:6px 0" aria-live="polite">Waiting for the payment…</div>' +
+    // BACKING OUT IS ALWAYS ALLOWED - nobody is trapped on a payment screen.
+    // But what backing out MEANS depends on the shop. Where the counter is
+    // open it moves payment there. Where the shop has said pickup is paid
+    // first, it does not, and saying so would be a promise the cashier has to
+    // break in front of the customer. So the button says what it does, and the
+    // line above it says what happens to the order.
+    (counterPayAllowed()
+      ? ''
+      : '<p class="lede" style="text-align:center;font-size:12.5px;margin:2px 0 0">' +
+        'This shop starts ' + (OMODE === 'delivery' ? 'delivery' : 'pickup') + ' orders once they are paid.' +
+        ' Your order is saved \u2014 you can come back to it under <strong>Your orders<\/strong>.</p>') +
     '<div style="display:flex;gap:10px;margin-top:8px">' +
       '<button class="ghost" id="paylater" style="flex:1">' +
-        (OMODE === 'delivery' ? 'Pay cash instead' : 'Pay at the counter instead') + '</button></div>');
+        (!counterPayAllowed()
+          ? 'Not now'
+          : OMODE === 'delivery' ? 'Pay cash instead' : 'Pay at the counter instead') + '</button></div>');
   /** Back out: cancel the code and go where the customer should be next. */
   var giveUp = function (toMenu) {
     if (stopped) return;
