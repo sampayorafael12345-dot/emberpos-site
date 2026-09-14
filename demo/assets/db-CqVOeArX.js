@@ -484,6 +484,19 @@ var te=Object.defineProperty;var Te=(E,e,T)=>e in E?te(E,e,{enumerable:!0,config
       sort_order INTEGER NOT NULL DEFAULT 0
     );
 
+    -- Which add-ons ONE item offers (14 Sep 2026). The cloud engine has had
+    -- this since v1.1.63 (menu_item_addons); on this engine every item showed
+    -- the whole library, so an espresso offered "Extra rice" and "No onions".
+    -- No rows for an item = the whole library, exactly as before.
+    CREATE TABLE IF NOT EXISTS menu_item_addons (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      menu_item_id INTEGER NOT NULL REFERENCES menu_items(id) ON DELETE CASCADE,
+      modifier_id INTEGER NOT NULL REFERENCES modifiers_library(id) ON DELETE CASCADE,
+      required INTEGER NOT NULL DEFAULT 0,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      UNIQUE (menu_item_id, modifier_id)
+    );
+
     -- Purchase returns: stock sent BACK to a supplier (spoiled / wrong / over-delivery).
     -- Decrements ingredient stock and records the credit owed by the supplier.
     CREATE TABLE IF NOT EXISTS purchase_returns (
