@@ -61,34 +61,7 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Ember POS" />
-    <style>
-      html, body { margin: 0; height: 100%; background: #151210; color: #ece7df;
-        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
-      #boot { position: fixed; top: 0; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: center;
-        text-align: center; padding: 24px;
-        background: radial-gradient(600px 360px at 50% 30%, rgba(255,92,0,0.16), transparent 65%), #151210; }
-      #boot .msg { max-width: 560px; font-size: 15px; line-height: 1.5; }
-      #boot .err { white-space: pre-wrap; word-break: break-word; color: #fca5a5; font-size: 12px;
-        margin-top: 14px; text-align: left; max-height: 50vh; overflow: auto;
-        background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; }
-      #boot strong { color: #fbbf24; }
-      /* Branded splash: logo mark + wordmark, gentle pulse while the bundle loads.
-         Pure CSS animation — safe on any WebView old enough to at least parse CSS.
-         The mark carries its own silhouette, so the tile is just a sizing box now;
-         the glow is a drop-shadow that follows the artwork rather than a square.
-         HEIGHT ONLY: the 2026-08 mark is taller than it is wide and ships trimmed
-         to its own bounds. Pinning both axes here has no object-fit to save it,
-         so it would STRETCH the flame into a square. */
-      #boot .tile { height: 76px; margin: 0 auto 14px;
-        display: flex; align-items: center; justify-content: center;
-        animation: bootpulse 1.6s ease-in-out infinite; }
-      #boot .tile img { height: 76px; width: auto; display: block;
-        filter: drop-shadow(0 6px 26px rgba(255,92,0,0.4)); }
-      #boot .word { font-size: 26px; font-weight: 800; letter-spacing: 3px; color: #ff6a1a; }
-      #boot .word span { color: #feb700; }
-      #boot .sub { font-size: 13px; color: rgba(236,231,223,0.5); margin-top: 6px; }
-      @keyframes bootpulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.94); opacity: 0.85; } }
-    </style>
+    <style>html,body{color:#ece7df;background:#151210;height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif}#boot{text-align:center;background:radial-gradient(600px 360px at 50% 30%,rgba(255,92,0,.16),transparent 65%),#151210;justify-content:center;align-items:center;padding:24px;display:flex;position:fixed;top:0;bottom:0;left:0;right:0}#boot .msg{max-width:560px;font-size:15px;line-height:1.5}#boot .err{white-space:pre-wrap;word-break:break-word;color:#fca5a5;text-align:left;background:rgba(0,0,0,.3);border-radius:8px;max-height:50vh;margin-top:14px;padding:10px;font-size:12px;overflow:auto}#boot strong{color:#fbbf24}#boot .tile{justify-content:center;align-items:center;height:76px;margin:0 auto 14px;animation:1.6s ease-in-out infinite bootpulse;display:flex}#boot .tile img{filter:drop-shadow(0 6px 26px rgba(255,92,0,.4));width:auto;height:76px;display:block}#boot .word{letter-spacing:3px;color:#ff6a1a;font-size:26px;font-weight:800}#boot .word span{color:#feb700}#boot .sub{color:rgba(236,231,223,.5);margin-top:6px;font-size:13px}@keyframes bootpulse{0%,to{opacity:1;transform:scale(1)}50%{opacity:.85;transform:scale(.94)}}</style>
     
   </head>
   <body>
@@ -133,7 +106,7 @@
         }, 12000);
       })();
     </script>
-    <script crossorigin id="vite-legacy-polyfill" src="/app/assets/polyfills-legacy--HFgWo4c.js"></script>
-    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-52Y10USb.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+    <script crossorigin id="vite-legacy-polyfill" src="/app/assets/polyfills-legacy-BDcZjJXl.js"></script>
+    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-uizNKDOL.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
   </body>
 </html>
