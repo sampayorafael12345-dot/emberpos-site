@@ -1527,7 +1527,16 @@ function defaultPayChoice() {
  */
 function counterPayAllowed() {
   if (!STORE) return true;
-  return OMODE === 'pickup' ? !STORE.pickup_prepay : STORE.cod !== false;
+  return !prepayRequired(OMODE);
+}
+/* THE CASH A SHOP HAD REFUSED (0179, k8s Coffee). The same question asked
+   of a PLACED order, by type, so "Your orders" can say what is true of each
+   one: a delivery at a shop with cash switched off is waiting for payment,
+   not "have cash ready for the rider". Pickup obeys its own switch; delivery
+   obeys cash-on-delivery; a table QR never asks. */
+function prepayRequired(type) {
+  if (!STORE) return false;
+  return type === 'pickup' ? !!STORE.pickup_prepay : type === 'delivery' ? STORE.cod === false : false;
 }
 
 /* THE CODE FROM THE FLYER (0175).
@@ -2036,8 +2045,9 @@ function showOrders(highlight) {
         '<div class="lede" style="font-size:12.5px;margin:2px 0 10px">' +
           new Date(o.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) +
           (o.paid ? ' · paid' : o.prepaid ? ' · paid online' :
+            prepayRequired(o.type) ? ' \u00b7 waiting for payment' :
             o.type === 'delivery' ? ' · cash on delivery' :
-            o.type === 'pickup' ? (STORE && STORE.pickup_prepay ? ' \u00b7 waiting for payment' : ' \u00b7 pay at pickup')
+            o.type === 'pickup' ? ' \u00b7 pay at pickup'
                                 : ' \u00b7 pay at the counter') + '</div>' +
         // What they actually ordered, which is the bit that was missing.
         '<div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:12px">' +
@@ -2082,7 +2092,12 @@ function showOrders(highlight) {
           '<div style="display:flex;gap:8px;align-items:flex-start;background:rgba(255,92,0,.12);' +
             'border:1px solid rgba(255,92,0,.45);border-radius:var(--r-md);padding:10px 12px;margin-bottom:12px">' +
             '<span style="color:var(--muted);display:flex">' + (o.type === 'delivery' ? ICON_CASH : ICON_CARD) + '</span>' +
-            (o.type === 'delivery'
+            // A pay-first order is not on its way and nobody is bringing
+            // change: it is waiting, and the Pay now button below is the way on.
+            (prepayRequired(o.type)
+              ? '<span><b style="display:block;font-size:14.5px">Waiting for your payment</b>' +
+                '<span class="lede" style="font-size:12.5px">The shop starts this order once it is paid \u2014 tap Pay now below.</span></span>'
+              : o.type === 'delivery'
               ? '<span><b style="display:block;font-size:14.5px">Cash on delivery</b>' +
                 '<span class="lede" style="font-size:12.5px">Have ' + money(o.total) + ' ready for the rider.</span></span>'
               : o.type === 'pickup'
