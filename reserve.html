@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#111214" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<title>Book a table</title>
+<link rel="icon" href="favicon.png">
+<!--
+  EmberPOS table booking. A customer taps the shop's link and lands here:
+
+      reserve.html?t=<store link token>          make a booking
+      reserve.html?r=<booking code>              check or cancel one
+
+  It talks to exactly four SECURITY DEFINER functions (migration 0182):
+  kiosk_reserve_info / kiosk_reserve / kiosk_reservation /
+  kiosk_reservation_cancel. There is no table access - an anonymous caller has
+  no business under RLS - so those four doors are the whole attack surface.
+  Every rule that matters (which days, which hours, how many seats, how much
+  notice, the deposit) is decided in the database from the shop's own settings,
+  so nothing this page believes about availability is trusted when the booking
+  is actually written.
+
+  DEPENDENCY-FREE, like order.html: this is a phone on cafe wifi, and a
+  customer will not wait for a framework to boot before they can see whether
+  Saturday is free.
+-->
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f2f2f4;          --bg-sub: #ffffff;
+    --card: #ffffff;        --line: #e8e8ec;
+    --text: #18181b;        --muted: #5f5f6b;
+    --accent: #ff5c00;      --accent-ink: #1a0e05;   --accent-text: #b84000;
+    --ok: #047857;          --warn: #b45309;
+    --shadow: 0 1px 2px rgb(0 0 0 / .06), 0 8px 24px rgb(0 0 0 / .06);
+    --r-sm: 10px; --r-md: 14px; --r-lg: 20px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e0f11;        --bg-sub: #1b1c20;
+      --card: #17181b;      --line: #292b31;
+      --text: #f4f4f5;      --muted: #a5a5ae;
+      --accent: #ff5c00;    --accent-ink: #1a0e05;   --accent-text: #ff8340;
+      --ok: #34d399;        --warn: #fbbf24;
+      --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 10px 30px rgb(0 0 0 / .35);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { overscroll-behavior-y: none; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px; line-height: 1.45;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; border: 0; background: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+  .hero {
+    position: relative; overflow: hidden; color: #fff;
+    background: linear-gradient(145deg, #ff7a2e 0%, var(--accent) 48%, #d94e00 100%);
+    padding: calc(20px + env(safe-area-inset-top)) 16px 18px;
+  }
+  .hero::after {
+    content: ''; position: absolute; right: -60px; top: -90px; width: 260px; height: 260px;
+    border-radius: 50%; background: rgb(255 255 255 / .13); pointer-events: none;
+  }
+  .hero h1 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -.01em; position: relative; }
+  .hero p { margin: 4px 0 0; font-size: 13.5px; opacity: .92; position: relative; }
+
+  .wrap { max-width: 560px; margin: 0 auto; padding: 16px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md);
+    padding: 14px; box-shadow: var(--shadow); margin-bottom: 14px;
+  }
+  .card h2 { margin: 0 0 4px; font-size: 14px; font-weight: 650; }
+  .lede { color: var(--muted); font-size: 12.5px; }
+
+  label.f { display: block; margin-bottom: 12px; }
+  label.f > span { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+  input[type=text], input[type=tel], input[type=email], select, textarea {
+    width: 100%; padding: 11px 12px; border-radius: var(--r-sm);
+    border: 1px solid var(--line); background: var(--bg-sub);
+  }
+  textarea { min-height: 62px; resize: vertical; }
+
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    padding: 9px 12px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--bg-sub); font-size: 13.5px; font-weight: 600;
+  }
+  .chip[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: transparent; }
+  .chip[disabled] { opacity: .38; cursor: not-allowed; }
+  .chip small { display: block; font-size: 10.5px; font-weight: 500; opacity: .8; }
+
+  .primary {
+    width: 100%; padding: 14px; border-radius: var(--r-md);
+    background: var(--accent); color: #fff; font-weight: 700; font-size: 16px;
+  }
+  .primary[disabled] { opacity: .45; }
+  .ghost { padding: 11px 14px; border-radius: var(--r-sm); border: 1px solid var(--line); font-weight: 600; }
+
+  .note { font-size: 12.5px; padding: 10px 12px; border-radius: var(--r-sm); }
+  .note.warn { background: rgb(255 176 32 / .13); color: var(--warn); }
+  .note.ok   { background: rgb(4 120 87 / .12);   color: var(--ok); }
+  .code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 700; letter-spacing: .04em; }
+  .big { font-size: 26px; font-weight: 800; letter-spacing: -.01em; }
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1 id="shopname">Book a table</h1>
+  <p id="herosub">Loading&hellip;</p>
+</div>
+<div class="wrap" id="app"></div>
+
+<script>
+const URLB = 'https://qqmkgafyfxrcnwdkkyxc.supabase.co';
+const ANON = 'sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX';
+
+const el = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const money = (c) => 'P' + (Math.round(c) / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+async function rpc(fn, args) {
+  const r = await fetch(URLB + '/rest/v1/rpc/' + fn, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON },
+    body: JSON.stringify(args),
+  });
+  if (!r.ok) throw new Error('network');
+  return await r.json();
+}
+
+const params = new URLSearchParams(location.search);
+const TOKEN = params.get('t') || '';
+const RESTOK = params.get('r') || '';
+
+let INFO = null;         // kiosk_reserve_info for the chosen day
+let DAY = null;          // 'YYYY-MM-DD'
+let TIME = null;         // 'HH:MM'
+let PARTY = 2;
+let BUSY = false;
+
+/* THE DAY LIST IS BUILT FROM THE SHOP'S OWN OPEN DAYS, not from a calendar
+   widget. A customer offered a Monday by a shop that never opens on Mondays
+   has been told a small lie, and they find out at the bottom of the form. */
+function dayOptions(policy) {
+  const out = [];
+  /* `?? ` AND NOT `||`. An empty day list means the shop has unticked every
+     day, and `'' || default` would quietly hand that shop a full week -
+     the page offering days the server then refuses, which is the worst
+     kind of mismatch because the customer only finds out at the end. */
+  const open = String(policy.days ?? '0,1,2,3,4,5,6').split(',').map((s) => s.trim()).filter(Boolean);
+  const horizon = Number(policy.horizon_days || 30);
+  const today = new Date();
+  for (let i = 0; i <= Math.min(horizon, 21); i++) {
+    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+    if (open.indexOf(String(d.getDay())) === -1) continue;
+    const ymd = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    out.push({
+      ymd,
+      label: i === 0 ? 'Today' : i === 1 ? 'Tomorrow'
+        : d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }),
+    });
+  }
+  return out;
+}
+
+async function loadDay(ymd) {
+  DAY = ymd;
+  TIME = null;
+  render();
+  try {
+    INFO = await rpc('kiosk_reserve_info', { p_token: TOKEN, p_date: ymd });
+  } catch (e) {
+    INFO = { ok: false, error: 'network' };
+  }
+  render();
+}
+
+function partyOptions(max) {
+  let s = '';
+  for (let i = 1; i <= max; i++) s += '<option value="' + i + '"' + (i === PARTY ? ' selected' : '') + '>' + i + (i === 1 ? ' person' : ' people') + '</option>';
+  return s;
+}
+
+function depositLine(policy) {
+  if (!policy || policy.deposit_mode === 'none' || !Number(policy.deposit_cents)) return '';
+  const each = Number(policy.deposit_cents);
+  const total = policy.deposit_mode === 'per_head' ? each * PARTY : each;
+  return '<div class="note warn" style="margin-top:10px">'
+    + 'This shop asks for a <b>' + money(total) + '</b> deposit to hold the table'
+    + (policy.deposit_mode === 'per_head' ? ' (' + money(each) + ' a head)' : '')
+    + '. They will message you how to send it, and your table is confirmed once it is received.'
+    + '</div>';
+}
+
+function render() {
+  if (RESTOK) return;
+  const app = el('app');
+
+  if (!TOKEN) {
+    app.innerHTML = '<div class="card"><h2>This link is incomplete</h2>'
+      + '<p class="lede">Ask the shop for their booking link again.</p></div>';
+    return;
+  }
+  if (!INFO) { app.innerHTML = '<div class="card"><p class="lede">Loading&hellip;</p></div>'; return; }
+
+  if (INFO.ok === false) {
+    const msg = INFO.error === 'off'
+      ? 'This shop is not taking online bookings at the moment. Please message or call them.'
+      : INFO.error === 'unknown_link'
+      ? 'That booking link is not recognised. Ask the shop for a fresh one.'
+      : 'Could not reach the shop just now. Please try again in a moment.';
+    app.innerHTML = '<div class="card"><h2>Not available</h2><p class="lede">' + esc(msg) + '</p></div>';
+    el('herosub').textContent = '';
+    return;
+  }
+
+  const policy = INFO.policy || {};
+  el('shopname').textContent = INFO.shop || 'Book a table';
+  el('herosub').textContent = 'Reserve a table in a few taps.';
+
+  const days = dayOptions(policy);
+  const slots = INFO.slots || [];
+
+  app.innerHTML =
+    '<div class="card">'
+    + '<h2>Which day?</h2>'
+    + '<div class="row" style="margin-top:8px" id="days">'
+    + days.map((d) => '<button class="chip" data-day="' + d.ymd + '" aria-pressed="' + (d.ymd === DAY) + '">' + esc(d.label) + '</button>').join('')
+    + '</div>'
+    + '</div>'
+
+    + '<div class="card">'
+    + '<h2>What time?</h2>'
+    + (slots.length === 0
+        ? '<p class="lede" style="margin-top:6px">No times left on this day. Try another.</p>'
+        : '<div class="row" style="margin-top:8px" id="slots">'
+          + slots.map((s) => {
+              const left = Number(s.seats_left);
+              const full = left <= 0 || left < PARTY;
+              return '<button class="chip" data-time="' + esc(s.time) + '" aria-pressed="' + (s.time === TIME) + '"'
+                + (full ? ' disabled' : '') + '>' + esc(s.label)
+                + '<small>' + (left <= 0 ? 'full' : left < PARTY ? 'only ' + left + ' left' : left + ' seats left') + '</small></button>';
+            }).join('')
+          + '</div>')
+    + '</div>'
+
+    + '<div class="card">'
+    + '<h2>Your details</h2>'
+    + '<label class="f" style="margin-top:8px"><span>How many people?</span>'
+    + '<select id="party">' + partyOptions(Number(policy.max_party || 12)) + '</select></label>'
+    + '<label class="f"><span>Name</span><input type="text" id="name" autocomplete="name" placeholder="Who is the table for?"></label>'
+    + '<label class="f"><span>Mobile number</span><input type="tel" id="phone" autocomplete="tel" inputmode="tel" placeholder="09XX XXX XXXX"></label>'
+    + '<label class="f"><span>Email <span class="lede">(optional)</span></span><input type="email" id="email" autocomplete="email" placeholder="For your confirmation"></label>'
+    + '<label class="f"><span>Anything they should know? <span class="lede">(optional)</span></span>'
+    + '<textarea id="note" placeholder="Birthday, high chair, wheelchair access, allergies&hellip;"></textarea></label>'
+    + (policy.note ? '<div class="note warn">' + esc(policy.note) + '</div>' : '')
+    + depositLine(policy)
+    + '</div>'
+
+    + '<button class="primary" id="go"' + (TIME && DAY ? '' : ' disabled') + '>'
+    + (TIME ? 'Book this table' : 'Pick a time first') + '</button>'
+    + '<p class="lede" style="text-align:center;margin-top:10px">'
+    + 'You can cancel up to ' + esc(String(policy.cancel_hours || 12)) + ' hours before.</p>';
+
+  const dayWrap = el('days');
+  if (dayWrap) dayWrap.onclick = (e) => {
+    const b = e.target.closest('[data-day]');
+    if (b) loadDay(b.getAttribute('data-day'));
+  };
+  const slotWrap = el('slots');
+  if (slotWrap) slotWrap.onclick = (e) => {
+    const b = e.target.closest('[data-time]');
+    if (b && !b.disabled) { TIME = b.getAttribute('data-time'); render(); }
+  };
+  const partySel = el('party');
+  if (partySel) partySel.onchange = (e) => {
+    PARTY = Number(e.target.value) || 1;
+    // A bigger party can make a slot that was fine no longer fit, so the
+    // times are re-judged rather than left looking available.
+    if (TIME) {
+      const hit = (INFO.slots || []).filter((s) => s.time === TIME)[0];
+      if (!hit || Number(hit.seats_left) < PARTY) TIME = null;
+    }
+    render();
+  };
+  const go = el('go');
+  if (go) go.onclick = submit;
+}
+
+async function submit() {
+  if (BUSY) return;
+  const name = (el('name').value || '').trim();
+  const phone = (el('phone').value || '').trim();
+  if (!name || !phone) {
+    alert('Please put your name and mobile number so the shop can reach you.');
+    return;
+  }
+  BUSY = true;
+  el('go').disabled = true;
+  el('go').textContent = 'Booking…';
+  let res;
+  try {
+    res = await rpc('kiosk_reserve', {
+      p_token: TOKEN, p_date: DAY, p_time: TIME, p_party: PARTY,
+      p_name: name, p_phone: phone,
+      p_email: (el('email').value || '').trim() || null,
+      p_note: (el('note').value || '').trim() || null,
+    });
+  } catch (e) {
+    res = { ok: false, error: 'network' };
+  }
+  BUSY = false;
+
+  if (!res || res.ok !== true) {
+    const m = {
+      full: 'Somebody just took the last seats in that slot. Please pick another time.',
+      too_soon: 'That is too close to now for this shop. Please pick a later time.',
+      too_far: 'That is further ahead than this shop takes bookings.',
+      closed_that_day: 'The shop does not open that day.',
+      closed_then: 'The shop is not taking bookings at that time. Please pick one of the times shown.',
+      party_too_big: 'That is a bigger party than they take online — please message the shop directly.',
+      need_name_and_phone: 'Please put your name and mobile number.',
+      too_many: 'There are already several bookings from this number today.',
+      busy: 'The shop is taking a lot of bookings right now. Please try again in a little while.',
+      too_long: 'That is a bit long for the form. Please shorten your name or note.',
+      bad_date: 'That day could not be read. Please pick it again.',
+      bad_time: 'That time could not be read. Please pick it again.',
+      off: 'This shop has stopped taking online bookings.',
+      network: 'Could not reach the shop. Please try again.',
+    }[res && res.error] || 'That booking could not be made. Please try another time.';
+    alert(m);
+    // The slots are stale the moment somebody else books, so refresh them.
+    loadDay(DAY);
+    return;
+  }
+  history.replaceState(null, '', location.pathname + '?r=' + encodeURIComponent(res.token));
+  showBooking(res.token);
+}
+
+/* ------------------------------------------------------------- the booking */
+
+async function showBooking(tok) {
+  const app = el('app');
+  app.innerHTML = '<div class="card"><p class="lede">Loading your booking&hellip;</p></div>';
+  let r;
+  try { r = await rpc('kiosk_reservation', { p_res_token: tok }); }
+  catch (e) { r = { ok: false, error: 'network' }; }
+
+  if (!r || r.ok !== true) {
+    app.innerHTML = '<div class="card"><h2>Booking not found</h2>'
+      + '<p class="lede">Check the link, or message the shop.</p></div>';
+    el('herosub').textContent = '';
+    return;
+  }
+
+  el('shopname').textContent = r.shop || 'Your booking';
+  el('herosub').textContent = 'Your table';
+
+  const when = new Date(r.date + 'T' + (r.time || '00:00'));
+  const whenLabel = when.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })
+    + ' at ' + when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  const owing = Math.max(0, Number(r.deposit_cents || 0) - Number(r.deposit_paid_cents || 0));
+
+  const statusNote =
+    r.status === 'cancelled' ? '<div class="note warn">This booking is cancelled.</div>'
+    : r.status === 'no_show' ? '<div class="note warn">This was marked as a no-show.</div>'
+    : r.status === 'pending' && owing > 0
+      ? '<div class="note warn">Your table is held. The shop will message you how to send the '
+        + money(owing) + ' deposit, and it is confirmed once that arrives.</div>'
+    : '<div class="note ok">Confirmed. See you then!</div>';
+
+  app.innerHTML =
+    '<div class="card">'
+    + '<div class="big">' + esc(whenLabel) + '</div>'
+    + '<p class="lede" style="margin:6px 0 0">'
+    + esc(r.name) + ' · ' + esc(String(r.party_size)) + (Number(r.party_size) === 1 ? ' person' : ' people')
+    + (r.table_label ? ' · table ' + esc(r.table_label) : '') + '</p>'
+    + '<div style="margin-top:12px">' + statusNote + '</div>'
+    + '<p class="lede" style="margin-top:12px">Your booking code</p>'
+    + '<div class="code">' + esc(String(tok).slice(0, 8).toUpperCase()) + '</div>'
+    + '</div>'
+    + (r.can_cancel
+        ? '<button class="ghost" id="cancel" style="width:100%">Cancel this booking</button>'
+        : '<p class="lede" style="text-align:center">To change this booking, please message the shop.</p>')
+    + '<p class="lede" style="text-align:center;margin-top:14px">Keep this page — the link is your booking.</p>';
+
+  const c = el('cancel');
+  if (c) c.onclick = async () => {
+    if (!confirm('Cancel this booking?')) return;
+    c.disabled = true;
+    let out;
+    try { out = await rpc('kiosk_reservation_cancel', { p_res_token: tok }); }
+    catch (e) { out = { ok: false, error: 'network' }; }
+    if (out && out.ok === true) { showBooking(tok); return; }
+    alert(out && out.error === 'too_late'
+      ? 'It is too close to the time to cancel here — please message the shop.'
+      : 'That could not be cancelled. Please message the shop.');
+    c.disabled = false;
+  };
+}
+
+/* ------------------------------------------------------------------- boot */
+if (RESTOK) {
+  showBooking(RESTOK);
+} else if (TOKEN) {
+  (async () => {
+    INFO = await rpc('kiosk_reserve_info', { p_token: TOKEN, p_date: null }).catch(() => ({ ok: false, error: 'network' }));
+    const days = INFO && INFO.policy ? dayOptions(INFO.policy) : [];
+    if (INFO && INFO.ok !== false && days.length) { await loadDay(days[0].ymd); } else { render(); }
+  })();
+} else {
+  render();
+}
+</script>
+</body>
+</html>
