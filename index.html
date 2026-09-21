@@ -106,7 +106,7 @@
     white-space: nowrap;
   }
   .key:active { transform: translateY(1px); box-shadow: inset 0 0 0 var(--edge), inset 0 0 0 var(--edge-dark); }
-  .key.flame { background: var(--flame); color: #fff; }
+  .key.flame { background: var(--flame); color: #000; }
   .key.flame:disabled { background: #4a2a17; color: #b7a598; cursor: not-allowed; }
   .key svg { width: 17px; height: 17px; fill: currentColor; flex: none; }
   @media (hover: hover) and (pointer: fine) {
@@ -279,7 +279,7 @@
   .jar .lbl .barcode { height: 7px; width: 100%; margin: 6px 0 0; }
   .receipt .paper .paid {
     position: absolute; right: 18px; top: 60px; transform: rotate(-12deg) scale(1.6); opacity: 0;
-    border: 3px solid var(--flame); color: var(--flame); font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: .1em;
+    border: 3px solid var(--flame-ink); color: var(--flame-ink); font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: .1em;
     padding: 4px 8px; border-radius: 3px; transition: transform 240ms var(--ease-out), opacity 180ms linear;
   }
   .receipt.printed.stamped .paper .paid { opacity: 1; transform: rotate(-12deg) scale(1); }
@@ -421,7 +421,10 @@
   .demo-key { font-size: 14.5px; color: var(--muted); margin-top: 16px; }
   .demo-key code { font-family: var(--mono); background: var(--label); color: var(--paper-ink); border-radius: 3px; padding: 3px 8px; font-weight: 600; }
   .replay-line { margin-top: 12px; }
-  .replay-line button, .close .replay button { background: none; border: 0; padding: 0; cursor: pointer; color: var(--muted); font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px; }
+  /* min-height 44: this measured 149x19 - a text-only button is still a
+     button, and this is the one that invites a second go at the model till. */
+  .replay-line button, .close .replay button { background: none; border: 0; padding: 0 2px; cursor: pointer; color: var(--muted); font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px;
+    display: inline-flex; align-items: center; min-height: 44px; }
   .replay-line button:hover, .close .replay button:hover { color: var(--ink); }
   .lessons { display: flex; flex-direction: column; }
   .lessons > b { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
@@ -429,7 +432,7 @@
   .lesson:last-child { border-bottom: 1px solid var(--edge); }
   .lesson strong { font-weight: 600; font-size: 15.5px; }
   .lesson em { font-style: normal; margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); }
-  .lesson .n { width: 26px; height: 26px; border-radius: 4px; background: var(--flame); color: #fff; display: grid; place-items: center; flex: none; font: 700 12px var(--mono); }
+  .lesson .n { width: 26px; height: 26px; border-radius: 4px; background: var(--flame); color: #000; display: grid; place-items: center; flex: none; font: 700 12px var(--mono); }
   @media (hover: hover) and (pointer: fine) { .lesson:hover { transform: translateX(6px); } }
   @media (max-width: 900px) { .demo-bay { grid-template-columns: 1fr; padding: 30px 24px; gap: 30px; } .demo-figs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; } .demo-figs b { font-size: 32px; } }
 
@@ -471,7 +474,7 @@
   /* Over the empty top-right corner of the receipt, never over a line. */
   .price .paper .stampbox {
     position: absolute; right: 16px; top: 22px; transform: rotate(-9deg);
-    border: 3px solid var(--flame); color: var(--flame); font-family: var(--display); font-weight: 800; font-size: 17px; letter-spacing: .08em;
+    border: 3px solid var(--flame-ink); color: var(--flame-ink); font-family: var(--display); font-weight: 800; font-size: 17px; letter-spacing: .08em;
     padding: 3px 8px; border-radius: 3px; text-transform: uppercase;
   }
   .price .paper .h { text-align: left; padding-right: 150px; }
@@ -518,7 +521,12 @@
   footer { border-top: 1px solid var(--edge); padding: 40px 0 56px; color: var(--muted); font-size: 14px; margin-top: var(--bay); }
   .foot { display: flex; flex-wrap: wrap; gap: 22px; align-items: center; }
   .foot nav { display: flex; flex-wrap: wrap; gap: 8px 10px; margin-left: auto; }
-  .foot nav a { color: var(--muted); text-decoration: none; font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+  /* The hit area, not the type: measured 19px tall and as little as 26px wide
+     ("FAQ") on a 375px phone - under the 24px WCAG minimum and well under the
+     44 a thumb wants. Vertical padding grows the target around the same words,
+     so the row does not get any wider. */
+  .foot nav a { color: var(--muted); text-decoration: none; font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+    display: inline-flex; align-items: center; min-height: 44px; padding: 0 2px; }
   .foot nav a:hover { color: var(--ink); }
   .foot > span a { color: var(--ink); text-decoration: none; }
   @media (max-width: 760px) { .foot { flex-direction: column; align-items: flex-start; } .foot nav { margin-left: 0; } }
@@ -699,7 +707,7 @@
         </div>
         <div class="till-foot">
           <span>Prices, recipes and stock are the demo shop's own. Nothing here is saved.</span>
-          <span class="stamp">Ember POS &middot; v1.2.8</span>
+          <span class="stamp">Ember POS &middot; v1.4.1</span>
         </div>
         <noscript><p style="padding:0 0 14px;color:var(--muted);font-size:14px">Turn on JavaScript to ring a sale on this till. Everything below still reads as a normal page.</p></noscript>
       </div>
@@ -994,7 +1002,7 @@
         </ul>
       </div>
     </div>
-    <div class="mf"><span>Checked against the app, v1.2.8</span><span>Try any line in <a href="demo/">the live demo</a> before you install anything</span></div>
+    <div class="mf"><span>Checked against the app, v1.4.1</span><span>Try any line in <a href="demo/">the live demo</a> before you install anything</span></div>
   </div>
 </section>
 

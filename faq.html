@@ -12,7 +12,7 @@
   .page-head p { max-width: 58ch; margin-left: auto; margin-right: auto; }
   .try {
     display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
-    background: var(--flame); color: #fff; padding: 13px 20px; border-radius: 6px; box-shadow: var(--bevel);
+    background: var(--flame); color: #000; padding: 13px 20px; border-radius: 6px; box-shadow: var(--bevel);
     font-family: var(--mono); font-weight: 600; font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase;
     transition: background 140ms var(--ease-out), transform 90ms var(--ease-out);
   }
@@ -71,7 +71,8 @@
     </div>
   </div>
 
-  <input class="search" id="q" type="search" placeholder="Search a question… (e.g. utang, printer, payroll)" />
+  <input class="search" id="q" type="search" aria-label="Search the questions"
+         placeholder="Search a question… (e.g. utang, printer, payroll)" />
   <div class="noresults" id="nores">Nothing matched. Try a shorter word, or email <a href="mailto:atlasco.web@gmail.com">atlasco.web@gmail.com</a>.</div>
 
   <h2 class="sec">Getting started</h2>
