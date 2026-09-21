@@ -1,1 +1,0 @@
-(function(){System.register([`./index.web-legacy-Diu1Io7i.js`],function(e,t){var n,r;return{setters:[function(e){n=e.n,r=e.r}],execute:function(){e(`App`,n(`App`,{web:function(){return r(function(){return t.import(`./web-legacy-TidOksmi.js`).then(function(e){return new e.AppWeb})},void 0)}}))}}})})();

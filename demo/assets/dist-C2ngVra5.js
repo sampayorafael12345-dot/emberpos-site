@@ -1,1 +1,0 @@
-import{S as e}from"./main-BaD45yiz.js";export{e as Capacitor};
