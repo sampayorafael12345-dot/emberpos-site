@@ -123,7 +123,7 @@ input:focus { outline: none; border-color: var(--flame); box-shadow: 0 0 0 2px v
 button {
   width: 100%; padding: 15px 18px; cursor: pointer; border: 0; border-radius: 6px;
   font-family: var(--mono); font-weight: 600; font-size: 13px; letter-spacing: .08em; text-transform: uppercase;
-  color: #fff; background: var(--flame); box-shadow: var(--bevel);
+  color: #000; background: var(--flame); box-shadow: var(--bevel);
   transition: background 140ms var(--ease-out), transform 90ms var(--ease-out);
 }
 button:hover:not(:disabled) { background: var(--flame-deep); }
@@ -154,7 +154,7 @@ button:disabled { opacity: .55; cursor: default; }
 }
 @media (hover: hover) and (pointer: fine) { .site-head .lnk:hover { transform: rotate(-1.5deg) translateY(-1px); } }
 .site-head .cta {
-  background: var(--flame); color: #fff; font-family: var(--mono); font-weight: 600; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+  background: var(--flame); color: #000; font-family: var(--mono); font-weight: 600; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
   padding: 11px 16px; border-radius: 6px; line-height: 1.2; white-space: nowrap; box-shadow: var(--bevel);
   transition: background 140ms var(--ease-out), transform 90ms var(--ease-out);
 }
@@ -164,8 +164,13 @@ button:disabled { opacity: .55; cursor: default; }
 
 /* ---------- footer ---------- */
 footer { margin-top: 44px; padding-top: 18px; border-top: 1px dashed var(--paper-rule); color: var(--paper-faint); font-size: 13.5px; text-align: center; font-family: var(--mono); }
-footer nav { margin-bottom: 8px; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; }
-footer nav a { color: var(--paper-faint); text-decoration: none; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+/* gap 8 down, not 6: adjacent tap targets want 8px between them. */
+footer nav { margin-bottom: 8px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 14px; }
+footer nav a { color: var(--paper-faint); text-decoration: none; font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+  /* The hit area, not the type. 19px tall and 6px apart measured on a 375px
+     phone - under the 24px WCAG minimum and well under the 44px a thumb
+     wants. The padding grows the target around the same words. */
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 2px; }
 footer nav a:hover { color: var(--flame-ink); }
 
 /* The full-bleed coal footer, for pages that carry the site chrome. */
@@ -175,7 +180,8 @@ footer.site-foot {
 }
 footer.site-foot .bar { width: min(1240px, 100% - 44px); margin: 0 auto; display: flex; flex-wrap: wrap; gap: 22px; align-items: center; }
 footer.site-foot nav { margin: 0 0 0 auto; display: flex; flex-wrap: wrap; gap: 8px 10px; justify-content: flex-start; }
-footer.site-foot nav a { margin: 0; color: var(--muted); font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+footer.site-foot nav a { margin: 0; color: var(--muted); font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 2px; }
 footer.site-foot a { color: var(--muted); text-decoration: none; }
 footer.site-foot > .bar > span a { color: var(--ink); }
 @media (hover: hover) and (pointer: fine) { footer.site-foot a:hover { color: var(--ink); } }
