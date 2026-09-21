@@ -145,6 +145,18 @@ let DAY = null;          // 'YYYY-MM-DD'
 let TIME = null;         // 'HH:MM'
 let PARTY = 2;
 let BUSY = false;
+/* WHAT THEY HAVE ALREADY TYPED (21 Sep 2026). render() rebuilds the whole
+   page with innerHTML and the inputs carry no value, so picking a time - or
+   changing the party size, or being told somebody just took the last seats -
+   silently emptied the name, the mobile number, the email and the note. The
+   sister ordering page has kept its fields across a redraw for months. */
+const FORM = { name: '', phone: '', email: '', note: '' };
+function grabForm() {
+  for (const k in FORM) { const n = el(k); if (n) FORM[k] = n.value; }
+}
+function fillForm() {
+  for (const k in FORM) { const n = el(k); if (n && FORM[k]) n.value = FORM[k]; }
+}
 
 /* THE DAY LIST IS BUILT FROM THE SHOP'S OWN OPEN DAYS, not from a calendar
    widget. A customer offered a Monday by a shop that never opens on Mondays
@@ -202,6 +214,7 @@ function depositLine(policy) {
 
 function render() {
   if (RESTOK) return;
+  grabForm();               // BEFORE innerHTML is replaced - see FORM
   const app = el('app');
 
   if (!TOKEN) {
@@ -293,6 +306,7 @@ function render() {
   };
   const go = el('go');
   if (go) go.onclick = submit;
+  fillForm();               // the last thing: the nodes exist by now
 }
 
 async function submit() {
