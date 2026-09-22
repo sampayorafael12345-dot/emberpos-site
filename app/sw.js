@@ -92,6 +92,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // 1b. "Has a newer build been published?" must be answered by the network
+  //     and only the network. Rule 3 below would hand back the copy saved on
+  //     the LAST check, and a till would learn about every update one check
+  //     late. Falling through here leaves the request to the browser untouched.
+  if (url.pathname.endsWith('/version.json')) return;
+
   // 2. Hashed build output: immutable, so cache first is always correct.
   if (url.pathname.includes('/assets/')) {
     event.respondWith((async () => {
