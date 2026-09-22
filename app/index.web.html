@@ -28,11 +28,20 @@
       build. Escaping in the print templates (src/lib/output.ts) remains the
       primary defence; this is the net under it.
     -->
+    <!-- media-src is here because the customer screen plays the SHOP'S OWN
+         file from that device when the counter is quiet (cds-idle-media.ts).
+         There was no media-src line at all until 22 Sep 2026, so video fell
+         through to `default-src 'self'` and a picked file was refused -
+         measured on the running app: "media-src <- blob", "Media load rejected
+         by URL safety check". The picture beside it loaded, because img-src has
+         listed blob: for years. Deliberately no http(s): the idle screen may
+         play what the shop put on the glass and nothing off the internet. -->
     <meta http-equiv="Content-Security-Policy" content="
       default-src 'self';
       script-src 'self' 'unsafe-inline';
       style-src 'self' 'unsafe-inline';
       img-src 'self' data: blob: https:;
+      media-src 'self' data: blob:;
       font-src 'self' data:;
       connect-src 'self' https://*.supabase.co wss://*.supabase.co;
       object-src 'none';
@@ -107,6 +116,6 @@
       })();
     </script>
     <script crossorigin id="vite-legacy-polyfill" src="/app/assets/polyfills-legacy-BxEnaGG5.js"></script>
-    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-Tvs4cH_J.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-1ma12x9t.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
   </body>
 </html>
