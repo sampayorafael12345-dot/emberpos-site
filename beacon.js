@@ -1,6 +1,6 @@
 /* THE BEACON - what visitors clicked, and nothing else about them.
  *
- * Rafael, 25 Aug: "who just downloaded or used the app". Everything after the
+ * The owner, 25 Aug: "who just downloaded or used the app". Everything after the
  * signup is already visible in the operator console; this is the only part of
  * the journey that happens before a shop exists, and GitHub Pages keeps no
  * logs at all, so without this the funnel simply starts blind.
