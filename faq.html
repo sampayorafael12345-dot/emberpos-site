@@ -11,35 +11,39 @@
   .wrap { max-width: 860px; }
   .page-head p { max-width: 58ch; margin-left: auto; margin-right: auto; }
   .try {
-    display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
-    background: var(--flame); color: #000; padding: 13px 20px; border-radius: 6px; box-shadow: var(--bevel);
-    font-family: var(--mono); font-weight: 600; font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase;
-    transition: background 140ms var(--ease-out), transform 90ms var(--ease-out);
+    display: inline-flex; align-items: center; gap: 8px; text-decoration: none; min-height: 50px;
+    background: var(--flame); color: var(--night); padding: 0 20px; border-radius: 12px; box-shadow: var(--bevel);
+    font-family: var(--sans); font-weight: 600; font-size: 16px; letter-spacing: -0.01em;
+    transition: background 160ms var(--ease-out), transform 120ms var(--ease-out);
   }
-  .try:hover { background: var(--flame-deep); }
-  .try:active { transform: translateY(1px); }
-  .try.ghost { background: var(--chassis); color: var(--ink); }
-  .try.ghost:hover { background: var(--edge); }
+  .try:hover { background: var(--flame-hi); }
+  .try:active { transform: scale(.97); }
+  .try.ghost { background: var(--sheet); color: var(--text); border: 1px solid var(--ll2); box-shadow: none; }
+  .try.ghost:hover { background: #f4f5f7; }
   .ctas { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 20px 0 4px; }
   .search { margin: 26px 0 4px; }
   h2.sec {
-    font-family: var(--mono); font-weight: 600; font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
-    color: var(--paper-faint); margin: 38px 0 4px; padding-bottom: 8px; border-bottom: 2px solid var(--paper-ink);
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-weight: 500; font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--flame-ink); margin: 44px 0 4px; padding-bottom: 12px; border-bottom: 1px solid var(--paper-rule);
   }
-  details { border-bottom: 1px dashed var(--paper-rule); }
+  h2.sec::before { content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--flame); box-shadow: 0 0 0 3px rgba(255,92,0,.18); }
+  details { border-bottom: 1px solid var(--paper-rule); }
   summary {
-    cursor: pointer; list-style: none; padding: 15px 34px 15px 0; font-weight: 600;
+    cursor: pointer; list-style: none; padding: 18px 48px 18px 0; font-weight: 600; letter-spacing: -0.015em;
     position: relative; font-size: 17px; color: var(--paper-ink);
   }
+  summary:hover { color: var(--flame-ink); }
   summary::-webkit-details-marker { display: none; }
-  summary::before, summary::after { content: ""; position: absolute; right: 6px; top: 50%; background: var(--flame); border-radius: 2px; }
-  summary::before { width: 15px; height: 3px; margin-top: -1.5px; }
-  summary::after { width: 3px; height: 15px; margin-top: -7.5px; right: 12px; transition: transform 260ms var(--ease-out), opacity 200ms linear; }
+  summary::before, summary::after { content: ""; position: absolute; right: 10px; top: 50%; background: var(--paper-ink); border-radius: 2px; }
+  summary::before { width: 12px; height: 2px; margin-top: -1px; }
+  summary::after { width: 2px; height: 12px; margin-top: -6px; right: 15px; transition: transform 260ms var(--ease-out), opacity 200ms linear; }
+  details[open] summary::before { background: var(--flame); }
   details[open] summary::after { transform: scaleY(0); opacity: 0; }
   details .a { padding: 0 0 18px; font-size: 15.5px; }
   details .a p { max-width: 70ch; }
   details .a b { color: var(--paper-ink); }
-  .demo-link { font-size: 13.5px; margin-top: 8px; font-family: var(--mono); }
+  .demo-link { font-size: 14.5px; margin-top: 8px; font-weight: 500; }
   .hidden { display: none; }
   .noresults { color: var(--paper-faint); text-align: center; padding: 30px 0 8px; display: none; }
   @media (prefers-reduced-motion: no-preference) {
@@ -64,178 +68,178 @@
 
   <div class="page-head">
     <h1>Questions &amp; answers</h1>
-    <p>The things shop owners actually ask us, answered straight. And you don't have to take our word for anything: almost every answer can be tried, right now, in a live demo cafe with 45 days of real trading in it.</p>
+    <p>Simple answers to what shop owners ask us most. You can also try almost everything yourself in the free live demo, a sample café with a year of sales already in it.</p>
     <div class="ctas">
       <a class="try" href="demo/">Open the live demo</a>
-      <a class="try ghost" href="index.html#pricing">See pricing</a>
+      <a class="try ghost" href="index.html#pricing">See the price</a>
     </div>
   </div>
 
   <input class="search" id="q" type="search" aria-label="Search the questions"
-         placeholder="Search a question… (e.g. utang, printer, payroll)" />
-  <div class="noresults" id="nores">Nothing matched. Try a shorter word, or email <a href="mailto:atlasco.web@gmail.com">atlasco.web@gmail.com</a>.</div>
+         placeholder="Search, for example: utang, printer, payroll" />
+  <div class="noresults" id="nores">Nothing found. Try a shorter word, or email <a href="mailto:atlasco.web@gmail.com">atlasco.web@gmail.com</a>.</div>
 
   <h2 class="sec">Getting started</h2>
 
   <details><summary>How much does it cost?</summary><div class="a">
-    <p><b>₱599 per month per shop</b>, after a free 30-day trial that doesn't ask for a card. That's everything: the register, kitchen screen, inventory, recipes, reports, payroll, the web back office. No per-device fees, no percentage of your sales. If it doesn't earn its keep in a month, walk away.</p>
+    <p><b>₱599 a month for each branch</b>, after a free 30-day trial. You don't need a card to start. That price includes everything: the register, kitchen screen, stock, recipes, reports, payroll and the Back Office. No fee per device and no cut of your sales. If it is not worth it after a month, you can simply stop.</p>
   </div></details>
 
-  <details><summary>What do I need to run it?</summary><div class="a">
-    <p>Any ordinary Android phone or tablet (install from Google Play), or any computer or iPhone through the browser at <a href="app/">emberpos.net/app</a>. There is nothing special to buy. Most shops start with one secondhand tablet at the counter.</p>
+  <details><summary>What do I need to use it?</summary><div class="a">
+    <p>Any normal Android phone or tablet (download the app from Google Play), or any computer, iPhone or iPad through the web browser at <a href="app/">emberpos.net/app</a>. There is nothing special to buy. Many shops start with one used tablet at the counter.</p>
   </div></details>
 
   <details><summary>Can I try it without signing up?</summary><div class="a">
-    <p>Yes, that's what the <a href="demo/">live demo</a> is for. It's the <b>entire real app</b> running on a pretend cafe with months of sales, staff, deliveries and stock counts already in it. Ring sales, break things, count stock, run payroll. It runs privately in your browser: nothing you do there touches anyone, and the Reset button gives you a fresh shop.</p>
-    <p class="demo-link">→ It opens already signed in as the owner, Maria Santos, with the guided lessons one tap away. If you sign out, her PIN is <b>1234</b>.</p>
+    <p>Yes. The <a href="demo/">live demo</a> is the <b>full app</b>, running on a sample café that already has sales, staff, deliveries and stock. Make sales, count stock, run payroll, press anything. It all stays in your own browser, so you can't break anything, and the Reset button gives you a fresh café.</p>
+    <p class="demo-link">→ You start signed in as the owner, Maria Santos, with short lessons one tap away. If you sign out, her PIN is <b>1234</b>.</p>
   </div></details>
 
-  <details><summary>Do I have to encode my whole menu myself?</summary><div class="a">
-    <p>No. Send whatever you already have (a spreadsheet, a Word file, even a photo of your menu board) to <a href="mailto:atlasco.web@gmail.com">atlasco.web@gmail.com</a> and we encode your items, prices, ingredients and starting stock for you, free. You can also import a CSV yourself from Settings → Data, or load the sample menu to explore first.</p>
+  <details><summary>Do I have to type in my whole menu myself?</summary><div class="a">
+    <p>No. Send us what you already have, like a spreadsheet, a Word file or even a photo of your menu board, to <a href="mailto:atlasco.web@gmail.com">atlasco.web@gmail.com</a>. We will add your items, prices, ingredients and starting stock for you, for free. You can also import a spreadsheet (CSV) yourself in Settings → Data, or load the sample menu to look around first.</p>
   </div></details>
 
   <details><summary>Is there an iPhone app?</summary><div class="a">
-    <p>Not in the App Store yet. iPhone and iPad run the full app in Safari: open <a href="app/">the app</a>, tap Share, then <b>Add to Home Screen</b>, and you get an icon that opens full-screen like a normal app, register included.</p>
+    <p>Not in the App Store yet. iPhone and iPad can use the full app in Safari: open <a href="app/">the app</a>, tap Share, then <b>Add to Home Screen</b>. You get an icon that opens full screen like a normal app, register included.</p>
   </div></details>
 
   <details><summary>Does it work without internet?</summary><div class="a">
-    <p>The Android app does, fully: selling, receipts, even signing in keep working through a brownout, and it syncs itself when the signal returns. In a browser the page needs to load once with a connection; after that it rides out short drops. For a shop with weak signal, the Android app is the safer choice.</p>
+    <p>The Android app does. Selling, receipts and even signing in keep working during a brownout, and everything is saved online when the internet comes back. The browser version needs internet to open the first time, then it can handle short drops. If your signal is often weak, use the Android app.</p>
   </div></details>
 
   <h2 class="sec">Selling</h2>
 
   <details><summary>Can one drink have sizes and add-ons with different prices?</summary><div class="a">
-    <p>Yes, and different <b>recipes</b>. A Large charges more <i>and</i> deducts a Large's milk; an extra shot charges ₱25 <i>and</i> takes 8 g of beans off the shelf. That's why the food-cost report can be trusted: the register and the stockroom are the same machine.</p>
-    <p class="demo-link">→ See it live: <a href="demo/?lesson=sell">Ring up a sale</a> in the demo.</p>
+    <p>Yes, and each one can use different ingredients too. A Large costs more <i>and</i> uses more milk. An extra shot adds ₱25 <i>and</i> uses 8 g more coffee. Because of this, your stock and your food cost reports are always correct.</p>
+    <p class="demo-link">→ Try it: <a href="demo/?lesson=sell">Make a sale</a> in the demo.</p>
   </div></details>
 
-  <details><summary>How do discounts work? Senior / PWD?</summary><div class="a">
-    <p>Tap Discount on the cart: percent or amount, with a reason that goes on the record. You decide by role who is allowed to give one: a cashier can be limited or blocked, and every discount shows in the Activity Log and the sales reports with a name attached.</p>
+  <details><summary>How do discounts work? What about senior and PWD?</summary><div class="a">
+    <p>Tap Discount on the order and choose a percent or an amount, with a reason. Senior and PWD discounts take 20% off and save the customer's ID number with the sale. You decide which staff can give discounts. Every discount shows in the activity log and the sales reports, with the staff member's name.</p>
   </div></details>
 
-  <details><summary>Can a customer pay half cash, half GCash?</summary><div class="a">
-    <p>Yes, split tender is built in. On the payment screen, tap two methods and give each its amount; GCash payments can carry a reference number so reconciling the wallet later is painless. There's also an e-wallet reconciliation tool under Money that compares your till records against your GCash statement.</p>
+  <details><summary>Can a customer pay half in cash and half by GCash?</summary><div class="a">
+    <p>Yes. On the payment screen, choose two payment types and enter the amount for each. You can type the GCash reference number too. Later, the app can compare your GCash history with what the till recorded, so you can find any missing money.</p>
   </div></details>
 
-  <details><summary>Can I record utang the way we do in our notebook?</summary><div class="a">
-    <p>Yes. Attach the customer to the order and choose <b>Utang</b> at payment, and the amount goes on their tab instead of the drawer. The Money screen lists everyone who owes and for how long; record payments as they pay (or tap Full balance), set a per-person credit limit, and copy a ready-made reminder message to send on Messenger.</p>
+  <details><summary>Can I record utang like in our notebook?</summary><div class="a">
+    <p>Yes. Add the customer to the order and choose <b>Utang</b> when paying. The amount goes on their tab instead of into the drawer. You can see everyone who owes you and for how long, record payments as they pay, and set a limit for each person. The app can also write a polite reminder you can send on Messenger.</p>
   </div></details>
 
-  <details><summary>Someone paid, then changed their mind. Refund or void?</summary><div class="a">
-    <p><b>Void</b> erases a mistake (double punch, wrong ticket), and the order stays on record as voided, with who and why. <b>Refund</b> gives money back on a real sale, whole or per line, and can restock the ingredients if the food never left. Both are permission-gated and both leave a paper trail; nothing is ever silently deleted.</p>
+  <details><summary>A customer paid, then changed their mind. Refund or cancel?</summary><div class="a">
+    <p><b>Void</b> (cancel) is for mistakes, like an order entered twice. The order stays in your records as cancelled, with who did it and why. <b>Refund</b> gives money back for a real sale, all of it or one item, and can put the ingredients back into stock if the food was never made. You choose who is allowed to do each one, and nothing is ever deleted quietly.</p>
   </div></details>
 
-  <details><summary>What about holding an order for customers who order in waves?</summary><div class="a">
-    <p>Tap Hold and the ticket parks under Held Tickets; recall it when they're ready to add or pay. Dine-in tables work the same way: a table's ticket stays open until it's settled.</p>
+  <details><summary>Can I hold an order for customers who order more later?</summary><div class="a">
+    <p>Yes. Tap Hold and the order is saved under Held Tickets. Open it again when they want to add more or pay. Dine-in tables work the same way: the table's order stays open until it is paid.</p>
   </div></details>
 
-  <h2 class="sec">Kitchen &amp; the board</h2>
+  <h2 class="sec">Kitchen</h2>
 
   <details><summary>How does the kitchen know what to cook?</summary><div class="a">
-    <p>Sending an order (or paying it) puts a ticket on the Kitchen screen instantly, so put a tablet by the pass and it rings on arrival. Every line shows size and add-ons exactly as typed. You can also pair a kitchen printer so a paper ticket prints at send.</p>
-    <p class="demo-link">→ See it live: <a href="demo/?lesson=kitchen">The kitchen screen</a>.</p>
+    <p>When the cashier sends or pays an order, it appears on the Kitchen screen right away. Put a tablet in the kitchen and it rings when a new order arrives. Each item shows its size and add-ons exactly as ordered. You can also connect a kitchen printer so a paper ticket prints too.</p>
+    <p class="demo-link">→ Try it: <a href="demo/?lesson=kitchen">The kitchen screen</a>.</p>
   </div></details>
 
-  <details><summary>What is the Now Serving board?</summary><div class="a">
-    <p>A customer-facing screen of order numbers: <i>preparing</i> on one side, <i>ready to claim</i> on the other. It feeds itself from the till and the kitchen; nobody types anything. Any spare screen or tablet facing the queue will do.</p>
+  <details><summary>What is the Now Serving screen?</summary><div class="a">
+    <p>A screen for your customers that shows order numbers: <i>preparing</i> on one side and <i>ready</i> on the other. It updates by itself from the till and the kitchen, so nobody has to type anything. Any spare screen or tablet facing the customers will work.</p>
   </div></details>
 
   <details><summary>Can customers order by scanning a QR code?</summary><div class="a">
-    <p>Yes, QR self-ordering is built in. Print the code on the table; customers browse the menu on their own phone and their order lands on your kitchen screen. You approve it before it cooks, so walk-away orders never cost you food.</p>
+    <p>Yes. Print the QR code on each table. Customers see your menu on their own phone and order, and the order goes to your kitchen screen. You approve it first, so you never cook for someone who already left.</p>
   </div></details>
 
   <h2 class="sec">Stock &amp; recipes</h2>
 
-  <details><summary>Does selling really deduct my ingredients automatically?</summary><div class="a">
-    <p>Yes, that's the heart of the app. Every menu item carries a recipe; paying an order deducts every line of it, including the size's own recipe, the add-ons, and takeout packaging when the order is to-go. No end-of-day encoding, no clipboard.</p>
+  <details><summary>Does selling really take ingredients out of my stock by itself?</summary><div class="a">
+    <p>Yes, that is the main idea of the app. Each menu item has a recipe. When an order is paid, every ingredient in it comes out of your stock, including the size, the add-ons, and takeout cups or boxes. No counting at the end of the day.</p>
   </div></details>
 
-  <details><summary>How do deliveries work? My supplier short-delivers sometimes.</summary><div class="a">
-    <p>Receiving opens a <b>count sheet</b> first: your crew types what actually came off the truck, line by line, against the delivery receipt. Stock, costs and the bill book what you <i>counted</i>, and the receiving report says both numbers wherever they disagree ("received 2 of 3 ordered"). COD paid from the drawer shows up in the shift count automatically, and the report prints for the delivery man to sign.</p>
-    <p class="demo-link">→ See it live: <a href="demo/?lesson=receive">Receive a delivery</a>.</p>
+  <details><summary>How do deliveries work? Sometimes my supplier sends less.</summary><div class="a">
+    <p>When a delivery arrives, your staff count what actually came, item by item. Your stock, costs and the bill follow what they <i>counted</i>, and the report shows where it is different from what you ordered, for example "received 2 of 3". If you paid the driver from the drawer, that shows in the shift count too. You can print the report for the driver to sign.</p>
+    <p class="demo-link">→ Try it: <a href="demo/?lesson=receive">Receive a delivery</a>.</p>
   </div></details>
 
-  <details><summary>What happens during a stock count: do we stop selling?</summary><div class="a">
-    <p>Your choice: you can <b>pause selling</b> while the crew counts so the shelf holds still, or let the sheet wait and stamp expected quantities at apply time. Counts can be typed in kitchen units (kilos and grams, liters and milliliters, packs). Ember refuses an impossible count: 644 kg of matcha gets questioned at the door, not discovered in the report. And a count applied after midnight books to the trading day that just ended, so shrinkage never leaks into tomorrow.</p>
+  <details><summary>Do we have to stop selling while we count stock?</summary><div class="a">
+    <p>It's your choice. You can <b>pause selling</b> while your staff count, or keep selling and let the app adjust. You can count in kilos and grams, liters and milliliters, or packs. The app also stops obvious mistakes, like 644 kg of matcha, before they are saved.</p>
   </div></details>
 
-  <details><summary>We make things in-house: sauces, cold brew, sisig mix. Can it cost those?</summary><div class="a">
-    <p>Yes. An in-house item has its own recipe: record a batch and the raw ingredients deduct, the finished stock adds, and the batch's true cost flows into every product that uses it. The food-cost report even names which batch drew the milk.</p>
-    <p class="demo-link">→ See it live: <a href="demo/?lesson=production">The prep station</a>.</p>
+  <details><summary>We make some things ourselves, like sauces or cold brew. Can it track those?</summary><div class="a">
+    <p>Yes. Give the item its own recipe. When you make a batch, the raw ingredients come out of stock and the finished item goes in. The real cost of the batch is then used for every menu item that uses it.</p>
+    <p class="demo-link">→ Try it: <a href="demo/?lesson=production">The prep station</a>.</p>
   </div></details>
 
   <details><summary>How do I know what to buy before we run out?</summary><div class="a">
-    <p>The Shopping List watches how fast each ingredient actually moves and answers "what do I need for the next N days?" with quantities, in packs, grouped by supplier. Tick what you want and it becomes draft purchase orders. Low-stock items also flag themselves on the dashboard and the sidebar the moment they cross the threshold you set.</p>
+    <p>The Shopping List looks at how fast each ingredient is used and tells you what to buy for the next few days, in packs, grouped by supplier. Tick what you want and it becomes a purchase order. Items that are running low also show a warning on your dashboard.</p>
   </div></details>
 
-  <details><summary>Where does wasted food go?</summary><div class="a">
-    <p>Waste &amp; Spoilage, recorded in the moment, either an ingredient (the milk turned) or a whole product (a wrong latte), which deducts exactly what its recipe would have used. The report totals it in pesos, the dashboard nags you with the week's number, and a printable slip can be signed by whoever witnessed it.</p>
+  <details><summary>How do I record food that was wasted?</summary><div class="a">
+    <p>Use Waste &amp; Spoilage when it happens, for an ingredient (the milk went bad) or a whole item (a wrong latte). It takes the right amounts out of stock. The report shows the total loss in pesos, and you can print a slip for the person who saw it to sign.</p>
   </div></details>
 
   <h2 class="sec">Money &amp; reports</h2>
 
-  <details><summary>Can it tell me if I'm actually making money?</summary><div class="a">
-    <p>That's the Profit &amp; Loss: revenue from the till, ingredient cost from recipes and the stock ledger, labor from the time clock, expenses from what you record, all the way down to net profit, with nothing hand-typed in between. Beside it: cash flow (money in and out per day), break-even, and food-cost per product so you know which items earn and which leak.</p>
-    <p class="demo-link">→ See it live: <a href="demo/?lesson=pnl">Profit &amp; Loss</a>, where the demo cafe runs a 29% net margin.</p>
+  <details><summary>Can it tell me if I am really making money?</summary><div class="a">
+    <p>Yes. The Profit &amp; Loss report takes your sales, subtracts the cost of ingredients, staff wages from the time clock, and the expenses you record, and shows your real profit. Nobody has to type anything in between. You can also see your cash flow, your break-even point, and which items earn the most.</p>
+    <p class="demo-link">→ Try it: <a href="demo/?lesson=pnl">See your profit</a> in the demo.</p>
   </div></details>
 
-  <details><summary>What are Receive / To vault / Deposited / Picked up on the cash screen?</summary><div class="a">
-    <p>The <b>cash custody chain</b>: where the money physically is after a drawer closes, so cash is never unaccounted for between the count and the bank. <b>Receive</b>: the manager confirms it's in their hands (press it the moment you take the cash). <b>To vault</b>: locked in the shop's safe. <b>Deposited</b>: it reached the bank, with a deposit-slip number. <b>Picked up</b>: the owner or an authorized person collected it, by name. Every step stamps the amount, the time and the person; the owner can verify each one later.</p>
+  <details><summary>What do Receive, To vault, Deposited and Picked up mean on the cash screen?</summary><div class="a">
+    <p>They show where your cash is after a drawer is closed, so no money goes missing on the way to the bank. <b>Receive</b>: the manager has the cash. <b>To vault</b>: it is locked in the shop's safe. <b>Deposited</b>: it is in the bank, with the deposit slip number. <b>Picked up</b>: the owner or someone you allowed took it. Each step saves the amount, the time and the person's name.</p>
   </div></details>
 
-  <details><summary>My accountant wants the numbers. What can I export?</summary><div class="a">
-    <p>Everything, as CSV: sales books, orders, expenses, payroll, inventory, recipes with costs. Export Reports gathers them in one place. Your data is yours: there's no lock-in, and you can take a full backup any time from Settings → Data.</p>
+  <details><summary>My accountant wants the numbers. What can I download?</summary><div class="a">
+    <p>Everything, as spreadsheets (CSV): sales books, orders, expenses, payroll, stock and recipes with costs. You'll find them all under Export Reports. Your data is yours, and you can download a full backup any time in Settings → Data.</p>
   </div></details>
 
-  <details id="bir"><summary>Is EmberPOS BIR-accredited?</summary><div class="a">
-    <p>EmberPOS is not a BIR-accredited cash register machine / POS provider. Receipts print your registered name, address and TIN in a standard layout, and every document carries the "not valid for claiming input taxes" line where the law requires it. Many small shops run Ember for operations alongside their BIR-registered receipt booklet. If you need formal accreditation, talk to your accountant about your shop's specific registration first.</p>
+  <details id="bir"><summary>Is Ember POS BIR-accredited?</summary><div class="a">
+    <p>No. Ember POS is not a BIR-accredited cash register or POS provider. Receipts show your registered business name, address and TIN, and include the "not valid for claiming input taxes" line where the law requires it. Many small shops use Ember POS to run the shop and keep using their BIR-registered receipt booklet. If you need accreditation, ask your accountant about your shop's registration first.</p>
   </div></details>
 
   <h2 class="sec">Staff</h2>
 
   <details><summary>Can my cashier see my profits?</summary><div class="a">
-    <p>Only if you let them. Access rights are per role: a cashier can be limited to the till and kitchen; reports, settings, voids, discounts, payroll are each their own switch. Everyone signs in as themselves, so every action in the shop has a name on it, and the Activity Log keeps the full trail.</p>
-    <p class="demo-link">→ See it live: <a href="demo/?lesson=staff">Staff &amp; access rights</a>.</p>
+    <p>Only if you allow it. You choose what each person can see and do: for example, a cashier can use only the till and the kitchen screen, while reports, settings, discounts, cancellations and payroll each have their own switch. Everyone signs in as themselves, so every action has a name on it.</p>
+    <p class="demo-link">→ Try it: <a href="demo/?lesson=staff">Staff and permissions</a>.</p>
   </div></details>
 
-  <details><summary>How do time-in / time-out and payroll work?</summary><div class="a">
-    <p>Staff punch the time clock (even from the login screen, without opening the register). Payroll computes a period from those punches: regular hours, overtime past 8 hours at 1.25×, each person's wage, less SSS / PhilHealth / Pag-IBIG amounts you set per employee, and saves the run as a permanent record, payslip-ready.</p>
+  <details><summary>How do time in, time out and payroll work?</summary><div class="a">
+    <p>Staff clock in and out on the app, even from the sign-in screen. Payroll uses those hours: regular hours, overtime after 8 hours at 1.25×, each person's rate, minus the SSS, PhilHealth and Pag-IBIG amounts you set for each employee. Each payroll is saved and ready to print as payslips.</p>
   </div></details>
 
-  <details><summary>Someone forgot to clock out. Now what?</summary><div class="a">
-    <p>Fix it in the web back office: <a href="office/">emberpos.net/office</a> → Staff → Hours worked. A shift that's still open says so. Press <b>Correct</b>, set the real finish time, save. Payroll uses the corrected hours. (In the app itself you can adjust break minutes; the full correction lives in the office.)</p>
+  <details><summary>Someone forgot to clock out. How do I fix it?</summary><div class="a">
+    <p>Open the <a href="office/">Back Office</a> at emberpos.net/office, then Staff → Hours worked. A shift that is still open says so. Press <b>Correct</b>, enter the real time they left, and save. Payroll will use the corrected hours.</p>
   </div></details>
 
-  <details><summary>Two cashiers share one till. Whose drawer is short?</summary><div class="a">
-    <p>Never both, and that's the point of shifts. Each drawer belongs to whoever opened it; a break hands the drawer over <i>with a count</i>, and the cover's cash is their own. A shortage belongs to exactly one person, on record, which protects the honest ones.</p>
+  <details><summary>Two cashiers use one till. Who is responsible if the drawer is short?</summary><div class="a">
+    <p>Only one of them. Each drawer belongs to the person who opened it. When someone takes a break, they hand over the drawer <i>with a count</i>, and the person covering them is responsible for their own cash. So a shortage always belongs to one person, which protects the honest ones.</p>
   </div></details>
 
-  <h2 class="sec">Bigger shops</h2>
+  <h2 class="sec">More than one branch</h2>
 
   <details><summary>I have two branches. Can I see both?</summary><div class="a">
-    <p>Yes, branches are built in. Each branch is its own shop (₱599/month each) with its own staff and stock; the owner switches between them in the app, and the web <a href="office/">Back Office</a> puts every branch on one page: combined sales, transfers between branches, and the same reports across all of them.</p>
+    <p>Yes. Each branch has its own staff, stock and subscription (₱599 a month each). You can switch between them in the app, and the <a href="office/">Back Office</a> shows all your branches on one page: total sales, stock transfers between branches, and the same reports for each.</p>
   </div></details>
 
-  <details><summary>Can I watch the shop from home?</summary><div class="a">
-    <p>Open the app or the Back Office from any browser and everything is live: current drawer, who's clocked in, today's sales, the kitchen queue. The shop does not need you in it to be watched.</p>
+  <details><summary>Can I check on the shop from home?</summary><div class="a">
+    <p>Yes. Open the app or the Back Office on any phone or computer and everything is up to date: the cash drawer, who is clocked in, today's sales and the kitchen orders.</p>
   </div></details>
 
-  <h2 class="sec">Practical bits</h2>
+  <h2 class="sec">Other questions</h2>
 
   <details><summary>Which printers work?</summary><div class="a">
-    <p>Ordinary ESC/POS thermal receipt printers, the ₱1,500-3,000 kind sold everywhere, over LAN/Wi-Fi, with a cash-drawer kick if the drawer is wired to the printer. Receipt printer and kitchen printer pair separately in Settings → Printers. One note: these printers only speak plain characters, so receipt text should stick to ordinary letters and numbers.</p>
+    <p>Normal thermal receipt printers, the common and inexpensive kind sold in most computer shops, connected by Bluetooth or over Wi-Fi. A cash drawer can open by itself if it is connected to the printer. You set up the receipt printer and the kitchen printer separately in Settings → Printers.</p>
   </div></details>
 
-  <details><summary>Is my data safe? What if my tablet dies?</summary><div class="a">
-    <p>Cloud shops sync continuously: sign in on any other device and the shop is there, whole. Data is isolated per shop and backed up for you. On top of that you can export a full backup any time, and account deletion (with everything in it) is yours on request: <a href="account-deletion.html">how that works</a>.</p>
+  <details><summary>Is my data safe? What if my tablet breaks?</summary><div class="a">
+    <p>Your shop is saved online all the time. Sign in on any other device and everything is there. Each shop's data is kept separate and backed up for you. You can also download a full backup any time, and you can ask us to delete your account and all its data: <a href="account-deletion.html">here is how</a>.</p>
   </div></details>
 
-  <details><summary>The app says an update is available. Do I have to?</summary><div class="a">
-    <p>Updates come through Google Play like any app and never touch your data. We nudge only when a version genuinely matters, usually because a shop asked for something and it shipped. Most updates come from exactly that: a message from a shop like yours.</p>
+  <details><summary>The app says there is an update. Do I have to install it?</summary><div class="a">
+    <p>Updates come through Google Play like any other app, and they never touch your data. We only remind you when an update really matters. Most updates come from requests sent by shops like yours.</p>
   </div></details>
 
-  <details><summary>I found a bug / I want a feature. Who do I talk to?</summary><div class="a">
-    <p>The <b>Write to us</b> box inside the app (Help &amp; Support) goes straight to the developer's phone. Most messages get a reply the same day, and shop requests routinely ship within the week. Or email <a href="mailto:atlasco.web@gmail.com">atlasco.web@gmail.com</a>.</p>
+  <details><summary>I found a problem, or I want a new feature. Who do I tell?</summary><div class="a">
+    <p>Use the <b>Write to us</b> box inside the app (Help &amp; Support). It comes straight to us, and most messages get a reply the same day. You can also email <a href="mailto:atlasco.web@gmail.com">atlasco.web@gmail.com</a>.</p>
   </div></details>
 
 </div>
