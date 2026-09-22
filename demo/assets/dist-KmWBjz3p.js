@@ -1,1 +1,0 @@
-import{S as e}from"./main-BSwwvVum.js";export{e as Capacitor};
