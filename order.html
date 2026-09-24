@@ -1485,7 +1485,14 @@ function whenSlots() {
   start = Math.ceil(start / 15) * 15;
   var close = null, cm = /^(\d{2}):(\d{2})$/.exec((STORE && STORE.close) || '');
   if (cm) close = Number(cm[1]) * 60 + Number(cm[2]);
-  var end = close !== null && close > start ? close : 24 * 60 - 15;
+  // A shop that closes after midnight (a 2am bar) closes TOMORROW.
+  if (close !== null && close < 6 * 60) close += 24 * 60;
+  // Past closing - or too close to it for the soonest promise - there is no
+  // time left to offer. This used to fall through to "until 11:45pm", so at
+  // 8:50 a shop closing at 9 offered pickups from 9:15 to 11:45 at night,
+  // and the server took them (24 Sep 2026 check).
+  if (close !== null && close < start) return [];
+  var end = close !== null ? close : 24 * 60 - 15;
   var out = [];
   for (var t = start; t <= end && out.length < 48; t += 15) {
     var m = t % (24 * 60);
