@@ -1,1 +1,0 @@
-import{S as e}from"./main-Bba5SmRi.js";export{e as Capacitor};
