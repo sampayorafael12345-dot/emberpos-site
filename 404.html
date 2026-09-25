@@ -36,11 +36,24 @@
   .ghost { background: rgba(255,255,255,.04); color: #f2f3f4; border: 1px solid rgba(255,255,255,.14); }
   .ghost:hover { background: rgba(255,255,255,.09); }
   a:focus-visible { outline: 2px solid #ff5c00; outline-offset: 3px; }
+  /* A shop's short link (emberpos.net/k8s) lands here first - see the script
+     at the bottom. While it is looked up, say that instead of "not found". */
+  .looking .box > :not(.opening) { display: none; }
+  .opening { display: none; color: #b3bac1; }
+  .looking .opening { display: block; }
 </style>
+<script>
+  // Decided before the page paints, so a shop link never flashes "not found".
+  (function () {
+    var slug = location.pathname.replace(/^\/+|\/+$/g, '');
+    if (/^[A-Za-z0-9-]{3,30}$/.test(slug)) document.documentElement.className = 'looking';
+  })();
+</script>
 </head>
 <body>
 <main class="box">
   <img src="/logo.png" alt="Ember POS" />
+  <p class="opening">Opening the shop&hellip;</p>
   <span class="code">Page not found</span>
   <h1>This page does not exist.</h1>
   <p>The link may have a typo, or the page was moved. You can go back to the home page or open the app.</p>
@@ -49,5 +62,27 @@
     <a class="ghost" href="/app/">Open the app</a>
   </div>
 </main>
+<script>
+  /* A SHOP'S SHORT LINK (1.5.0, migration 0216). emberpos.net/<name> is not a
+     file, so GitHub Pages serves this page. Ask which shop owns the name and
+     go to its ordering page; if nobody does, show "not found" after all. */
+  (function () {
+    if (document.documentElement.className !== 'looking') return;
+    var slug = location.pathname.replace(/^\/+|\/+$/g, '');
+    var URLB = 'https://qqmkgafyfxrcnwdkkyxc.supabase.co';
+    var ANON = 'sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX';
+    var done = function () { document.documentElement.className = ''; };
+    fetch(URLB + '/rest/v1/rpc/shop_link_token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON },
+      body: JSON.stringify({ p_slug: slug }),
+    }).then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (token) {
+        if (typeof token === 'string' && token) location.replace('/order.html?t=' + encodeURIComponent(token));
+        else done();
+      })
+      .catch(done);
+  })();
+</script>
 </body>
 </html>
