@@ -520,6 +520,10 @@ function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { re
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode */ } }
 
 let MENU = null, CART = [], CUR = '₱', TAXPCT = 0, Q = '';
+// 1.5.0: what goes with what (the till's upsell pairs, 0217), and which
+// triggers this visit has already offered - one suggestion per item, never a nag.
+let UPSELLS = {};
+const OFFERED = {};
 /* STOREFRONT (v1.1.94): non-null only when the link's kind is 'store'. Holds
    the shop's ordering rules straight from kiosk_menu - the server re-checks
    every one of them in kiosk_place_order, so this is display, not the fence. */
@@ -656,6 +660,7 @@ function render() {
   const shop = MENU.shop, link = MENU.link || {};
   const items = visibleItems();
   const mine = loadOrders();
+  const again = lastOrderAgain();
   const catName = (id) => (MENU.categories.find((c) => c.id === id) || {}).name || '';
 
   let body = '';
@@ -702,6 +707,8 @@ function render() {
       '</div>' +
       (chips ? '<div class="meta">' + chips + '</div>' : '') +
       (mine.length ? '<button class="mine" id="mine">Your orders (' + mine.length + ')</button>' : '') +
+      (again && !CART.length ? '<button class="mine" id="again">Order again: ' +
+        esc(again.map((l) => l.qty + '× ' + l.name).join(', ')) + '</button>' : '') +
     '</header>' +
     '<div class="stick">' +
       '<div class="search">' +
@@ -756,6 +763,10 @@ function render() {
   // The basket only exists when it has something in it.
   if (el('review')) el('review').onclick = openCart;
   if (el('mine')) el('mine').onclick = () => showOrders();
+  if (el('again')) el('again').onclick = () => {
+    again.forEach((l) => CART.push(l));
+    render(); toast('Your last order is in the basket. Change anything before you send.');
+  };
   el('rate').onclick = openRating;
   if (el('stamps')) el('stamps').onclick = openStamps;
 }
@@ -1019,6 +1030,8 @@ const DIET_LABELS = {
 const CSAT_FACES = [[1, ':-('], [2, ':-/'], [3, ':-|'], [4, ':-)'], [5, ':-D']];
 const CSAT_KEY = 'ember.qr.csat';
 let ASK_CSAT = false;
+// 1.5.0: the shop's review link, when "Ask for a review" is on (0217).
+let REVIEW_URL = '';
 function csatAnswered() {
   try {
     const at = Number(localStorage.getItem(CSAT_KEY) || 0);
@@ -1039,11 +1052,34 @@ function wireCsat() {
       const score = Number(b.getAttribute('data-csat')) || 0;
       try { localStorage.setItem(CSAT_KEY, String(Date.now())); } catch (e) { /* private window */ }
       const box = el('csat');
-      if (box) box.innerHTML = '<div class="done">Thank you for telling us.</div>';
-      try {
-        rpc('kiosk_csat', { p_token: TOKEN, p_score: score, p_comment: null })
-          .catch(() => { /* already said thank you */ });
-      } catch (e) { /* the thank-you stands either way */ }
+      const sendScore = (comment) => {
+        try {
+          rpc('kiosk_csat', { p_token: TOKEN, p_score: score, p_comment: comment || null })
+            .catch(() => { /* already said thank you */ });
+        } catch (e) { /* the thank-you stands either way */ }
+      };
+      // THE REVIEW BOOSTER (1.5.0). A low score waits for a word about what
+      // went wrong - it reaches the owner's "Was it good?" card, never the
+      // public - and is sent the moment they send, skip or leave. A happy
+      // one is thanked and, if the shop asks for reviews, pointed at them.
+      if (score <= 2) {
+        let sent = false;
+        const once = (c) => { if (!sent) { sent = true; sendScore(c); } };
+        if (box) box.innerHTML = '<div class="q">Sorry about that. What went wrong?</div>' +
+          '<textarea id="csatwhy" rows="3" maxlength="400" placeholder="Only the owner reads this" style="width:100%;margin-top:8px"></textarea>' +
+          '<div style="display:flex;gap:8px;margin-top:8px;justify-content:center">' +
+            '<button class="ghost" id="csatskip">Skip</button><button class="primary" id="csatsend">Send to the owner</button></div>';
+        const done = () => { if (box) box.innerHTML = '<div class="done">Thank you. The owner will see it.</div>'; };
+        el('csatsend').onclick = () => { once((el('csatwhy').value || '').trim()); done(); };
+        el('csatskip').onclick = () => { once(null); done(); };
+        document.addEventListener('visibilitychange', () => { if (document.hidden) once(null); }, { once: true });
+        return;
+      }
+      sendScore(null);
+      if (box) box.innerHTML = score >= 4 && REVIEW_URL
+        ? '<div class="done">Thank you! Would you tell others too?</div>' +
+          '<a class="primary" style="display:inline-block;margin-top:10px;text-decoration:none;padding:10px 16px" target="_blank" rel="noopener" href="' + esc(REVIEW_URL) + '">Leave us a Google review</a>'
+        : '<div class="done">Thank you for telling us.</div>';
     };
   });
 }
@@ -1301,12 +1337,65 @@ function openItem(id) {
       // The same upgrade the cashier is offered: this item has a meal version.
       const meal = it.meal_item_id ? MENU.items.find((x) => x.id === it.meal_item_id) : null;
       if (meal) offerMeal(it, meal);
-      else toast(qty + ' ' + it.name + ' added');
+      else if (!offerUpsell(it)) toast(qty + ' ' + it.name + ' added');
     };
   }
   // Keep the typed note when the sheet redraws after a size or option tap.
   function redraw() { const n = el('inote') ? el('inote').value : ''; draw(); if (n) el('inote').value = n; }
   draw();
+}
+
+/** "Add a cookie?" (1.5.0) - the pairing the owner set for the till, asked
+ *  once per item per visit, and only for something the customer can order
+ *  and has not already got. Opens the item itself, so sizes and add-ons are
+ *  chosen properly. True when it asked. */
+function offerUpsell(from) {
+  if (OFFERED[from.id]) return false;
+  const inCart = {};
+  CART.forEach((l) => { inCart[l.item_id] = 1; });
+  const sug = (UPSELLS[from.id] || [])
+    .map((id) => MENU.items.find((x) => x.id === id))
+    .find((x) => x && !soldOut(x) && !inCart[x.id]);
+  if (!sug) return false;
+  OFFERED[from.id] = 1;
+  openSheet('<h2>Add ' + esc(sug.name) + '?</h2>' +
+    '<p class="lede">It goes well with ' + esc(from.name) + '. ' + money(sug.price_cents) + '</p>' +
+    '<div style="display:flex;gap:10px;margin-top:20px">' +
+      '<button class="ghost" id="noup">No thanks</button>' +
+      '<button class="primary" id="yesup">Add it</button></div>');
+  el('noup').onclick = () => { closeSheet(); toast(from.name + ' added'); };
+  el('yesup').onclick = () => { closeSheet(); openItem(sug.id); };
+  return true;
+}
+
+/** "ORDER AGAIN" (1.5.0): the last order placed from THIS phone, one tap back
+ *  into the basket. Only what can be ordered exactly as before - an item still
+ *  on the menu, the same size if it had one, no meal choices to make again -
+ *  priced from today's menu (the shop re-prices every order anyway). Never on
+ *  a shared kiosk tablet: the last order there was somebody else's. */
+function lastOrderAgain() {
+  if (SHARED) return null;
+  const past = loadOrders().find((o) => (o.items || []).some((l) => l.item_id));
+  if (!past) return null;
+  const lines = [];
+  (past.items || []).forEach((l) => {
+    const it = l.item_id && MENU.items.find((x) => x.id === l.item_id);
+    if (!it || soldOut(it) || (l.options && l.options.length)) return;
+    const size = l.variant_id ? (it.sizes || []).find((z) => z.id === l.variant_id) : null;
+    if (l.variant_id && !size) return;
+    const ads = (l.addons || []).map((id) => MENU.addons.find((a) => a.id === id)).filter(Boolean);
+    if (ads.length !== (l.addons || []).length) return;
+    // One add-on entry per unit of that add-on on ONE item, as the add sheet
+    // stores them (see unit() there), so their prices simply add up.
+    const unitPrice = it.price_cents + (size ? size.delta : 0) + ads.reduce((t, a) => t + Math.max(0, a.price_cents || 0), 0);
+    lines.push({
+      item_id: it.id, name: it.name, qty: l.qty || 1, price: Math.round(unitPrice), taxExempt: !!it.tax_exempt,
+      variant_id: size ? size.id : null, variant_label: size ? size.label : null,
+      options: [], option_labels: [], addons: l.addons || [],
+      addon_labels: ads.map((a) => a.text), note: l.note || '',
+    });
+  });
+  return lines.length ? lines : null;
 }
 
 /** "Make it a meal?" - the same nudge the register gives the cashier. Swaps the
@@ -1669,6 +1758,9 @@ async function send() {
       items: CART.map((l) => ({
         name: l.name, qty: l.qty, price: l.price, variant_label: l.variant_label,
         option_labels: l.option_labels || [], addon_labels: l.addon_labels || [], note: l.note,
+        // 1.5.0: enough to order the same again in one tap ("Order again").
+        item_id: l.item_id, variant_id: l.variant_id || null,
+        addons: l.addons || [], options: l.options || [],
       })),
     });
     MINE[res.order_number] = 1;      // see SHARED: this one is really theirs
@@ -2240,12 +2332,23 @@ function fatal(title, msg) {
       return;
     }
     MENU = m;
+    // What goes with what (0217). A failure just means no suggestions.
+    try {
+      const pairs = await rpc('kiosk_upsells', { p_token: TOKEN });
+      if (Array.isArray(pairs)) pairs.forEach((p) => { (UPSELLS[p.t] = UPSELLS[p.t] || []).push(p.s); });
+    } catch (e) { UPSELLS = {}; }
     // Does this shop want to be asked about? One extra call, fired and
     // forgotten: a failure here simply means the question is not asked, which
     // is the same as the shop not having switched it on.
     try {
       ASK_CSAT = (await rpc('kiosk_asks_csat', { p_token: TOKEN })) === true;
     } catch (e) { ASK_CSAT = false; }
+    if (ASK_CSAT) {
+      try {
+        const u = await rpc('kiosk_review_url', { p_token: TOKEN });
+        REVIEW_URL = typeof u === 'string' && /^https:\/\//i.test(u) ? u : '';
+      } catch (e) { REVIEW_URL = ''; }
+    }
     CUR = (m.shop && m.shop.currency) || '₱';
     TAXPCT = Number((m.shop && m.shop.tax_percent) || 0);
     if (m.link && m.link.kind === 'store') {
