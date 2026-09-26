@@ -19,16 +19,6 @@
 <link rel="preload" as="font" type="font/woff2" href="fonts/space-grotesk-latin-wght-normal.woff2" crossorigin />
 <link rel="preload" as="image" href="logo.png" />
 <style>
-  /* GRAPHITE AND FLAME (23 Sep 2026).
-     The site now wears the app's own clothes: the till's graphite surfaces
-     (#121415 / #191c1e / #21252a), its flame for the one thing to press, its
-     money green, its gold prices, and its typefaces (Space Grotesk, JetBrains
-     Mono). The warm brown "coal" of the 2 Sep counter machine is gone; the
-     owner did not like it. Light sections are a cool paper, never cream.
-     Dark bookends (hero + how it works, and the closing demo + footer) hold a
-     light middle for the reading. Every number printed here is the sample
-     shop's own or plainly labelled as a model. */
-
   @font-face { font-family: 'Space Grotesk'; src: url('fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap;
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
   @font-face { font-family: 'Space Grotesk'; src: url('fonts/space-grotesk-latin-ext-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap;
@@ -41,130 +31,458 @@
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
   @font-face { font-family: 'JetBrains Mono'; src: url('fonts/jetbrains-mono-latin-ext-700-normal.woff2') format('woff2'); font-weight: 700; font-display: swap;
     unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+  /* THE KITCHEN RAIL (27 Sep 2026).
+     Chosen by the owner from five: "i like option 5 ... redo the entire ui and
+     ux". The loudest, clearest room in a food shop is the kitchen: tickets
+     clipped to a steel rail, order numbers you can read from the door, a
+     colour for how long each has waited. The whole page is built from that -
+     flame and black, poster lettering, tickets, stamps and a printed bill.
+     Flat colour only: no gradients, no glows. Every figure on the page is the
+     sample shop's own, or a plain example. */
+  @font-face { font-family: 'Poster'; src: url('fonts/big-shoulders-display-latin-wght.woff2') format('woff2-variations'); font-weight: 100 900; font-display: swap; }
 
   :root {
-    /* the till's graphite, step by step (src/index.css --s-1..--s-4) */
+    --flame: #ff5c00; --flame-hi: #ff7a33; --flame-ink: #b33c00; --flame-deep: #e85200;
+    --ink: #0b0c0d; --graph: #141618; --steel: #3a3f45; --paper: #fbfaf7; --on-flame: #1f0f04;
+    --tk-g: #0f7a55; --tk-o: #c2410c; --tk-r: #b91c1c;
+    --gold: #fbbf24; --money: #34d399; --money-ink: #047857; --warn: #f59e0b; --kitchen: #0f7a55;
+    /* the till's own surfaces, for the working till and the small screens */
     --night: #0b0c0d; --g1: #121415; --g2: #191c1e; --g3: #21252a; --g4: #2a2f35;
     --dl: rgba(255,255,255,.08); --dl2: rgba(255,255,255,.14);
     --d-ink: #f2f3f4; --d-ink2: #b3bac1; --d-ink3: #8b939c;
-    /* cool paper for the reading, never cream */
-    --paper: #f4f5f7; --card: #ffffff; --ll: #e2e5e9; --ll2: #cfd4da;
-    --ink: #0e1012; --ink2: #454c54; --ink3: #5f6770;
-    /* one flame for what can be pressed; darker when it has to be read on paper */
-    --flame: #ff5c00; --flame-hi: #ff7a33; --flame-deep: #e85200; --flame-ink: #b33c00; --on-flame: #0b0c0d;
-    --money: #34d399; --money-ink: #047857; --gold: #fbbf24; --warn: #f59e0b; --hot: #ef4444;
-    --kitchen: #0f7a55;
+    --ink2: #3d444c; --ink3: #5f6770; --ll: #e2e5e9; --ll2: #cfd4da; --card: #fff;
+    --on-flame-btn: #0b0c0d;
     --sans: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, 'Space Grotesk', sans-serif;
+    --poster: 'Poster', 'Space Grotesk', system-ui, sans-serif;
     --ease: cubic-bezier(0.16, 1, 0.3, 1);
-    --max: 1200px; --gut: clamp(16px, 4vw, 32px);
-    --r-lg: 24px; --r-md: 16px; --r-sm: 10px;
+    --max: 1240px; --gut: clamp(16px, 4vw, 32px);
+    --dots-k: radial-gradient(rgba(11,12,13,.14) 1.4px, transparent 1.7px) 0 0 / 22px 22px;
+    --dots-w: radial-gradient(rgba(255,255,255,.07) 1.4px, transparent 1.7px) 0 0 / 22px 22px;
+    --tear: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 16px 100%;
   }
 
   * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; scroll-padding-top: 84px; }
+  html { -webkit-text-size-adjust: 100%; scroll-padding-top: 80px; }
   @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
-  body {
-    margin: 0; background: var(--paper); color: var(--ink);
-    font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-  }
+  body { margin: 0; background: var(--ink); color: #fff; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; overflow-x: hidden; }
   body.no-scroll { overflow: hidden; }
   img, svg { display: block; max-width: 100%; }
   a { color: inherit; }
   button { font: inherit; color: inherit; }
-  h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -0.03em; text-wrap: balance; }
+  h1, h2, h3, h4 { margin: 0; }
   p { margin: 0; text-wrap: pretty; }
   .i { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
   .sr { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
   .wrap { width: 100%; max-width: calc(var(--max) + var(--gut) * 2); margin: 0 auto; padding: 0 var(--gut); }
-  :focus-visible { outline: 2px solid var(--flame); outline-offset: 3px; border-radius: 6px; }
-  .skip { position: absolute; left: 12px; top: -60px; z-index: 100; background: var(--flame); color: var(--on-flame); padding: 10px 16px; border-radius: 10px; font-weight: 600; text-decoration: none; transition: top .2s var(--ease); }
+  :focus-visible { outline: 3px solid var(--flame); outline-offset: 3px; border-radius: 6px; }
+  .on-flame :focus-visible { outline-color: var(--ink); }
+  .skip { position: absolute; left: 12px; top: -60px; z-index: 100; background: var(--flame); color: var(--ink); padding: 10px 16px; border-radius: 10px; font-weight: 700; text-decoration: none; }
   .skip:focus { top: 12px; }
 
-  /* ---------------- buttons ---------------- */
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-    min-height: 52px; padding: 0 22px; border-radius: 14px; border: 1px solid transparent;
-    font-weight: 600; font-size: 16.5px; letter-spacing: -0.01em; text-decoration: none; cursor: pointer;
-    transition: transform .18s var(--ease), background-color .18s var(--ease), border-color .18s var(--ease), box-shadow .18s var(--ease);
-    -webkit-tap-highlight-color: transparent; white-space: nowrap;
-  }
-  .btn:active { transform: scale(.97); }
+  /* ---------- type ---------- */
+  .poster { font-family: var(--poster); font-weight: 900; text-transform: uppercase; line-height: .86; letter-spacing: -0.005em; text-wrap: balance; }
+  .h2 { font-size: clamp(48px, 7.4vw, 112px); }
+  .box { display: inline-block; padding: 0 .08em; background: var(--ink); color: #fff; transform: rotate(-1.5deg); }
+  .box-f { display: inline-block; padding: 0 .08em; background: var(--flame); color: var(--ink); transform: rotate(-1.5deg); }
+  .lede { margin-top: 22px; max-width: 58ch; font-size: clamp(17px, 1.5vw, 20px); line-height: 1.55; }
+  .on-flame .lede { color: var(--on-flame); font-weight: 500; }
+  .on-ink .lede { color: var(--d-ink2); }
+  /* the order number over each section: this page's own tickets */
+  .order { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 22px; font: 700 13px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+  .order b { padding: 4px 9px; border-radius: 5px; background: var(--ink); color: var(--flame); }
+  .on-ink .order b { background: var(--flame); color: var(--ink); }
+  .on-ink .order { color: var(--d-ink2); }
+
+  /* ---------- sections ---------- */
+  section { position: relative; }
+  .on-flame { background: var(--dots-k), var(--flame); color: var(--ink); }
+  .on-ink { background: var(--ink); color: #fff; }
+  .on-graph { background: var(--dots-w), var(--graph); color: #fff; }
+  .on-paper { background: #fff; color: var(--ink); }
+  .pad { padding: 120px 0; }
+
+  /* ---------- buttons ---------- */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 0 26px; border-radius: 12px; border: 2.5px solid var(--ink); font-weight: 700; font-size: 17px; letter-spacing: -0.01em; text-decoration: none; cursor: pointer; white-space: nowrap;
+    transition: transform .14s var(--ease), background-color .15s, box-shadow .14s var(--ease); -webkit-tap-highlight-color: transparent; }
+  .btn:active { transform: translateY(2px); }
   .btn .i { width: 19px; height: 19px; }
-  .btn-flame { background: var(--flame); color: var(--on-flame); }
-  .btn-ghost-d { background: rgba(255,255,255,.04); color: var(--d-ink); border-color: var(--dl2); }
-  .btn-ghost-l { background: var(--card); color: var(--ink); border-color: var(--ll2); }
-  .btn-dark { background: var(--g1); color: var(--d-ink); }
+  .btn-ink { background: var(--ink); color: #fff; }
+  .btn-paper { background: #fff; color: var(--ink); }
+  .btn-flame { background: var(--flame); color: var(--ink); }
+  .on-ink .btn-flame, .on-graph .btn-flame { border-color: var(--flame); }
+  .on-ink .btn-paper, .on-graph .btn-paper { border-color: #fff; }
   @media (hover: hover) {
-    .btn-flame:hover { background: var(--flame-hi); }
-    .btn-ghost-d:hover { background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.26); }
-    .btn-ghost-l:hover { border-color: var(--ink3); }
-    .btn-dark:hover { background: var(--g3); }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--ink); }
+    .on-ink .btn:hover, .on-graph .btn:hover { box-shadow: 0 6px 0 var(--flame-deep); }
+    .on-ink .btn-flame:hover, .on-graph .btn-flame:hover { box-shadow: 0 6px 0 #fff; }
   }
   .play-g { width: 18px; height: 20px; fill: currentColor; stroke: none; }
-  .tlink { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; text-decoration: none; }
+  .tlink { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; }
   .tlink .i { width: 17px; height: 17px; transition: transform .2s var(--ease); }
   @media (hover: hover) { .tlink:hover .i { transform: translateX(3px); } }
 
-  /* ---------------- header ---------------- */
-  .site-header { position: fixed; inset: 0 0 auto 0; z-index: 50; color: var(--d-ink); transition: background-color .25s var(--ease), border-color .25s var(--ease), backdrop-filter .25s; border-bottom: 1px solid transparent; }
-  .site-header.scrolled, .site-header.menu-open { background: rgba(11,12,13,.78); -webkit-backdrop-filter: saturate(160%) blur(16px); backdrop-filter: saturate(160%) blur(16px); border-bottom-color: var(--dl); }
-  .nav { display: flex; align-items: center; gap: 8px; height: 68px; }
+  /* ---------- header: the pass ---------- */
+  .site-header { position: sticky; top: 0; z-index: 50; background: var(--ink); color: #fff; border-bottom: 3px solid var(--flame); }
+  .nav { display: flex; align-items: center; gap: 6px; height: 64px; }
   .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; margin-right: auto; }
-  /* Height only: the mark is trimmed to its own bounds. */
-  .nav-brand img {
-    height: 34px; width: auto; }
-  .nav-brand b { font-weight: 700; font-size: 19px; letter-spacing: -0.02em; }
+  .nav-brand img { height: 34px; width: auto; }
+  .nav-brand b { font: 900 26px/1 var(--poster); text-transform: uppercase; letter-spacing: .01em; }
   .nav-links { display: flex; align-items: center; gap: 2px; }
-  .nav-link { padding: 8px 12px; border-radius: 10px; font-size: 15px; font-weight: 500; color: var(--d-ink2); text-decoration: none; transition: color .15s, background-color .15s; }
-  @media (hover: hover) { .nav-link:hover { color: var(--d-ink); background: rgba(255,255,255,.06); } }
-  .nav-cta { margin-left: 10px; min-height: 42px; padding: 0 16px; font-size: 15px; border-radius: 12px; }
-  .menu-btn { display: none; width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--dl2); background: rgba(255,255,255,.04); align-items: center; justify-content: center; cursor: pointer; }
+  .nav-link { padding: 8px 12px; border-radius: 8px; font-size: 15px; font-weight: 600; color: var(--d-ink2); text-decoration: none; transition: color .15s, background-color .15s; }
+  @media (hover: hover) { .nav-link:hover { color: #fff; background: rgba(255,255,255,.08); } }
+  .nav-cta { margin-left: 10px; min-height: 42px; padding: 0 16px; font-size: 15px; border-color: var(--flame); }
+  .menu-btn { display: none; width: 44px; height: 44px; border-radius: 10px; border: 2px solid rgba(255,255,255,.25); background: transparent; align-items: center; justify-content: center; cursor: pointer; }
   .menu-btn .i-x { display: none; }
   .menu-open .menu-btn .i-x { display: block; } .menu-open .menu-btn .i-m { display: none; }
   @media (max-width: 960px) {
     .menu-btn { display: inline-flex; }
-    .nav-links { position: fixed; inset: 68px 0 auto 0; flex-direction: column; align-items: stretch; gap: 4px; padding: 12px var(--gut) 24px; background: rgba(11,12,13,.97); border-bottom: 1px solid var(--dl); transform: translateY(-8px); opacity: 0; visibility: hidden; transition: opacity .2s var(--ease), transform .2s var(--ease), visibility .2s; max-height: calc(100dvh - 68px); overflow: auto; }
+    .nav-links { position: fixed; inset: 67px 0 auto 0; flex-direction: column; align-items: stretch; gap: 4px; padding: 12px var(--gut) 24px; background: var(--ink); border-bottom: 3px solid var(--flame); transform: translateY(-8px); opacity: 0; visibility: hidden; transition: opacity .2s var(--ease), transform .2s var(--ease), visibility .2s; max-height: calc(100dvh - 67px); overflow: auto; }
     .menu-open .nav-links { opacity: 1; transform: none; visibility: visible; }
     .nav-link { font-size: 18px; padding: 14px 12px; }
     .nav-cta { margin: 10px 0 0; min-height: 52px; }
   }
 
-  /* ---------------- reveal ---------------- */
-  html.js .rv { opacity: 0; transform: translateY(22px); transition: opacity .8s var(--ease), transform .8s var(--ease); transition-delay: var(--d, 0ms); }
+  /* ---------- reveal ---------- */
+  html.js .rv { opacity: 0; transform: translateY(24px); transition: opacity .7s var(--ease), transform .7s var(--ease); transition-delay: var(--d, 0ms); }
+  html.js .rv.drop { transform: translateY(-26px) rotate(-4deg); transform-origin: 50% 0; }
   html.js .rv.in { opacity: 1; transform: none; }
 
-  /* ---------------- section scaffolding ---------------- */
-  section { position: relative; }
-  .h2 { font-size: clamp(32px, 4.4vw, 52px); line-height: 1.04; }
-  .lede { font-size: clamp(17px, 1.5vw, 19.5px); line-height: 1.6; color: var(--ink2); margin-top: 18px; max-width: 60ch; }
-  .dark .lede { color: var(--d-ink2); }
-  .sec-head { max-width: 760px; }
-  .sec-head.center { text-align: center; margin: 0 auto; }
-  .sec-head.center .lede { margin-left: auto; margin-right: auto; }
-  .dark { background: var(--night); color: var(--d-ink); }
+  /* ---------- a ticket ---------- */
+  .tix { position: relative; background: var(--paper); color: var(--ink); border-radius: 6px; box-shadow: 0 1px 0 rgba(0,0,0,.1), 0 22px 34px -22px rgba(0,0,0,.6); }
+  .tix-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 16px; border-radius: 6px 6px 0 0; background: var(--tk-g); color: #fff; font: 700 13px var(--mono); letter-spacing: .05em; text-transform: uppercase; }
+  .tix.o .tix-h { background: var(--tk-o); } .tix.r .tix-h { background: var(--tk-r); } .tix.k .tix-h { background: var(--ink); color: var(--flame); }
+  .tix-b { padding: 18px 20px 22px; }
+  .tix.torn { padding-bottom: 10px; -webkit-mask: var(--tear); mask: var(--tear); }
+  .clip::before { content: ""; position: absolute; left: 50%; top: -14px; width: 46px; height: 20px; margin-left: -23px; border-radius: 4px 4px 2px 2px; background: var(--steel); box-shadow: inset 0 -3px 0 rgba(0,0,0,.35); z-index: 2; }
+  .rail-bar { height: 14px; border-radius: 7px; background: var(--steel); box-shadow: inset 0 -4px 0 rgba(0,0,0,.35), inset 0 2px 0 rgba(255,255,255,.12); }
+  .stamp { display: grid; place-content: center; text-align: center; border: 5px solid currentColor; outline: 2px solid currentColor; outline-offset: -13px; border-radius: 50%; font: 900 28px/.92 var(--poster); text-transform: uppercase; }
+  .stamp small { display: block; margin-top: 6px; font: 700 11px var(--mono); letter-spacing: .08em; }
 
   /* ================= HERO ================= */
-  .hero { overflow: hidden; padding: 128px 0 0; isolation: isolate; }
-  .hero { background: var(--night); }
-  .hero-top { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 24px clamp(32px, 6vw, 96px); align-items: end; margin-top: 26px; }
-  .hero-facts { padding-left: 22px; border-left: 2px solid var(--flame); }
-  .hero-facts p { font-size: 15.5px; color: var(--d-ink2); line-height: 1.55; }
-  .hero-facts p b { color: var(--d-ink); font-weight: 600; }
-  .pill { display: inline-flex; align-items: center; gap: 10px; padding: 7px 14px 7px 8px; border-radius: 999px; border: 1px solid var(--dl2); background: rgba(255,255,255,.04); font-size: 14px; color: var(--d-ink2); }
-  .pill img { height: 20px; width: auto; }
-  .h1 { font-size: clamp(42px, 6.4vw, 84px); line-height: 1; letter-spacing: -0.045em; max-width: 13ch; }
-  .hero-lede { font-size: clamp(17.5px, 1.55vw, 20px); color: var(--d-ink2); max-width: 44ch; line-height: 1.55; }
-  .hero-lede b { color: var(--d-ink); font-weight: 600; }
-  .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
-  .hero-alt { margin-top: 16px; font-size: 15.5px; color: var(--d-ink2); }
-  .hero-alt a { color: var(--d-ink); }
-  .platforms { margin-top: 12px; color: var(--d-ink3); font-size: 15px; line-height: 1.55; }
-  .platforms span { display: inline-flex; align-items: center; gap: 7px; }
-  .platforms .i { width: 16px; height: 16px; color: var(--d-ink3); }
+  .hero { padding: 72px 0 0; overflow: hidden; }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 40px clamp(32px, 5vw, 72px); align-items: center; }
+  .hero h1 { font-size: clamp(64px, 10.6vw, 176px); margin-top: 6px; }
+  .hero .lede { max-width: 46ch; margin-top: 30px; }
+  .hero-ctas { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 32px; }
+  .hero-alt { margin-top: 18px; font-size: 15.5px; color: var(--on-flame); }
+  .announce { display: inline-flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 14px; font-weight: 600; text-decoration: none; margin-bottom: 26px; }
+  .announce .new { padding: 3px 10px; border-radius: 999px; background: var(--flame); color: var(--ink); font-weight: 700; font-size: 12.5px; }
+  .announce .i { width: 15px; height: 15px; transition: transform .2s var(--ease); }
+  @media (hover: hover) { .announce:hover .i { transform: translateX(3px); } }
+  /* the rail, with live tickets */
+  .hrail { position: relative; padding-top: 40px; }
+  .hrail-cap { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; font: 700 14px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+  .hrail-cap b { padding: 3px 8px; border-radius: 5px; background: var(--ink); color: var(--flame); }
+  .hrail-row { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 2px; min-height: 300px; align-items: start; }
+  .hrail-row .tix { transform-origin: 50% 0; animation: hang 6s ease-in-out infinite alternate; }
+  .hrail-row .tix:nth-child(2) { animation-delay: -2s; } .hrail-row .tix:nth-child(3) { animation-delay: -4s; }
+  @keyframes hang { from { transform: rotate(-1.2deg); } to { transform: rotate(1.2deg); } }
+  .hrail-row .tix.enter { animation: enter .7s var(--ease) both, hang 6s ease-in-out .7s infinite alternate; }
+  @keyframes enter { from { transform: translateY(-60px) rotate(-8deg); opacity: 0; } to { transform: rotate(0); opacity: 1; } }
+  .hrail-row .tix.leave { animation: leave .6s var(--ease) both; }
+  @keyframes leave { to { transform: translateY(40px) rotate(6deg); opacity: 0; } }
+  .hrail-row .tix .tix-h { padding: 10px 12px; font-size: 14px; }
+  .hrail-row .tix .tix-b { padding: 14px 13px 20px; }
+  .hk-where { font: 700 12px var(--mono); color: var(--ink3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+  .hk-lines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 16px; font-weight: 700; line-height: 1.22; }
+  .hk-lines b { font-family: var(--mono); margin-right: 5px; }
+  .hk-lines small { display: block; margin-top: 2px; font: 500 13px var(--sans); color: var(--ink3); }
+  .done-stamp { position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%) rotate(-14deg); padding: 4px 12px; border: 4px solid var(--tk-g); border-radius: 8px; color: var(--tk-g); font: 900 34px/1 var(--poster); letter-spacing: .04em; opacity: 0; }
+  .tix.bumped .done-stamp { animation: thud .35s var(--ease) forwards; }
+  @keyframes thud { from { opacity: 0; transform: translate(-50%, -50%) rotate(-14deg) scale(1.8); } to { opacity: 1; transform: translate(-50%, -50%) rotate(-14deg) scale(1); } }
+  .hero .stamp { position: absolute; right: -14px; bottom: -64px; z-index: 3; width: 168px; height: 168px; color: var(--ink); background: var(--flame); transform: rotate(-14deg); }
+  /* the stubs along the bottom of the hero */
+  .stubs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 88px; border-top: 3px dashed var(--ink); }
+  .stub { padding: 22px 20px 30px; border-left: 3px dashed var(--ink); }
+  .stub:first-child { border-left: 0; padding-left: 0; }
+  .stub b { display: block; font: 900 clamp(34px, 3.6vw, 52px)/.9 var(--poster); text-transform: uppercase; }
+  .stub span { display: block; margin-top: 8px; font-size: 15px; font-weight: 600; color: var(--on-flame); line-height: 1.35; }
 
+  /* ================= NOW SERVING ================= */
+  .serving { display: flex; align-items: stretch; background: var(--ink); border-top: 3px solid var(--ink); overflow: hidden; }
+  .serving-l { flex: none; display: flex; align-items: center; gap: 10px; padding: 0 22px; background: var(--flame); color: var(--ink); font: 900 26px/1 var(--poster); text-transform: uppercase; z-index: 1; }
+  .serving-l i { width: 12px; height: 12px; border-radius: 50%; background: var(--tk-g); animation: blink 1.4s steps(2, jump-none) infinite; }
+  @keyframes blink { 50% { opacity: .2; } }
+  .serving-m { flex: 1; overflow: hidden; padding: 16px 0; }
+  .serving-row { display: flex; gap: 40px; width: max-content; animation: slide 46s linear infinite; }
+  .serving:hover .serving-row { animation-play-state: paused; }
+  .serving-row span { display: inline-flex; align-items: center; gap: 12px; color: #fff; font: 900 30px/1 var(--poster); text-transform: uppercase; white-space: nowrap; }
+  .serving-row em { font: 700 15px var(--mono); font-style: normal; padding: 5px 8px; border-radius: 6px; background: rgba(52,211,153,.16); color: var(--money); }
+  @keyframes slide { to { transform: translateX(-50%); } }
+
+  /* ================= TRY IT: the working till ================= */
+  .try-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: 24px 60px; align-items: end; }
+  .try-head .h2 { color: #fff; }
+  .try-note { color: var(--d-ink2); font-size: 16px; }
+  .try-note b { color: #fff; }
+
+  /* ================= HOW IT WORKS: the four tickets ================= */
+  .how-top { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; }
+  .how-top > div:first-child { flex: 1 1 560px; max-width: 920px; }
+  .how-ctl { display: flex; align-items: center; gap: 10px; font: 700 14px var(--mono); }
+  .how-ctl button { width: 52px; height: 52px; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--ink); color: #fff; display: grid; place-items: center; cursor: pointer; transition: transform .14s var(--ease), background-color .15s; }
+  .how-ctl button:disabled { background: transparent; color: var(--ink); opacity: .4; cursor: default; }
+  .how-ctl button .i { width: 22px; height: 22px; }
+  .how-ctl .prev .i { transform: rotate(180deg); }
+  .how-rail { position: relative; margin-top: 54px; }
+  .how-rail { --edge: max(var(--gut), calc((100% - var(--max)) / 2)); }
+  .how-rail > .rail-bar { margin: 0 var(--edge); }
+  .how-row { display: grid; grid-auto-flow: column; grid-auto-columns: min(560px, 86vw); gap: 22px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 26px var(--edge) 40px; scroll-padding: 0 var(--edge); scrollbar-width: none; overscroll-behavior-x: contain; }
+  .how-row::-webkit-scrollbar { display: none; }
+  .how-row .tix { scroll-snap-align: start; display: flex; flex-direction: column; }
+  .how-row .tix-b { flex: 1; display: flex; flex-direction: column; }
+  .how-shot { border-radius: 8px; overflow: hidden; border: 2.5px solid var(--ink); background: var(--g1); }
+  .how-shot img { width: 100%; height: auto; }
+  .how-row h3 { margin-top: 20px; font: 900 clamp(34px, 3.4vw, 46px)/.9 var(--poster); text-transform: uppercase; }
+  .how-row p { margin-top: 12px; color: var(--ink2); font-size: 16.5px; }
+  .ticks { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .ticks li { display: flex; gap: 10px; font-size: 15.5px; line-height: 1.45; color: var(--ink2); }
+  .ticks li b { color: var(--ink); }
+  .ticks .i { width: 18px; height: 18px; margin-top: 3px; color: var(--tk-g); stroke-width: 3; }
+  .how-row .tlink { margin-top: auto; padding-top: 18px; color: var(--flame-ink); }
+
+  /* ================= FEATURES: tickets on the pass ================= */
+  .feat-head .h2 { color: var(--flame); }
+  .pass { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 22px; margin-top: 64px; }
+  .pass .tix { grid-column: span 4; display: flex; flex-direction: column; }
+  .pass .tix.w7 { grid-column: span 7; } .pass .tix.w5 { grid-column: span 5; } .pass .tix.w6 { grid-column: span 6; }
+  .pass .tix-b { flex: 1; display: flex; flex-direction: column; }
+  .pass h3 { font: 900 clamp(30px, 2.6vw, 38px)/.92 var(--poster); text-transform: uppercase; }
+  .pass p { margin-top: 10px; color: var(--ink2); font-size: 16px; line-height: 1.55; }
+  .pass .viz { margin-top: auto; padding-top: 22px; }
+  @media (hover: hover) { .pass .tix { transition: transform .3s var(--ease); } .pass .tix:hover { transform: translateY(-4px) rotate(-.4deg); } }
+
+  /* the small pictures inside the feature tickets */
+  .utang { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; align-items: end; }
+  .tabs-list { border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; background: #fff; }
+  .tab-row { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 11px 13px; border-top: 1px solid var(--ll); font-size: 14px; }
+  .tab-row:first-child { border-top: 0; }
+  .tab-row b { font-weight: 700; }
+  .tab-row .amt { font: 700 14px var(--mono); text-align: right; }
+  .tab-row small { color: var(--ink3); font-size: 12.5px; }
+  .tab-row .lim { grid-column: 1 / -1; height: 5px; border-radius: 3px; background: #eceef1; margin-top: 7px; overflow: hidden; }
+  .tab-row .lim i { display: block; height: 100%; width: var(--w); background: var(--money-ink); border-radius: 3px; }
+  .tab-row.near .lim i { background: var(--warn); }
+  .tab-row.near .amt { color: #b45309; }
+  .bubble { padding: 14px 16px; border-radius: 18px 18px 18px 6px; background: #0a7cff; color: #fff; font-size: 14px; line-height: 1.45; }
+  .bubble-cap { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 12.5px; color: var(--ink3); font-weight: 600; }
+  .bubble-cap .i { width: 14px; height: 14px; }
+  .net { border-radius: 12px; padding: 16px; background: var(--g2); color: var(--d-ink); }
+  .net-row { display: flex; align-items: center; gap: 12px; }
+  .net-ic { position: relative; width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center; background: var(--g3); flex: none; }
+  .net-ic .i { position: absolute; width: 22px; height: 22px; transition: opacity .4s; }
+  .net-ic .off { color: var(--warn); } .net-ic .on { color: var(--money); opacity: 0; }
+  .net-t { position: relative; flex: 1; min-height: 42px; }
+  .net-t div { position: absolute; inset: 0; transition: opacity .4s, transform .4s var(--ease); }
+  .net-t b { display: block; font-size: 15px; } .net-t small { font-size: 13px; color: var(--d-ink3); }
+  .net-t .b { opacity: 0; transform: translateY(6px); }
+  .q-dots { display: flex; gap: 6px; margin-top: 14px; }
+  .q-dots i { flex: 1; height: 30px; border-radius: 8px; background: var(--g3); border: 1px dashed var(--dl2); display: grid; place-items: center; font: 700 11px var(--mono); font-style: normal; color: var(--d-ink3); transition: background-color .4s, border-color .4s, color .4s; }
+  .net.live .net-ic .off { opacity: 0; } .net.live .net-ic .on { opacity: 1; }
+  .net.live .net-t .a { opacity: 0; transform: translateY(-6px); } .net.live .net-t .b { opacity: 1; transform: none; }
+  .net.live .q-dots i { background: rgba(52,211,153,.12); border: 1px solid rgba(52,211,153,.35); color: var(--money); }
+  .wallets { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+  .wl { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 10px; border: 2px solid var(--ink); background: #fff; font-size: 13px; }
+  .wl b { font-weight: 700; font-size: 14px; } .wl span { font: 700 13px var(--mono); color: var(--ink2); }
+  .wl.ok { background: #e3f7ee; }
+  .wl.ok em { font-style: normal; color: var(--money-ink); font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+  .wl.ok em .i { width: 13px; height: 13px; stroke-width: 3; }
+  .board { border-radius: 12px; background: #000; color: var(--d-ink); padding: 16px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+  .board h4 { margin: 0 0 8px; font: 900 18px var(--poster); text-transform: uppercase; letter-spacing: .04em; color: var(--d-ink3); }
+  .board .ready h4 { color: var(--money); }
+  .nums { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .nums span { font: 900 34px/1 var(--poster); padding: 12px 0; border-radius: 8px; background: var(--g3); text-align: center; }
+  .ready .nums span { background: rgba(52,211,153,.14); color: var(--money); }
+  .nums span.hop { animation: hop 4.8s var(--ease) infinite; }
+  @keyframes hop { 0%, 45% { opacity: 1; transform: none; } 55% { opacity: 0; transform: translateX(14px); } 60% { opacity: 0; transform: translateX(-14px); } 70%, 100% { opacity: 1; transform: none; } }
+  .log { border-radius: 10px; border: 2px solid var(--ink); overflow: hidden; background: #fff; }
+  .log div { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: baseline; padding: 10px 12px; border-top: 1px solid var(--ll); font-size: 13px; }
+  .log div:first-child { border-top: 0; }
+  .log .tm { font: 500 12px var(--mono); color: var(--ink3); }
+  .log .who b { font-weight: 700; } .log .who small { display: block; color: var(--ink3); font-size: 12px; }
+  .log .amt { font: 700 12.5px var(--mono); }
+  .clock-card { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 10px; border: 2px solid var(--ink); background: #fff; }
+  .ava { width: 40px; height: 40px; border-radius: 10px; background: var(--ink); color: var(--flame); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .clock-card b { font-weight: 700; } .clock-card small { display: block; color: var(--ink3); font-size: 12.5px; }
+  .clock-card .hrs { font: 700 20px var(--mono); letter-spacing: -0.02em; }
+  .week { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; align-items: end; height: 92px; margin-bottom: 12px; }
+  .week div { display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; font: 500 11px var(--mono); color: var(--ink3); }
+  .week i { width: 100%; max-width: 38px; height: var(--h); border-radius: 5px 5px 2px 2px; background: #e4e1d8; position: relative; overflow: hidden; }
+  .week i::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: var(--ot, 0%); background: var(--flame); }
+  .week-cap { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--ink3); margin-bottom: 12px; }
+  .week-cap b { color: var(--flame-ink); font-weight: 700; }
+  .deduct { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .deduct span { font-size: 12.5px; font-weight: 600; padding: 5px 10px; border-radius: 6px; border: 1.5px solid var(--ink); }
+  .live-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--money-ink); margin-right: 5px; animation: blink 2s infinite; vertical-align: 1px; }
+  .book { border-radius: 10px; border: 2px solid var(--ink); overflow: hidden; font-size: 12.5px; background: #fff; }
+  .book table { width: 100%; border-collapse: collapse; }
+  .book th, .book td { padding: 9px 10px; text-align: right; border-top: 1px solid var(--ll); white-space: nowrap; }
+  .book th { font: 700 10.5px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: #fff; background: var(--ink); border-top: 0; }
+  .book td { font-family: var(--mono); font-weight: 500; }
+  .book th:first-child, .book td:first-child { text-align: left; }
+  .book .sc td { background: #fff1e6; }
+  .book .sc td:first-child::after { content: "SC"; margin-left: 6px; font: 700 10px var(--mono); padding: 2px 5px; border-radius: 4px; background: var(--flame-ink); color: #fff; }
+  .book .pwd td:first-child::after { content: "PWD"; }
+  .book-cap { margin-top: 10px; font-size: 12.5px; color: var(--ink3); }
+  .book-cap a { color: var(--flame-ink); font-weight: 600; }
+
+  /* ================= THE FULL MENU ================= */
+  .menu-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 48px; align-items: end; }
+  .menu-head .h2 .box-f { color: var(--ink); }
+  .menu-notes { display: flex; flex-direction: column; gap: 10px; font-weight: 700; }
+  .menu-notes span { display: flex; align-items: center; gap: 8px; }
+  .menu-notes .i { color: var(--tk-g); stroke-width: 3; }
+  .board-menu { margin-top: 56px; padding: clamp(24px, 4vw, 52px); border: 3px solid var(--ink); border-radius: 18px; background: #fff; box-shadow: 10px 10px 0 var(--flame); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 48px; }
+  .cat summary { list-style: none; cursor: default; display: flex; align-items: baseline; justify-content: space-between; padding: 18px 0 12px; border-bottom: 3px solid var(--ink); }
+  .cat summary::-webkit-details-marker { display: none; }
+  .cat summary b { font: 900 34px/1 var(--poster); text-transform: uppercase; }
+  .cat summary span { font: 700 12px var(--mono); color: var(--ink3); }
+  .cat summary .pm { display: none; }
+  .cat ul { list-style: none; margin: 0 0 18px; padding: 0; }
+  .mi { display: flex; align-items: baseline; gap: 8px; padding: 9px 0; font-size: 15px; line-height: 1.35; }
+  .mi span { flex: 0 1 auto; }
+  .mi i { flex: 1 0 24px; border-bottom: 2px dotted #b9bdc2; transform: translateY(-4px); }
+  .mi b { flex: none; font: 700 11px var(--mono); letter-spacing: .06em; color: var(--tk-g); }
+  .menu-foot { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 28px; font-size: 15px; color: var(--ink2); }
+  .menu-foot a { color: var(--flame-ink); font-weight: 700; }
+
+  /* ================= DEVICES ================= */
+  .dev-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 64px; }
+  .dev { display: flex; flex-direction: column; overflow: hidden; }
+  .dev .tix-b { flex: 1; display: flex; flex-direction: column; }
+  .dev-vis { position: relative; height: 270px; background: var(--dots-w), var(--ink); overflow: hidden; display: flex; align-items: flex-end; justify-content: center; }
+  .mini-phone { width: 170px; margin-bottom: -120px; padding: 6px; border-radius: 30px; background: #2b3036; transition: transform .5s var(--ease); }
+  .mini-phone img { border-radius: 24px; width: 100%; height: auto; }
+  .mini-lap { width: 88%; margin-bottom: -22px; transition: transform .5s var(--ease); }
+  .mini-lap .lid { padding: 7px 7px 9px; border-radius: 14px 14px 0 0; background: #2b3036; }
+  .mini-lap .lid img { border-radius: 6px; width: 100%; height: auto; }
+  .mini-lap .base { height: 14px; margin: 0 -7%; border-radius: 0 0 14px 14px; background: #3a4047; }
+  @media (hover: hover) { .dev:hover .mini-phone { transform: translateY(-10px); } .dev:hover .mini-lap { transform: translateY(-8px); } }
+  .dev h3 { font: 900 34px/.92 var(--poster); text-transform: uppercase; }
+  .dev p { color: var(--ink2); margin-top: 10px; font-size: 16px; }
+  .dev .tlink { margin-top: auto; padding-top: 18px; color: var(--flame-ink); }
+  .how-ios { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .how-ios span { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 6px 10px; border-radius: 6px; border: 1.5px solid var(--ink); }
+  .how-ios .i { width: 14px; height: 14px; }
+
+  /* ================= SET-UP ================= */
+  .setup-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 96px); align-items: center; }
+  .setup .h2 { color: #fff; font-size: clamp(46px, 6vw, 92px); }
+  .ways { list-style: none; margin: 32px 0 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .ways li { display: grid; grid-template-columns: 46px 1fr; gap: 14px; align-items: start; padding: 16px 18px; border: 2px solid rgba(255,255,255,.14); border-radius: 12px; }
+  .ways li.star { border-color: var(--flame); background: rgba(255,92,0,.08); }
+  .ways .n { width: 46px; height: 46px; border-radius: 10px; display: grid; place-items: center; background: var(--flame); color: var(--ink); font: 900 26px var(--poster); }
+  .ways b { font-weight: 700; font-size: 17px; } .ways p { color: var(--d-ink2); font-size: 15.5px; margin-top: 3px; }
+  .setup-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; margin-top: 28px; }
+  .setup-cta small { color: var(--d-ink2); font-size: 14px; }
+  .transform { position: relative; display: grid; grid-template-columns: 1fr 60px 1fr; align-items: center; }
+  .menu-paper { background: var(--paper); color: #2b2f33; border-radius: 4px; padding: 22px 20px 30px; transform: rotate(-2.5deg); font-family: var(--mono); font-size: 13px; -webkit-mask: var(--tear); mask: var(--tear); }
+  .menu-paper h4 { margin: 0 0 12px; font: 900 26px var(--poster); text-transform: uppercase; text-align: center; border-bottom: 2px dashed #2b2f33; padding-bottom: 10px; color: var(--ink); }
+  .menu-paper div { display: flex; justify-content: space-between; gap: 10px; padding: 5px 4px; transition: color .3s, background-color .3s; border-radius: 4px; }
+  .menu-paper div.lit { color: #fff; background: var(--flame-ink); }
+  .arrow { display: grid; place-items: center; color: var(--flame); }
+  .arrow .i { width: 30px; height: 30px; stroke-width: 2.6; }
+  .made-tiles { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; padding: 12px; border-radius: 14px; background: var(--g1); border: 2px solid var(--flame); }
+  .made-tiles span { display: flex; flex-direction: column; justify-content: space-between; min-height: 66px; padding: 9px 10px; border-radius: 9px; background: var(--g2); border: 1px solid var(--dl); color: var(--d-ink); font-size: 12.5px; font-weight: 600; line-height: 1.2; position: relative; overflow: hidden; }
+  .made-tiles span::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--c, var(--flame)); }
+  .made-tiles em { font: 700 12px var(--mono); font-style: normal; color: var(--gold); }
+  html.js .made-tiles span { opacity: 0; transform: scale(.9); transition: opacity .4s var(--ease), transform .4s var(--ease); }
+  html.js .made-tiles span.pop { opacity: 1; transform: none; }
+
+  /* ================= THE BILL ================= */
+  .price-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 470px); gap: clamp(32px, 6vw, 96px); align-items: center; }
+  .price .h2 { color: #fff; }
+  .trust { list-style: none; margin: 36px 0 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+  .trust li { padding: 18px; border-radius: 12px; border: 2px solid rgba(255,255,255,.14); }
+  .trust li b { display: block; font: 900 26px/1 var(--poster); text-transform: uppercase; color: var(--flame); }
+  .trust li p { color: var(--d-ink2); font-size: 15px; margin-top: 8px; }
+  .bill { position: relative; padding: 34px 32px 44px; background: var(--paper); color: var(--ink); border-radius: 4px; transform: rotate(1.2deg); -webkit-mask: var(--tear); mask: var(--tear); font-family: var(--mono); }
+  .bill-top { text-align: center; padding-bottom: 14px; border-bottom: 2px dashed var(--ink); }
+  .bill-top b { display: block; font: 900 42px/1 var(--poster); text-transform: uppercase; letter-spacing: .02em; }
+  .bill-top span { font-size: 12px; letter-spacing: .08em; color: var(--ink3); }
+  .bill ul { list-style: none; margin: 16px 0; padding: 0; display: flex; flex-direction: column; gap: 9px; font-size: 13.5px; }
+  .bill li { display: flex; align-items: baseline; gap: 8px; }
+  .bill li span { flex: 0 1 auto; }
+  .bill li i { flex: 1 0 16px; border-bottom: 2px dotted #b9bdc2; transform: translateY(-4px); }
+  .bill li b { flex: none; font-size: 11.5px; color: var(--tk-g); letter-spacing: .06em; }
+  .bill-total { display: flex; justify-content: space-between; align-items: baseline; padding: 16px 0 6px; border-top: 2px dashed var(--ink); }
+  .bill-total span { font-size: 14px; font-weight: 700; letter-spacing: .08em; }
+  .bill-total b { font: 900 76px/.9 var(--poster); letter-spacing: -0.01em; }
+  .bill-per { text-align: right; font-size: 12.5px; color: var(--ink3); }
+  .bill-sub { margin-top: 14px; font: 500 14px/1.5 var(--sans); color: var(--ink2); }
+  .bill .btn { width: 100%; margin-top: 20px; font-family: var(--sans); }
+  .bill-fine { margin-top: 12px; text-align: center; font-size: 12px; color: var(--ink3); }
+  .bill-total { position: relative; }
+  .bill .stamp { position: absolute; left: 21%; top: -34px; width: 112px; height: 112px; font-size: 21px; color: var(--tk-g); transform: rotate(-16deg); background: var(--paper); }
+
+  /* ================= QUESTIONS ================= */
+  .faq-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(32px, 5vw, 72px); }
+  .faq-side .tlink { margin-top: 26px; }
+  .faq-side .mail { display: block; margin-top: 12px; color: var(--on-flame); font-weight: 600; }
+  .qa { display: flex; flex-direction: column; gap: 10px; }
+  .qa details { background: #fff; color: var(--ink); border: 2.5px solid var(--ink); border-radius: 12px; transition: box-shadow .2s var(--ease); }
+  .qa details[open] { box-shadow: 6px 6px 0 var(--ink); }
+  .qa summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px 20px; cursor: pointer; font-weight: 700; font-size: 17.5px; letter-spacing: -0.01em; }
+  .qa summary::-webkit-details-marker { display: none; }
+  .pm { position: relative; flex: none; width: 30px; height: 30px; border-radius: 8px; background: var(--ink); transition: background-color .2s; }
+  .pm::before, .pm::after { content: ""; position: absolute; left: 50%; top: 50%; width: 12px; height: 2.5px; margin: -1.25px 0 0 -6px; background: #fff; border-radius: 2px; transition: transform .3s var(--ease); }
+  .pm::after { transform: rotate(90deg); }
+  .qa details[open] .pm { background: var(--flame); }
+  .qa details[open] .pm::before, .qa details[open] .pm::after { background: var(--ink); }
+  .qa details[open] .pm::after { transform: rotate(0deg); }
+  .qa details p { padding: 0 20px 20px; color: var(--ink2); font-size: 16.5px; }
+  .qa details p a { color: var(--flame-ink); font-weight: 600; }
+
+  /* ================= ORDER UP ================= */
+  .final { padding: 120px 0 110px; text-align: center; }
+  .final .h2 { font-size: clamp(60px, 10vw, 168px); color: var(--flame); }
+  .final .h2 span { display: block; color: #fff; }
+  .final .lede { margin: 26px auto 0; }
+  .final-ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 34px; }
+  .final-note { margin-top: 18px; font-size: 14.5px; color: var(--d-ink3); }
+  .final-note b { color: var(--d-ink); }
+  .lessons-rail { margin: 72px auto 0; max-width: 1100px; }
+  .lessons { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 22px; text-align: left; }
+  .lesson { text-decoration: none; display: flex; flex-direction: column; }
+  .lesson .tix-b { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px 18px; }
+  .lesson b { font: 900 24px/.95 var(--poster); text-transform: uppercase; }
+  .lesson .i { width: 20px; height: 20px; color: var(--flame-ink); flex: none; }
+  .lesson:nth-child(3n+2) .tix-h { background: var(--tk-o); } .lesson:nth-child(3n) .tix-h { background: var(--tk-r); }
+  .lesson.all .tix-h { background: var(--flame); color: var(--ink); }
+  @media (hover: hover) { .lesson { transition: transform .25s var(--ease); } .lesson:hover { transform: translateY(-4px) rotate(-.6deg); } }
+  .lessons-cap { margin-top: 22px; font-size: 14px; color: var(--d-ink3); }
+  /* only the top row hangs from the rail */
+  .lessons .lesson:nth-child(n+5)::before { display: none; }
+  @media (max-width: 860px) { .lessons .lesson:nth-child(n+3)::before { display: none; } }
+  @media (max-width: 520px) { .lessons .lesson:nth-child(n+2)::before { display: none; } }
+
+  /* ================= FOOTER ================= */
+  footer { background: #060707; color: var(--d-ink2); padding: 0 0 48px; border-top: 3px solid var(--flame); }
+  .foot { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 32px; padding-top: 56px; }
+  .foot-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; }
+  .foot-brand img { height: 30px; width: auto; }
+  .foot-brand b { font: 900 28px/1 var(--poster); text-transform: uppercase; }
+  .foot p { margin-top: 14px; font-size: 14.5px; line-height: 1.6; max-width: 36ch; }
+  .foot p a { color: #fff; }
+  .foot h4 { margin: 0 0 14px; font: 900 20px var(--poster); text-transform: uppercase; color: var(--flame); letter-spacing: .03em; }
+  .foot nav { display: flex; flex-direction: column; gap: 10px; }
+  .foot nav a { font-size: 14.5px; color: var(--d-ink2); text-decoration: none; }
+  @media (hover: hover) { .foot nav a:hover { color: #fff; } }
+  .foot-base { display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center; margin-top: 48px; padding-top: 28px; border-top: 1px dashed rgba(255,255,255,.18); }
+  .bir-seal img { width: 190px; height: auto; border-radius: 8px; background: #fff; }
+  .bir-seal p, .ver { font-size: 13px; color: var(--d-ink3); line-height: 1.55; max-width: 72ch; }
+  .bir-seal p a { color: var(--d-ink2); }
+  .ver { margin-top: 8px; font-family: var(--mono); font-size: 12px; }
+
+  /* ================= the phone dock ================= */
+  .dock { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 40; display: none; gap: 8px; padding: 8px; border-radius: 16px; background: var(--ink); border: 2px solid var(--flame); transform: translateY(140%); transition: transform .4s var(--ease); }
+  .dock .btn { flex: 1; min-height: 48px; font-size: 15px; padding: 0 12px; }
+  .dock .btn-paper { border-color: #fff; }
+  .dock.show { transform: none; }
+
+  /* ---- the working till (kept from the page before) ---- */
   /* ---- the stage: a working model of the till ---- */
   .stage { position: relative; display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); grid-template-areas: "till kitchen" "till stock" "till owner"; gap: 14px; margin-top: 64px; }
   .fx-kitchen { grid-area: kitchen; } .fx-stock { grid-area: stock; } .fx-phone { grid-area: owner; }
@@ -270,322 +588,52 @@
 
   .stage-note { margin: 18px 0 0; font-size: 13.5px; color: var(--d-ink3); display: flex; gap: 8px; align-items: center; }
   .stage-note .i { width: 15px; height: 15px; }
-
-  /* ================= HOW ONE SALE MOVES (story) ================= */
-  .story { padding: 120px 0 140px; }
-  .story-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(32px, 5vw, 80px); margin-top: 64px; }
-  .story-vis { position: sticky; top: 108px; align-self: start; }
-  .rail { display: flex; gap: 6px; margin-bottom: 14px; }
-  .rail button { flex: 1; display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--dl); background: rgba(255,255,255,.02); color: var(--d-ink3); font-size: 13.5px; font-weight: 600; cursor: pointer; transition: color .2s, background-color .2s, border-color .2s; text-align: left; }
-  .rail button b { font: 500 11.5px var(--mono); opacity: .8; }
-  .rail button[aria-current="step"] { color: var(--d-ink); border-color: rgba(255,122,51,.5); background: rgba(255,92,0,.08); }
-  .rail button[aria-current="step"] b { color: var(--flame-hi); opacity: 1; }
-  .frame { position: relative; border-radius: 16px; padding: 8px; background: #23272b; box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 0 1px #000; }
-  .frame-in { position: relative; border-radius: 11px; overflow: hidden; aspect-ratio: 16 / 10; background: var(--g1); }
-  .frame-in img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top left; opacity: 0; transform: scale(1.015); transition: opacity .6s var(--ease), transform .9s var(--ease); }
-  .frame-in img.on { opacity: 1; transform: none; }
-  .frame-cap { margin-top: 12px; font-size: 13px; color: var(--d-ink3); }
-  .steps { display: flex; flex-direction: column; }
-  .step { min-height: 72vh; display: flex; flex-direction: column; justify-content: center; padding: 24px 0; opacity: .38; transition: opacity .5s var(--ease); }
-  .step.on { opacity: 1; }
-  .step-n { font: 500 13px var(--mono); color: var(--flame-hi); letter-spacing: .06em; }
-  .step h3 { font-size: clamp(28px, 3vw, 40px); line-height: 1.06; margin-top: 12px; }
-  .step p { color: var(--d-ink2); margin-top: 16px; font-size: 17.5px; }
-  .step ul { list-style: none; margin: 20px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-  .step li { display: flex; gap: 10px; color: var(--d-ink2); font-size: 16px; line-height: 1.5; }
-  .step li .i { width: 18px; height: 18px; margin-top: 3px; color: var(--money); stroke-width: 2.4; }
-  .step li b { color: var(--d-ink); font-weight: 600; }
-  .step .try { margin-top: 24px; color: var(--flame-hi); font-size: 15.5px; }
-  .step-img { display: none; margin-top: 22px; border-radius: 14px; padding: 6px; background: #23272b; }
-  .step-img img { border-radius: 9px; width: 100%; height: auto; }
-
-  /* the light sheet that slides over the dark */
-  .sheet { background: var(--paper); border-radius: 32px 32px 0 0; margin-top: -40px; position: relative; z-index: 2; }
-
-  /* ================= MADE FOR HERE (bento) ================= */
-  .made { padding: 112px 0 40px; }
-  .bento { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; margin-top: 56px; }
-  .card { position: relative; grid-column: span 4; display: flex; flex-direction: column; border-radius: 18px; background: var(--card); border: 1px solid var(--ll); padding: 28px; overflow: hidden; }
-  .card.w7 { grid-column: span 7; } .card.w5 { grid-column: span 5; } .card.w6 { grid-column: span 6; }
-  .card h3 { font-size: 23px; line-height: 1.15; letter-spacing: -0.025em; }
-  .card p { color: var(--ink2); margin-top: 10px; font-size: 16px; line-height: 1.55; }
-  .card .viz { margin-top: auto; padding-top: 24px; }
-  .card.dk { background: var(--g1); border-color: var(--g1); color: var(--d-ink); }
-  .card.dk p { color: var(--d-ink2); }
-
-  /* utang */
-  .utang { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; align-items: end; }
-  .tabs-list { border: 1px solid var(--ll); border-radius: 16px; overflow: hidden; background: #fbfbfc; }
-  .tab-row { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 12px 14px; border-top: 1px solid var(--ll); font-size: 14px; }
-  .tab-row:first-child { border-top: 0; }
-  .tab-row b { font-weight: 600; }
-  .tab-row .amt { font: 700 14px var(--mono); text-align: right; }
-  .tab-row small { color: var(--ink3); font-size: 12.5px; }
-  .tab-row .lim { grid-column: 1 / -1; height: 5px; border-radius: 3px; background: #eceef1; margin-top: 7px; overflow: hidden; }
-  .tab-row .lim i { display: block; height: 100%; width: var(--w); background: var(--money-ink); border-radius: 3px; }
-  .tab-row.near .lim i { background: var(--warn); }
-  .tab-row.near .amt { color: #b45309; }
-  .bubble { position: relative; padding: 14px 16px; border-radius: 18px 18px 18px 6px; background: #0a7cff; color: #fff; font-size: 14px; line-height: 1.45; }
-  .bubble-cap { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 12.5px; color: var(--ink3); font-weight: 500; }
-  .bubble-cap .i { width: 14px; height: 14px; }
-
-  /* brownout */
-  .net { border-radius: 16px; padding: 16px; background: var(--g2); border: 1px solid var(--dl); }
-  .net-row { display: flex; align-items: center; gap: 12px; }
-  .net-ic { position: relative; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--g3); flex: none; }
-  .net-ic .i { position: absolute; width: 22px; height: 22px; transition: opacity .4s; }
-  .net-ic .off { color: var(--warn); }
-  .net-ic .on { color: var(--money); opacity: 0; }
-  .net-t { position: relative; flex: 1; min-height: 42px; }
-  .net-t div { position: absolute; inset: 0; transition: opacity .4s, transform .4s var(--ease); }
-  .net-t b { display: block; font-size: 15px; }
-  .net-t small { font-size: 13px; color: var(--d-ink3); }
-  .net-t .b { opacity: 0; transform: translateY(6px); }
-  .q-dots { display: flex; gap: 6px; margin-top: 14px; }
-  .q-dots i { flex: 1; height: 30px; border-radius: 8px; background: var(--g3); border: 1px dashed var(--dl2); display: grid; place-items: center; font: 700 11px var(--mono); font-style: normal; color: var(--d-ink3); transition: background-color .4s, border-color .4s, color .4s; }
-  .net.live .net-ic .off { opacity: 0; } .net.live .net-ic .on { opacity: 1; }
-  .net.live .net-t .a { opacity: 0; transform: translateY(-6px); } .net.live .net-t .b { opacity: 1; transform: none; }
-  .net.live .q-dots i { background: rgba(52,211,153,.12); border: 1px solid rgba(52,211,153,.35); color: var(--money); }
-  .net.live .q-dots i:nth-child(2) { transition-delay: .15s; } .net.live .q-dots i:nth-child(3) { transition-delay: .3s; }
-
-  /* wallets */
-  .wallets { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
-  .wl { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--ll); background: #fbfbfc; font-size: 13px; }
-  .wl b { font-weight: 600; font-size: 14px; }
-  .wl span { font: 700 13px var(--mono); color: var(--ink2); }
-  .wl.ok { border-color: rgba(4,120,87,.35); background: #effaf5; }
-  .wl.ok em { font-style: normal; color: var(--money-ink); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
-  .wl.ok em .i { width: 13px; height: 13px; stroke-width: 3; }
-
-  /* now serving */
-  .board { border-radius: 14px; background: #000; border: 1px solid var(--dl2); color: var(--d-ink); padding: 16px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
-  .board h4 { margin: 0 0 8px; font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--d-ink3); }
-  .board .ready h4 { color: var(--money); }
-  .nums { display: flex; flex-wrap: wrap; gap: 6px; }
-  .nums { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .nums span { font: 700 26px/1 var(--mono); padding: 14px 0; border-radius: 10px; background: var(--g3); text-align: center; }
-  .ready .nums span { background: rgba(52,211,153,.14); color: var(--money); }
-  .nums span.hop { animation: hop 4.8s var(--ease) infinite; }
-  @keyframes hop { 0%, 45% { opacity: 1; transform: none; } 55% { opacity: 0; transform: translateX(14px); } 60% { opacity: 0; transform: translateX(-14px); } 70%, 100% { opacity: 1; transform: none; } }
-
-  /* activity log */
-  .log { border-radius: 16px; border: 1px solid var(--ll); overflow: hidden; background: #fbfbfc; }
-  .log div { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: baseline; padding: 10px 12px; border-top: 1px solid var(--ll); font-size: 13px; }
-  .log div:first-child { border-top: 0; }
-  .log .tm { font: 500 12px var(--mono); color: var(--ink3); }
-  .log .who b { font-weight: 600; }
-  .log .who small { display: block; color: var(--ink3); font-size: 12px; }
-  .log .amt { font: 700 12.5px var(--mono); }
-
-  /* payroll */
-  .clock-card { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 14px; border-radius: 16px; border: 1px solid var(--ll); background: #fbfbfc; }
-  .ava { width: 40px; height: 40px; border-radius: 12px; background: var(--g1); color: var(--d-ink); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
-  .clock-card b { font-weight: 600; }
-  .clock-card small { display: block; color: var(--ink3); font-size: 12.5px; }
-  .clock-card .hrs { font: 700 20px var(--mono); letter-spacing: -0.02em; }
-  .week { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; align-items: end; height: 92px; margin-bottom: 12px; padding: 0 2px; }
-  .week div { display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; font: 500 11px var(--mono); color: var(--ink3); }
-  .week i { width: 100%; max-width: 38px; height: var(--h); border-radius: 6px 6px 3px 3px; background: #dfe3e8; position: relative; overflow: hidden; }
-  .week i::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: var(--ot, 0%); background: var(--flame); opacity: .85; }
-  .week-cap { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--ink3); margin-bottom: 12px; }
-  .week-cap b { color: var(--flame-ink); font-weight: 600; }
-  .deduct { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-  .deduct span { font-size: 12.5px; font-weight: 500; padding: 6px 10px; border-radius: 8px; background: #eef0f3; color: var(--ink2); }
-  .live-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--money-ink); margin-right: 5px; animation: pulse 2s infinite; vertical-align: 1px; }
-  @keyframes pulse { 50% { opacity: .35; } }
-
-  /* senior + sales book */
-  .book { border-radius: 16px; border: 1px solid var(--ll); overflow: hidden; font-size: 12.5px; background: #fbfbfc; }
-  .book table { width: 100%; border-collapse: collapse; }
-  .book th, .book td { padding: 9px 10px; text-align: right; border-top: 1px solid var(--ll); white-space: nowrap; }
-  .book th { font: 600 10.5px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--ink3); background: #f1f3f5; border-top: 0; }
-  .book td { font-family: var(--mono); font-weight: 500; }
-  .book th:first-child, .book td:first-child { text-align: left; }
-  .book .sc td { background: #fff7ed; }
-  .book .sc td:first-child::after { content: "SC"; margin-left: 6px; font: 700 10px var(--mono); padding: 2px 5px; border-radius: 4px; background: var(--flame-ink); color: #fff; }
-  .book .pwd td:first-child::after { content: "PWD"; }
-  .book-cap { margin-top: 10px; font-size: 12.5px; color: var(--ink3); }
-
-  /* ================= EVERYTHING INCLUDED ================= */
-  .box { padding: 104px 0; }
-  .box-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(32px, 5vw, 72px); margin-top: 8px; }
-  .box-side { position: sticky; top: 110px; align-self: start; }
-  .box-side .note { margin-top: 26px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; color: var(--ink2); }
-  .box-side .note span { display: flex; align-items: center; gap: 8px; }
-  .box-side .note .i { width: 17px; height: 17px; color: var(--money-ink); stroke-width: 2.4; }
-  .tabbar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 6px; border-radius: 16px; background: #eceef1; }
-  .tabbar button { min-height: 42px; padding: 0 14px; border: 0; border-radius: 11px; background: transparent; color: var(--ink2); font-weight: 600; font-size: 14.5px; cursor: pointer; transition: background-color .2s, color .2s, box-shadow .2s; white-space: nowrap; }
-  .tabbar button[aria-selected="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(16,20,24,.08), 0 4px 12px -6px rgba(16,20,24,.18); }
-  @media (hover: hover) { .tabbar button:hover { color: var(--ink); } }
-  .panel { margin-top: 18px; }
-  .panel h3 { display: none; font-size: 20px; margin: 30px 0 4px; }
-  .feat { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 28px; }
-  .feat li { display: flex; gap: 12px; padding: 15px 0; border-bottom: 1px solid var(--ll); font-size: 16px; line-height: 1.45; }
-  .feat li .i { width: 19px; height: 19px; color: var(--flame-ink); stroke-width: 2.4; margin-top: 2px; }
-  html.js .panel[hidden] { display: none; }
-  html:not(.js) .tabbar { display: none; }
-  html:not(.js) .panel h3 { display: block; }
-  .panel.show { animation: fadeUp .45s var(--ease); }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } }
-  .box-foot { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 14.5px; color: var(--ink3); }
-  .box-foot a { color: var(--flame-ink); }
-
-  /* ================= DEVICES ================= */
-  .devices { padding: 40px 0 104px; }
-  .dev-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 52px; }
-  .dev { border-radius: 18px; background: var(--card); border: 1px solid var(--ll); overflow: hidden; display: flex; flex-direction: column; }
-  .dev-vis { position: relative; height: 290px; background: var(--g1); overflow: hidden; display: flex; align-items: flex-end; justify-content: center; }
-  .mini-phone { width: 178px; margin-bottom: -120px; padding: 6px; border-radius: 30px; background: #2b3036; box-shadow: inset 0 1px 0 rgba(255,255,255,.1); transition: transform .5s var(--ease); }
-  .mini-phone img { border-radius: 24px; width: 100%; height: auto; }
-  .mini-lap { width: 88%; margin-bottom: -22px; transition: transform .5s var(--ease); }
-  .mini-lap .lid { padding: 7px 7px 9px; border-radius: 14px 14px 0 0; background: #2b3036; box-shadow: inset 0 1px 0 rgba(255,255,255,.1); }
-  .mini-lap .lid img { border-radius: 6px; width: 100%; height: auto; }
-  .mini-lap .base { height: 14px; margin: 0 -7%; border-radius: 0 0 14px 14px; background: #3a4047; }
-  @media (hover: hover) { .dev:hover .mini-phone { transform: translateY(-10px); } .dev:hover .mini-lap { transform: translateY(-8px); } }
-  .dev-body { padding: 26px 26px 28px; display: flex; flex-direction: column; flex: 1; }
-  .dev-body h3 { font-size: 22px; letter-spacing: -0.02em; }
-  .dev-body p { color: var(--ink2); margin-top: 10px; font-size: 16px; }
-  .dev-body .tlink { margin-top: auto; padding-top: 18px; color: var(--flame-ink); }
-  .how-ios { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-  .how-ios span { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; padding: 6px 10px; border-radius: 8px; background: #eef0f3; color: var(--ink2); }
-  .how-ios .i { width: 14px; height: 14px; }
-
-  /* ================= SETUP ================= */
-  .setup { padding: 104px 0; background: var(--card); border-top: 1px solid var(--ll); border-bottom: 1px solid var(--ll); }
-  .setup-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 96px); align-items: center; }
-  .ways { list-style: none; margin: 30px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-  .ways li { padding: 16px 0; border-top: 1px solid var(--ll); }
-  .ways li:first-child { border-top: 0; }
-  .ways b { font-weight: 600; font-size: 17px; }
-  .ways p { color: var(--ink2); font-size: 15.5px; margin-top: 3px; }
-  .setup-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; margin-top: 28px; }
-  .setup-cta small { color: var(--ink3); font-size: 14px; }
-  .transform { position: relative; display: grid; grid-template-columns: 1fr 60px 1fr; align-items: center; }
-  .menu-paper { background: #ffffff; border: 1px solid var(--ll2); border-radius: 6px; padding: 22px 20px 26px; transform: rotate(-2deg); box-shadow: 0 2px 0 rgba(16,20,24,.06); font-family: var(--mono); font-size: 13px; color: #2b2f33; }
-  .menu-paper h4 { margin: 0 0 12px; font: 700 16px var(--sans); text-align: center; border-bottom: 1px dashed var(--ll2); padding-bottom: 10px; }
-  .menu-paper div { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; transition: color .3s, background-color .3s; border-radius: 4px; }
-  .menu-paper div.lit { color: var(--flame-ink); background: #fff1e8; }
-  .arrow { display: grid; place-items: center; color: var(--ink3); }
-  .arrow .i { width: 28px; height: 28px; }
-  .made-tiles { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; padding: 12px; border-radius: 16px; background: var(--g1); }
-  .made-tiles span { display: flex; flex-direction: column; justify-content: space-between; min-height: 66px; padding: 9px 10px; border-radius: 10px; background: var(--g2); border: 1px solid var(--dl); color: var(--d-ink); font-size: 12.5px; font-weight: 600; line-height: 1.2; position: relative; overflow: hidden; }
-  .made-tiles span::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--c, var(--flame)); }
-  .made-tiles em { font: 700 12px var(--mono); font-style: normal; color: var(--gold); }
-  html.js .made-tiles span { opacity: 0; transform: scale(.9); transition: opacity .4s var(--ease), transform .4s var(--ease); }
-  html.js .made-tiles span.pop { opacity: 1; transform: none; }
-
-  /* ================= PRICING ================= */
-  .price { padding: 112px 0 104px; }
-  .price-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 480px); gap: clamp(32px, 6vw, 96px); align-items: center; }
-  .trust { list-style: none; margin: 34px 0 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px 28px; }
-  .trust li b { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 16.5px; }
-  .trust li p { color: var(--ink2); font-size: 15px; margin-top: 6px; }
-  .plan { position: relative; border-radius: 20px; padding: 34px; background: var(--g1); color: var(--d-ink); border-top: 4px solid var(--flame); }
-  .plan-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-  .plan-top b { font-size: 18px; }
-  .plan-top span { font-size: 13px; font-weight: 600; padding: 6px 11px; border-radius: 999px; background: rgba(52,211,153,.12); color: var(--money); border: 1px solid rgba(52,211,153,.3); }
-  .amount { display: flex; align-items: baseline; gap: 8px; margin-top: 26px; }
-  .amount b { font: 700 clamp(56px, 6vw, 72px)/1 var(--sans); letter-spacing: -0.05em; }
-  .amount span { color: var(--d-ink2); font-size: 17px; }
-  .plan-sub { color: var(--d-ink2); margin-top: 8px; font-size: 15.5px; }
-  .plan ul { list-style: none; margin: 26px 0 0; padding: 22px 0 0; border-top: 1px solid var(--dl); display: flex; flex-direction: column; gap: 12px; }
-  .plan li { display: flex; gap: 10px; font-size: 15.5px; color: var(--d-ink2); }
-  .plan li .i { width: 18px; height: 18px; color: var(--money); stroke-width: 2.6; margin-top: 2px; }
-  .plan li b { color: var(--d-ink); font-weight: 600; }
-  .plan .btn { width: 100%; margin-top: 28px; }
-  .plan-fine { margin-top: 14px; font-size: 13.5px; color: var(--d-ink3); text-align: center; }
-
-  /* ================= FAQ ================= */
-  .faq { padding: 104px 0 140px; background: var(--card); border-top: 1px solid var(--ll); }
-  .faq-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(32px, 5vw, 72px); }
-  .faq-side .tlink { margin-top: 24px; color: var(--flame-ink); }
-  .faq-side .mail { display: block; margin-top: 12px; color: var(--ink2); font-size: 15px; }
-  .qa { border-top: 1px solid var(--ll); }
-  .qa details { border-bottom: 1px solid var(--ll); }
-  .qa summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 22px 0; cursor: pointer; font-weight: 600; font-size: 18px; letter-spacing: -0.015em; }
-  .qa summary::-webkit-details-marker { display: none; }
-  .qa summary .pm { position: relative; flex: none; width: 32px; height: 32px; border-radius: 10px; background: var(--paper); border: 1px solid var(--ll); transition: background-color .2s, transform .3s var(--ease); }
-  .qa summary .pm::before, .qa summary .pm::after { content: ""; position: absolute; left: 50%; top: 50%; width: 12px; height: 2px; margin: -1px 0 0 -6px; background: var(--ink); border-radius: 2px; transition: transform .3s var(--ease); }
-  .qa summary .pm::after { transform: rotate(90deg); }
-  .qa details[open] summary .pm { background: var(--ink); border-color: var(--ink); }
-  .qa details[open] summary .pm::before, .qa details[open] summary .pm::after { background: #fff; }
-  .qa details[open] summary .pm::after { transform: rotate(0deg); }
-  @media (hover: hover) { .qa summary:hover { color: var(--flame-ink); } }
-  .qa details p { padding: 0 52px 24px 0; color: var(--ink2); font-size: 16.5px; }
-  .qa details p a { color: var(--flame-ink); }
-
-  /* ================= FINAL: THE DEMO ================= */
-  .final { padding: 120px 0 96px; margin-top: -40px; border-radius: 32px 32px 0 0; z-index: 3; }
-  .final-in { text-align: center; }
-  .final .h2 { font-size: clamp(36px, 5vw, 64px); letter-spacing: -0.045em; max-width: 18ch; margin: 0 auto; }
-  .final .lede { margin: 20px auto 0; }
-  .final-ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 34px; }
-  .final-note { margin-top: 18px; font-size: 14.5px; color: var(--d-ink3); }
-  .final-note b { color: var(--d-ink2); font-weight: 600; }
-  .lessons { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 64px auto 0; max-width: 1000px; text-align: left; }
-  .lesson { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 16px; background: rgba(255,255,255,.03); border: 1px solid var(--dl); text-decoration: none; transition: background-color .2s, border-color .2s, transform .2s var(--ease); }
-  .lesson .n { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--g3); font: 700 13px var(--mono); color: var(--flame-hi); }
-  .lesson b { font-weight: 600; font-size: 15.5px; }
-  .lesson em { font-style: normal; font: 500 12px var(--mono); color: var(--d-ink3); }
-  @media (hover: hover) { .lesson:hover { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.22); } }
-  .lesson.all { grid-template-columns: 1fr auto; background: rgba(255,92,0,.1); border-color: rgba(255,122,51,.45); }
-  .lesson.all b { color: var(--d-ink); }
-  .lesson.all .i { width: 18px; height: 18px; color: var(--flame-hi); }
-  .lessons-cap { margin-top: 18px; font-size: 13.5px; color: var(--d-ink3); }
-
-  /* ================= FOOTER ================= */
-  footer { background: var(--night); color: var(--d-ink2); padding: 0 0 48px; position: relative; z-index: 3; }
-  .foot { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 32px; padding-top: 56px; border-top: 1px solid var(--dl); }
-  .foot-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--d-ink); }
-  .foot-brand img { height: 30px; width: auto; }
-  .foot-brand b { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
-  .foot p { margin-top: 14px; font-size: 14.5px; line-height: 1.6; max-width: 36ch; }
-  .foot p a { color: var(--d-ink); }
-  .foot h4 { margin: 0 0 14px; font-size: 13px; font-weight: 600; color: var(--d-ink); letter-spacing: .02em; }
-  .foot nav { display: flex; flex-direction: column; gap: 10px; }
-  .foot nav a { font-size: 14.5px; color: var(--d-ink2); text-decoration: none; }
-  @media (hover: hover) { .foot nav a:hover { color: var(--d-ink); } }
-  .foot-base { display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center; margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--dl); }
-  .bir-seal img { width: 190px; height: auto; border-radius: 8px; background: #fff; }
-  .bir-seal p, .ver { font-size: 13px; color: var(--d-ink3); line-height: 1.55; max-width: 72ch; }
-  .bir-seal p a { color: var(--d-ink2); }
-  .ver { margin-top: 8px; font-family: var(--mono); font-size: 12px; }
-
-  /* ================= the phone dock ================= */
-  .dock { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 40; display: none; gap: 8px; padding: 8px; border-radius: 18px; background: rgba(18,20,21,.9); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border: 1px solid var(--dl2); box-shadow: 0 20px 40px -12px rgba(0,0,0,.6); transform: translateY(140%); transition: transform .4s var(--ease); }
-  .dock .btn { flex: 1; min-height: 48px; font-size: 15px; padding: 0 12px; }
-  .dock.show { transform: none; }
+  /* the working till in its new room */
+  .try .stage { margin-top: 56px; }
+  .try .tablet { box-shadow: 0 0 0 3px #000, 12px 12px 0 var(--flame); }
+  .try .fx { background: var(--g2); border: 2px solid rgba(255,255,255,.12); }
+  .try .fx-h { margin: -1px -1px 0; padding: 9px 13px; border-radius: 13px 13px 0 0; background: var(--flame); color: var(--ink); font: 700 12px var(--mono); letter-spacing: .05em; text-transform: uppercase; }
+  .try .fx-h .i { color: var(--ink); }
+  .try .fx-h em { color: var(--ink); opacity: .75; }
+  .try .fx-h + * { margin-top: 10px; }
+  .stage-note { color: var(--d-ink2); }
+  .hint { background: var(--flame); color: var(--ink); }
+  .hint i { background: var(--ink); }
 
   /* ================= responsive ================= */
   @media (max-width: 1080px) {
-    .hero-top { grid-template-columns: minmax(0, 1fr); }
-    .hero-facts { max-width: 560px; }
-    .stage { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-areas: "till till till" "kitchen stock owner"; margin-top: 40px; }
+    .hero-grid, .try-head, .menu-head, .price-grid, .faq-grid { grid-template-columns: minmax(0, 1fr); }
+    .hrail { max-width: 640px; padding-top: 8px; }
+    .hero .stamp { right: 4px; bottom: -30px; width: 140px; height: 140px; font-size: 24px; }
+    .stage { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-areas: "till till till" "kitchen stock owner"; }
     .t-body { min-height: 360px; }
     .t-tiles { grid-auto-rows: minmax(92px, 1fr); }
-    .story-grid { grid-template-columns: minmax(0, 1fr); margin-top: 40px; }
-    .story-vis { display: none; }
-    .step { min-height: 0; opacity: 1; padding: 40px 0; border-top: 1px solid var(--dl); }
-    .step:first-child { border-top: 0; padding-top: 0; }
-    .step-img { display: block; }
-    .bento .card, .bento .card.w7, .bento .card.w5, .bento .card.w6 { grid-column: span 6; }
-    .bento .card.w7 { grid-column: 1 / -1; }
-    .box-grid, .faq-grid { grid-template-columns: minmax(0, 1fr); }
-    .box-side { position: static; }
-    .price-grid { grid-template-columns: minmax(0, 1fr); }
-    .plan { max-width: 560px; }
+    .pass .tix, .pass .tix.w7, .pass .tix.w5, .pass .tix.w6 { grid-column: span 6; }
+    .pass .tix.w7 { grid-column: 1 / -1; }
+    .board-menu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .bill { max-width: 520px; }
   }
   @media (max-width: 860px) {
-    .lessons { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .dev-grid { grid-template-columns: minmax(0, 1fr); max-width: 520px; }
     .setup-grid { grid-template-columns: minmax(0, 1fr); }
     .transform { max-width: 520px; }
+    .lessons { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .foot { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
     .foot > div:first-child { grid-column: 1 / -1; }
+    .stubs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .stub:nth-child(3) { border-left: 0; padding-left: 0; }
+    .stub:nth-child(n+3) { border-top: 3px dashed var(--ink); }
   }
   @media (max-width: 720px) {
     body { font-size: 16.5px; }
-    .hero { padding-top: 104px; }
+    .pad { padding: 84px 0; }
+    .hero { padding-top: 40px; }
+    .hero h1 { font-size: clamp(58px, 17vw, 96px); }
+    .hrail-row { min-height: 290px; }
+    .stubs { margin-top: 64px; }
+    .serving-l { font-size: 20px; padding: 0 14px; }
+    .serving-row span { font-size: 24px; }
+    /* the till on a phone */
     .t-body { grid-template-columns: minmax(0, 1fr); min-height: 0; }
     .t-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: minmax(76px, auto); gap: 6px; }
     .tile { min-height: 76px; padding: 9px 8px 8px; }
@@ -597,43 +645,42 @@
     .c-lines { max-height: 190px; }
     .c-empty { padding: 10px 6px; }
     .t-sub { display: none; }
-    .stage { grid-template-columns: minmax(0, 1fr); grid-template-areas: "till" "kitchen" "stock" "owner"; margin-top: 32px; }
-    .t-body { min-height: 0; }
+    .stage { grid-template-columns: minmax(0, 1fr); grid-template-areas: "till" "kitchen" "stock" "owner"; }
     .fx-kitchen .tickets .tk:nth-child(n+2) { display: none; }
     .hint { left: 50%; top: 94px; transform: translateX(-50%); }
     .hint.gone { transform: translate(-50%, 6px); }
-    .story { padding: 88px 0 104px; }
-    .bento { gap: 12px; margin-top: 40px; }
-    .bento .card, .bento .card.w7, .bento .card.w5, .bento .card.w6 { grid-column: 1 / -1; padding: 22px; }
+    .try .tablet { box-shadow: 0 0 0 3px #000, 6px 6px 0 var(--flame); }
+    .how-rail { margin-top: 36px; }
+    .pass { gap: 16px; margin-top: 44px; }
+    .pass .tix, .pass .tix.w7, .pass .tix.w5, .pass .tix.w6 { grid-column: 1 / -1; }
     .utang { grid-template-columns: minmax(0, 1fr); }
-    .feat { grid-template-columns: minmax(0, 1fr); }
-    .tabbar { display: flex; overflow-x: auto; scrollbar-width: none; }
-    .tabbar button { flex: none; }
-    .tabbar::-webkit-scrollbar { display: none; }
+    /* the menu board folds on a phone */
+    .board-menu { grid-template-columns: minmax(0, 1fr); gap: 0; box-shadow: 6px 6px 0 var(--flame); }
+    .cat summary { cursor: pointer; }
+    .cat summary .pm { display: block; }
+    .cat[open] summary .pm { background: var(--flame); }
+    .cat[open] summary .pm::before, .cat[open] summary .pm::after { background: var(--ink); }
+    .cat[open] summary .pm::after { transform: rotate(0deg); }
+    .cat summary span.count { display: none; }
     .trust { grid-template-columns: minmax(0, 1fr); }
-    .plan { padding: 26px; }
+    .bill { transform: none; padding: 28px 22px 40px; }
+    .bill .stamp { width: 92px; height: 92px; font-size: 17px; top: -26px; left: 26%; }
+    .bill-total b { font-size: 60px; }
     .transform { grid-template-columns: minmax(0, 1fr); gap: 10px; }
     .arrow { transform: rotate(90deg); }
-    .menu-paper { transform: rotate(-1.5deg); }
-    .qa summary { font-size: 17px; }
-    .qa details p { padding-right: 0; }
+    .final { padding: 88px 0 96px; }
+    .qa summary { font-size: 16.5px; padding: 16px; }
+    .qa details p { padding: 0 16px 18px; }
     .foot-base { grid-template-columns: minmax(0, 1fr); }
     .dock { display: flex; }
-    .sheet, .final { border-radius: 26px 26px 0 0; }
-    .made, .box, .price, .faq, .setup { padding-top: 80px; padding-bottom: 80px; }
-    .devices { padding-bottom: 80px; }
-    .faq { padding-bottom: 120px; }
-    .final { padding-top: 104px; }
     footer { padding-bottom: 104px; }
   }
   @media (max-width: 520px) {
-    .lessons { grid-template-columns: minmax(0, 1fr); }
-  }
-  @media (max-width: 520px) {
     .hero-ctas .btn { width: 100%; }
-  }
-  @media (max-width: 400px) {
-    .rail button span { display: none; }
+    .hrail-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hrail-row .tix:nth-child(3) { display: none; }
+    .lessons { grid-template-columns: minmax(0, 1fr); }
+    .how-ctl button { width: 46px; height: 46px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -641,8 +688,8 @@
   }
   @media print {
     html.js .rv { opacity: 1 !important; transform: none !important; }
-    .site-header, .dock, .stage { display: none !important; }
-    .dark, footer { background: #fff !important; color: #000 !important; }
+    .site-header, .dock, .stage, .hrail { display: none !important; }
+    body, section, footer { background: #fff !important; color: #000 !important; }
   }
 </style>
 <script type="application/ld+json">
@@ -755,7 +802,7 @@
       <b>Ember POS</b>
     </a>
     <nav class="nav-links" id="site-nav" aria-label="Main">
-      <a class="nav-link" href="#flow">How it works</a>
+      <a class="nav-link" href="#how">How it works</a>
       <a class="nav-link" href="#features">Features</a>
       <a class="nav-link" href="#pricing">Pricing</a>
       <a class="nav-link" href="demo/">Live demo</a>
@@ -771,25 +818,55 @@
 
 <main id="main">
 
-<!-- ================= HERO ================= -->
-<section class="hero dark" id="till" aria-labelledby="hero-h">
+<!-- ================= ORDER #001: THE HERO ================= -->
+<section class="hero on-flame" id="top-order" aria-labelledby="hero-h">
   <div class="wrap">
-    <h1 class="h1 rv" id="hero-h">Run your whole shop from one app</h1>
-    <div class="hero-top">
+    <div class="hero-grid">
       <div>
-        <p class="hero-lede rv" style="--d:120ms">For cafés, milk tea shops, carinderias and food stalls in the Philippines. Take orders, send them to the kitchen, track your stock, record utang, pay your staff, and see your <b>profit every day</b>.</p>
+        <a class="announce rv" href="#features"><span class="new">New</span><span>v1.5.1 is out: a tidier app</span><svg class="i"><use href="#i-arrow"/></svg></a>
+        <h1 class="poster rv" id="hero-h" style="--d:60ms">Run your whole shop from <span class="box">one app</span></h1>
+        <p class="lede rv" style="--d:120ms">For cafés, milk tea shops, carinderias and food stalls in the Philippines. Take orders, send them to the kitchen, track your stock, record utang, pay your staff, and see your <b>profit every day</b>.</p>
         <div class="hero-ctas rv" style="--d:180ms" id="hero-ctas">
-          <a class="btn btn-flame" href="https://play.google.com/store/apps/details?id=com.emberpos.app"><svg class="play-g" viewBox="0 0 24 26" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z"/></svg>Get it on Google Play</a>
-          <a class="btn btn-ghost-d" href="demo/">Try the live demo</a>
+          <a class="btn btn-ink" href="https://play.google.com/store/apps/details?id=com.emberpos.app"><svg class="play-g" viewBox="0 0 24 26" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z"/></svg>Get it on Google Play</a>
+          <a class="btn btn-paper" href="demo/">Try the live demo</a>
         </div>
         <p class="hero-alt rv" style="--d:220ms">No Android phone? <a class="tlink" href="app/">Use it in your web browser <svg class="i"><use href="#i-arrow"/></svg></a></p>
       </div>
-      <div class="hero-facts rv" style="--d:240ms">
-        <p><b>Free for 30 days. No card needed.</b> After that, ₱599 a month per branch with everything included, for as many staff and devices as you want.</p>
-        <p class="platforms">Works on Android, iPhone, iPad and any computer. The Android app keeps selling during a brownout.</p>
+
+      <!-- the kitchen rail: live tickets, as the kitchen screen shows them -->
+      <div class="hrail rv" style="--d:200ms" aria-hidden="true">
+        <div class="hrail-cap"><span><b>Kitchen</b> Ember Cafe</span><span id="hr-count">3 waiting</span></div>
+        <div class="rail-bar"></div>
+        <div class="hrail-row" id="hrail"></div>
+        <div class="stamp"><span>30 days<br>free</span><small>No card needed</small></div>
       </div>
     </div>
 
+    <div class="stubs rv" style="--d:100ms">
+      <div class="stub"><b>30 days</b><span>Free to try. No card needed.</span></div>
+      <div class="stub"><b>₱599</b><span>A month per branch, everything included.</span></div>
+      <div class="stub"><b>Unlimited</b><span>Staff and devices, at no extra cost.</span></div>
+      <div class="stub"><b>Brownout?</b><span>The Android app keeps selling.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- the Now Serving board, for the kinds of shop we serve -->
+<div class="serving" aria-label="Made for cafés, milk tea shops, carinderias, food stalls, bakeries, restaurants, kiosks, bars and food parks">
+  <div class="serving-l"><i></i>Now serving</div>
+  <div class="serving-m" aria-hidden="true"><div class="serving-row"><span><em>#21</em>Cafés</span><span><em>#22</em>Milk tea shops</span><span><em>#23</em>Carinderias</span><span><em>#24</em>Food stalls</span><span><em>#25</em>Bakeries</span><span><em>#26</em>Restaurants</span><span><em>#27</em>Kiosks</span><span><em>#28</em>Bars</span><span><em>#29</em>Food parks</span><span><em>#21</em>Cafés</span><span><em>#22</em>Milk tea shops</span><span><em>#23</em>Carinderias</span><span><em>#24</em>Food stalls</span><span><em>#25</em>Bakeries</span><span><em>#26</em>Restaurants</span><span><em>#27</em>Kiosks</span><span><em>#28</em>Bars</span><span><em>#29</em>Food parks</span></div></div>
+</div>
+
+<!-- ================= ORDER #002: TAKE AN ORDER ================= -->
+<section class="try on-graph pad" id="till" aria-labelledby="try-h">
+  <div class="wrap">
+    <div class="try-head">
+      <div>
+        <p class="order rv"><b>#002</b>Take an order</p>
+        <h2 class="poster h2 rv" id="try-h" style="--d:60ms">Try it. <span class="box-f">Right here.</span></h2>
+      </div>
+      <p class="try-note rv" style="--d:120ms">This is a practice till with our sample café's real menu and recipes. <b>Tap some items, then press Send + Pay</b>, and watch the kitchen, the stock and the owner's phone change by themselves. Nothing is saved.</p>
+    </div>
     <div class="stage rv" style="--d:140ms" id="stage">
       <div class="tablet">
         <div class="screen" role="group" aria-label="A practice till. Tap items, then press Send and Pay.">
@@ -859,315 +936,269 @@
     <p class="stage-note"><svg class="i"><use href="#i-info"/></svg>This is a practice till with our sample café's real menu and recipes. Tap some items, then press Send + Pay. Nothing is saved.</p>
   </div>
   <div class="sr" aria-live="polite" id="till-status"></div>
-
+  </div>
 </section>
 
-<!-- ================= HOW IT WORKS ================= -->
-<section class="story dark" id="flow" aria-labelledby="flow-h">
-    <div class="wrap">
-      <div class="sec-head">
-        <h2 class="h2 rv" id="flow-h" style="--d:60ms">When you take payment, four things happen by themselves</h2>
-        <p class="lede rv" style="--d:120ms">No more writing kitchen slips, counting stock by hand, or adding up sales at night. Ember POS does all of it the moment your cashier takes payment.</p>
-      </div>
-      <div class="story-grid">
-        <div class="story-vis" aria-hidden="true">
-          <div class="rail" id="rail">
-            <button type="button" data-go="0" aria-current="step" tabindex="-1"><b>01</b><span>Counter</span></button>
-            <button type="button" data-go="1" tabindex="-1"><b>02</b><span>Kitchen</span></button>
-            <button type="button" data-go="2" tabindex="-1"><b>03</b><span>Stock</span></button>
-            <button type="button" data-go="3" tabindex="-1"><b>04</b><span>Profit</span></button>
-          </div>
-          <div class="frame"><div class="frame-in" id="frame">
-            <img class="on" src="shots/app-pos.webp" width="1600" height="1000" alt="" loading="lazy" decoding="async" />
-            <img src="shots/app-kitchen.webp" width="1600" height="1000" alt="" loading="lazy" decoding="async" />
-            <img src="shots/app-stock.webp" width="1600" height="1000" alt="" loading="lazy" decoding="async" />
-            <img src="shots/app-overview.webp" width="1600" height="1000" alt="" loading="lazy" decoding="async" />
-          </div></div>
-          <p class="frame-cap">Real screens from the app, version v1.5.1, using our sample café.</p>
-        </div>
-        <div class="steps" id="steps">
-          <article class="step on" data-step="0">
-            <span class="step-n">01 · At the counter</span>
-            <h3>Take the order and the payment</h3>
-            <p>Every item has its own big button. Pick the size and any add-ons, then take the payment. That's it.</p>
-            <ul>
-              <li><svg class="i"><use href="#i-check"/></svg><span><b>Cash, GCash, Maya, QR Ph, GrabFood and foodpanda</b></span></li>
-              <li><svg class="i"><use href="#i-check"/></svg><span>Hold an order, split the bill, refund or cancel</span></li>
-              <li><svg class="i"><use href="#i-check"/></svg><span><b>Utang:</b> put the order on the customer's tab</span></li>
-            </ul>
-            <a class="tlink try" href="demo/?lesson=sell">Try it in the demo (2 min) <svg class="i"><use href="#i-arrow"/></svg></a>
-            <div class="step-img"><img src="shots/app-pos-900.webp" width="900" height="563" alt="The Ember POS register with three drinks in the order and a total of ₱395.00" loading="lazy" decoding="async" /></div>
-          </article>
-          <article class="step" data-step="1">
-            <span class="step-n">02 · In the kitchen</span>
-            <h3>The kitchen sees the order right away</h3>
-            <p>The order appears on the kitchen screen with the size and add-ons. Orders change colour when they wait too long, so the cook knows which one is late.</p>
-            <ul>
-              <li><svg class="i"><use href="#i-check"/></svg><span>The cook marks <b>one dish or the whole order</b> as done</span></li>
-              <li><svg class="i"><use href="#i-check"/></svg><span>A <b>Now Serving</b> screen tells customers their order is ready</span></li>
-              <li><svg class="i"><use href="#i-check"/></svg><span>Customers can order from their table with a QR code</span></li>
-            </ul>
-            <a class="tlink try" href="demo/?lesson=kitchen">Try it in the demo (1 min) <svg class="i"><use href="#i-arrow"/></svg></a>
-            <div class="step-img"><img src="shots/app-kitchen-900.webp" width="900" height="563" alt="The kitchen screen with three orders, coloured green, orange and red by how long they have waited" loading="lazy" decoding="async" /></div>
-          </article>
-          <article class="step" data-step="2">
-            <span class="step-n">03 · In the stockroom</span>
-            <h3>Your stock goes down by itself</h3>
-            <p>Tell the app once what goes into each item, like 18 g of coffee and 160 mL of milk. After that, every sale takes those amounts out of your stock.</p>
-            <ul>
-              <li><svg class="i"><use href="#i-check"/></svg><span>A warning <b>before</b> you run out</span></li>
-              <li><svg class="i"><use href="#i-check"/></svg><span>Record deliveries when they arrive</span></li>
-              <li><svg class="i"><use href="#i-check"/></svg><span>Record spoiled or wasted items</span></li>
-            </ul>
-            <a class="tlink try" href="demo/?lesson=stock">Try it in the demo (2 min) <svg class="i"><use href="#i-arrow"/></svg></a>
-            <div class="step-img"><img src="shots/app-stock-900.webp" width="900" height="563" alt="The stock screen showing each ingredient, how much is left, and which ones are running low" loading="lazy" decoding="async" /></div>
-          </article>
-          <article class="step" data-step="3">
-            <span class="step-n">04 · Your profit</span>
-            <h3>See your real profit every day</h3>
-            <p>Ember POS takes your sales, subtracts ingredients, staff wages and expenses, and shows you what you really earned today.</p>
-            <ul>
-              <li><svg class="i"><use href="#i-check"/></svg><span>See which items <b>earn you the most</b></span></li>
-              <li><svg class="i"><use href="#i-check"/></svg><span>Know how much you need to sell to break even</span></li>
-              <li><svg class="i"><use href="#i-check"/></svg><span>A sales report your bookkeeper can use</span></li>
-            </ul>
-            <a class="tlink try" href="demo/?lesson=pnl">Try it in the demo (2 min) <svg class="i"><use href="#i-arrow"/></svg></a>
-            <div class="step-img"><img src="shots/app-overview-900.webp" width="900" height="563" alt="The owner's overview: today's sales, orders, and profit after ingredients and wages" loading="lazy" decoding="async" /></div>
-          </article>
-        </div>
-      </div>
+<!-- ================= ORDER #003: HOW IT WORKS ================= -->
+<section class="how on-flame pad" id="how" aria-labelledby="how-h">
+  <div class="wrap how-top">
+    <div>
+      <p class="order rv"><b>#003</b>How it works</p>
+      <h2 class="poster h2 rv" id="how-h" style="--d:60ms">When you take payment, four things happen <span class="box">by themselves</span></h2>
+      <p class="lede rv" style="--d:120ms">No more writing kitchen slips, counting stock by hand, or adding up sales at night. Ember POS does all of it the moment your cashier takes payment.</p>
     </div>
-</section>
-
-<div class="sheet">
-
-<!-- ================= MADE FOR HERE ================= -->
-<section class="made" id="features" aria-labelledby="made-h">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2 class="h2 rv" id="made-h" style="--d:60ms">Made for how shops in the Philippines really work</h2>
-      <p class="lede rv" style="--d:120ms">Utang, GCash, brownouts, senior citizen discounts. Ember POS already handles all of them. Nothing to set up or buy.</p>
+    <div class="how-ctl rv" style="--d:160ms">
+      <button class="prev" type="button" id="how-prev" aria-label="Previous step" disabled><svg class="i"><use href="#i-arrow"/></svg></button>
+      <span id="how-at">1 / 4</span>
+      <button class="next" type="button" id="how-next" aria-label="Next step"><svg class="i"><use href="#i-arrow"/></svg></button>
     </div>
-
-    <div class="bento">
-      <article class="card w7 rv">
-        <h3>Utang, without the notebook</h3>
-        <p>Put an order on a customer's tab. See who owes you, how much, and since when. The app can even write a polite reminder for you to send on Messenger.</p>
-        <div class="viz utang">
-          <div class="tabs-list" aria-label="Example tabs">
-            <div class="tab-row"><div><b>Aling Rosa</b><small> · 3 days</small></div><span class="amt">₱340.00</span><span class="lim" style="--w:34%"><i></i></span></div>
-            <div class="tab-row near"><div><b>Kuya Bong</b><small> · 12 days · limit ₱1,500</small></div><span class="amt">₱1,120.00</span><span class="lim" style="--w:75%"><i></i></span></div>
-            <div class="tab-row"><div><b>Tita Baby</b><small> · today</small></div><span class="amt">₱215.00</span><span class="lim" style="--w:22%"><i></i></span></div>
-          </div>
-          <div>
-            <div class="bubble-cap"><svg class="i"><use href="#i-send"/></svg>A reminder the app writes for you</div>
-            <div class="bubble">Hi Kuya Bong! Friendly reminder lang po from Ember Cafe: your balance sa amin is ₱1,120.00. Pwede po bayaran anytime na convenient sa inyo. Thank you po!</div>
-          </div>
+  </div>
+  <div class="how-rail">
+    <div class="rail-bar"></div>
+    <div class="how-row" id="how-row">
+      <article class="tix clip rv drop">
+        <div class="tix-h"><span>01 · At the counter</span><span>0:00</span></div>
+        <div class="tix-b">
+          <div class="how-shot"><img src="shots/app-pos-900.webp" width="900" height="563" alt="The Ember POS register with three drinks in the order and a total of ₱395.00" loading="lazy" decoding="async" /></div>
+          <h3>Take the order and the payment</h3>
+          <p>Every item has its own big button. Pick the size and any add-ons, then take the payment. That's it.</p>
+          <ul class="ticks">
+            <li><svg class="i"><use href="#i-check"/></svg><span><b>Cash, GCash, Maya, QR Ph, GrabFood and foodpanda</b></span></li>
+            <li><svg class="i"><use href="#i-check"/></svg><span>Hold an order, split the bill, refund or cancel</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg><span><b>Utang:</b> put the order on the customer's tab</span></li>
+          </ul>
+          <a class="tlink" href="demo/?lesson=sell">Try it in the demo (2 min) <svg class="i"><use href="#i-arrow"/></svg></a>
         </div>
       </article>
-
-      <article class="card w5 dk rv" style="--d:80ms">
-        <h3>Keeps selling during a brownout</h3>
-        <p>No internet? The Android app keeps selling and printing receipts. It saves everything online when the internet comes back.</p>
-        <div class="viz">
-          <div class="net" id="net">
-            <div class="net-row">
-              <div class="net-ic"><svg class="i off"><use href="#i-wifioff"/></svg><svg class="i on"><use href="#i-wifi"/></svg></div>
-              <div class="net-t"><div class="a"><b>No internet</b><small>Still selling. 3 sales saved on this phone.</small></div><div class="b"><b>Back online</b><small>All 3 sales saved online.</small></div></div>
-            </div>
-            <div class="q-dots"><i>#31</i><i>#32</i><i>#33</i></div>
-          </div>
+      <article class="tix o clip rv drop" style="--d:80ms">
+        <div class="tix-h"><span>02 · In the kitchen</span><span>0:04</span></div>
+        <div class="tix-b">
+          <div class="how-shot"><img src="shots/app-kitchen-900.webp" width="900" height="563" alt="The kitchen screen with three orders, coloured green, orange and red by how long they have waited" loading="lazy" decoding="async" /></div>
+          <h3>The kitchen sees the order right away</h3>
+          <p>The order appears on the kitchen screen with the size and add-ons. Orders change colour when they wait too long, so the cook knows which one is late.</p>
+          <ul class="ticks">
+            <li><svg class="i"><use href="#i-check"/></svg><span>The cook marks <b>one dish or the whole order</b> as done</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg><span>A <b>Now Serving</b> screen tells customers their order is ready</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg><span>Customers can order from their table with a QR code</span></li>
+          </ul>
+          <a class="tlink" href="demo/?lesson=kitchen">Try it in the demo (1 min) <svg class="i"><use href="#i-arrow"/></svg></a>
         </div>
       </article>
-
-      <article class="card rv">
-        <h3>Cash, GCash and Maya, kept apart</h3>
-        <p>Each payment type has its own total. At closing, compare it with your GCash or Maya history to spot missing money.</p>
-        <div class="viz wallets">
-          <div class="wl"><b>Cash</b><span>₱4,215.00</span></div>
-          <div class="wl ok"><b>GCash</b><span>₱2,960.00</span><em><svg class="i"><use href="#i-check"/></svg>matches GCash</em></div>
-          <div class="wl"><b>Maya</b><span>₱1,040.00</span></div>
-          <div class="wl"><b>QR Ph</b><span>₱416.00</span></div>
+      <article class="tix r clip rv drop" style="--d:160ms">
+        <div class="tix-h"><span>03 · In the stockroom</span><span>0:05</span></div>
+        <div class="tix-b">
+          <div class="how-shot"><img src="shots/app-stock-900.webp" width="900" height="563" alt="The stock screen showing each ingredient, how much is left, and which ones are running low" loading="lazy" decoding="async" /></div>
+          <h3>Your stock goes down by itself</h3>
+          <p>Tell the app once what goes into each item, like 18 g of coffee and 160 mL of milk. After that, every sale takes those amounts out of your stock.</p>
+          <ul class="ticks">
+            <li><svg class="i"><use href="#i-check"/></svg><span>A warning <b>before</b> you run out</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg><span>Record deliveries when they arrive</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg><span>Record spoiled or wasted items</span></li>
+          </ul>
+          <a class="tlink" href="demo/?lesson=stock">Try it in the demo (2 min) <svg class="i"><use href="#i-arrow"/></svg></a>
         </div>
       </article>
-
-      <article class="card dk rv" style="--d:80ms">
-        <h3>A Now Serving screen for customers</h3>
-        <p>Customers can see when their order is ready. It updates by itself when the kitchen finishes an order.</p>
-        <div class="viz board" aria-label="Now Serving screen example">
-          <div><h4>Preparing</h4><div class="nums"><span>24</span><span class="hop">25</span><span>26</span><span>27</span></div></div>
-          <div class="ready"><h4>Ready</h4><div class="nums"><span>20</span><span>21</span><span>22</span><span class="hop">23</span></div></div>
-        </div>
-      </article>
-
-      <article class="card rv" style="--d:160ms">
-        <h3>See who did what</h3>
-        <p>Every discount, cancelled order, refund and cash drawer opening is saved with the staff member's name. You choose what each person may do.</p>
-        <div class="viz log">
-          <div><span class="tm">2:11</span><span class="who"><b>Maria</b><small>Senior 20% · ID saved</small></span><span class="amt">₱27.00</span></div>
-          <div><span class="tm">1:49</span><span class="who"><b>Maria</b><small>Cancelled · wrong table</small></span><span class="amt">₱149.00</span></div>
-          <div><span class="tm">1:32</span><span class="who"><b>Ana</b><small>Opened drawer · no sale</small></span><span class="amt">—</span></div>
-        </div>
-      </article>
-
-      <article class="card w6 rv">
-        <h3>Payroll from the time clock</h3>
-        <p>Staff clock in and out on the app. Payroll uses those hours, pays overtime, and takes off the SSS, PhilHealth and Pag-IBIG amounts you set.</p>
-        <div class="viz">
-          <div class="week-cap"><span>Ana's hours this week</span><b>Overtime at 1.25×</b></div>
-          <div class="week" aria-hidden="true">
-            <div><i style="--h:80%"></i>Mon</div>
-            <div><i style="--h:80%"></i>Tue</div>
-            <div><i style="--h:95%;--ot:16%"></i>Wed</div>
-            <div><i style="--h:80%"></i>Thu</div>
-            <div><i style="--h:80%"></i>Fri</div>
-            <div><i style="--h:100%;--ot:20%"></i>Sat</div>
-          </div>
-          <div class="clock-card">
-            <span class="ava">AR</span>
-            <div><b>Ana Reyes</b><small><span class="live-dot"></span>Clocked in at 7:00 AM · Cashier</small></div>
-            <span class="hrs" id="ana-hrs">7h 32m</span>
-          </div>
-          <div class="deduct"><span>SSS</span><span>PhilHealth</span><span>Pag-IBIG</span><span>Overtime</span></div>
-        </div>
-      </article>
-
-      <article class="card w6 rv" style="--d:80ms">
-        <h3>Senior and PWD discounts, done right</h3>
-        <p>The 20% discount is saved together with the customer's ID number. Your sales report comes in the columns bookkeepers ask for, and the app checks for missing receipt numbers.</p>
-        <div class="viz">
-          <div class="book"><table>
-            <thead><tr><th>Receipt</th><th>Price</th><th>Discount</th><th>Paid</th></tr></thead>
-            <tbody>
-              <tr><td>000418</td><td>₱290.00</td><td>₱0.00</td><td>₱290.00</td></tr>
-              <tr class="sc"><td>000419</td><td>₱135.00</td><td>₱27.00</td><td>₱108.00</td></tr>
-              <tr><td>000420</td><td>₱395.00</td><td>₱0.00</td><td>₱395.00</td></tr>
-              <tr class="sc pwd"><td>000421</td><td>₱165.00</td><td>₱33.00</td><td>₱132.00</td></tr>
-            </tbody>
-          </table></div>
-          <p class="book-cap">Ember POS is not a BIR-accredited POS. <a href="faq.html#bir">What this means</a>.</p>
+      <article class="tix k clip rv drop" style="--d:240ms">
+        <div class="tix-h"><span>04 · Your profit</span><span>0:06</span></div>
+        <div class="tix-b">
+          <div class="how-shot"><img src="shots/app-overview-900.webp" width="900" height="563" alt="The owner's overview: today's sales, orders, and profit after ingredients and wages" loading="lazy" decoding="async" /></div>
+          <h3>See your real profit every day</h3>
+          <p>Ember POS takes your sales, subtracts ingredients, staff wages and expenses, and shows you what you really earned today.</p>
+          <ul class="ticks">
+            <li><svg class="i"><use href="#i-check"/></svg><span>See which items <b>earn you the most</b></span></li>
+            <li><svg class="i"><use href="#i-check"/></svg><span>Know how much you need to sell to break even</span></li>
+            <li><svg class="i"><use href="#i-check"/></svg><span>A sales report your bookkeeper can use</span></li>
+          </ul>
+          <a class="tlink" href="demo/?lesson=pnl">Try it in the demo (2 min) <svg class="i"><use href="#i-arrow"/></svg></a>
         </div>
       </article>
     </div>
   </div>
 </section>
 
-<!-- ================= EVERYTHING INCLUDED ================= -->
-<section class="box" id="included" aria-labelledby="box-h">
-  <div class="wrap box-grid">
-    <div class="box-side">
-      <h2 class="h2 rv" id="box-h" style="--d:60ms">No extra charges for extra features</h2>
-      <p class="lede rv" style="--d:120ms">There is only one plan. Everything on this list is already included and turned on.</p>
-      <div class="note rv" style="--d:160ms">
+<!-- ================= ORDER #004: MADE FOR HERE ================= -->
+<section class="on-ink pad" id="features" aria-labelledby="made-h">
+  <div class="wrap">
+    <div class="feat-head">
+      <p class="order rv"><b>#004</b>Made for here</p>
+      <h2 class="poster h2 rv" id="made-h" style="--d:60ms">Made for how shops in the Philippines <span class="box-f">really work</span></h2>
+      <p class="lede rv" style="--d:120ms">Utang, GCash, brownouts, senior citizen discounts. Ember POS already handles all of them. Nothing to set up or buy.</p>
+    </div>
+
+    <div class="pass">
+      <article class="tix w7 rv drop">
+        <div class="tix-h"><span>#24 · Utang</span><span>Tab</span></div>
+        <div class="tix-b">
+          <h3>Utang, without the notebook</h3>
+          <p>Put an order on a customer's tab. See who owes you, how much, and since when. The app can even write a polite reminder for you to send on Messenger.</p>
+          <div class="viz utang">
+            <div class="tabs-list" aria-label="Example tabs">
+              <div class="tab-row"><div><b>Aling Rosa</b><small> · 3 days</small></div><span class="amt">₱340.00</span><span class="lim" style="--w:34%"><i></i></span></div>
+              <div class="tab-row near"><div><b>Kuya Bong</b><small> · 12 days · limit ₱1,500</small></div><span class="amt">₱1,120.00</span><span class="lim" style="--w:75%"><i></i></span></div>
+              <div class="tab-row"><div><b>Tita Baby</b><small> · today</small></div><span class="amt">₱215.00</span><span class="lim" style="--w:22%"><i></i></span></div>
+            </div>
+            <div>
+              <div class="bubble-cap"><svg class="i"><use href="#i-send"/></svg>A reminder the app writes for you</div>
+              <div class="bubble">Hi Kuya Bong! Friendly reminder lang po from Ember Cafe: your balance sa amin is ₱1,120.00. Pwede po bayaran anytime na convenient sa inyo. Thank you po!</div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="tix o w5 rv drop" style="--d:80ms">
+        <div class="tix-h"><span>#25 · Brownout</span><span>Offline</span></div>
+        <div class="tix-b">
+          <h3>Keeps selling during a brownout</h3>
+          <p>No internet? The Android app keeps selling and printing receipts. It saves everything online when the internet comes back.</p>
+          <div class="viz">
+            <div class="net" id="net">
+              <div class="net-row">
+                <div class="net-ic"><svg class="i off"><use href="#i-wifioff"/></svg><svg class="i on"><use href="#i-wifi"/></svg></div>
+                <div class="net-t"><div class="a"><b>No internet</b><small>Still selling. 3 sales saved on this phone.</small></div><div class="b"><b>Back online</b><small>All 3 sales saved online.</small></div></div>
+              </div>
+              <div class="q-dots"><i>#31</i><i>#32</i><i>#33</i></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="tix k rv drop">
+        <div class="tix-h"><span>#26 · Payments</span><span>Close</span></div>
+        <div class="tix-b">
+          <h3>Cash, GCash and Maya, kept apart</h3>
+          <p>Each payment type has its own total. At closing, compare it with your GCash or Maya history to spot missing money.</p>
+          <div class="viz wallets">
+            <div class="wl"><b>Cash</b><span>₱4,215.00</span></div>
+            <div class="wl ok"><b>GCash</b><span>₱2,960.00</span><em><svg class="i"><use href="#i-check"/></svg>matches GCash</em></div>
+            <div class="wl"><b>Maya</b><span>₱1,040.00</span></div>
+            <div class="wl"><b>QR Ph</b><span>₱416.00</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="tix rv drop" style="--d:80ms">
+        <div class="tix-h"><span>#27 · Now Serving</span><span>Ready</span></div>
+        <div class="tix-b">
+          <h3>A Now Serving screen for customers</h3>
+          <p>Customers can see when their order is ready. It updates by itself when the kitchen finishes an order.</p>
+          <div class="viz board" aria-label="Now Serving screen example">
+            <div><h4>Preparing</h4><div class="nums"><span>24</span><span class="hop">25</span><span>26</span><span>27</span></div></div>
+            <div class="ready"><h4>Ready</h4><div class="nums"><span>20</span><span>21</span><span>22</span><span class="hop">23</span></div></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="tix r rv drop" style="--d:160ms">
+        <div class="tix-h"><span>#28 · Who did what</span><span>Log</span></div>
+        <div class="tix-b">
+          <h3>See who did what</h3>
+          <p>Every discount, cancelled order, refund and cash drawer opening is saved with the staff member's name. You choose what each person may do.</p>
+          <div class="viz log">
+            <div><span class="tm">2:11</span><span class="who"><b>Maria</b><small>Senior 20% · ID saved</small></span><span class="amt">₱27.00</span></div>
+            <div><span class="tm">1:49</span><span class="who"><b>Maria</b><small>Cancelled · wrong table</small></span><span class="amt">₱149.00</span></div>
+            <div><span class="tm">1:32</span><span class="who"><b>Ana</b><small>Opened drawer · no sale</small></span><span class="amt">—</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="tix o w6 rv drop">
+        <div class="tix-h"><span>#29 · Payroll</span><span>Weekly</span></div>
+        <div class="tix-b">
+          <h3>Payroll from the time clock</h3>
+          <p>Staff clock in and out on the app. Payroll uses those hours, pays overtime, and takes off the SSS, PhilHealth and Pag-IBIG amounts you set.</p>
+          <div class="viz">
+            <div class="week-cap"><span>Ana's hours this week</span><b>Overtime at 1.25×</b></div>
+            <div class="week" aria-hidden="true">
+              <div><i style="--h:80%"></i>Mon</div>
+              <div><i style="--h:80%"></i>Tue</div>
+              <div><i style="--h:95%;--ot:16%"></i>Wed</div>
+              <div><i style="--h:80%"></i>Thu</div>
+              <div><i style="--h:80%"></i>Fri</div>
+              <div><i style="--h:100%;--ot:20%"></i>Sat</div>
+            </div>
+            <div class="clock-card">
+              <span class="ava">AR</span>
+              <div><b>Ana Reyes</b><small><span class="live-dot"></span>Clocked in at 7:00 AM · Cashier</small></div>
+              <span class="hrs" id="ana-hrs">7h 32m</span>
+            </div>
+            <div class="deduct"><span>SSS</span><span>PhilHealth</span><span>Pag-IBIG</span><span>Overtime</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="tix k w6 rv drop" style="--d:80ms">
+        <div class="tix-h"><span>#30 · Senior &amp; PWD</span><span>20%</span></div>
+        <div class="tix-b">
+          <h3>Senior and PWD discounts, done right</h3>
+          <p>The 20% discount is saved together with the customer's ID number. Your sales report comes in the columns bookkeepers ask for, and the app checks for missing receipt numbers.</p>
+          <div class="viz">
+            <div class="book"><table>
+              <thead><tr><th>Receipt</th><th>Price</th><th>Discount</th><th>Paid</th></tr></thead>
+              <tbody>
+                <tr><td>000418</td><td>₱290.00</td><td>₱0.00</td><td>₱290.00</td></tr>
+                <tr class="sc"><td>000419</td><td>₱135.00</td><td>₱27.00</td><td>₱108.00</td></tr>
+                <tr><td>000420</td><td>₱395.00</td><td>₱0.00</td><td>₱395.00</td></tr>
+                <tr class="sc pwd"><td>000421</td><td>₱165.00</td><td>₱33.00</td><td>₱132.00</td></tr>
+              </tbody>
+            </table></div>
+            <p class="book-cap">Ember POS is not a BIR-accredited POS. <a href="faq.html#bir">What this means</a>.</p>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ORDER #005: THE FULL MENU ================= -->
+<section class="on-paper pad" id="included" aria-labelledby="menu-h">
+  <div class="wrap">
+    <div class="menu-head">
+      <div>
+        <p class="order rv"><b>#005</b>The full menu</p>
+        <h2 class="poster h2 rv" id="menu-h" style="--d:60ms">No extra charges for <span class="box-f">extra features</span></h2>
+        <p class="lede rv" style="--d:120ms">There is only one plan. Everything on this menu is already included and turned on.</p>
+      </div>
+      <div class="menu-notes rv" style="--d:160ms">
         <span><svg class="i"><use href="#i-check"/></svg>Unlimited staff and devices</span>
         <span><svg class="i"><use href="#i-check"/></svg>All future updates, free</span>
         <span><svg class="i"><use href="#i-check"/></svg>Download your data any time</span>
       </div>
     </div>
-    <div class="rv" style="--d:100ms">
-      <div class="tabbar" role="tablist" aria-label="What is included" id="tabbar">
-        <button type="button" role="tab" id="tb-0" aria-controls="pn-0" aria-selected="true">Selling</button>
-        <button type="button" role="tab" id="tb-1" aria-controls="pn-1" aria-selected="false" tabindex="-1">Kitchen and orders</button>
-        <button type="button" role="tab" id="tb-2" aria-controls="pn-2" aria-selected="false" tabindex="-1">Stock</button>
-        <button type="button" role="tab" id="tb-3" aria-controls="pn-3" aria-selected="false" tabindex="-1">Money</button>
-        <button type="button" role="tab" id="tb-4" aria-controls="pn-4" aria-selected="false" tabindex="-1">Staff</button>
-        <button type="button" role="tab" id="tb-5" aria-controls="pn-5" aria-selected="false" tabindex="-1">Everything else</button>
-      </div>
-      <div class="panel" role="tabpanel" id="pn-0" aria-labelledby="tb-0"><h3>Selling</h3><ul class="feat">
-        <li><svg class="i"><use href="#i-check"/></svg>Sizes, add-ons and notes for each item</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Hold orders, split bills, refunds and cancellations</li>
-        <li><svg class="i"><use href="#i-check"/></svg>A map of your tables for dine-in</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Utang, with a limit for each customer</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Senior and PWD discounts, with the ID number saved</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Discounts, coupons, gift cards and store credit</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Happy hour and prices that change by time of day</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Meals and combos sold at one price</li>
-        <li><svg class="i"><use href="#i-check"/></svg>A second screen that shows customers their order</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Tips, takeout packaging and one-off custom items</li>
-      </ul></div>
-      <div class="panel" role="tabpanel" id="pn-1" aria-labelledby="tb-1" hidden><h3>Kitchen and orders</h3><ul class="feat">
-        <li><svg class="i"><use href="#i-check"/></svg>A kitchen screen where late orders change colour</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Mark one dish or the whole order as done</li>
-        <li><svg class="i"><use href="#i-check"/></svg>A Now Serving screen for customers</li>
-        <li><svg class="i"><use href="#i-check"/></svg>A prep screen for food you make ahead</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Order number stubs and cup stickers</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Kitchen tickets that print as soon as an order is sent</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Customers order from their table with a QR code</li>
-        <li><svg class="i"><use href="#i-check"/></svg>An online shop for pickup and delivery, paid by QR Ph</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Book a Lalamove rider with your own account</li>
-      </ul></div>
-      <div class="panel" role="tabpanel" id="pn-2" aria-labelledby="tb-2" hidden><h3>Stock</h3><ul class="feat">
-        <li><svg class="i"><use href="#i-check"/></svg>Recipes for each size and add-on, so stock goes down with every sale</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Purchase orders and supplier records</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Count stock in kg, g, L, mL or packs</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Record spoiled or wasted items, with who saw it</li>
-        <li><svg class="i"><use href="#i-check"/></svg>A shopping list of what you are running out of</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Low-stock and expiry alerts, by email too</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Send stock to your other branch</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Mark an item sold out in one tap</li>
-      </ul></div>
-      <div class="panel" role="tabpanel" id="pn-3" aria-labelledby="tb-3" hidden><h3>Money</h3><ul class="feat">
-        <li><svg class="i"><use href="#i-check"/></svg>Daily profit after ingredients, wages and expenses</li>
-        <li><svg class="i"><use href="#i-check"/></svg>The cost of each item, cups and packaging included</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Break-even point, cash flow, and cash in and out</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Count the cash drawer bill by bill and coin by coin</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Track cash from the drawer all the way to the bank</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Compare GCash and Maya with what the till recorded</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Add your own payment types</li>
-        <li><svg class="i"><use href="#i-check"/></svg>A sales report in BIR columns, with a missing-receipt check</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Price quotes for catering and big orders</li>
-      </ul></div>
-      <div class="panel" role="tabpanel" id="pn-4" aria-labelledby="tb-4" hidden><h3>Staff</h3><ul class="feat">
-        <li><svg class="i"><use href="#i-check"/></svg>Clock in and out on the sign-in screen</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Schedules, timecards and shift reports</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Payroll based on the hours actually worked</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Choose what each staff member can see and do</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Every discount, cancellation and drawer opening saved with a name</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Notes one shift can leave for the next</li>
-      </ul></div>
-      <div class="panel" role="tabpanel" id="pn-5" aria-labelledby="tb-5" hidden><h3>Everything else</h3><ul class="feat">
-        <li><svg class="i"><use href="#i-check"/></svg>Keeps selling in a brownout, saves online when the internet is back</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Works on Android, iPhone, tablet and computer</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Add a second branch to the same account</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Loyalty points, and a list of regulars who stopped coming</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Bluetooth receipt printers, cash drawers and label printers</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Bring in your data from a spreadsheet, and download it any time</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Daily sales goals, and reminders before permits expire</li>
-        <li><svg class="i"><use href="#i-check"/></svg>All future updates, at no extra cost</li>
-      </ul></div>
-      <p class="box-foot"><span>This list matches app version v1.5.1</span><a href="demo/">Try any of it in the live demo first</a></p>
-    </div>
+    <div class="board-menu rv" style="--d:80ms" id="board-menu"><details class="cat" open><summary><b>Selling</b><span class="count">10 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>Sizes, add-ons and notes for each item</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Hold orders, split bills, refunds and cancellations</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A map of your tables for dine-in</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Utang, with a limit for each customer</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Senior and PWD discounts, with the ID number saved</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Discounts, coupons, gift cards and store credit</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Happy hour and prices that change by time of day</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Meals and combos sold at one price</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A second screen that shows customers their order</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Tips, takeout packaging and one-off custom items</span><i></i><b>INCLUDED</b></li></ul></details><details class="cat" open><summary><b>Kitchen and orders</b><span class="count">9 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>A kitchen screen where late orders change colour</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Mark one dish or the whole order as done</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A Now Serving screen for customers</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A prep screen for food you make ahead</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Order number stubs and cup stickers</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Kitchen tickets that print as soon as an order is sent</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Customers order from their table with a QR code</span><i></i><b>INCLUDED</b></li><li class="mi"><span>An online shop for pickup and delivery, paid by QR Ph</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Book a Lalamove rider with your own account</span><i></i><b>INCLUDED</b></li></ul></details><details class="cat" open><summary><b>Stock</b><span class="count">8 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>Recipes for each size and add-on, so stock goes down with every sale</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Purchase orders and supplier records</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Count stock in kg, g, L, mL or packs</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Record spoiled or wasted items, with who saw it</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A shopping list of what you are running out of</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Low-stock and expiry alerts, by email too</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Send stock to your other branch</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Mark an item sold out in one tap</span><i></i><b>INCLUDED</b></li></ul></details><details class="cat" open><summary><b>Money</b><span class="count">9 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>Daily profit after ingredients, wages and expenses</span><i></i><b>INCLUDED</b></li><li class="mi"><span>The cost of each item, cups and packaging included</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Break-even point, cash flow, and cash in and out</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Count the cash drawer bill by bill and coin by coin</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Track cash from the drawer all the way to the bank</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Compare GCash and Maya with what the till recorded</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Add your own payment types</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A sales report in BIR columns, with a missing-receipt check</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Price quotes for catering and big orders</span><i></i><b>INCLUDED</b></li></ul></details><details class="cat" open><summary><b>Staff</b><span class="count">6 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>Clock in and out on the sign-in screen</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Schedules, timecards and shift reports</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Payroll based on the hours actually worked</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Choose what each staff member can see and do</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Every discount, cancellation and drawer opening saved with a name</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Notes one shift can leave for the next</span><i></i><b>INCLUDED</b></li></ul></details><details class="cat" open><summary><b>Everything else</b><span class="count">8 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>Keeps selling in a brownout, saves online when the internet is back</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Works on Android, iPhone, tablet and computer</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Add a second branch to the same account</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Loyalty points, and a list of regulars who stopped coming</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Bluetooth receipt printers, cash drawers and label printers</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Bring in your data from a spreadsheet, and download it any time</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Daily sales goals, and reminders before permits expire</span><i></i><b>INCLUDED</b></li><li class="mi"><span>All future updates, at no extra cost</span><i></i><b>INCLUDED</b></li></ul></details></div>
+    <p class="menu-foot"><span>This menu matches app version v1.5.1</span><a href="demo/">Try any of it in the live demo first</a></p>
   </div>
 </section>
 
-<!-- ================= DEVICES ================= -->
-<section class="devices" id="devices" aria-labelledby="dev-h">
+<!-- ================= ORDER #006: DEVICES ================= -->
+<section class="on-flame pad" id="devices" aria-labelledby="dev-h">
   <div class="wrap">
-    <div class="sec-head center">
-      <h2 class="h2 rv" id="dev-h">Use the phone or computer you already have</h2>
-      <p class="lede rv" style="--d:60ms">No special machine to buy. Your shop is the same on every device, so you can check your sales from home.</p>
-    </div>
+    <p class="order rv"><b>#006</b>Devices</p>
+    <h2 class="poster h2 rv" id="dev-h" style="--d:60ms">Use the phone or computer <span class="box">you already have</span></h2>
+    <p class="lede rv" style="--d:120ms">No special machine to buy. Your shop is the same on every device, so you can check your sales from home.</p>
     <div class="dev-grid">
-      <article class="dev rv">
+      <article class="tix dev clip rv drop">
+        <div class="tix-h"><span>Android</span><span>Google Play</span></div>
         <div class="dev-vis"><div class="mini-phone"><img src="shots/phone-pos.webp" width="720" height="1558" alt="The Ember POS register on an Android phone" loading="lazy" decoding="async" /></div></div>
-        <div class="dev-body">
+        <div class="tix-b">
           <h3>Android phone or tablet</h3>
           <p>Download it from Google Play. It works on older phones too. Use a tablet for a bigger screen, or as the kitchen screen.</p>
           <a class="tlink" href="https://play.google.com/store/apps/details?id=com.emberpos.app">Get it on Google Play <svg class="i"><use href="#i-arrow"/></svg></a>
         </div>
       </article>
-      <article class="dev rv" style="--d:80ms">
+      <article class="tix o dev clip rv drop" style="--d:80ms">
+        <div class="tix-h"><span>iPhone &amp; iPad</span><span>Safari</span></div>
         <div class="dev-vis"><div class="mini-phone"><img src="shots/phone-overview.webp" width="720" height="1558" alt="The owner's overview on a phone: today's sales and orders" loading="lazy" decoding="async" /></div></div>
-        <div class="dev-body">
+        <div class="tix-b">
           <h3>iPhone and iPad</h3>
           <p>There is no App Store app yet, but the full app works in Safari. Add it to your home screen and it opens like a normal app.</p>
           <div class="how-ios"><span><svg class="i"><use href="#i-share"/></svg>Tap Share</span><span><svg class="i"><use href="#i-plus"/></svg>Add to Home Screen</span></div>
           <a class="tlink" href="app/">Open it in Safari <svg class="i"><use href="#i-arrow"/></svg></a>
         </div>
       </article>
-      <article class="dev rv" style="--d:160ms">
+      <article class="tix k dev clip rv drop" style="--d:160ms">
+        <div class="tix-h"><span>Computer</span><span>Any browser</span></div>
         <div class="dev-vis"><div class="mini-lap"><div class="lid"><img src="shots/app-overview-900.webp" width="900" height="563" alt="The overview screen on a laptop" loading="lazy" decoding="async" /></div><div class="base"></div></div></div>
-        <div class="dev-body">
+        <div class="tix-b">
           <h3>Any computer</h3>
           <p>Open the full app in any web browser. Nothing to install. If you have more than one branch, the Back Office shows them all on one page.</p>
           <a class="tlink" href="office/">Open the Back Office <svg class="i"><use href="#i-arrow"/></svg></a>
@@ -1177,16 +1208,17 @@
   </div>
 </section>
 
-<!-- ================= SETUP ================= -->
-<section class="setup" id="setup" aria-labelledby="setup-h">
+<!-- ================= ORDER #007: WE SET IT UP ================= -->
+<section class="setup on-ink pad" id="setup" aria-labelledby="setup-h">
   <div class="wrap setup-grid">
     <div>
-      <h2 class="h2 rv" id="setup-h" style="--d:60ms">Send us your menu and we'll set it up for free</h2>
+      <p class="order rv"><b>#007</b>Set-up</p>
+      <h2 class="poster h2 rv" id="setup-h" style="--d:60ms">Send us your menu and we'll set it up <span class="box-f">for free</span></h2>
       <p class="lede rv" style="--d:120ms">Adding your menu is the only real work, and we can do it for you. We add your items, prices, sizes, add-ons, recipes and stock. You check it, then start selling. It's free, and you can leave any time.</p>
       <ul class="ways">
-        <li class="star rv"><div><b>Send a photo of your menu</b><p>Or a document or spreadsheet. We type everything in for you.</p></div></li>
-        <li class="rv" style="--d:60ms"><div><b>Import a spreadsheet</b><p>Upload a CSV file with your items and prices, and your menu is ready.</p></div></li>
-        <li class="rv" style="--d:120ms"><div><b>Try our sample menu</b><p>Load a ready-made café menu in one tap to see how everything works.</p></div></li>
+        <li class="star rv"><span class="n">1</span><div><b>Send a photo of your menu</b><p>Or a document or spreadsheet. We type everything in for you.</p></div></li>
+        <li class="rv" style="--d:60ms"><span class="n">2</span><div><b>Import a spreadsheet</b><p>Upload a CSV file with your items and prices, and your menu is ready.</p></div></li>
+        <li class="rv" style="--d:120ms"><span class="n">3</span><div><b>Try our sample menu</b><p>Load a ready-made café menu in one tap to see how everything works.</p></div></li>
       </ul>
       <div class="setup-cta rv">
         <a class="btn btn-flame" href="mailto:atlasco.web@gmail.com?subject=My%20menu%20for%20Ember%20POS"><svg class="i"><use href="#i-mail"/></svg>Email us your menu</a>
@@ -1216,11 +1248,12 @@
   </div>
 </section>
 
-<!-- ================= PRICING ================= -->
-<section class="price" id="pricing" aria-labelledby="price-h">
+<!-- ================= ORDER #008: THE BILL ================= -->
+<section class="price on-graph pad" id="pricing" aria-labelledby="price-h">
   <div class="wrap price-grid">
     <div>
-      <h2 class="h2 rv" id="price-h" style="--d:60ms">One simple price</h2>
+      <p class="order rv"><b>#008</b>Pricing</p>
+      <h2 class="poster h2 rv" id="price-h" style="--d:60ms">One <span class="box-f">simple</span> price</h2>
       <p class="lede rv" style="--d:120ms">No fee per staff member, no fee per device, no premium plan. Try everything free for 30 days.</p>
       <ul class="trust">
         <li class="rv"><b>Your data is yours</b><p>Download everything as a spreadsheet any time, even after you stop using Ember POS.</p></li>
@@ -1229,29 +1262,31 @@
         <li class="rv" style="--d:180ms"><b>Free updates</b><p>Every new feature is included at no extra cost.</p></li>
       </ul>
     </div>
-    <div class="plan rv" style="--d:100ms">
-      <div class="plan-top"><b>Ember POS</b><span>30 days free</span></div>
-      <div class="amount"><b>₱599</b><span>per month, per branch</span></div>
-      <p class="plan-sub">No card needed to start. When the free month ends, you subscribe inside the app.</p>
+    <div class="bill rv" style="--d:100ms" aria-label="Ember POS costs ₱599 a month per branch, with everything included and the first 30 days free">
+      <div class="bill-top"><b>Ember POS</b><span>YOUR BILL · PER BRANCH</span></div>
       <ul>
-        <li><svg class="i"><use href="#i-check"/></svg><span><b>Register</b>, kitchen screen and QR ordering</span></li>
-        <li><svg class="i"><use href="#i-check"/></svg><span><b>Stock</b>, recipes and deliveries</span></li>
-        <li><svg class="i"><use href="#i-check"/></svg><span><b>Utang</b>, senior and PWD discounts, sales reports</span></li>
-        <li><svg class="i"><use href="#i-check"/></svg><span><b>Payroll</b>, time clock and staff permissions</span></li>
-        <li><svg class="i"><use href="#i-check"/></svg><span><b>Unlimited</b> staff and devices</span></li>
-        <li><svg class="i"><use href="#i-check"/></svg><span><b>Works without internet</b>, plus every update</span></li>
+        <li><span>Register, kitchen screen and QR ordering</span><i></i><b>INCLUDED</b></li>
+        <li><span>Stock, recipes and deliveries</span><i></i><b>INCLUDED</b></li>
+        <li><span>Utang, senior and PWD discounts, sales reports</span><i></i><b>INCLUDED</b></li>
+        <li><span>Payroll, time clock and staff permissions</span><i></i><b>INCLUDED</b></li>
+        <li><span>Unlimited staff and devices</span><i></i><b>INCLUDED</b></li>
+        <li><span>Works without internet, plus every update</span><i></i><b>INCLUDED</b></li>
       </ul>
-      <a class="btn btn-flame" href="https://play.google.com/store/apps/details?id=com.emberpos.app"><svg class="play-g" viewBox="0 0 24 26" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z"/></svg>Start free on Google Play</a>
-      <p class="plan-fine">Each branch needs its own subscription.</p>
+      <div class="bill-total"><span>TOTAL</span><b>₱599</b><div class="stamp" aria-hidden="true"><span>30 days<br>free</span></div></div>
+      <p class="bill-per">per month, per branch</p>
+      <p class="bill-sub">No card needed to start. When the free month ends, you subscribe inside the app.</p>
+      <a class="btn btn-ink" href="https://play.google.com/store/apps/details?id=com.emberpos.app"><svg class="play-g" viewBox="0 0 24 26" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z"/></svg>Start free on Google Play</a>
+      <p class="bill-fine">Each branch needs its own subscription.</p>
     </div>
   </div>
 </section>
 
-<!-- ================= FAQ ================= -->
-<section class="faq" id="faq" aria-labelledby="faq-h">
+<!-- ================= ORDER #009: QUESTIONS ================= -->
+<section class="on-flame pad" id="faq" aria-labelledby="faq-h">
   <div class="wrap faq-grid">
     <div class="faq-side">
-      <h2 class="h2 rv" id="faq-h">Questions shop owners ask</h2>
+      <p class="order rv"><b>#009</b>Questions</p>
+      <h2 class="poster h2 rv" id="faq-h">Questions shop owners ask</h2>
       <p class="lede rv" style="--d:60ms">Simple answers. Can't find yours? Email us and a real person will reply.</p>
       <a class="tlink rv" href="faq.html" style="--d:120ms">See all questions <svg class="i"><use href="#i-arrow"/></svg></a>
       <a class="mail rv" href="mailto:atlasco.web@gmail.com" style="--d:160ms">atlasco.web@gmail.com</a>
@@ -1293,27 +1328,29 @@
   </div>
 </section>
 
-</div><!-- /sheet -->
-
-<!-- ================= THE DEMO ================= -->
-<section class="final dark" id="demo" aria-labelledby="final-h">
-  <div class="wrap final-in">
-    <h2 class="h2 rv" id="final-h" style="--d:60ms">Try the full app now, no sign-up needed</h2>
+<!-- ================= ORDER #010: ORDER UP ================= -->
+<section class="final on-ink" id="demo" aria-labelledby="final-h">
+  <div class="wrap">
+    <p class="order rv"><b>#010</b>Order up</p>
+    <h2 class="poster h2 rv" id="final-h" style="--d:60ms">Try the full app now<span>No sign-up needed</span></h2>
     <p class="lede rv" style="--d:120ms">Our sample café, Ember Cafe, already has a year of sales, stock and staff in it. It opens right here in your browser. Take orders, receive deliveries, count stock, run payroll. Everything stays in your browser, so you can't break anything.</p>
     <div class="final-ctas rv" style="--d:180ms">
       <a class="btn btn-flame" href="demo/">Open the live demo <svg class="i"><use href="#i-arrow"/></svg></a>
-      <a class="btn btn-ghost-d" href="https://play.google.com/store/apps/details?id=com.emberpos.app"><svg class="play-g" viewBox="0 0 24 26" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z"/></svg>Get it on Google Play</a>
+      <a class="btn btn-paper" href="https://play.google.com/store/apps/details?id=com.emberpos.app"><svg class="play-g" viewBox="0 0 24 26" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z"/></svg>Get it on Google Play</a>
     </div>
     <p class="final-note rv" style="--d:220ms">You are signed in as the owner, <b>Maria Santos</b>. If you sign out, her PIN is 1234.</p>
-    <div class="lessons">
-      <a class="lesson rv" href="demo/?lesson=sell"><span class="n">1</span><b>Make a sale</b><em>2 min</em></a>
-      <a class="lesson rv" style="--d:40ms" href="demo/?lesson=kitchen"><span class="n">2</span><b>The kitchen screen</b><em>1 min</em></a>
-      <a class="lesson rv" style="--d:80ms" href="demo/?lesson=stock"><span class="n">3</span><b>Check your stock</b><em>2 min</em></a>
-      <a class="lesson rv" style="--d:120ms" href="demo/?lesson=receive"><span class="n">4</span><b>Receive a delivery</b><em>2 min</em></a>
-      <a class="lesson rv" style="--d:160ms" href="demo/?lesson=pnl"><span class="n">5</span><b>See your profit</b><em>2 min</em></a>
-      <a class="lesson rv" style="--d:200ms" href="demo/?lesson=payroll"><span class="n">6</span><b>Run payroll</b><em>1 min</em></a>
-      <a class="lesson rv" style="--d:240ms" href="demo/?lesson=dayflow"><span class="n">7</span><b>Open and close the day</b><em>2 min</em></a>
-      <a class="lesson all rv" style="--d:280ms" href="demo/"><b>Or explore on your own</b><svg class="i"><use href="#i-arrow"/></svg></a>
+    <div class="lessons-rail">
+      <div class="rail-bar"></div>
+      <div class="lessons">
+        <a class="tix lesson clip rv drop" href="demo/?lesson=sell"><span class="tix-h"><span>Lesson 1</span><span>2 min</span></span><span class="tix-b"><b>Make a sale</b><svg class="i"><use href="#i-arrow"/></svg></span></a>
+        <a class="tix lesson clip rv drop" style="--d:40ms" href="demo/?lesson=kitchen"><span class="tix-h"><span>Lesson 2</span><span>1 min</span></span><span class="tix-b"><b>The kitchen screen</b><svg class="i"><use href="#i-arrow"/></svg></span></a>
+        <a class="tix lesson clip rv drop" style="--d:80ms" href="demo/?lesson=stock"><span class="tix-h"><span>Lesson 3</span><span>2 min</span></span><span class="tix-b"><b>Check your stock</b><svg class="i"><use href="#i-arrow"/></svg></span></a>
+        <a class="tix lesson clip rv drop" style="--d:120ms" href="demo/?lesson=receive"><span class="tix-h"><span>Lesson 4</span><span>2 min</span></span><span class="tix-b"><b>Receive a delivery</b><svg class="i"><use href="#i-arrow"/></svg></span></a>
+        <a class="tix lesson clip rv drop" style="--d:160ms" href="demo/?lesson=pnl"><span class="tix-h"><span>Lesson 5</span><span>2 min</span></span><span class="tix-b"><b>See your profit</b><svg class="i"><use href="#i-arrow"/></svg></span></a>
+        <a class="tix lesson clip rv drop" style="--d:200ms" href="demo/?lesson=payroll"><span class="tix-h"><span>Lesson 6</span><span>1 min</span></span><span class="tix-b"><b>Run payroll</b><svg class="i"><use href="#i-arrow"/></svg></span></a>
+        <a class="tix lesson clip rv drop" style="--d:240ms" href="demo/?lesson=dayflow"><span class="tix-h"><span>Lesson 7</span><span>2 min</span></span><span class="tix-b"><b>Open and close the day</b><svg class="i"><use href="#i-arrow"/></svg></span></a>
+        <a class="tix lesson all clip rv drop" style="--d:280ms" href="demo/"><span class="tix-h"><span>Or</span><span>Any time</span></span><span class="tix-b"><b>Explore on your own</b><svg class="i"><use href="#i-arrow"/></svg></span></a>
+      </div>
     </div>
     <p class="lessons-cap rv">Each lesson opens the demo on the right screen and shows you what to do, step by step.</p>
   </div>
@@ -1374,7 +1411,7 @@
 
 <div class="dock" id="dock" aria-label="Get Ember POS">
   <a class="btn btn-flame" href="https://play.google.com/store/apps/details?id=com.emberpos.app">Get it on Google Play</a>
-  <a class="btn btn-ghost-d" href="demo/">Live demo</a>
+  <a class="btn btn-paper" href="demo/">Live demo</a>
 </div>
 
 <script>
@@ -1747,6 +1784,111 @@ document.documentElement.classList.add('js');
     new IntersectionObserver(function (es) { past = !es[0].isIntersecting && es[0].boundingClientRect.top < 0; upd(); }).observe(heroCtas);
     new IntersectionObserver(function (es) { end = es.some(function (e) { return e.isIntersecting; }); upd(); }, { threshold: 0 }).observe(final);
   }
+})();
+</script>
+<script>
+/* THE KITCHEN RAIL, THE STEP RAIL, THE MENU BOARD (27 Sep 2026). */
+(function () {
+  'use strict';
+  var d = document;
+  var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var hasIO = 'IntersectionObserver' in window;
+
+  /* ---------- the hero's rail: tickets arrive, age, and are bumped ----------
+     As on the kitchen screen: oldest on the left, green under 5 minutes,
+     orange under 10, red after. Every few seconds the oldest is stamped DONE
+     and a new order clips on at the right. The items are the sample café's. */
+  var row = d.getElementById('hrail'), count = d.getElementById('hr-count');
+  if (row) {
+    var POOL = [
+      { where: 'Table 4', lines: [[2, 'Spanish Latte', 'Medium, less sweet'], [1, 'Tapsilog', ''], [1, 'Cheesecake Slice', '']] },
+      { where: 'Takeout', lines: [[1, 'Pork Sisig Rice', 'No onions'], [1, 'House Iced Tea', 'Less ice'], [2, 'Americano', 'Hot']] },
+      { where: 'Table 6', lines: [[1, 'Caramel Macchiato', 'Large'], [2, 'Butter Croissant', ''], [1, 'Ube Latte', 'Medium']] },
+      { where: 'GrabFood', lines: [[3, 'Ube Latte', 'Medium'], [1, 'Cheesecake Slice', ''], [1, 'Cold Brew', '']] },
+      { where: 'Table 2', lines: [[1, 'Java Chip Frappe', 'Large'], [1, 'Americano', 'Hot'], [1, 'Tapsilog', '']] },
+      { where: 'Takeout', lines: [[2, 'Matcha Latte', 'Less ice'], [1, 'Tapsilog', ''], [1, 'Cafe Mocha', '']] }
+    ];
+    var seq = 41, tickets = [];
+    var make = function (age) { var p = POOL[seq % POOL.length]; return { no: seq++, where: p.where, lines: p.lines, age: age }; };
+    tickets = [make(605), make(318), make(24)];
+    var mmss = function (s) { return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); };
+    var tone = function (s) { return s >= 600 ? ' r' : s >= 300 ? ' o' : ''; };
+    var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+    var html = function (t, enter) {
+      return '<div class="tix clip' + tone(t.age) + (enter ? ' enter' : '') + '" data-no="' + t.no + '">' +
+        '<div class="tix-h"><span>#' + t.no + '</span><span class="age">' + mmss(t.age) + '</span></div>' +
+        '<div class="tix-b"><div class="hk-where">' + esc(t.where) + '</div><ul class="hk-lines">' +
+        t.lines.map(function (l) { return '<li><b>' + l[0] + '×</b>' + esc(l[1]) + (l[2] ? '<small>' + esc(l[2]) + '</small>' : '') + '</li>'; }).join('') +
+        '</ul></div><span class="done-stamp">Done</span></div>';
+    };
+    var render = function (enterLast) {
+      row.innerHTML = tickets.map(function (t, i) { return html(t, enterLast && i === tickets.length - 1); }).join('');
+      if (count) count.textContent = tickets.length + ' waiting';
+    };
+    render(false);
+    var visible = true, busy = false;
+    setInterval(function () {
+      if (!visible) return;
+      tickets.forEach(function (t) { t.age++; });
+      Array.prototype.forEach.call(row.children, function (el, i) {
+        var t = tickets[i]; if (!t) return;
+        el.querySelector('.age').textContent = mmss(t.age);
+        el.classList.toggle('r', t.age >= 600); el.classList.toggle('o', t.age >= 300 && t.age < 600);
+      });
+    }, 1000);
+    var cycle = function () {
+      if (!visible || busy || reduced) return;
+      busy = true;
+      var first = row.firstElementChild; if (!first) { busy = false; return; }
+      first.classList.add('bumped');
+      setTimeout(function () {
+        first.classList.add('leave');
+        setTimeout(function () {
+          tickets.shift();
+          /* time passes between orders: the ones still waiting grow older */
+          tickets.forEach(function (t) { t.age += 290; });
+          tickets.push(make(18 + Math.floor(Math.random() * 20)));
+          render(true);
+          busy = false;
+        }, 520);
+      }, 900);
+    };
+    setInterval(cycle, 5200);
+    if (hasIO) new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(row);
+  }
+
+  /* ---------- the four steps: a rail you can slide ---------- */
+  var hr = d.getElementById('how-row'), prev = d.getElementById('how-prev'), next = d.getElementById('how-next'), at = d.getElementById('how-at');
+  if (hr && prev && next) {
+    var cards = hr.querySelectorAll('.tix');
+    var stepW = function () { var c = cards[0]; return c ? c.getBoundingClientRect().width + 22 : 300; };
+    var sync = function () {
+      var i = Math.min(cards.length - 1, Math.round(hr.scrollLeft / stepW()));
+      if (hr.scrollLeft + hr.clientWidth >= hr.scrollWidth - 4) i = cards.length - 1;
+      at.textContent = (i + 1) + ' / ' + cards.length;
+      prev.disabled = hr.scrollLeft < 4;
+      next.disabled = hr.scrollLeft + hr.clientWidth >= hr.scrollWidth - 4;
+    };
+    var go = function (dir) { hr.scrollBy({ left: dir * stepW(), behavior: reduced ? 'auto' : 'smooth' }); };
+    prev.addEventListener('click', function () { go(-1); });
+    next.addEventListener('click', function () { go(1); });
+    var q = 0;
+    hr.addEventListener('scroll', function () { if (!q) q = requestAnimationFrame(function () { q = 0; sync(); }); }, { passive: true });
+    addEventListener('resize', sync); sync();
+  }
+
+  /* ---------- the menu board: all of it on a computer, folded on a phone ---------- */
+  var cats = Array.prototype.slice.call(d.querySelectorAll('#board-menu details'));
+  var fitMenu = function () {
+    var small = innerWidth <= 720;
+    cats.forEach(function (c, i) { if (!small) c.open = true; else if (!c.getAttribute('data-touched')) c.open = i === 0; });
+  };
+  cats.forEach(function (c) {
+    c.querySelector('summary').addEventListener('click', function (e) {
+      if (innerWidth > 720) e.preventDefault(); else c.setAttribute('data-touched', '1');
+    });
+  });
+  fitMenu(); addEventListener('resize', fitMenu);
 })();
 </script>
 <script src="beacon.js" defer></script>
