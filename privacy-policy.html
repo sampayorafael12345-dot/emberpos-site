@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -8,19 +8,33 @@
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div class="wrap">
+<header class="k-head" id="k-head">
+  <div class="bar">
+    <a class="mark" href="index.html"><img src="logo.png" alt="" /><b>Ember POS</b></a>
+    <nav class="links" id="k-links" aria-label="Main">
+      <a class="lnk" href="index.html#how">How it works</a>
+      <a class="lnk" href="index.html#features">Features</a>
+      <a class="lnk" href="index.html#pricing">Pricing</a>
+      <a class="lnk" href="demo/">Live demo</a>
+      <a class="lnk" href="faq.html">FAQ</a>
+      <a class="lnk" href="office/">Back Office</a>
+      <a class="cta" href="app/">Open the app</a>
+    </nav>
+    <button class="menu" id="k-menu" type="button" aria-expanded="false" aria-controls="k-links" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  </div>
+</header>
 
-  <a class="brand" href="index.html">
-    <img src="logo.png" alt="" />
-    <span class="brand-text">
-      <span class="brand-name">Ember POS</span>
-    </span>
-  </a>
-
-<div class="page-head">
-  <h1>Privacy Policy</h1>
+<section class="k-band">
+  <div class="k-band-in">
+    <p class="order"><b>#105</b>Privacy</p>
+    <h1>Privacy Policy</h1>
   <p>Last updated: <strong>9 September 2026</strong></p>
-</div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="k-tix-h g"><span>#105 &middot; Privacy</span><span>Ember POS</span></div>
+
 
 <p>
   EmberPOS ("the app", "we", "us") is a point-of-sale and back-office app for cafés and restaurants,
@@ -135,7 +149,7 @@
   <li><strong>To erasure or blocking</strong> &mdash; to have your data removed. You can delete your entire
       shop and account from inside the app (section 7).</li>
   <li><strong>To data portability</strong> &mdash; to take your data with you in a usable form. You can
-      export your menu, sales and reports from <strong>Settings &rarr; Data</strong> as CSV files.</li>
+      export your menu, sales and reports from <strong>Settings &rarr; Data &amp; Backup</strong> as CSV files.</li>
   <li><strong>To damages</strong> &mdash; to be compensated if you suffer harm because your data was
       handled wrongly.</li>
   <li><strong>To complain</strong> &mdash; if you are not satisfied with how we have answered you, you can
@@ -149,7 +163,7 @@
 
 <h2 id="delete">7. Deleting your account and data</h2>
 <div class="card">
-  <p style="margin-top:0"><strong>In the app:</strong> Open <strong>Settings → Data → Danger zone → "Delete shop &amp; account"</strong>,
+  <p style="margin-top:0"><strong>In the app:</strong> Open <strong>Settings → Data &amp; Backup → Danger zone → "Delete shop &amp; account"</strong>,
   type <code>DELETE</code> to confirm, and tap <strong>Permanently delete</strong>.</p>
   <p style="margin-bottom:0">This immediately and permanently erases your shop and all of its data — sales, menu,
   inventory, customers, staff records, reports — and closes your EmberPOS account. This cannot be undone. You can
@@ -198,23 +212,65 @@
   Registered with the Department of Trade and Industry (Business Name No. 8408424) and with the Bureau of
   Internal Revenue under RDO 041, Mandaluyong.
 </p>
-
-<footer>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="help.html">Help &amp; Legal</a>
-    <a href="contact.html">Contact</a>
-    <a href="terms.html">Terms</a>
-    <a href="privacy-policy.html">Privacy</a>
-    <a href="refund-policy.html">Refunds</a>
-    <a href="disputes.html">Disputes</a>
-    <a href="account-deletion.html">Delete account</a>
-  </nav>
-
-  EmberPOS · Privacy Policy · This document describes the app's actual data practices as of the date above,
-  and is provided to satisfy both Google Play's privacy-policy requirement and the Data Privacy Act of 2012
-  (RA 10173).
-</footer>
 </div>
+
+<footer class="k-foot">
+  <div class="bar">
+    <div class="cols">
+      <div>
+        <a class="brand-row" href="index.html"><img src="logo.png" height="30" alt="" /><b>Ember POS</b></a>
+        <p>The all-in-one POS app for cafés and food shops in the Philippines. <a href="mailto:atlasco.web@gmail.com">atlasco.web@gmail.com</a></p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <nav aria-label="Product">
+          <a href="demo/">Live demo</a>
+          <a href="app/">Open the app</a>
+          <a href="office/">Back Office</a>
+          <a href="https://play.google.com/store/apps/details?id=com.emberpos.app">Google Play</a>
+        </nav>
+      </div>
+      <div>
+        <h4>Help</h4>
+        <nav aria-label="Help">
+          <a href="faq.html">FAQ</a>
+          <a href="help.html">Help &amp; Legal</a>
+          <a href="contact.html">Contact</a>
+          <a href="reset-password.html">Reset password</a>
+          <a href="account-deletion.html">Delete account</a>
+        </nav>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <nav aria-label="Legal">
+          <a href="terms.html">Terms</a>
+          <a href="privacy-policy.html">Privacy</a>
+          <a href="refund-policy.html">Refunds</a>
+          <a href="disputes.html">Disputes</a>
+        </nav>
+      </div>
+    </div>
+    <div class="bir-seal">
+      <img src="bir-seal-badge.webp" width="1141" height="389" loading="lazy" decoding="async"
+           alt="BIR Registration Seal Badge 2026 for Ember POS Computer Software Store, RSN 041RC20260000008789">
+      <div>
+        <p>Ember POS Computer Software Store is registered with the Bureau of Internal Revenue,
+           RDO 041 Mandaluyong. This seal confirms the business is BIR-registered. It is not a POS
+           accreditation. See the <a href="faq.html#bir">FAQ</a>.</p>
+        <p class="ver">Ember POS &middot; Philippines</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* the menu on a phone */
+  (function () {
+    var h = document.getElementById('k-head'), b = document.getElementById('k-menu');
+    if (!h || !b) return;
+    b.addEventListener('click', function () { var o = !h.classList.contains('open'); h.classList.toggle('open', o); b.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { h.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); } });
+  })();
+</script>
 </body>
 </html>
