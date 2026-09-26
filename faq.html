@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -53,20 +53,25 @@
 </style>
 </head>
 <body>
-<header class="site-head">
+<header class="k-head" id="k-head">
   <div class="bar">
-    <a class="mark" href="index.html"><img src="logo.png" alt="Ember POS logo" /><b>Ember POS</b></a>
-    <a class="lnk" href="index.html#features">Features</a>
-    <a class="lnk" href="index.html#pricing">Pricing</a>
-    <a class="lnk" href="demo/">Live&nbsp;demo</a>
-    <a class="lnk" href="office/">Back&nbsp;Office</a>
-    <a class="cta" href="app/">Open the app</a>
+    <a class="mark" href="index.html"><img src="logo.png" alt="" /><b>Ember POS</b></a>
+    <nav class="links" id="k-links" aria-label="Main">
+      <a class="lnk" href="index.html#how">How it works</a>
+      <a class="lnk" href="index.html#features">Features</a>
+      <a class="lnk" href="index.html#pricing">Pricing</a>
+      <a class="lnk" href="demo/">Live demo</a>
+      <a class="lnk" href="faq.html" aria-current="page">FAQ</a>
+      <a class="lnk" href="office/">Back Office</a>
+      <a class="cta" href="app/">Open the app</a>
+    </nav>
+    <button class="menu" id="k-menu" type="button" aria-expanded="false" aria-controls="k-links" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
 </header>
 
-<div class="wrap">
-
-  <div class="page-head">
+<section class="k-band">
+  <div class="k-band-in">
+    <p class="order"><b>#101</b>Questions</p>
     <h1>Questions &amp; answers</h1>
     <p>Simple answers to what shop owners ask us most. You can also try almost everything yourself in the free live demo, a sample café with a year of sales already in it.</p>
     <div class="ctas">
@@ -74,6 +79,12 @@
       <a class="try ghost" href="index.html#pricing">See the price</a>
     </div>
   </div>
+</section>
+
+<div class="wrap">
+  <div class="k-tix-h g"><span>#101 &middot; Questions</span><span>Ember POS</span></div>
+
+  
 
   <input class="search" id="q" type="search" aria-label="Search the questions"
          placeholder="Search, for example: utang, printer, payroll" />
@@ -95,7 +106,7 @@
   </div></details>
 
   <details><summary>Do I have to type in my whole menu myself?</summary><div class="a">
-    <p>No. Send us what you already have, like a spreadsheet, a Word file or even a photo of your menu board, to <a href="mailto:atlasco.web@gmail.com">atlasco.web@gmail.com</a>. We will add your items, prices, ingredients and starting stock for you, for free. You can also import a spreadsheet (CSV) yourself in Settings → Data, or load the sample menu to look around first.</p>
+    <p>No. Send us what you already have, like a spreadsheet, a Word file or even a photo of your menu board, to <a href="mailto:atlasco.web@gmail.com">atlasco.web@gmail.com</a>. We will add your items, prices, ingredients and starting stock for you, for free. You can also import a spreadsheet (CSV) yourself in Settings → Data &amp; Backup, or load the sample menu to look around first.</p>
   </div></details>
 
   <details><summary>Is there an iPhone app?</summary><div class="a">
@@ -188,7 +199,7 @@
   </div></details>
 
   <details><summary>My accountant wants the numbers. What can I download?</summary><div class="a">
-    <p>Everything, as spreadsheets (CSV): sales books, orders, expenses, payroll, stock and recipes with costs. You'll find them all under Export Reports. Your data is yours, and you can download a full backup any time in Settings → Data.</p>
+    <p>Everything, as spreadsheets (CSV): sales books, orders, expenses, payroll, stock and recipes with costs. You'll find them all under Export Reports. Your data is yours, and you can download a full backup any time in Settings → Data &amp; Backup.</p>
   </div></details>
 
   <details id="bir"><summary>Is Ember POS BIR-accredited?</summary><div class="a">
@@ -244,29 +255,56 @@
 
 </div>
 
-<footer class="site-foot">
+<footer class="k-foot">
   <div class="bar">
-    <span>Ember POS, Philippines &middot; <a href="mailto:atlasco.web@gmail.com">atlasco.web@gmail.com</a></span>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="demo/">Live demo</a>
-      <a href="office/">Back Office</a>
-      <a href="help.html">Help &amp; Legal</a>
-      <a href="terms.html">Terms</a>
-      <a href="privacy-policy.html">Privacy</a>
-      <a href="refund-policy.html">Refunds</a>
-      <a href="disputes.html">Disputes</a>
-      <a href="contact.html">Contact</a>
-    </nav>
+    <div class="cols">
+      <div>
+        <a class="brand-row" href="index.html"><img src="logo.png" height="30" alt="" /><b>Ember POS</b></a>
+        <p>The all-in-one POS app for cafés and food shops in the Philippines. <a href="mailto:atlasco.web@gmail.com">atlasco.web@gmail.com</a></p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <nav aria-label="Product">
+          <a href="demo/">Live demo</a>
+          <a href="app/">Open the app</a>
+          <a href="office/">Back Office</a>
+          <a href="https://play.google.com/store/apps/details?id=com.emberpos.app">Google Play</a>
+        </nav>
+      </div>
+      <div>
+        <h4>Help</h4>
+        <nav aria-label="Help">
+          <a href="faq.html">FAQ</a>
+          <a href="help.html">Help &amp; Legal</a>
+          <a href="contact.html">Contact</a>
+          <a href="reset-password.html">Reset password</a>
+          <a href="account-deletion.html">Delete account</a>
+        </nav>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <nav aria-label="Legal">
+          <a href="terms.html">Terms</a>
+          <a href="privacy-policy.html">Privacy</a>
+          <a href="refund-policy.html">Refunds</a>
+          <a href="disputes.html">Disputes</a>
+        </nav>
+      </div>
+    </div>
     <div class="bir-seal">
       <img src="bir-seal-badge.webp" width="1141" height="389" loading="lazy" decoding="async"
            alt="BIR Registration Seal Badge 2026 for Ember POS Computer Software Store, RSN 041RC20260000008789">
-      <p>Ember POS Computer Software Store is registered with the Bureau of Internal Revenue,
-         RDO 041 Mandaluyong. This seal confirms the business is BIR-registered. It is not a POS
-         accreditation &mdash; see <a href="#bir">Is EmberPOS BIR-accredited?</a> above.</p>
+      <div>
+        <p>Ember POS Computer Software Store is registered with the Bureau of Internal Revenue,
+           RDO 041 Mandaluyong. This seal confirms the business is BIR-registered. It is not a POS
+           accreditation. See the <a href="faq.html#bir">FAQ</a>.</p>
+        <p class="ver">Ember POS &middot; Philippines</p>
+      </div>
     </div>
   </div>
 </footer>
+
+
 <script>
   // Plain filter: hide sections whose every question misses the query.
   (function () {
@@ -297,5 +335,14 @@
   })();
 </script>
 <script src="beacon.js" defer></script>
+<script>
+  /* the menu on a phone */
+  (function () {
+    var h = document.getElementById('k-head'), b = document.getElementById('k-menu');
+    if (!h || !b) return;
+    b.addEventListener('click', function () { var o = !h.classList.contains('open'); h.classList.toggle('open', o); b.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { h.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); } });
+  })();
+</script>
 </body>
 </html>

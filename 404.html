@@ -5,42 +5,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Page not found: Ember POS</title>
 <meta name="robots" content="noindex" />
-<meta name="theme-color" content="#0b0c0d" />
+<meta name="theme-color" content="#ff5c00" />
 <link rel="icon" href="/favicon.png" type="image/png" />
 <style>
-  /* Graphite and flame, like the rest of the site (23 Sep 2026). Absolute
-     paths on purpose: GitHub Pages serves this page for any missing URL, at
-     any depth. */
+  /* THE KITCHEN RAIL, like the rest of the site (27 Sep 2026): a page that is
+     not there is an order that never came in. Absolute paths on purpose:
+     GitHub Pages serves this page for any missing URL, at any depth. */
   @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; }
+  @font-face { font-family: 'Poster'; src: url('/fonts/big-shoulders-display-latin-wght.woff2') format('woff2-variations'); font-weight: 100 900; font-display: swap; }
   * { box-sizing: border-box; margin: 0; }
   body {
-    min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 24px;
-    background: #0b0c0d;
-    color: #f2f3f4; font: 17px/1.6 'Space Grotesk', system-ui, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 48px 20px;
+    background: radial-gradient(rgba(11,12,13,.14) 1.4px, transparent 1.7px) 0 0 / 22px 22px, #ff5c00;
+    color: #0b0c0d; font: 17px/1.6 'Space Grotesk', system-ui, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
-  .box { width: 440px; max-width: 100%; text-align: center; }
-  .box img { height: 48px; width: auto; display: block; margin: 0 auto 26px; }
-  .code { display: inline-block; font-weight: 600; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: #ff7a33; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255,122,51,.4); background: rgba(255,92,0,.08); }
-  h1 { font-size: clamp(34px, 8vw, 48px); line-height: 1.02; letter-spacing: -0.045em; margin-top: 18px; font-weight: 700; }
-  p { color: #b3bac1; margin-top: 14px; }
-  .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 28px; }
+  .box { position: relative; width: 460px; max-width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center;
+    background: #fbfaf7; border-radius: 8px; padding: 0 28px 30px; box-shadow: 0 1px 0 rgba(0,0,0,.08), 0 26px 40px -26px rgba(0,0,0,.5); }
+  .box::before { content: ""; position: absolute; left: 50%; top: -14px; width: 54px; height: 22px; margin-left: -27px; border-radius: 4px 4px 2px 2px; background: #3a3f45; box-shadow: inset 0 -3px 0 rgba(0,0,0,.35); }
+  .code { order: -1; align-self: stretch; margin: 0 -28px 26px; padding: 12px 18px; border-radius: 8px 8px 0 0; background: #b91c1c; color: #fff;
+    font: 700 13px ui-monospace, 'Cascadia Mono', Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; text-align: left; }
+  .box img { height: 46px; width: auto; display: block; margin: 0 auto 8px; }
+  h1 { font: 900 clamp(52px, 13vw, 76px)/.88 'Poster', 'Space Grotesk', sans-serif; text-transform: uppercase; margin-top: 10px; }
+  p { color: #3d444c; margin-top: 14px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 26px; align-self: stretch; }
   .row a {
-    flex: 1 1 160px; display: inline-flex; justify-content: center; align-items: center; min-height: 50px; padding: 0 18px;
-    border-radius: 14px; text-decoration: none; font-weight: 600; font-size: 16px;
-    transition: background-color 160ms ease, transform 120ms ease;
+    flex: 1 1 160px; display: inline-flex; justify-content: center; align-items: center; min-height: 52px; padding: 0 18px;
+    border-radius: 10px; border: 2.5px solid #0b0c0d; text-decoration: none; font-weight: 700; font-size: 16px;
+    transition: transform 120ms ease, box-shadow 140ms ease;
   }
-  .row a:active { transform: scale(.97); }
-  .flame { background: #ff5c00; color: #0b0c0d; }
-  .flame:hover { background: #ff7a33; }
-  .ghost { background: rgba(255,255,255,.04); color: #f2f3f4; border: 1px solid rgba(255,255,255,.14); }
-  .ghost:hover { background: rgba(255,255,255,.09); }
-  a:focus-visible { outline: 2px solid #ff5c00; outline-offset: 3px; }
+  .row a:active { transform: translateY(1px); }
+  .flame { background: #0b0c0d; color: #fff; }
+  .ghost { background: #fff; color: #0b0c0d; }
+  @media (hover: hover) { .row a:hover { transform: translateY(-2px); box-shadow: 0 5px 0 #ff5c00; } }
+  a:focus-visible { outline: 3px solid #0b0c0d; outline-offset: 3px; }
   /* A shop's short link (emberpos.net/k8s) lands here first - see the script
      at the bottom. While it is looked up, say that instead of "not found". */
   .looking .box > :not(.opening) { display: none; }
-  .opening { display: none; color: #b3bac1; }
-  .looking .opening { display: block; }
+  .opening { display: none; color: #3d444c; }
+  .looking .opening { display: block; padding-top: 24px; }
 </style>
 <script>
   // Decided before the page paints, so a shop link never flashes "not found".
@@ -54,7 +57,7 @@
 <main class="box">
   <img src="/logo.png" alt="Ember POS" />
   <p class="opening">Opening the shop&hellip;</p>
-  <span class="code">Page not found</span>
+  <span class="code">#404 &middot; Page not found</span>
   <h1>This page does not exist.</h1>
   <p>The link may have a typo, or the page was moved. You can go back to the home page or open the app.</p>
   <div class="row">

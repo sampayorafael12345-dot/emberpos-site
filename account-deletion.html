@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -8,19 +8,33 @@
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div class="wrap">
+<header class="k-head" id="k-head">
+  <div class="bar">
+    <a class="mark" href="index.html"><img src="logo.png" alt="" /><b>Ember POS</b></a>
+    <nav class="links" id="k-links" aria-label="Main">
+      <a class="lnk" href="index.html#how">How it works</a>
+      <a class="lnk" href="index.html#features">Features</a>
+      <a class="lnk" href="index.html#pricing">Pricing</a>
+      <a class="lnk" href="demo/">Live demo</a>
+      <a class="lnk" href="faq.html">FAQ</a>
+      <a class="lnk" href="office/">Back Office</a>
+      <a class="cta" href="app/">Open the app</a>
+    </nav>
+    <button class="menu" id="k-menu" type="button" aria-expanded="false" aria-controls="k-links" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  </div>
+</header>
 
-  <a class="brand" href="index.html">
-    <img src="logo.png" alt="" />
-    <span class="brand-text">
-      <span class="brand-name">Ember POS</span>
-    </span>
-  </a>
-
-<div class="page-head">
-  <h1>Delete your EmberPOS account &amp; data</h1>
+<section class="k-band">
+  <div class="k-band-in">
+    <p class="order"><b>#108</b>Delete account</p>
+    <h1>Delete your EmberPOS account &amp; data</h1>
   <p>App: <strong>EmberPOS</strong> · Developer: <strong>Ember POS</strong></p>
-</div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="k-tix-h k"><span>#108 &middot; Delete account</span><span>Ember POS</span></div>
+
 
 <p>You can permanently delete your EmberPOS account and all associated data at any time. There are two ways:</p>
 
@@ -28,7 +42,7 @@
 <div class="card">
 <ol>
   <li>Sign in to EmberPOS as the shop <strong>owner</strong>.</li>
-  <li>Go to <strong>Settings → Data → Danger zone</strong>.</li>
+  <li>Go to <strong>Settings → Data &amp; Backup → Danger zone</strong>.</li>
   <li>Tap <strong>"Delete shop &amp; account"</strong>.</li>
   <li>Type <code>DELETE</code> to confirm, then tap <strong>Permanently delete</strong>.</li>
 </ol>
@@ -46,19 +60,65 @@
   short-lived routine backup may persist briefly before rotating out, or where law requires us to keep specific
   records for a limited period.
 </p>
-
-<footer>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="help.html">Help &amp; Legal</a>
-    <a href="contact.html">Contact</a>
-    <a href="terms.html">Terms</a>
-    <a href="privacy-policy.html">Privacy</a>
-    <a href="refund-policy.html">Refunds</a>
-    <a href="disputes.html">Disputes</a>
-    <a href="account-deletion.html">Delete account</a>
-  </nav>
-EmberPOS · Account &amp; data deletion · See also our <a href="privacy-policy.html">Privacy Policy</a>.</footer>
 </div>
+
+<footer class="k-foot">
+  <div class="bar">
+    <div class="cols">
+      <div>
+        <a class="brand-row" href="index.html"><img src="logo.png" height="30" alt="" /><b>Ember POS</b></a>
+        <p>The all-in-one POS app for cafés and food shops in the Philippines. <a href="mailto:atlasco.web@gmail.com">atlasco.web@gmail.com</a></p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <nav aria-label="Product">
+          <a href="demo/">Live demo</a>
+          <a href="app/">Open the app</a>
+          <a href="office/">Back Office</a>
+          <a href="https://play.google.com/store/apps/details?id=com.emberpos.app">Google Play</a>
+        </nav>
+      </div>
+      <div>
+        <h4>Help</h4>
+        <nav aria-label="Help">
+          <a href="faq.html">FAQ</a>
+          <a href="help.html">Help &amp; Legal</a>
+          <a href="contact.html">Contact</a>
+          <a href="reset-password.html">Reset password</a>
+          <a href="account-deletion.html">Delete account</a>
+        </nav>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <nav aria-label="Legal">
+          <a href="terms.html">Terms</a>
+          <a href="privacy-policy.html">Privacy</a>
+          <a href="refund-policy.html">Refunds</a>
+          <a href="disputes.html">Disputes</a>
+        </nav>
+      </div>
+    </div>
+    <div class="bir-seal">
+      <img src="bir-seal-badge.webp" width="1141" height="389" loading="lazy" decoding="async"
+           alt="BIR Registration Seal Badge 2026 for Ember POS Computer Software Store, RSN 041RC20260000008789">
+      <div>
+        <p>Ember POS Computer Software Store is registered with the Bureau of Internal Revenue,
+           RDO 041 Mandaluyong. This seal confirms the business is BIR-registered. It is not a POS
+           accreditation. See the <a href="faq.html#bir">FAQ</a>.</p>
+        <p class="ver">Ember POS &middot; Philippines</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* the menu on a phone */
+  (function () {
+    var h = document.getElementById('k-head'), b = document.getElementById('k-menu');
+    if (!h || !b) return;
+    b.addEventListener('click', function () { var o = !h.classList.contains('open'); h.classList.toggle('open', o); b.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { h.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); } });
+  })();
+</script>
 </body>
 </html>
