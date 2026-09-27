@@ -109,6 +109,53 @@
   .note.ok   { background: rgb(4 120 87 / .12);   color: var(--ok); }
   .code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 700; letter-spacing: .04em; }
   .big { font-size: 26px; font-weight: 800; letter-spacing: -.01em; }
+
+  /* THE APP'S OWN LOOK (1.5.2) - the same paint as the online store and the
+     Ember app: app surfaces and inks, Space Grotesk, JetBrains Mono for money
+     and codes, flat cards 12px apart, no gradient band. Last, so it wins. */
+  @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; }
+  @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-ext-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20C0; }
+  @font-face { font-family: 'JetBrains Mono'; src: url('/fonts/jetbrains-mono-latin-700-normal.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+  :root {
+    --bg: #f1ece1;  --bg-sub: #f4f0e6;  --card: #ffffff;
+    --line: rgba(58, 50, 40, 0.14);
+    --text: #14120f;  --muted: #5d5446;  --accent-text: #b03e00;
+    --r-sm: 12px; --r-md: 16px;
+    --money: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121415;  --bg-sub: #21252a;  --card: #191c1e;
+      --line: rgba(255, 255, 255, 0.08);
+      --text: #ece7df;  --muted: rgba(236, 231, 223, 0.74);  --accent-text: #ff8340;
+    }
+  }
+  body { font-family: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+  .hero { background: var(--card); color: var(--text); border-bottom: 1px solid var(--line); }
+  .hero::after { display: none; }
+  .hero h1 { font-weight: 700; }
+  .hero p { color: var(--muted); opacity: 1; }
+  .card { box-shadow: none; margin-bottom: 12px; padding: 16px 16px 20px; }
+  .chip { border-radius: var(--r-sm); }
+  .chip[aria-pressed="true"] { color: var(--accent-ink); }
+  .code, .big { font-family: var(--money); }
+  /* The calendar. */
+  .cal { margin-top: 10px; }
+  .cal-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .cal-title { flex: 1; text-align: center; font-weight: 700; font-size: 15px; }
+  .cal-nav { width: 40px; height: 40px; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--bg-sub); font-size: 22px; line-height: 1; }
+  .cal-nav[disabled] { opacity: .3; cursor: default; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+  .cal-wd { text-align: center; font-size: 11.5px; font-weight: 600; color: var(--muted); padding: 2px 0 4px; }
+  .cal-day { aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-sub); font-weight: 600; font-size: 14.5px; font-family: var(--money); }
+  .cal-day[disabled] { background: transparent; border-color: transparent; color: var(--muted); opacity: .45; cursor: default; }
+  .cal-day.other[disabled] { opacity: .2; }
+  .cal-day.today { border-color: var(--accent); }
+  .cal-day[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .cal-picked { margin-top: 10px; text-align: center; font-size: 13.5px; font-weight: 600; color: var(--accent-text); }
+  /* Days and times in even columns, one height per row - no ragged wrap. */
+  #slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  #slots .chip { width: 100%; min-height: 44px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 6px; padding-right: 6px; }
 </style>
 </head>
 <body>
@@ -170,7 +217,7 @@ function dayOptions(policy) {
   const open = String(policy.days ?? '0,1,2,3,4,5,6').split(',').map((s) => s.trim()).filter(Boolean);
   const horizon = Number(policy.horizon_days || 30);
   const today = new Date();
-  for (let i = 0; i <= Math.min(horizon, 21); i++) {
+  for (let i = 0; i <= Math.min(horizon, 90); i++) {
     const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
     if (open.indexOf(String(d.getDay())) === -1) continue;
     const ymd = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -183,7 +230,53 @@ function dayOptions(policy) {
   return out;
 }
 
+/* A MONTH CALENDAR (1.5.2), asked for by the owner in place of a long list
+   of day buttons. Seven columns, Sunday first as on a Philippine wall
+   calendar; days the shop takes bookings are buttons, every other day is
+   shown but greyed (closed, past, or beyond the booking window). The arrows
+   move a month at a time and stop at the first and last bookable month. */
+let CAL_SHIFT = 0;       // months away from the selected day's month
+function ymdOf(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function calendarHtml(days) {
+  const ok = new Set(days.map((d) => d.ymd));
+  const todayYmd = ymdOf(new Date());
+  const base = DAY ? new Date(DAY + 'T00:00:00') : new Date();
+  const first = new Date(base.getFullYear(), base.getMonth() + CAL_SHIFT, 1);
+  const monthKey = (d) => d.getFullYear() * 12 + d.getMonth();
+  const minM = days.length ? monthKey(new Date(days[0].ymd + 'T00:00:00')) : monthKey(new Date());
+  const maxM = days.length ? monthKey(new Date(days[days.length - 1].ymd + 'T00:00:00')) : minM;
+  const cur = monthKey(first);
+  const start = new Date(first); start.setDate(1 - first.getDay());
+  const last = new Date(first.getFullYear(), first.getMonth() + 1, 0);
+  const cells = Math.ceil((first.getDay() + last.getDate()) / 7) * 7;
+  let h = '<div class="cal" id="days">'
+    + '<div class="cal-head">'
+    + '<button class="cal-nav" data-month="-1" aria-label="Previous month"' + (cur <= minM ? ' disabled' : '') + '>&#8249;</button>'
+    + '<div class="cal-title">' + esc(first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })) + '</div>'
+    + '<button class="cal-nav" data-month="1" aria-label="Next month"' + (cur >= maxM ? ' disabled' : '') + '>&#8250;</button>'
+    + '</div><div class="cal-grid">'
+    + ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((w) => '<div class="cal-wd">' + w + '</div>').join('');
+  for (let i = 0; i < cells; i++) {
+    const d = new Date(start); d.setDate(start.getDate() + i);
+    const y = ymdOf(d);
+    const inMonth = d.getMonth() === first.getMonth();
+    const can = inMonth && ok.has(y);
+    h += '<button class="cal-day' + (inMonth ? '' : ' other') + (y === todayYmd ? ' today' : '') + '"'
+      + (can ? ' data-day="' + y + '"' : ' disabled') + ' aria-pressed="' + (y === DAY) + '"'
+      + ' aria-label="' + esc(d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })) + '">'
+      + d.getDate() + '</button>';
+  }
+  h += '</div>';
+  if (DAY) {
+    h += '<div class="cal-picked">' + esc(new Date(DAY + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })) + '</div>';
+  }
+  return h + '</div>';
+}
+
 async function loadDay(ymd) {
+  CAL_SHIFT = 0;
   DAY = ymd;
   TIME = null;
   render();
@@ -245,9 +338,7 @@ function render() {
   app.innerHTML =
     '<div class="card">'
     + '<h2>Which day?</h2>'
-    + '<div class="row" style="margin-top:8px" id="days">'
-    + days.map((d) => '<button class="chip" data-day="' + d.ymd + '" aria-pressed="' + (d.ymd === DAY) + '">' + esc(d.label) + '</button>').join('')
-    + '</div>'
+    + calendarHtml(days)
     + '</div>'
 
     + '<div class="card">'
@@ -285,8 +376,10 @@ function render() {
 
   const dayWrap = el('days');
   if (dayWrap) dayWrap.onclick = (e) => {
+    const m = e.target.closest('[data-month]');
+    if (m && !m.disabled) { CAL_SHIFT += Number(m.getAttribute('data-month')); render(); return; }
     const b = e.target.closest('[data-day]');
-    if (b) loadDay(b.getAttribute('data-day'));
+    if (b && !b.disabled) loadDay(b.getAttribute('data-day'));
   };
   const slotWrap = el('slots');
   if (slotWrap) slotWrap.onclick = (e) => {
