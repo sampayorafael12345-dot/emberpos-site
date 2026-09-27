@@ -516,6 +516,16 @@
   .chip svg { color: #0b0c0d; }
   .chip.solid { background: #0b0c0d; color: #fff; }
   .hero .mine { background: #0b0c0d; color: #fff; border: 0; }
+  /* The app's corner: logo, name, POWERED BY EMBER POS in small caps. With no
+     shop logo, the flame sits on a dark tile so it shows on the orange. */
+  .hero .nm { min-width: 0; }
+  .hero .ember-mark { display: grid; place-items: center; background: #0b0c0d; border: 0; padding: 0; }
+  .hero .ember-mark img { width: 30px; height: 42px; display: block; }
+  .hero .powered {
+    display: inline-block; margin-top: 4px; color: rgb(11 12 13 / .72); text-decoration: none;
+    font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+  }
+  .hero .powered b { color: #0b0c0d; font-weight: 800; }
 
   /* Search + tabs: the app's input and its selected-tab orange. */
   .stick { background: var(--bg); }
@@ -528,12 +538,12 @@
      A plain line before each mix, for browsers without color-mix(). */
   .list, .sec { background: transparent; }
   .sec + .sec { border-top: 0; margin-top: 6px; }
-  .list, .list-tight { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 0 16px 6px; }
+  .sec .list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 0 16px 6px; }
   /* Two across on a phone: an odd last dish takes the whole row rather than
      leaving an empty cell beside it. */
-  @media (max-width: 559px) { .list > .item:last-child:nth-child(odd) { grid-column: 1 / -1; } }
-  @media (min-width: 560px) { .list, .list-tight { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  @media (min-width: 900px) { .list, .list-tight { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 1100px; margin: 0 auto; } }
+  @media (max-width: 559px) { .sec .list > .item:last-child:nth-child(odd) { grid-column: 1 / -1; } }
+  @media (min-width: 560px) { .sec .list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (min-width: 900px) { .sec .list { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 1100px; margin: 0 auto; } }
   .item {
     display: flex; flex-direction: column; gap: 0; align-items: stretch; margin: 0;
     min-height: 116px; padding: 12px; border-radius: var(--r-md); text-align: left; overflow: hidden;
@@ -563,6 +573,66 @@
     .hero, .stick { padding-left: calc((100% - 1100px) / 2 + 16px); padding-right: calc((100% - 1100px) / 2 + 16px); }
   }
   @media (min-width: 900px) and (max-width: 1132px) { .hero, .stick { padding-left: 16px; padding-right: 16px; } }
+
+  /* THE ORDER SCREEN (1.5.2): the same tiles as the menu. */
+  .sheet .count { color: var(--muted); font-size: 13px; font-weight: 600; margin: -2px 0 10px; }
+  .sheet .row.line {
+    border: 1px solid var(--f, #9ca3af); border: 1px solid color-mix(in srgb, var(--f, #9ca3af) 34%, transparent);
+    background: var(--card); background: color-mix(in srgb, var(--f, #9ca3af) 16%, var(--card));
+    border-radius: var(--r-md); padding: 12px; margin-bottom: 8px; align-items: center;
+  }
+  .sheet .row.line .ltot { font-family: var(--money); font-weight: 700; font-size: 15px; margin-top: 6px; color: #b45309; }
+  .sheet .totals.card { border: 1px solid var(--line); border-radius: var(--r-md); background: var(--bg-sub); padding: 12px 14px; margin: 6px 0 4px; }
+  .sheet .totals.card div.grand span:last-child { font-family: var(--money); font-size: 24px; color: var(--accent-text); }
+  .also { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 4px; }
+  .also-t {
+    display: flex; flex-direction: column; gap: 8px; min-height: 84px; padding: 10px 12px; text-align: left; border-radius: var(--r-md);
+    border: 1px solid var(--f, #9ca3af); border: 1px solid color-mix(in srgb, var(--f, #9ca3af) 34%, transparent);
+    background: var(--card); background: color-mix(in srgb, var(--f, #9ca3af) 16%, var(--card));
+  }
+  .also-t .nm { font-weight: 700; font-size: 14px; line-height: 1.25; }
+  .also-t .ft { margin-top: auto; display: flex; align-items: center; justify-content: space-between; }
+  .also-t .pr { font-family: var(--money); font-weight: 700; font-size: 14px; color: #b45309; }
+  .also-t .plus { position: static; width: 28px; height: 28px; border: 0; box-shadow: none; }
+  .also-t:active { transform: scale(.97); }
+  @media (prefers-color-scheme: dark) { .sheet .row.line .ltot, .also-t .pr { color: #feb700; } }
+
+  /* MOTION (1.5.2) - "i want it to feel good when users use it". Short,
+     springy, and only where it answers something the customer did or shows
+     them where to look. Everything here is off under reduced motion. */
+  @keyframes tileIn { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+  @keyframes logoIn { 0% { opacity: 0; transform: scale(.6) rotate(-8deg); } 70% { transform: scale(1.06) rotate(2deg); } 100% { opacity: 1; transform: none; } }
+  @keyframes nameIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+  @keyframes bump { 0% { transform: scale(1); } 35% { transform: scale(1.045); } 70% { transform: scale(.99); } 100% { transform: scale(1); } }
+  @keyframes badge { 0% { transform: scale(1); } 40% { transform: scale(1.45); } 100% { transform: scale(1); } }
+  @keyframes tick { 0% { transform: translateY(-6px); opacity: .2; } 100% { transform: none; opacity: 1; } }
+  @keyframes glowTotal { 0% { transform: scale(1); } 40% { transform: scale(1.08); } 100% { transform: scale(1); } }
+  @keyframes newOrder { from { opacity: 0; transform: translateY(-12px) scale(.98); } to { opacity: 1; transform: none; } }
+  body.intro .hero .logo { animation: logoIn .6s cubic-bezier(.2,.9,.3,1.2) both; }
+  body.intro .hero .nm { animation: nameIn .45s .12s cubic-bezier(.2,.8,.2,1) both; }
+  body.intro .hero .meta, body.intro .stick { animation: tileIn .45s .2s cubic-bezier(.2,.8,.2,1) both; }
+  body.intro .sec .item { animation: tileIn .5s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(.25s + var(--i, 0) * 45ms); }
+  .item .plus, .also-t .plus { transition: transform .25s cubic-bezier(.2,.9,.3,1.3); }
+  .item:active .plus, .also-t:active .plus { transform: rotate(90deg) scale(.9); }
+  .cat { transition: background-color .22s ease, border-color .22s ease, transform .12s ease; }
+  .cat:active { transform: scale(.95); }
+  .bar.enter { animation: pop .3s cubic-bezier(.16,1,.3,1); }
+  .bar:not(.enter) { animation: none; }
+  .bar.bump { animation: bump .45s cubic-bezier(.2,.9,.3,1.2); }
+  .bar.bump .n { animation: badge .45s cubic-bezier(.2,.9,.3,1.3); }
+  .sheet.intro .row.line, .sheet.intro .also-t, .sheet.intro .totals.card { animation: tileIn .42s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 55ms); }
+  .stepper span.tick { display: inline-block; animation: tick .25s ease-out; }
+  .totals div.grand span.pulse { display: inline-block; animation: glowTotal .35s ease-out; }
+  .primary, .ghost { transition: transform .1s ease, filter .15s ease; }
+  .primary:active { transform: scale(.97); }
+  .ghost:active { transform: scale(.97); }
+  .new-order { animation: newOrder .5s cubic-bezier(.2,.9,.3,1.1) both; }
+  @media (prefers-reduced-motion: reduce) {
+    body.intro .hero .logo, body.intro .hero .nm, body.intro .hero .meta, body.intro .stick, body.intro .sec .item,
+    .bar.bump, .bar.bump .n, .bar.enter, .sheet.intro .row.line, .sheet.intro .also-t, .sheet.intro .totals.card,
+    .stepper span.tick, .totals div.grand span.pulse, .new-order { animation: none !important; }
+    .item .plus, .also-t .plus, .cat, .primary, .ghost { transition: none; }
+  }
 
   /* Category tabs wear their category's colour too, as on the till: the
      same mix, and the one you are in carries more of it. */
@@ -632,6 +702,8 @@ function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { re
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode */ } }
 
 let MENU = null, CART = [], CUR = '₱', TAXPCT = 0, Q = '';
+// 1.5.2 motion: the first paint gets the entrance; later redraws do not.
+let FIRST_PAINT = true, BUMP = false, HAD_CART = false, LAST_TOTAL = null, TICK = -1;
 // 1.5.0: what goes with what (the till's upsell pairs, 0217), and which
 // triggers this visit has already offered - one suggestion per item, never a nag.
 let UPSELLS = {};
@@ -816,13 +888,10 @@ function render() {
 
   el('app').innerHTML =
     '<header class="hero">' +
-      '<div class="id">' +
-        // The shop's own logo, the same one on their receipts and cup
-        // stickers. Nothing is drawn in its place when they have not set one -
-        // a grey box where a mark should be looks like a broken image.
-        (shop.logo ? '<img class="logo" src="' + esc(shop.logo) + '" alt="">' : '') +
-        '<h1>' + esc(shop.name) + '</h1>' +
-      '</div>' +
+      // The shop's own logo (receipts, cup stickers) or, when it has none,
+      // the Ember flame; the name; "Powered by Ember POS" under it - the same
+      // corner the app has (1.5.2).
+      heroId(shop.logo, shop.name) +
       (chips ? '<div class="meta">' + chips + '</div>' : '') +
       (mine.length ? '<button class="mine" id="mine">Your orders (' + mine.length + ')</button>' : '') +
       (again && !CART.length ? '<button class="mine" id="again">Order again: ' +
@@ -850,12 +919,20 @@ function render() {
     // Only drawn when there is something in it. A permanent bar saying "0
     // items" was 90px of a phone screen spent on an empty state.
     (CART.length
-      ? '<div class="bar">' +
+      ? '<div class="bar' + (!HAD_CART ? ' enter' : '') + (BUMP ? ' bump' : '') + '">' +
           '<div class="sum"><span class="n">' + count() + '</span>' + money(total()) + '</div>' +
           '<button class="primary" id="review">View basket</button>' +
         '</div>'
       : '');
   document.body.classList.toggle('has-cart', CART.length > 0);
+  HAD_CART = CART.length > 0; BUMP = false;
+  // The entrance plays once, on the first paint of the menu.
+  document.querySelectorAll('.sec .item').forEach((t, n) => t.style.setProperty('--i', String(Math.min(n, 10))));
+  if (FIRST_PAINT) {
+    FIRST_PAINT = false;
+    document.body.classList.add('intro');
+    setTimeout(() => document.body.classList.remove('intro'), 1400);
+  }
 
   const q = el('q');
   q.addEventListener('input', (e) => {
@@ -1048,6 +1125,41 @@ function catFill(id) {
   return POS_COLORS[(n < 0 ? 0 : n) % POS_COLORS.length];
 }
 function fillOf(i) { return HEX.test(i.color || '') ? i.color : catFill(i.category_id); }
+function lineFill(l) {
+  const it = MENU && MENU.items.find((m) => m.id === l.item_id);
+  return it ? fillOf(it) : '#9ca3af';
+}
+/* "YOU MIGHT ALSO LIKE" (1.5.2) - fills the order screen with something
+   worth tapping. The shop's own pairs from the till first (UPSELLS, 0217),
+   then the first dish of each category the order has none of, so a coffee
+   order is offered a pastry, not a second coffee. Never a sold-out dish,
+   never one already in the order, at most four. Tap = the dish's own sheet. */
+function alsoLike() {
+  if (!MENU) return [];
+  const inCart = new Set(CART.map((l) => l.item_id));
+  const cats = new Set(CART.map((l) => (MENU.items.find((m) => m.id === l.item_id) || {}).category_id));
+  const ok = (i) => i && !inCart.has(i.id) && !soldOut(i) && i.price_cents > 0;
+  const out = [];
+  CART.forEach((l) => (UPSELLS[l.item_id] || []).forEach((id) => {
+    const it = MENU.items.find((m) => m.id === id);
+    if (ok(it) && !out.includes(it)) out.push(it);
+  }));
+  MENU.categories.forEach((c) => {
+    if (out.length >= 4 || cats.has(c.id)) return;
+    const it = MENU.items.find((m) => m.category_id === c.id && ok(m));
+    if (it && !out.includes(it)) out.push(it);
+  });
+  return out.slice(0, out.length >= 4 ? 4 : out.length >= 2 ? 2 : 0);
+}
+function alsoLikeHtml() {
+  const list = alsoLike();
+  if (!list.length) return '';
+  return '<div class="label">You might also like</div><div class="also">' +
+    list.map((i) => '<button class="also-t" data-also="' + i.id + '" style="--f:' + fillOf(i) + '">' +
+      '<span class="nm">' + esc(i.name) + '</span>' +
+      '<span class="ft"><span class="pr">' + money(i.price_cents) + '</span><span class="plus" aria-hidden="true">' + ICON_PLUS + '</span></span>' +
+    '</button>').join('') + '</div>';
+}
 
 function itemCard(i) {
   const out = soldOut(i);
@@ -1115,6 +1227,16 @@ function watchSections() {
     if (vis.length) markTab(vis[0].target.dataset.sec);
   }, { rootMargin: '-' + (stickH() + 8) + 'px 0px -55% 0px', threshold: 0 });
   secs.forEach((x) => SPY.observe(x));
+}
+
+/** The top-left corner, like the app's: logo, the shop's name, and ours under it. */
+function heroId(logo, name) {
+  return '<div class="id">' +
+    (logo ? '<img class="logo" src="' + esc(logo) + '" alt="">'
+          : '<span class="logo ember-mark" aria-hidden="true"><img src="/logo.png" alt=""></span>') +
+    '<div class="nm"><h1>' + esc(name) + '</h1>' +
+    '<a class="powered" href="https://emberpos.net" target="_blank" rel="noopener">Powered by <b>Ember POS</b></a></div>' +
+  '</div>';
 }
 
 /** Ours, at the bottom, small. The storefront is the shop's. */
@@ -1468,7 +1590,7 @@ function openItem(id) {
           .map((a) => (qtyOf(a.id) > 1 ? qtyOf(a.id) + '× ' + a.text : a.text)),
         note: (el('inote').value || '').trim(),
       });
-      closeSheet(); render();
+      closeSheet(); BUMP = true; render();
       // The same upgrade the cashier is offered: this item has a meal version.
       const meal = it.meal_item_id ? MENU.items.find((x) => x.id === it.meal_item_id) : null;
       if (meal) offerMeal(it, meal);
@@ -1557,15 +1679,17 @@ function openCart() {
     const tax = taxOf();
     openSheet('<div class="shead"><div style="flex:1;min-width:0"><h2>Your order</h2></div>' +
       '<button class="x" id="cartx" aria-label="Close">' + ICON_X + '</button></div>' +
-      CART.map((l, idx) => '<div class="row"><div style="flex:1;min-width:0">' +
+      '<div class="count">' + CART.reduce((n, l) => n + l.qty, 0) + (CART.reduce((n, l) => n + l.qty, 0) === 1 ? ' item' : ' items') + '</div>' +
+      CART.map((l, idx) => '<div class="row line" style="--f:' + lineFill(l) + '"><div style="flex:1;min-width:0">' +
         '<div style="font-weight:600">' + esc(l.name) + (l.variant_label ? ', ' + esc(l.variant_label) : '') + '</div>' +
         (l.option_labels.length ? '<div class="lede" style="font-size:13px">' + esc(l.option_labels.join(', ')) + '</div>' : '') +
         ((l.addon_labels || []).length ? '<div class="lede" style="font-size:13px">' + esc(l.addon_labels.map((a) => '+ ' + a).join(', ')) + '</div>' : '') +
         (l.note ? '<div class="lede" style="font-size:13px">' + esc(l.note) + '</div>' : '') +
-        '<div class="lede" style="font-size:13px">' + money(l.price) + ' each</div></div>' +
+        '<div class="lede" style="font-size:13px">' + money(l.price) + ' each</div>' +
+        '<div class="ltot">' + money(l.price * l.qty) + '</div></div>' +
         '<div class="stepper"><button data-m="' + idx + '" aria-label="One less">&minus;</button>' +
         '<span>' + l.qty + '</span><button data-p="' + idx + '" aria-label="One more">+</button></div></div>').join('') +
-      '<div class="totals">' +
+      '<div class="totals card">' +
         ((tax > 0 || deliveryFee() > 0) ? '<div><span>Subtotal</span><span>' + money(subtotal()) + '</span></div>' : '') +
         (deliveryFee() > 0 ? '<div><span>Delivery fee</span><span>' + money(deliveryFee()) + '</span></div>' : '') +
         (tax > 0 ? '<div><span>Tax</span><span>' + money(tax) + '</span></div>' : '') +
@@ -1576,6 +1700,7 @@ function openCart() {
       '<input class="note-in" id="who" type="text" maxlength="40" placeholder="' + (STORE ? 'Who is this order for?' : 'So the staff can call you') + '" aria-label="Your name">' +
       couponFieldHtml() +
       payChoiceHtml() +
+      alsoLikeHtml() +
       '<div class="foot">' +
         '<button class="ghost" id="back">Add more</button>' +
         '<button class="primary" id="send">' + esc(sendLabel()) + '</button></div>' +
@@ -1587,12 +1712,18 @@ function openCart() {
       true);   // full screen: a keyboard over a half sheet leaves nothing to type in
 
     if (el('cartx')) el('cartx').onclick = closeSheet;
+    document.querySelectorAll('[data-also]').forEach((b) => b.onclick = () => openItem(Number(b.dataset.also)));
 
+    document.querySelectorAll('.sheet .row.line, .sheet .totals.card, .sheet .also-t').forEach((x, n) => x.style.setProperty('--i', String(Math.min(n, 8))));
+    if (TICK >= 0) { const sp = document.querySelectorAll('.stepper span')[TICK]; if (sp) sp.classList.add('tick'); TICK = -1; }
+    const gt = document.querySelector('.totals div.grand span:last-child');
+    if (gt && LAST_TOTAL !== null && LAST_TOTAL !== total()) gt.classList.add('pulse');
+    LAST_TOTAL = total();
     document.querySelectorAll('[data-m]').forEach((b) => b.onclick = () => {
-      const i = Number(b.dataset.m); CART[i].qty--; if (CART[i].qty <= 0) CART.splice(i, 1); redrawKeeping(); render();
+      const i = Number(b.dataset.m); CART[i].qty--; if (CART[i].qty <= 0) CART.splice(i, 1); else TICK = i; redrawKeeping(); render();
     });
     document.querySelectorAll('[data-p]').forEach((b) => b.onclick = () => {
-      const i = Number(b.dataset.p); if (CART[i].qty < 20) CART[i].qty++; redrawKeeping(); render();
+      const i = Number(b.dataset.p); if (CART[i].qty < 20) { CART[i].qty++; TICK = i; } redrawKeeping(); render();
     });
     if (STORE) {
       // Remembered from the last order on this phone - typing an address twice
@@ -1647,6 +1778,10 @@ function openCart() {
     if (el('oph') && ph) el('oph').value = ph;
     if (el('oaddr') && ad) el('oaddr').value = ad;
   }
+  // The lines slide in when the sheet opens, not on every + and -.
+  LAST_TOTAL = null;
+  el('sheet').classList.add('intro');
+  setTimeout(() => el('sheet').classList.remove('intro'), 900);
   PAYCHOICE = defaultPayChoice();
   draw();
 }
@@ -2284,10 +2419,7 @@ function showOrders(highlight) {
     // three of these open, and "Your orders" on a white page identifies none
     // of them; the logo and the name do.
     '<header class="hero">' +
-      '<div class="id">' +
-        ((MENU && MENU.shop && MENU.shop.logo) ? '<img class="logo" src="' + esc(MENU.shop.logo) + '" alt="">' : '') +
-        '<h1>' + esc((MENU && MENU.shop && MENU.shop.name) || 'Your orders') + '</h1>' +
-      '</div>' +
+      heroId(MENU && MENU.shop && MENU.shop.logo, (MENU && MENU.shop && MENU.shop.name) || 'Your orders') +
       '<div class="meta"><span class="chip">Your orders</span>' +
       ((MENU && MENU.link && MENU.link.label) ? '<span class="chip">' + esc(MENU.link.label) + '</span>' : '') +
       '</div>' +
@@ -2301,7 +2433,7 @@ function showOrders(highlight) {
       : '') +
     '<div class="list">' + list.map((o) => {
       const isNew = o.num === highlight;
-      return '<div style="background:var(--card);border:1px solid ' + (isNew ? 'var(--accent)' : 'var(--line)') +
+      return '<div' + (isNew ? ' class="new-order"' : '') + ' style="background:var(--card);border:1px solid ' + (isNew ? 'var(--accent)' : 'var(--line)') +
         ';border-radius:var(--r-md);padding:14px">' +
         '<div style="display:flex;align-items:baseline;gap:10px">' +
           '<div><div style="font-weight:900;font-size:30px;letter-spacing:1px;line-height:1.05">' + esc(pickupNum(o.num, o.pickup)) + '</div>' +
