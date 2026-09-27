@@ -139,6 +139,49 @@
   .chip { border-radius: var(--r-sm); }
   .chip[aria-pressed="true"] { color: var(--accent-ink); }
   .code, .big { font-family: var(--money); }
+  /* HEADER, like the app's corner (1.5.2): the flame on a dark tile, the
+     shop's name, POWERED BY EMBER POS - on solid Ember orange. */
+  .hero { background: var(--accent); color: #0b0c0d; border-bottom: 0; padding-bottom: 20px; }
+  .hero .id { display: flex; align-items: center; gap: 13px; position: relative; }
+  .hero .mark { flex: 0 0 auto; width: 58px; height: 58px; border-radius: 14px; background: #0b0c0d; display: grid; place-items: center; }
+  .hero .mark img { width: 28px; height: 40px; display: block; }
+  .hero .nm { min-width: 0; }
+  .hero h1 { font-size: 25px; font-weight: 700; letter-spacing: -.015em; color: #0b0c0d; }
+  .hero .powered { display: inline-block; margin-top: 3px; color: rgb(11 12 13 / .72); text-decoration: none; font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+  .hero .powered b { color: #0b0c0d; font-weight: 800; }
+  .hero p { display: inline-block; margin-top: 12px; padding: 5px 11px; border-radius: 999px; background: rgb(11 12 13 / .12); color: #0b0c0d; font-weight: 600; font-size: 12.5px; }
+  .hero p:empty { display: none; }
+  /* Numbered steps. */
+  h2.step { display: flex; align-items: center; gap: 10px; font-size: 16px; }
+  h2.step .num { flex: 0 0 auto; width: 26px; height: 26px; border-radius: 999px; display: grid; place-items: center;
+    background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 800; font-family: var(--money); }
+  h2.step.done .num { background: #16a34a; color: #fff; animation: stepDone .35s cubic-bezier(.2,.9,.3,1.4); }
+  /* Motion. */
+  @keyframes cardIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @keyframes markIn { 0% { opacity: 0; transform: scale(.6) rotate(-8deg); } 70% { transform: scale(1.06) rotate(2deg); } 100% { opacity: 1; transform: none; } }
+  @keyframes chosen { 0% { transform: scale(.88); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
+  @keyframes stepDone { 0% { transform: scale(.4) rotate(-30deg); } 100% { transform: none; } }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  body.intro .hero .mark { animation: markIn .6s cubic-bezier(.2,.9,.3,1.2) both; }
+  body.intro .hero .nm { animation: cardIn .45s .1s cubic-bezier(.2,.8,.2,1) both; }
+  body.intro .card, body.intro #go { animation: cardIn .5s cubic-bezier(.2,.8,.2,1) both; }
+  body.intro .card:nth-of-type(2) { animation-delay: .08s; }
+  body.intro .card:nth-of-type(3) { animation-delay: .16s; }
+  body.intro #go { animation-delay: .24s; }
+  .cal-day[aria-pressed="true"], #slots .chip[aria-pressed="true"] { animation: chosen .32s cubic-bezier(.2,.9,.3,1.3); }
+  .cal-day, #slots .chip, .cal-nav, .primary, .ghost { transition: transform .1s ease, background-color .15s ease, border-color .15s ease; }
+  .cal-day:not([disabled]):active, #slots .chip:not([disabled]):active, .cal-nav:not([disabled]):active, .primary:not([disabled]):active, .ghost:active { transform: scale(.94); }
+  .primary:not([disabled]) { box-shadow: 0 6px 18px -8px rgb(255 92 0 / .8); }
+  .done-tick { display: block; width: 64px; height: 64px; margin: 4px auto 12px; }
+  .done-tick circle { fill: #16a34a; }
+  .done-tick path { fill: none; stroke: #fff; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 60; stroke-dashoffset: 60; animation: draw .5s .15s ease-out forwards; }
+  @media (prefers-reduced-motion: reduce) {
+    body.intro .hero .mark, body.intro .hero .nm, body.intro .card, body.intro #go, h2.step.done .num,
+    .cal-day[aria-pressed="true"], #slots .chip[aria-pressed="true"] { animation: none !important; }
+    .done-tick path { animation: none; stroke-dashoffset: 0; }
+    .cal-day, #slots .chip, .cal-nav, .primary, .ghost { transition: none; }
+  }
+
   /* The calendar. */
   .cal { margin-top: 10px; }
   .cal-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
@@ -155,12 +198,21 @@
   .cal-picked { margin-top: 10px; text-align: center; font-size: 13.5px; font-weight: 600; color: var(--accent-text); }
   /* Days and times in even columns, one height per row - no ragged wrap. */
   #slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  /* The last time fills its row - no lone chip beside two empty cells. */
+  #slots .chip:last-child:nth-child(3n+1) { grid-column: 1 / -1; }
+  #slots .chip:last-child:nth-child(3n+2) { grid-column: span 2; }
   #slots .chip { width: 100%; min-height: 44px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 6px; padding-right: 6px; }
 </style>
 </head>
 <body>
 <div class="hero">
-  <h1 id="shopname">Book a table</h1>
+  <div class="id">
+    <span class="mark" aria-hidden="true"><img src="/logo.png" alt=""></span>
+    <div class="nm">
+      <h1 id="shopname">Book a table</h1>
+      <a class="powered" href="https://emberpos.net" target="_blank" rel="noopener">Powered by <b>Ember POS</b></a>
+    </div>
+  </div>
   <p id="herosub">Loading&hellip;</p>
 </div>
 <div class="wrap" id="app"></div>
@@ -305,6 +357,18 @@ function depositLine(policy) {
     + '</div>';
 }
 
+/* 1.5.2: a numbered step that becomes a tick once it is answered. */
+function stepH(n, text, done) {
+  return '<h2 class="step' + (done ? ' done' : '') + '"><span class="num">' + (done ? '&#10003;' : n) + '</span>' + esc(text) + '</h2>';
+}
+/* "Tue 30 Sep, 12:00 PM for 2" - on the button, so they book what they read. */
+function bookingLabel() {
+  const d = DAY ? new Date(DAY + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) : '';
+  const hit = (INFO && INFO.slots || []).filter((x) => x.time === TIME)[0];
+  return d + ', ' + (hit ? hit.label : TIME) + ' for ' + PARTY;
+}
+let FIRST_PAINT = true;
+
 function render() {
   if (RESTOK) return;
   grabForm();               // BEFORE innerHTML is replaced - see FORM
@@ -337,12 +401,12 @@ function render() {
 
   app.innerHTML =
     '<div class="card">'
-    + '<h2>Which day?</h2>'
+    + stepH(1, 'Which day?', !!DAY)
     + calendarHtml(days)
     + '</div>'
 
     + '<div class="card">'
-    + '<h2>What time?</h2>'
+    + stepH(2, 'What time?', !!TIME)
     + (slots.length === 0
         ? '<p class="lede" style="margin-top:6px">No times left on this day. Try another.</p>'
         : '<div class="row" style="margin-top:8px" id="slots">'
@@ -357,7 +421,7 @@ function render() {
     + '</div>'
 
     + '<div class="card">'
-    + '<h2>Your details</h2>'
+    + stepH(3, 'Your details', false)
     + '<label class="f" style="margin-top:8px"><span>How many people?</span>'
     + '<select id="party">' + partyOptions(Number(policy.max_party || 12)) + '</select></label>'
     + '<label class="f"><span>Name</span><input type="text" id="name" autocomplete="name" placeholder="Who is the table for?"></label>'
@@ -370,10 +434,16 @@ function render() {
     + '</div>'
 
     + '<button class="primary" id="go"' + (TIME && DAY ? '' : ' disabled') + '>'
-    + (TIME ? 'Book this table' : 'Pick a time first') + '</button>'
+    + (TIME ? 'Book ' + esc(bookingLabel()) : 'Pick a time first') + '</button>'
     + '<p class="lede" style="text-align:center;margin-top:10px">'
     + 'You can cancel up to ' + esc(String(policy.cancel_hours || 12)) + ' hours before.</p>';
 
+  // The entrance plays once, when the booking form first appears.
+  if (FIRST_PAINT) {
+    FIRST_PAINT = false;
+    document.body.classList.add('intro');
+    setTimeout(() => document.body.classList.remove('intro'), 1100);
+  }
   const dayWrap = el('days');
   if (dayWrap) dayWrap.onclick = (e) => {
     const m = e.target.closest('[data-month]');
@@ -485,7 +555,9 @@ async function showBooking(tok) {
     : '<div class="note ok">Confirmed. See you then!</div>';
 
   app.innerHTML =
-    '<div class="card">'
+    '<div class="card" style="text-align:center">'
+    + (r.status !== 'cancelled' && r.status !== 'no_show'
+        ? '<svg class="done-tick" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30"/><path d="M19 33 l9 9 l17 -19"/></svg>' : '')
     + '<div class="big">' + esc(whenLabel) + '</div>'
     + '<p class="lede" style="margin:6px 0 0">'
     + esc(r.name) + ' · ' + esc(String(r.party_size)) + (Number(r.party_size) === 1 ? ' person' : ' people')
