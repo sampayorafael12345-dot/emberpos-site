@@ -475,6 +475,118 @@
     border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
     color: var(--text); font-size: 13.5px; line-height: 1.45;
   }
+
+  /* ======================================================================
+     THE APP'S OWN LOOK (1.5.2). The owner asked for the pages customers see
+     to look like the Ember app itself, so a customer ordering from the phone
+     and the cashier at the till are looking at one product. Everything below
+     is the app's paint, copied: its surfaces (--s-1..3), its hairline, its
+     three inks, Space Grotesk for words and JetBrains Mono for money, cards
+     with a 1px border and a 16px corner. No gradient band, no tinted letter
+     tiles. It sits last so it wins over the older rules above.
+     ====================================================================== */
+  @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; }
+  @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-ext-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20C0; }
+  @font-face { font-family: 'JetBrains Mono'; src: url('/fonts/jetbrains-mono-latin-700-normal.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+  :root {
+    --bg: #f1ece1;  --bg-sub: #f4f0e6;  --card: #ffffff;
+    --line: rgba(58, 50, 40, 0.14);  --line-2: rgba(58, 50, 40, 0.26);
+    --text: #14120f;  --muted: #5d5446;
+    --accent-text: #b03e00;
+    --r-sm: 12px; --r-md: 16px; --r-lg: 20px;
+    --money: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121415;  --bg-sub: #21252a;  --card: #191c1e;
+      --line: rgba(255, 255, 255, 0.08);  --line-2: rgba(255, 255, 255, 0.15);
+      --text: #ece7df;  --muted: rgba(236, 231, 223, 0.74);
+      --accent-text: #ff8340;
+    }
+  }
+  body { font-family: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+
+  /* Header: the flame, solid - the shop's name on Ember orange, in the ink
+     the website uses on it. One flat colour, no gradient, no glow. */
+  .hero { background: var(--accent); color: #0b0c0d; border-bottom: 0; padding-bottom: 20px; }
+  .hero::after { display: none; }
+  .hero .logo { box-shadow: none; border: 2px solid #0b0c0d; }
+  .hero h1 { font-weight: 700; letter-spacing: -.015em; font-size: 27px; }
+  .chip { background: rgb(11 12 13 / .12); color: #0b0c0d; border: 0; font-weight: 600; }
+  .chip svg { color: #0b0c0d; }
+  .chip.solid { background: #0b0c0d; color: #fff; }
+  .hero .mine { background: #0b0c0d; color: #fff; border: 0; }
+
+  /* Search + tabs: the app's input and its selected-tab orange. */
+  .stick { background: var(--bg); }
+  .search input { background: var(--bg-sub); border-color: var(--line); }
+
+  /* THE MENU IS THE TILL (1.5.2). Every dish is a tile in its category's
+     colour, mixed into the card exactly as the till's .pos-tile does it
+     (16% fill, 34% border), two across on a phone, more on a wider screen.
+     --f is set per tile from the item's colour, else its category's.
+     A plain line before each mix, for browsers without color-mix(). */
+  .list, .sec { background: transparent; }
+  .sec + .sec { border-top: 0; margin-top: 6px; }
+  .list, .list-tight { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 0 16px 6px; }
+  /* Two across on a phone: an odd last dish takes the whole row rather than
+     leaving an empty cell beside it. */
+  @media (max-width: 559px) { .list > .item:last-child:nth-child(odd) { grid-column: 1 / -1; } }
+  @media (min-width: 560px) { .list, .list-tight { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (min-width: 900px) { .list, .list-tight { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 1100px; margin: 0 auto; } }
+  .item {
+    display: flex; flex-direction: column; gap: 0; align-items: stretch; margin: 0;
+    min-height: 116px; padding: 12px; border-radius: var(--r-md); text-align: left; overflow: hidden;
+    background: var(--card);
+    background: color-mix(in srgb, var(--f, #9ca3af) 16%, var(--card));
+    border: 1px solid var(--f, #9ca3af);
+    border: 1px solid color-mix(in srgb, var(--f, #9ca3af) 34%, transparent);
+    transition: transform .1s, background .15s;
+  }
+  .list > .item:first-child { border-top: 1px solid var(--f, #9ca3af); border-top: 1px solid color-mix(in srgb, var(--f, #9ca3af) 34%, transparent); }
+  .item:active { transform: scale(.97); background: color-mix(in srgb, var(--f, #9ca3af) 26%, var(--card)); }
+  .item .pic { display: block; width: calc(100% + 24px); max-width: none; margin: -12px -12px 10px; aspect-ratio: 4 / 3; object-fit: cover; background: var(--bg-sub); }
+  .item .mid { flex: 1; display: flex; flex-direction: column; padding: 0; }
+  .item .nm { font-weight: 700; font-size: 15px; line-height: 1.25; }
+  .item .ds { font-size: 12.5px; margin-top: 3px; }
+  .item .foot { margin-top: auto; padding-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .item .pr { margin: 0; font-size: 15px; color: #b45309; }
+  /* The till's price gold on the dark tiles (text-ember-gold, #feb700). */
+  @media (prefers-color-scheme: dark) { .item .pr { color: #feb700; } }
+  .item .plus { position: static; width: 32px; height: 32px; border: 0; box-shadow: none; flex: 0 0 auto; }
+  .item .pr, .sheet .bigprice, .bar .sum { font-family: var(--money); font-weight: 700; }
+  .grp { background: transparent; padding: 18px 16px 10px; font-size: 19px; font-weight: 700; letter-spacing: -.01em; display: flex; align-items: center; gap: 10px; }
+  .grp .n { font-size: 13px; font-weight: 600; color: var(--muted); }
+  @media (min-width: 900px) {
+    .grp { max-width: 1100px; margin: 0 auto; }
+    /* Header and search line up with the tiles on a wide screen. */
+    .hero, .stick { padding-left: calc((100% - 1100px) / 2 + 16px); padding-right: calc((100% - 1100px) / 2 + 16px); }
+  }
+  @media (min-width: 900px) and (max-width: 1132px) { .hero, .stick { padding-left: 16px; padding-right: 16px; } }
+
+  /* Category tabs wear their category's colour too, as on the till: the
+     same mix, and the one you are in carries more of it. */
+  .cats { gap: 8px; padding-bottom: 10px; }
+  .cat {
+    margin: 0; padding: 8px 14px; border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--text);
+    background: var(--bg-sub);
+    background: color-mix(in srgb, var(--f, #9ca3af) 16%, var(--card));
+    border: 1px solid var(--f, #9ca3af);
+    border: 1px solid color-mix(in srgb, var(--f, #9ca3af) 34%, transparent);
+  }
+  .cat[aria-current="true"] {
+    color: var(--text); border-color: var(--f, #9ca3af);
+    background: color-mix(in srgb, var(--f, #9ca3af) 48%, var(--card));
+  }
+  .opt .delta { font-family: var(--money); font-weight: 700; font-size: 13px; }
+
+  /* Buttons and sheets: the app's radius, no drop shadows. */
+  .bar { border-radius: var(--r-sm); box-shadow: 0 6px 18px -8px rgb(0 0 0 / .5); }
+  .primary, .ghost { border-radius: var(--r-sm); }
+  .ghost { background: var(--bg-sub); border-color: var(--line); }
+  .sheet { background: var(--card); }
+  .note-in { background: var(--bg-sub); border-color: var(--line); }
+  .opt { border-radius: var(--r-sm); }
 </style>
 </head>
 <body>
@@ -571,7 +683,13 @@ const subtotal = () => CART.reduce((s, l) => s + l.price * l.qty, 0);
 // Mirror of the server's arithmetic (migrations 0045 + 0137) so the number
 // the customer agrees to is the number the shop charges. The delivery fee is
 // a vatable line on the server, so it joins the tax base here too.
-const deliveryFee = () => (STORE && OMODE === 'delivery' ? (STORE.delivery_fee_cents || 0) : 0);
+// 0226: a shop can price delivery by AREA. With areas set, the fee is the
+// chosen area's (nothing until one is picked); the server works it out again
+// from the area named at the start of the address and never trusts this.
+var ZONE = null;
+const zones = () => (STORE && Array.isArray(STORE.delivery_zones) ? STORE.delivery_zones : []);
+const zoneFee = () => { const z = zones().find((r) => r.name === ZONE); return z ? (z.fee_cents || 0) : 0; };
+const deliveryFee = () => (STORE && OMODE === 'delivery' ? (zones().length ? zoneFee() : (STORE.delivery_fee_cents || 0)) : 0);
 const taxOf = () => Math.round((CART.reduce((s, l) => s + (l.taxExempt ? 0 : l.price * l.qty), 0) + deliveryFee()) * TAXPCT / 100);
 const total = () => subtotal() + deliveryFee() + taxOf();
 const minPay = () => PAYMIN;
@@ -677,7 +795,7 @@ function render() {
       const inCat = items.filter((i) => i.category_id === c.id);
       if (!inCat.length) return '';
       return '<section class="sec" id="sec-' + c.id + '" data-sec="' + c.id + '">' +
-        '<div class="grp">' + esc(c.name) + '</div>' +
+        '<div class="grp">' + esc(c.name) + '<span class="n">' + inCat.length + '</span></div>' +
         '<div class="list list-tight">' + inCat.map(itemCard).join('') + '</div></section>';
     }).join('');
   } else {
@@ -717,7 +835,7 @@ function render() {
       '</div>' +
       '<div class="cats-wrap"><div class="cats" role="tablist" aria-label="Menu sections">' +
         MENU.categories.map((c, n) => (items.some((i) => i.category_id === c.id)
-          ? '<button class="cat" role="tab" data-c="' + c.id + '" aria-current="' + (n === 0) + '">' + esc(c.name) + '</button>'
+          ? '<button class="cat" role="tab" data-c="' + c.id + '" style="--f:' + catFill(c.id) + '" aria-current="' + (n === 0) + '">' + esc(c.name) + '</button>'
           : '')).join('') +
       '</div></div>' +
     '</div>' + body +
@@ -918,6 +1036,19 @@ function openRating() {
  *  and those only ever sent items that WERE available — so absent means yes. */
 function soldOut(i) { return i.available === 0 || i.available === false; }
 
+/* The till's colours (0228). An item's own colour wins, then its category's;
+   a shop that never picked any gets the app's category palette in order, so
+   the store is never a wall of grey. */
+const POS_COLORS = ['#f97316', '#3b82f6', '#22c55e', '#a855f7', '#ec4899', '#ef4444', '#a3e635', '#9ca3af'];
+const HEX = /^#[0-9a-fA-F]{6}$/;
+function catFill(id) {
+  const n = MENU.categories.findIndex((c) => c.id === id);
+  const c = MENU.categories[n];
+  if (c && HEX.test(c.color || '')) return c.color;
+  return POS_COLORS[(n < 0 ? 0 : n) % POS_COLORS.length];
+}
+function fillOf(i) { return HEX.test(i.color || '') ? i.color : catFill(i.category_id); }
+
 function itemCard(i) {
   const out = soldOut(i);
   const meal = (i.slots && i.slots.length)
@@ -927,14 +1058,18 @@ function itemCard(i) {
   // Name, description, price down the LEFT; the photo on the right with the +
   // on its corner. This is the arrangement of every food-delivery app, and it
   // is the one a customer scanning a QR has already used a hundred times.
-  return '<button class="item' + (out ? ' out' : '') + '" data-i="' + i.id + '"' +
-      (out ? ' disabled aria-disabled="true"' : '') + '>' +
+  // 1.5.2: a till tile - the dish's photo across the top when it has one,
+  // name and description, then price and + along the bottom edge.
+  const src = String(i.image || '');
+  const pic = (src.startsWith('data:image/') || src.startsWith('https://'))
+    ? '<img class="pic" src="' + esc(src) + '" alt="" loading="lazy" decoding="async">' : '';
+  return '<button class="item' + (out ? ' out' : '') + '" data-i="' + i.id + '" style="--f:' + fillOf(i) + '"' +
+      (out ? ' disabled aria-disabled="true"' : '') + '>' + pic +
     '<div class="mid"><div class="nm">' + esc(i.name) + '</div>' +
     (i.description ? '<div class="ds">' + esc(i.description) + '</div>' : '') + meal +
     (out ? '<div class="soldout">Sold out</div>' : '') +
-    '<div class="pr">' + money(i.price_cents) + '</div></div>' +
-    '<div class="shot">' + thumb(i) +
-    (out ? '' : '<div class="plus" aria-hidden="true">' + ICON_PLUS + '</div>') + '</div></button>';
+    '<div class="foot"><div class="pr">' + money(i.price_cents) + '</div>' +
+    (out ? '' : '<div class="plus" aria-hidden="true">' + ICON_PLUS + '</div>') + '</div></div></button>';
 }
 
 /* WHICH SECTION AM I IN. The tab bar is the page's one piece of furniture
@@ -1465,6 +1600,9 @@ function openCart() {
       if (el('who') && !el('who').value) el('who').value = lsGet('ember.who');
       if (el('oph') && !el('oph').value) el('oph').value = lsGet('ember.phone');
       if (el('oaddr') && !el('oaddr').value) el('oaddr').value = lsGet('ember.addr');
+      if (el('ozone') && !ZONE && lsGet('ember.zone') && zones().some((r) => r.name === lsGet('ember.zone'))) {
+        ZONE = lsGet('ember.zone'); redrawKeeping(); return;
+      }
       document.querySelectorAll('[data-omode]').forEach(function (b) {
         b.onclick = function () { OMODE = b.getAttribute('data-omode'); PAYCHOICE = defaultPayChoice(); redrawKeeping(); };
       });
@@ -1477,6 +1615,7 @@ function openCart() {
           redrawKeeping();
         };
       });
+      if (el('ozone')) el('ozone').onchange = function () { ZONE = el('ozone').value || null; if (ZONE) lsSet('ember.zone', ZONE); redrawKeeping(); };
       if (el('whensel')) el('whensel').onchange = function () { WHEN = el('whensel').value; };
     }
     // Outside the block above on purpose: a table QR and a kiosk tablet get
@@ -1532,6 +1671,15 @@ function storeFields() {
   h += '<div class="label">Your mobile number</div>' +
     '<input class="note-in" id="oph" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="0917 123 4567" aria-label="Your mobile number">';
   if (OMODE === 'delivery') {
+    if (zones().length) {
+      if (ZONE && !zones().some((r) => r.name === ZONE)) ZONE = null;
+      h += '<div class="label">Delivery area</div>' +
+        '<select class="when-sel" id="ozone" aria-label="Delivery area">' +
+        '<option value=""' + (ZONE ? '' : ' selected') + ' disabled>Choose your area</option>' +
+        zones().map((r) => '<option value="' + esc(r.name) + '"' + (r.name === ZONE ? ' selected' : '') + '>' +
+          esc(r.name) + ' — ' + (r.fee_cents ? money(r.fee_cents) : 'free') + '</option>').join('') +
+        '</select>';
+    }
     h += '<div class="label">Delivery address</div>' +
       '<textarea class="note-in" id="oaddr" rows="2" maxlength="300" placeholder="House no., street, barangay, city — a landmark helps" aria-label="Delivery address"></textarea>';
   }
@@ -1711,6 +1859,7 @@ async function send() {
     addr = ((el('oaddr') && el('oaddr').value) || '').trim();
     if (!who) { toast('Please give your name.'); return; }
     if (phone.replace(/[^0-9]/g, '').length < 7) { toast('Please give a mobile number the shop can reach you on.'); return; }
+    if (OMODE === 'delivery' && zones().length && !ZONE) { toast('Please choose your delivery area.'); return; }
     if (OMODE === 'delivery' && !addr) { toast('Please give the delivery address.'); return; }
     // prepayRequired(OMODE), not a delivery-only test (21 Sep 2026). A shop
     // with "pickup orders must be paid first" on, and PayMongo not connected
@@ -1733,7 +1882,7 @@ async function send() {
       p_items: CART.map((l) => ({ item_id: l.item_id, qty: l.qty, variant_id: l.variant_id, options: l.options, addons: l.addons || [], note: l.note })),
       p_name: who || null, p_note: null, p_order_type: STORE ? OMODE : null,
       p_client_ref: SEND_REF,
-      p_phone: STORE ? phone : null, p_address: (STORE && OMODE === 'delivery') ? addr : null,
+      p_phone: STORE ? phone : null, p_address: (STORE && OMODE === 'delivery') ? ((zones().length && ZONE) ? ZONE + ' · ' + addr : addr) : null,
       // Pickup only, and only where the shop asked for times. The server
       // resolves it in the SHOP's timezone and ignores anything it cannot
       // read - a bad time must never cost somebody their order.
