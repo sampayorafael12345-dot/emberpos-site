@@ -762,8 +762,21 @@ var ZONE = null;
 const zones = () => (STORE && Array.isArray(STORE.delivery_zones) ? STORE.delivery_zones : []);
 const zoneFee = () => { const z = zones().find((r) => r.name === ZONE); return z ? (z.fee_cents || 0) : 0; };
 const deliveryFee = () => (STORE && OMODE === 'delivery' ? (zones().length ? zoneFee() : (STORE.delivery_fee_cents || 0)) : 0);
-const taxOf = () => Math.round((CART.reduce((s, l) => s + (l.taxExempt ? 0 : l.price * l.qty), 0) + deliveryFee()) * TAXPCT / 100);
-const total = () => subtotal() + deliveryFee() + taxOf();
+// 0231: a shop's service charge (Cup Oh Mug: 10% on dine-in), by the till's
+// rule - on the bill after any discount, only for the order types the shop
+// chose, and carrying VAT in the same share the goods do. A table link is a
+// dine-in order, a counter kiosk a takeout one, the store link what they pick.
+var SVCPCT = 0, SVCTO = [];
+const orderKind = () => (STORE ? OMODE : (SHARED ? 'takeout' : 'dine_in'));
+const vatable = () => CART.reduce((s, l) => s + (l.taxExempt ? 0 : l.price * l.qty), 0) + deliveryFee();
+const svcOf = () => (SVCPCT > 0 && SVCTO.indexOf(orderKind()) >= 0
+  ? Math.round((subtotal() + deliveryFee()) * SVCPCT / 100) : 0);
+const taxOf = () => {
+  const base = subtotal() + deliveryFee();
+  const svc = svcOf();
+  return Math.round((vatable() + (base > 0 ? svc * (vatable() / base) : svc)) * TAXPCT / 100);
+};
+const total = () => subtotal() + deliveryFee() + svcOf() + taxOf();
 const minPay = () => PAYMIN;
 
 let toastTimer;
@@ -1690,8 +1703,9 @@ function openCart() {
         '<div class="stepper"><button data-m="' + idx + '" aria-label="One less">&minus;</button>' +
         '<span>' + l.qty + '</span><button data-p="' + idx + '" aria-label="One more">+</button></div></div>').join('') +
       '<div class="totals card">' +
-        ((tax > 0 || deliveryFee() > 0) ? '<div><span>Subtotal</span><span>' + money(subtotal()) + '</span></div>' : '') +
+        ((tax > 0 || deliveryFee() > 0 || svcOf() > 0) ? '<div><span>Subtotal</span><span>' + money(subtotal()) + '</span></div>' : '') +
         (deliveryFee() > 0 ? '<div><span>Delivery fee</span><span>' + money(deliveryFee()) + '</span></div>' : '') +
+        (svcOf() > 0 ? '<div><span>Service charge (' + SVCPCT + '%)</span><span>' + money(svcOf()) + '</span></div>' : '') +
         (tax > 0 ? '<div><span>Tax</span><span>' + money(tax) + '</span></div>' : '') +
         '<div class="grand"><span>Total</span><span>' + money(total()) + '</span></div>' +
       '</div>' +
@@ -2632,6 +2646,8 @@ function fatal(title, msg) {
     }
     CUR = (m.shop && m.shop.currency) || '₱';
     TAXPCT = Number((m.shop && m.shop.tax_percent) || 0);
+    SVCPCT = Number((m.shop && m.shop.service_charge_pct) || 0);
+    SVCTO = (m.shop && Array.isArray(m.shop.service_charge_to)) ? m.shop.service_charge_to : [];
     if (m.link && m.link.kind === 'store') {
       STORE = (m.shop && m.shop.ordering) || {};
       if (!STORE.pickup && !STORE.delivery) {
