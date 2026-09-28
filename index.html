@@ -65,7 +65,11 @@
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; scroll-padding-top: 80px; }
   @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
-  body { margin: 0; background: var(--ink); color: #fff; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; overflow-x: hidden; }
+  /* clip, on BOTH, where it is supported: the tilted kitchen tickets reach
+     29px past a phone's edge, and iOS lets a page pan sideways when only
+     body is hidden (29 Sep 2026). */
+  html { overflow-x: clip; }
+  body { margin: 0; background: var(--ink); color: #fff; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; overflow-x: hidden; overflow-x: clip; }
   body.no-scroll { overflow: hidden; }
   img, svg { display: block; max-width: 100%; }
   a { color: inherit; }
@@ -467,8 +471,10 @@
   .foot p { margin-top: 14px; font-size: 14.5px; line-height: 1.6; max-width: 36ch; }
   .foot p a { color: #fff; }
   .foot h4 { margin: 0 0 14px; font: 900 20px var(--poster); text-transform: uppercase; color: var(--flame); letter-spacing: .03em; }
-  .foot nav { display: flex; flex-direction: column; gap: 10px; }
-  .foot nav a { font-size: 14.5px; color: var(--d-ink2); text-decoration: none; }
+  /* A thumb-sized row per link (29 Sep 2026): 23px tall with 10px between
+     them, the footer was the easiest place on the page to tap the wrong one. */
+  .foot nav { display: flex; flex-direction: column; gap: 0; }
+  .foot nav a { font-size: 14.5px; color: var(--d-ink2); text-decoration: none; padding: 8px 0; }
   @media (hover: hover) { .foot nav a:hover { color: #fff; } }
   .foot-base { display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center; margin-top: 48px; padding-top: 28px; border-top: 1px dashed rgba(255,255,255,.18); }
   .bir-seal img { width: 190px; height: auto; border-radius: 8px; background: #fff; }
@@ -478,8 +484,11 @@
 
   /* ================= the phone dock ================= */
   .dock { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 40; display: none; gap: 8px; padding: 8px; border-radius: 16px; background: var(--ink); border: 2px solid var(--flame); transform: translateY(140%); transition: transform .4s var(--ease); }
-  .dock .btn { flex: 1; min-height: 48px; font-size: 15px; padding: 0 12px; }
+  /* Share the bar, never widen it (29 Sep 2026): "Get it on Google Play" held
+     its full width and pushed the fixed bar 17px past a 375px phone. */
+  .dock .btn { flex: 1 1 0; min-width: 0; min-height: 48px; font-size: 15px; padding: 0 10px; white-space: normal; text-align: center; line-height: 1.2; }
   .dock .btn-paper { border-color: #fff; }
+  .dock .btn-flame { flex-grow: 1.6; }  /* the longer label gets the room, so both stay on one line */
   .dock.show { transform: none; }
 
   /* ---- the working till (kept from the page before) ---- */
