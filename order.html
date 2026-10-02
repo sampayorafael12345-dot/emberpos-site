@@ -734,6 +734,12 @@ let SHARED = false;
 /* Whether this shop wants its kiosk tablet wiped between customers (0166).
    Only ever true on a kiosk link - see SHARED. */
 let FORGET = false;
+/* DINE IN OR TAKE OUT, ON THE KIOSK (2 Oct 2026, k8s Coffee: "right now every
+   order is labeled as take out"). The server always took either; this page
+   never asked, so a kiosk order was filed as takeout every time. The customer
+   now picks, and nothing is assumed for them: the button that sends the order
+   asks first. */
+let KMODE = null;            // null | 'dine_in' | 'takeout'
 /* PayMongo's floor, from the server rather than assumed here. */
 let PAYMIN = 2000;
 /* Order numbers placed since this page loaded - see SHARED. */
@@ -761,13 +767,28 @@ const subtotal = () => CART.reduce((s, l) => s + l.price * l.qty, 0);
 var ZONE = null;
 const zones = () => (STORE && Array.isArray(STORE.delivery_zones) ? STORE.delivery_zones : []);
 const zoneFee = () => { const z = zones().find((r) => r.name === ZONE); return z ? (z.fee_cents || 0) : 0; };
-const deliveryFee = () => (STORE && OMODE === 'delivery' ? (zones().length ? zoneFee() : (STORE.delivery_fee_cents || 0)) : 0);
+/* 0257: BY DISTANCE, where the shop set it and has no areas. The customer
+   taps "Use my location"; this works the fee out the same way the server does
+   (lib/delivery-distance.ts) and the server works it out again from the
+   coordinates at the start of the address, never from this figure. */
+var GEO = null;            // { lat, lng, km, fee } once located, or { err }
+const kmCfg = () => (STORE && !zones().length && STORE.delivery_km && STORE.delivery_km.rate_cents != null ? STORE.delivery_km : null);
+function kmFee(cfg, lat, lng) {
+  const R = 6371, rad = (d) => d * Math.PI / 180;
+  const dla = rad(lat - cfg.lat), dlo = rad(lng - cfg.lng);
+  const a = Math.sin(dla / 2) ** 2 + Math.cos(rad(cfg.lat)) * Math.cos(rad(lat)) * Math.sin(dlo / 2) ** 2;
+  const km = 2 * R * Math.asin(Math.min(1, Math.sqrt(a))) * 1.3;
+  if (km > Number(cfg.max_km)) return { km: km, fee: -1 };
+  return { km: km, fee: Number(cfg.base_cents) + Math.max(0, Math.ceil(km - Number(cfg.free_km))) * Number(cfg.rate_cents) };
+}
+const deliveryFee = () => (STORE && OMODE === 'delivery'
+  ? (zones().length ? zoneFee() : kmCfg() ? (GEO && GEO.fee >= 0 ? GEO.fee : 0) : (STORE.delivery_fee_cents || 0)) : 0);
 // 0231: a shop's service charge (Cup Oh Mug: 10% on dine-in), by the till's
 // rule - on the bill after any discount, only for the order types the shop
 // chose, and carrying VAT in the same share the goods do. A table link is a
 // dine-in order, a counter kiosk a takeout one, the store link what they pick.
 var SVCPCT = 0, SVCTO = [];
-const orderKind = () => (STORE ? OMODE : (SHARED ? 'takeout' : 'dine_in'));
+const orderKind = () => (STORE ? OMODE : (SHARED ? (KMODE || 'takeout') : 'dine_in'));
 const vatable = () => CART.reduce((s, l) => s + (l.taxExempt ? 0 : l.price * l.qty), 0) + deliveryFee();
 const svcOf = () => (SVCPCT > 0 && SVCTO.indexOf(orderKind()) >= 0
   ? Math.round((subtotal() + deliveryFee()) * SVCPCT / 100) : 0);
@@ -826,6 +847,7 @@ function thumb(i) {
    on every phone, and where it is missing the customer was being offered a
    choice between "Pickup" and a pink sandal. */
 var ICON_BAG = ico('<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>');
+var ICON_CUP = ico('<path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/>');
 var ICON_MOTO = ico('<circle cx="5" cy="17" r="3"/><circle cx="19" cy="17" r="3"/><path d="M8 17h8"/><path d="m5 17 4-8h5l2 4"/><path d="M13 9h4l2 5"/><path d="M12 5h3"/>');
 var ICON_CLOCK = ico('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>');
 var ICON_CHECK = ico('<path d="M20 6 9 17l-5-5"/>');
@@ -1710,6 +1732,7 @@ function openCart() {
         '<div class="grand"><span>Total</span><span>' + money(total()) + '</span></div>' +
       '</div>' +
       storeFields() +
+      kioskModeHtml() +
       '<div class="label">Your name</div>' +
       '<input class="note-in" id="who" type="text" maxlength="40" placeholder="' + (STORE ? 'Who is this order for?' : 'So the staff can call you') + '" aria-label="Your name">' +
       couponFieldHtml() +
@@ -1738,6 +1761,22 @@ function openCart() {
     });
     document.querySelectorAll('[data-p]').forEach((b) => b.onclick = () => {
       const i = Number(b.dataset.p); if (CART[i].qty < 20) { CART[i].qty++; TICK = i; } redrawKeeping(); render();
+    });
+    if (el('ogeo')) el('ogeo').onclick = function () {
+      if (!navigator.geolocation) { GEO = { err: 'This phone cannot share its location. Please order by phone instead.' }; redrawKeeping(); return; }
+      el('ogeo').disabled = true; el('ogeoout').textContent = 'Finding you…';
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        const lat = Math.round(pos.coords.latitude * 1e5) / 1e5, lng = Math.round(pos.coords.longitude * 1e5) / 1e5;
+        const r = kmFee(kmCfg(), lat, lng);
+        GEO = { lat: lat, lng: lng, km: r.km, fee: r.fee };
+        redrawKeeping();
+      }, function () {
+        GEO = { err: 'Could not get your location. Allow location for this page, then tap again.' };
+        redrawKeeping();
+      }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
+    };
+    document.querySelectorAll('[data-kmode]').forEach(function (b) {
+      b.onclick = function () { KMODE = b.getAttribute('data-kmode'); redrawKeeping(); };
     });
     if (STORE) {
       // Remembered from the last order on this phone - typing an address twice
@@ -1800,6 +1839,15 @@ function openCart() {
   draw();
 }
 
+/* The kiosk's own question - see KMODE. */
+function kioskModeHtml() {
+  if (STORE || !SHARED) return '';
+  return '<div class="label">Dine in or take out?</div>' +
+    '<div class="modes">' +
+    '<button class="' + (KMODE === 'dine_in' ? 'primary' : 'ghost') + '" data-kmode="dine_in">' + ICON_CUP + 'Dine in</button>' +
+    '<button class="' + (KMODE === 'takeout' ? 'primary' : 'ghost') + '" data-kmode="takeout">' + ICON_BAG + 'Take out</button></div>';
+}
+
 /* ---- Storefront helpers (v1.1.94) --------------------------------------- */
 function storeFields() {
   if (!STORE) return '';
@@ -1819,6 +1867,16 @@ function storeFields() {
   if (OMODE === 'pickup' && STORE.pickup_times) h += whenHtml();
   h += '<div class="label">Your mobile number</div>' +
     '<input class="note-in" id="oph" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="0917 123 4567" aria-label="Your mobile number">';
+  if (OMODE === 'delivery' && kmCfg()) {
+    h += '<div class="label">Your location</div>' +
+      '<button class="ghost" id="ogeo" style="width:100%">' + (GEO && GEO.fee >= 0 ? 'Update my location' : 'Use my location') + '</button>' +
+      '<div class="lede" id="ogeoout" style="font-size:13px;margin-top:6px">' +
+        (GEO && GEO.err ? esc(GEO.err)
+          : GEO && GEO.fee < 0 ? 'Sorry, you are outside our delivery range (' + Number(kmCfg().max_km) + ' km).'
+          : GEO ? 'About ' + GEO.km.toFixed(1) + ' km away. Delivery fee ' + money(GEO.fee) + '.'
+          : 'The delivery fee is worked out from how far you are.') +
+      '</div>';
+  }
   if (OMODE === 'delivery') {
     if (zones().length) {
       if (ZONE && !zones().some((r) => r.name === ZONE)) ZONE = null;
@@ -2009,6 +2067,10 @@ async function send() {
     if (!who) { toast('Please give your name.'); return; }
     if (phone.replace(/[^0-9]/g, '').length < 7) { toast('Please give a mobile number the shop can reach you on.'); return; }
     if (OMODE === 'delivery' && zones().length && !ZONE) { toast('Please choose your delivery area.'); return; }
+    if (OMODE === 'delivery' && kmCfg() && !(GEO && GEO.fee >= 0)) {
+      toast(GEO && GEO.fee < 0 ? 'Sorry, you are outside our delivery range.' : 'Please tap "Use my location" so we can work out the delivery fee.');
+      return;
+    }
     if (OMODE === 'delivery' && !addr) { toast('Please give the delivery address.'); return; }
     // prepayRequired(OMODE), not a delivery-only test (21 Sep 2026). A shop
     // with "pickup orders must be paid first" on, and PayMongo not connected
@@ -2023,15 +2085,17 @@ async function send() {
     }
     lsSet('ember.who', who); lsSet('ember.phone', phone); if (addr) lsSet('ember.addr', addr);
   }
+  if (!STORE && SHARED && !KMODE) { toast('Dine in or take out? Tap one, then send your order.'); return; }
   btn.disabled = true; btn.textContent = 'Sending…';
   if (!SEND_REF) SEND_REF = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
   try {
     const res = await rpc('kiosk_place_order', {
       p_token: TOKEN,
       p_items: CART.map((l) => ({ item_id: l.item_id, qty: l.qty, variant_id: l.variant_id, options: l.options, addons: l.addons || [], note: l.note })),
-      p_name: who || null, p_note: null, p_order_type: STORE ? OMODE : null,
+      p_name: who || null, p_note: null, p_order_type: STORE ? OMODE : (SHARED ? (KMODE || 'takeout') : null),
       p_client_ref: SEND_REF,
-      p_phone: STORE ? phone : null, p_address: (STORE && OMODE === 'delivery') ? ((zones().length && ZONE) ? ZONE + ' · ' + addr : addr) : null,
+      p_phone: STORE ? phone : null, p_address: (STORE && OMODE === 'delivery') ? ((zones().length && ZONE) ? ZONE + ' · ' + addr
+        : (kmCfg() && GEO && GEO.fee >= 0) ? 'GPS ' + GEO.lat.toFixed(5) + ',' + GEO.lng.toFixed(5) + ' · ' + addr : addr) : null,
       // Pickup only, and only where the shop asked for times. The server
       // resolves it in the SHOP's timezone and ignores anything it cannot
       // read - a bad time must never cost somebody their order.
@@ -2066,7 +2130,7 @@ async function send() {
     var saved = Number(res.discount_cents || 0);
     COUPON = '';
     var payNow = PAYON && PAYCHOICE === 'now' && (res.total_cents || 0) >= minPay() && !res.duplicate;
-    CART = []; SEND_REF = null; closeSheet(); showOrders(res.order_number);
+    CART = []; SEND_REF = null; KMODE = null; closeSheet(); showOrders(res.order_number);
     // The unmistakable confirmation the shop asked for — the screen also
     // switches to "Your orders" with this order on top.
     toast(res.duplicate
@@ -2219,7 +2283,7 @@ function forgetAll() {
   stopRinging();
   try { localStorage.removeItem(LS_KEY); } catch (e) { /* private mode */ }
   for (var k in MINE) { if (Object.prototype.hasOwnProperty.call(MINE, k)) delete MINE[k]; }
-  CART = [];
+  CART = []; KMODE = null;
   Q = '';
   render();
 }
@@ -2413,8 +2477,12 @@ function pickupNum(raw, stamped) {
   return s;
 }
 
-function stepsHtml(state, type) {
-  const texts = (type && STATE_TEXT_BY_TYPE[type]) || STATE_TEXT;
+function stepsHtml(state, type, wanted) {
+  let texts = (type && STATE_TEXT_BY_TYPE[type]) || STATE_TEXT;
+  // An order booked for later sits on its first step until the shop starts
+  // it near the time. "Confirming" for forty minutes reads as "lost" (2 Oct
+  // 2026, KOPIKOPI): say what is actually happening.
+  if (wanted && state === 'waiting') texts = Object.assign({}, texts, { waiting: 'Booked for ' + esc(wanted) + ' — the shop starts it nearer the time' });
   if (state === 'cancelled') {
     return '<div class="step on"><span class="dot"></span><span>' + texts.cancelled + '</span></div>';
   }
@@ -2532,7 +2600,7 @@ function showOrders(highlight) {
           (PAYON && o.total >= minPay() && (!SHARED || MINE[o.num])
             ? '<button class="primary" data-paynow="' + esc(o.num) + '" data-paytype="' + esc(o.type || '') + '" style="width:100%;margin-bottom:12px">Pay now — ' + money(o.total) + '</button>'
             : '')) +
-        '<div class="steps" data-track="' + esc(o.num) + '">' + stepsHtml(o.state || 'waiting', o.type) + '</div>' +
+        '<div class="steps" data-track="' + esc(o.num) + '">' + stepsHtml(o.state || 'waiting', o.type, o.wanted) + '</div>' +
       '</div>';
     }).join('') + '</div>' +
     csatHtml() +
@@ -2542,6 +2610,10 @@ function showOrders(highlight) {
         '<button class="primary" id="nextcust">I\u2019m done</button></div>'
       : '<div class="bar solo"><button class="primary" id="tomenu">Order more</button></div>');
 
+  // The "Order more" bar floats over the page here too, with the basket empty,
+  // so the last step of the tracker has to clear it the same way (2 Oct 2026:
+  // KOPIKOPI's customer saw "Ready" and "Collected" hidden under the bar).
+  document.body.classList.add('has-cart');
   el('tomenu').onclick = () => { render(); };
   if (el('nextcust')) el('nextcust').onclick = forgetAll;
   idleArm();                      // no-op unless this is a kiosk that asked
@@ -2585,7 +2657,7 @@ function trackAll() {
           if (ch.becameCollected) { stopRinging(); redraw = true; }
           if (ch.paidChanged) redraw = true; // the paid badge + banner live outside the steps box
           const box = document.querySelector('[data-track="' + o.num + '"]');
-          if (box) box.innerHTML = stepsHtml(r.state, o.type);
+          if (box) box.innerHTML = stepsHtml(r.state, o.type, o.wanted);
         }
       } catch (e) { /* keep the last known state and try again next tick */ }
     }

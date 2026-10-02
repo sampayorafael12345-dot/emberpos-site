@@ -1,0 +1,1 @@
+(function(){System.register([`./index.web-legacy-Sah4MktG.js`],function(e,t){var n,r;return{setters:[function(e){n=e.n,r=e.r}],execute:function(){e(`App`,n(`App`,{web:function(){return r(function(){return t.import(`./web-legacy-D3vP9E3S.js`).then(function(e){return new e.AppWeb})},void 0)}}))}}})})();

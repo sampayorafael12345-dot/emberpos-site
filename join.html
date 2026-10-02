@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#111214" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<title>Loyalty card</title>
+<link rel="icon" href="favicon.png">
+<!--
+  JOIN A SHOP'S LOYALTY PROGRAMME (3 Oct 2026):  join.html?t=<token>
+
+  A customer scans the shop's QR (a poster, the customer screen), types their
+  name and mobile number, and gets their loyalty card - the QR the till scans
+  - on their own phone. It talks to two functions (migration 0256):
+  loyalty_join_shop and loyalty_join. Nothing else is reachable from here.
+
+  The card is remembered on this phone, so opening the link again shows it.
+-->
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f2f2f4; --card: #ffffff; --line: #e8e8ec;
+    --text: #18181b; --muted: #5f5f6b;
+    --accent: #ff5c00; --accent-ink: #1a0e05; --accent-text: #b84000;
+    --r: 16px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e0f11; --card: #17181b; --line: #292b31;
+      --text: #f4f4f5; --muted: #a5a5ae; --accent-text: #ff8340;
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px; line-height: 1.45;
+  }
+  button, input { font: inherit; color: inherit; }
+  .top {
+    background: var(--accent); color: #fff;
+    padding: calc(22px + env(safe-area-inset-top)) 16px 20px;
+  }
+  .top h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; }
+  .top p { margin: 6px 0 0; font-size: 14.5px; opacity: .92; }
+  main { max-width: 440px; margin: 0 auto; padding: 16px 16px 40px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 16px; }
+  label { display: block; font-size: 14px; font-weight: 650; margin: 14px 0 6px; }
+  label:first-child { margin-top: 0; }
+  label span { font-weight: 400; color: var(--muted); }
+  input {
+    width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--bg); font-size: 16px;
+  }
+  .go {
+    width: 100%; margin-top: 18px; padding: 14px; border: 0; border-radius: 14px;
+    background: var(--accent); color: var(--accent-ink); font-weight: 800; font-size: 16px; cursor: pointer;
+  }
+  .go:disabled { opacity: .5; }
+  .msg { min-height: 22px; margin-top: 12px; font-size: 14.5px; color: var(--muted); text-align: center; }
+  .note { font-size: 12.5px; color: var(--muted); margin-top: 14px; text-align: center; }
+  .loyal { text-align: center; }
+  .loyal .shop { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .loyal .who { font-size: 22px; font-weight: 800; margin-top: 4px; }
+  .qr { background: #fff; border-radius: 14px; padding: 14px; width: 250px; height: 250px; margin: 16px auto 10px; }
+  .qr svg { width: 100%; height: 100%; display: block; }
+  .code { font-family: ui-monospace, "Courier New", monospace; font-size: 19px; letter-spacing: 2px; font-weight: 700; }
+  .made { text-align: center; font-size: 12px; color: var(--muted); margin-top: 22px; }
+  .made a { color: var(--muted); font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--line); }
+</style>
+</head>
+<body>
+<div class="top"><h1 id="title">Loyalty card</h1><p id="sub">Collect stamps and get free items.</p></div>
+<main id="main"><div class="card"><div class="msg">Loading…</div></div></main>
+<div class="made">Powered by <a href="https://emberpos.net" target="_blank" rel="noopener">Ember POS</a></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+const URLB = 'https://qqmkgafyfxrcnwdkkyxc.supabase.co';
+const ANON = 'sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX';
+const TOKEN = new URLSearchParams(location.search).get('t') || '';
+const KEY = 'ember.card.' + TOKEN.slice(0, 12);
+const el = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+async function rpc(fn, args) {
+  const r = await fetch(URLB + '/rest/v1/rpc/' + fn, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON },
+    body: JSON.stringify(args),
+  });
+  if (!r.ok) throw new Error('network');
+  return await r.json();
+}
+
+/* The card: the same text the till's scanner reads (lib/loyalty-card.ts). */
+function cardHtml(c) {
+  let svg = '';
+  try {
+    const q = qrcode(0, 'M');
+    q.addData('EMBER-CARD:' + c.code);
+    q.make();
+    svg = q.createSvgTag({ cellSize: 6, margin: 0, scalable: true });
+  } catch (e) { svg = ''; }
+  const shown = c.code.length === 10 ? c.code.slice(0, 5) + ' ' + c.code.slice(5) : c.code;
+  return '<div class="card loyal">' +
+    '<div class="shop">' + esc(c.shop || 'Loyalty card') + '</div>' +
+    '<div class="who">' + esc(c.name) + '</div>' +
+    (svg ? '<div class="qr">' + svg + '</div>' : '') +
+    '<div class="code">' + esc(shown) + '</div>' +
+    '<div class="note">Show this at the counter every time you order. Take a screenshot to keep it handy, ' +
+    'or open this link again &mdash; your card stays on this phone.</div></div>';
+}
+
+function showCard(c) {
+  el('title').textContent = c.shop ? c.shop : 'Loyalty card';
+  el('sub').textContent = 'Your loyalty card';
+  el('main').innerHTML = cardHtml(c);
+}
+
+function showForm(shop) {
+  el('title').textContent = shop.shop || 'Loyalty card';
+  el('sub').textContent = 'Join our loyalty card: get a stamp with every visit, and a free item after ' + shop.required + '.';
+  el('main').innerHTML =
+    '<div class="card">' +
+      '<label for="nm">Your name</label>' +
+      '<input id="nm" autocomplete="name" maxlength="60" placeholder="Juan Dela Cruz">' +
+      '<label for="ph">Mobile number</label>' +
+      '<input id="ph" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="0917 123 4567">' +
+      '<label for="bd">Birthday <span>(optional, for a birthday treat)</span></label>' +
+      '<input id="bd" type="date" autocomplete="bday">' +
+      '<button class="go" id="go">Get my card</button>' +
+      '<div class="msg" id="msg"></div>' +
+      '<div class="note">Your name and number go to this shop only, for its loyalty card.</div>' +
+    '</div>';
+  el('go').onclick = async function () {
+    const name = el('nm').value.trim(), phone = el('ph').value.trim(), bday = el('bd').value || null;
+    if (name.length < 2) { el('msg').textContent = 'Type your name.'; return; }
+    if (phone.replace(/\D/g, '').length < 10) { el('msg').textContent = 'Type your full mobile number.'; return; }
+    el('go').disabled = true; el('msg').textContent = 'Making your card…';
+    try {
+      const r = await rpc('loyalty_join', { p_token: TOKEN, p_name: name, p_phone: phone, p_birthday: bday });
+      if (!r || !r.ok) { el('msg').textContent = (r && r.error) || 'Please ask at the counter.'; el('go').disabled = false; return; }
+      const card = { code: r.card_code, name: name, shop: r.shop || shop.shop || '' };
+      try { localStorage.setItem(KEY, JSON.stringify(card)); } catch (e) { /* the card still shows */ }
+      showCard(card);
+    } catch (e) {
+      el('msg').textContent = 'No connection. Try again in a moment.';
+      el('go').disabled = false;
+    }
+  };
+}
+
+(async function () {
+  if (!TOKEN) { el('main').innerHTML = '<div class="card"><div class="msg">This link is not complete. Please scan the QR code again.</div></div>'; return; }
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { saved = null; }
+  if (saved && saved.code) { showCard(saved); return; }
+  try {
+    const shop = await rpc('loyalty_join_shop', { p_token: TOKEN });
+    if (!shop || !shop.ok) { el('main').innerHTML = '<div class="card"><div class="msg">' + esc((shop && shop.error) || 'Please ask at the counter.') + '</div></div>'; return; }
+    showForm(shop);
+  } catch (e) {
+    el('main').innerHTML = '<div class="card"><div class="msg">No connection. Check your signal and try again.</div></div>';
+  }
+})();
+</script>
+</body>
+</html>
