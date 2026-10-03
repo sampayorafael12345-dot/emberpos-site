@@ -2135,6 +2135,9 @@ async function send() {
     // switches to "Your orders" with this order on top.
     toast(res.duplicate
       ? (STORE ? 'This order was already sent to the shop — here it is.' : 'This order was already sent to the cashier — here it is.')
+      : saved > 0 && res.promo_name
+        // 0268: the shop's own promo applied itself.
+        ? res.promo_name + ' — ' + money(saved) + ' off. ' + (STORE ? 'Order sent to the shop!' : 'Order sent to the cashier!')
       : saved > 0
         ? 'Code accepted — ' + money(saved) + ' off. ' + (STORE ? 'Order sent to the shop!' : 'Order sent to the cashier!')
         : (STORE ? 'Order sent to the shop!' : 'Order sent to the cashier!'));
