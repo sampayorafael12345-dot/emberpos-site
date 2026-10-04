@@ -78,19 +78,25 @@
     el.innerHTML = '<img alt="" src="' + src + '" style="height:100%;width:auto;display:block;margin:0 auto">';
   }
 
-  function mount(el) {
-    var stopped = false, raf = 0;
-    var stop = function () { stopped = true; if (raf) (window.cancelAnimationFrame || clearTimeout)(raf); };
-    var reduced = false;
-    try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { /* old */ }
+  // The worker that draws off the page's thread sits beside this file.
+  var SRC = (document.currentScript && document.currentScript.src) || '';
+  var WORKER = SRC ? SRC.replace(/logo-loader\.js(\?.*)?$/, 'logo-worker.js') : '';
+
+  function canvasFor(el, w, h) {
+    var cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    cv.setAttribute('aria-hidden', 'true');
+    cv.style.height = '100%'; cv.style.width = 'auto'; cv.style.display = 'block'; cv.style.margin = '0 auto';
+    el.innerHTML = ''; el.appendChild(cv);
+    return cv;
+  }
+
+  // On the page's own thread: older tills and the desktop app's local files.
+  function onPage(el, st, reduced) {
     load(function (f) {
-      if (stopped) return;
+      if (st.stopped) return;
       if (!f) { still(el); return; }
-      var cv = document.createElement('canvas');
-      cv.width = f.w; cv.height = f.h;
-      cv.setAttribute('aria-hidden', 'true');
-      cv.style.height = '100%'; cv.style.width = 'auto'; cv.style.display = 'block'; cv.style.margin = '0 auto';
-      el.innerHTML = ''; el.appendChild(cv);
+      var cv = canvasFor(el, f.w, f.h);
       var g = cv.getContext('2d');
       var im = g.createImageData(f.w, f.h), d = im.data, i;
       for (i = 0; i < f.n; i++) { var p = f.at[i]; d[p] = RGB[0]; d[p + 1] = RGB[1]; d[p + 2] = RGB[2]; }
@@ -109,16 +115,56 @@
       var clock = function () { return window.performance && performance.now ? performance.now() : Date.now(); };
       var t0 = clock();
       var tick = function () {
-        if (stopped) return;
-        if (!cv.parentNode) { stopped = true; return; }       // the screen was replaced
-        var now = clock();
-        var t = (now - t0) % (FILL + DRAIN);
+        if (st.stopped) return;
+        if (!cv.parentNode) { st.stopped = true; return; }       // the screen was replaced
+        var t = (clock() - t0) % (FILL + DRAIN);
         if (t < FILL) paint(t / FILL, -1); else paint(1, (t - FILL) / DRAIN);
-        raf = (window.requestAnimationFrame || function (f2) { return setTimeout(f2, 16); })(tick);
+        st.raf = (window.requestAnimationFrame || function (f2) { return setTimeout(f2, 16); })(tick);
       };
       tick();
     });
-    return stop;
+  }
+
+  // Off the page's thread: the app's busiest moments (loading, starting its
+  // database, the demo unpacking its shop) can no longer make it stutter.
+  function offPage(el, st, reduced) {
+    if (!WORKER || !window.Worker || location.protocol === 'file:') return false;
+    var cv = canvasFor(el, 228, 316);
+    if (!cv.transferControlToOffscreen) return false;
+    var w;
+    try {
+      w = new Worker(WORKER);
+      var off = cv.transferControlToOffscreen();
+      w.postMessage({ canvas: off, data: DATA, E: E, FILL: FILL, DRAIN: DRAIN, rgb: RGB, reduced: reduced }, [off]);
+    } catch (e) {
+      try { if (w) w.terminate(); } catch (e2) { /* never started */ }
+      return false;
+    }
+    st.worker = w;
+    var fall = function () {
+      try { w.terminate(); } catch (e) { /* gone */ }
+      st.worker = null;
+      if (!st.stopped) onPage(el, st, reduced);   // a fresh canvas, on the page
+    };
+    w.onerror = function (e) { if (e && e.preventDefault) e.preventDefault(); fall(); };
+    w.onmessage = function (e) { if (e.data && e.data.fail) fall(); };
+    // The worker cannot see the page: stop it when its screen is gone.
+    st.watch = setInterval(function () { if (!cv.parentNode || !document.documentElement.contains(cv)) st.stop(); }, 1000);
+    return true;
+  }
+
+  function mount(el) {
+    var st = { stopped: false, raf: 0, worker: null, watch: 0 };
+    st.stop = function () {
+      st.stopped = true;
+      if (st.raf) (window.cancelAnimationFrame || clearTimeout)(st.raf);
+      if (st.watch) clearInterval(st.watch);
+      if (st.worker) { try { st.worker.postMessage('stop'); st.worker.terminate(); } catch (e) { /* gone */ } st.worker = null; }
+    };
+    var reduced = false;
+    try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { /* old */ }
+    if (!offPage(el, st, reduced)) onPage(el, st, reduced);
+    return st.stop;
   }
 
   window.EmberLogo = { mount: mount };
@@ -157,7 +203,11 @@
       els[i].__emberLogo = mount(els[i]);
     }
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+  // Now, not on DOMContentLoaded: that waits for the app's own code to run,
+  // which is the very wait this screen is for. The startup screens sit above
+  // this script in every page; anything later is caught on DOMContentLoaded.
+  start();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
 
   // The app calls this once it is ready to show itself.
   window.__emberHideBoot = function () {
