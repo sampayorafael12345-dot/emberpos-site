@@ -68,9 +68,15 @@
     <link rel="apple-touch-icon" href="icons/icon-180.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!-- Solid black, NOT black-translucent (4 Oct 2026). On iOS 26 a translucent
+         bar makes the home-screen app's window one status bar SHORT of the screen
+         (WebKit bug 301108): a dead black strip under the bottom bar that no page
+         CSS can reach. Opaque, the window starts under the bar and runs to the
+         real bottom edge. iOS reads this only when the app is ADDED to the home
+         screen - an existing icon must be removed and added again. -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="Ember POS" />
-    <style>html,body{color:#ece7df;background:#151210;height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif}#boot{text-align:center;background:radial-gradient(600px 360px at 50% 30%,rgba(255,92,0,.16),transparent 65%),#151210;justify-content:center;align-items:center;padding:24px;display:flex;position:fixed;top:0;bottom:0;left:0;right:0}#boot .msg{max-width:560px;font-size:15px;line-height:1.5}#boot .err{white-space:pre-wrap;word-break:break-word;color:#fca5a5;text-align:left;background:rgba(0,0,0,.3);border-radius:8px;max-height:50vh;margin-top:14px;padding:10px;font-size:12px;overflow:auto}#boot strong{color:#fbbf24}#boot .tile{justify-content:center;align-items:center;height:76px;margin:0 auto 14px;animation:1.6s ease-in-out infinite bootpulse;display:flex}#boot .tile img{filter:drop-shadow(0 6px 26px rgba(255,92,0,.4));width:auto;height:76px;display:block}#boot .word{letter-spacing:3px;color:#ff6a1a;font-size:26px;font-weight:800}#boot .word span{color:#feb700}#boot .sub{color:rgba(236,231,223,.5);margin-top:6px;font-size:13px}@keyframes bootpulse{0%,to{opacity:1;transform:scale(1)}50%{opacity:.85;transform:scale(.94)}}</style>
+    <style>html,body{color:#ece7df;background:#151210;height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif}#boot{text-align:center;z-index:9999;background:#151210;justify-content:center;align-items:center;padding:24px;display:flex;position:fixed;top:0;bottom:0;left:0;right:0}#boot .msg{max-width:560px;font-size:15px;line-height:1.5}#boot .err{white-space:pre-wrap;word-break:break-word;color:#fca5a5;text-align:left;background:rgba(0,0,0,.3);border-radius:8px;max-height:50vh;margin-top:14px;padding:10px;font-size:12px;overflow:auto}#boot strong{color:#fbbf24}#boot .logo{height:84px}</style>
     
   </head>
   <body>
@@ -79,11 +85,7 @@
          instead of a black screen if the app can't start (common on very old
          device WebViews). Plain ES5 + static markup only, so it works even when
          the main bundle's syntax is too modern for the WebView. -->
-    <div id="boot"><div class="msg">
-      <div class="tile"><img src="/app/brand/logo-mark.png" height="76" alt=""></div>
-      <div class="word">EMBER <span>POS</span></div>
-      <div class="sub">Starting up&hellip;</div>
-    </div></div>
+    <div id="boot" role="status" aria-label="Ember POS is starting"><div class="logo" data-ember-logo></div></div>
     <script>
       (function () {
         function show(title, detail) {
@@ -115,7 +117,8 @@
         }, 12000);
       })();
     </script>
+    <script src="/app/brand/logo-loader.js"></script>
     <script crossorigin id="vite-legacy-polyfill" src="/app/assets/polyfills-legacy-BAS5e7E2.js"></script>
-    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-mcaZo19F.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-Yqj-HcQ4.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
   </body>
 </html>
