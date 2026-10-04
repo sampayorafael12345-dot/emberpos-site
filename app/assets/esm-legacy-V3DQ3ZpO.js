@@ -1,1 +1,0 @@
-(function(){System.register([`./index.web-legacy-mcaZo19F.js`],function(e,t){var n,r;return{setters:[function(e){n=e.n,r=e.r}],execute:function(){e(`Browser`,n(`Browser`,{web:function(){return r(function(){return t.import(`./web-legacy-DIU-Z7jX.js`).then(function(e){return new e.BrowserWeb})},void 0)}}))}}})})();
