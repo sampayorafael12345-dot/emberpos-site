@@ -1,0 +1,1 @@
+function e(e){let t=typeof e==`string`?e:``;return t.startsWith(`data:image/`)||t.startsWith(`https://`)?t:null}export{e as t};

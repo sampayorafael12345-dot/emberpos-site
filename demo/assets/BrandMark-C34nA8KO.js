@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-096o_Uk7.js";var t=`/demo/assets/logo-mark-Dmoekzm5.png`,n=e();function r({size:e=40,className:r=``}){return(0,n.jsx)(`img`,{src:t,alt:``,"aria-hidden":!0,draggable:!1,height:e,style:{height:e,width:`auto`},className:`select-none shrink-0 ${r}`})}export{r as t};
