@@ -1,0 +1,1 @@
+(function(){System.register([],function(e,t){function n(e){var t=typeof e==`string`?e:``;return t.startsWith(`data:image/`)||t.startsWith(`https://`)?t:null}return e(`t`,n),{setters:[],execute:function(){}}})})();
