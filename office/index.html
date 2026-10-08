@@ -9,8 +9,10 @@
     <meta name="theme-color" content="#f6f7f9" />
     <!--
       Same policy as the app entry, and for the same reason: it cannot stop an
-      injected script, but connect-src stops one PHONING HOME with the owner's
-      session — which is the step that turns an XSS into a stolen company.
+      injected script, but connect-src and img-src (no open https: - an image
+      address is a way to carry data out too) limit where one can PHONE HOME with
+      the owner's session - which is the step that turns an XSS into a stolen
+      company. A hostname list narrows that route; it does not close it.
       This page reads every branch, so that containment matters more here than
       anywhere else in the product.
     -->
@@ -18,7 +20,7 @@
       default-src 'self';
       script-src 'self' 'unsafe-inline';
       style-src 'self' 'unsafe-inline';
-      img-src 'self' data: blob: https:;
+      img-src 'self' data: blob: https://*.supabase.co;
       font-src 'self' data:;
       connect-src 'self' https://*.supabase.co wss://*.supabase.co;
       object-src 'none';
@@ -31,7 +33,7 @@
          browser stretches rather than letterboxes, which fattened the flame. -->
     <link rel="icon" href="/office/brand/favicon.png" type="image/png" />
     <meta name="robots" content="noindex" />
-    <script type="module" crossorigin src="/office/assets/index.office-C5bpSLFD.js"></script>
+    <script type="module" crossorigin src="/office/assets/index.office-BLPzovWx.js"></script>
     <link rel="stylesheet" crossorigin href="/office/assets/index-CJ-LaUD-.css">
   </head>
   <body>
