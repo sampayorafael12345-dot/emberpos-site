@@ -81,6 +81,8 @@ self.addEventListener('fetch', (event) => {
         const fresh = await fetch(req);
         const cache = await caches.open(CACHE);
         cache.put(shellKey(), fresh.clone());
+        // Tidy up behind the new shell without making the page wait.
+        event.waitUntil(pruneOldAssets(cache, fresh.clone()).catch(() => undefined));
         return fresh;
       } catch {
         const cached = await caches.match(shellKey());
@@ -126,4 +128,29 @@ self.addEventListener('fetch', (event) => {
 /** One cache key for the shell, whatever path the navigation used. */
 function shellKey() {
   return new URL('./', self.registration.scope).toString();
+}
+
+/**
+ * Every release has new hashed file names, so without this the cache only ever
+ * grows. Called after a fresh shell arrives: any cached /assets/ file that the
+ * new shell does not name AND that was saved more than 21 days ago is dropped.
+ * Files the new shell names are always kept, and a recent lazy screen file is
+ * kept too so it still opens offline. An old one that is dropped by mistake is
+ * simply downloaded again the next time it is needed online.
+ */
+async function pruneOldAssets(cache, shell) {
+  const html = await shell.text();
+  const named = new Set();
+  for (const m of html.matchAll(/["'(]([^"'()\s]*\/assets\/[^"'()\s?#]+)/g)) {
+    try { named.add(new URL(m[1], self.registration.scope).pathname); } catch (e) { /* skip */ }
+  }
+  if (!named.size) return; // could not read the shell: delete nothing
+  const cutoff = Date.now() - 21 * 86400000;
+  for (const req of await cache.keys()) {
+    const path = new URL(req.url).pathname;
+    if (!path.includes('/assets/') || named.has(path)) continue;
+    const res = await cache.match(req);
+    const saved = Date.parse((res && res.headers.get('date')) || '') || 0;
+    if (saved < cutoff) await cache.delete(req);
+  }
 }

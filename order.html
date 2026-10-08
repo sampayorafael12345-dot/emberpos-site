@@ -1729,7 +1729,8 @@ function openCart() {
         (deliveryFee() > 0 ? '<div><span>Delivery fee</span><span>' + money(deliveryFee()) + '</span></div>' : '') +
         (svcOf() > 0 ? '<div><span>Service charge (' + SVCPCT + '%)</span><span>' + money(svcOf()) + '</span></div>' : '') +
         (tax > 0 ? '<div><span>Tax</span><span>' + money(tax) + '</span></div>' : '') +
-        '<div class="grand"><span>Total</span><span>' + money(total()) + '</span></div>' +
+        '<div class="grand"><span>' + (STORE && STORE.has_promo ? 'Total before offers' : 'Total') + '</span><span>' + money(total()) + '</span></div>' +
+        (STORE && STORE.has_promo ? '<div class="lede" style="font-size:12.5px;margin-top:4px">The shop&rsquo;s offer is taken off when you place the order.</div>' : '') +
       '</div>' +
       storeFields() +
       kioskModeHtml() +
@@ -2043,7 +2044,8 @@ function sendLabel() {
   // WITH A CODE TYPED, THE AMOUNT IS NOT OURS TO STATE. The server works out
   // what the code is worth; a button that said "pay 280" and then charged 230
   // would be wrong twice over - once about the money, once about who decided.
-  var withCode = COUPONS_ON && COUPON.trim() !== '';
+  // Same for the shop's own automatic offer (0306): the server takes it off, so the button names no amount.
+  var withCode = (COUPONS_ON && COUPON.trim() !== '') || !!(STORE && STORE.has_promo);
   if (PAYON && PAYCHOICE === 'now' && total() >= minPay()) {
     return withCode ? 'Place order & pay' : 'Place order & pay ' + money(total());
   }

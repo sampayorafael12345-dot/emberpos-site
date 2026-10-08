@@ -228,3 +228,6 @@ button:disabled { opacity: .55; cursor: default; }
 .k-band .ctas { justify-content: flex-start; margin-top: 26px; }
 .k-band .k-h1 { font: 900 clamp(56px, 9vw, 128px)/.86 var(--poster); text-transform: uppercase; color: var(--night); max-width: 16ch; }
 .k-band .order { margin-bottom: 26px; }
+
+.skip { position: absolute; left: 12px; top: -60px; z-index: 100; background: #ff5c00; color: #1a0e05; padding: 10px 16px; border-radius: 10px; font-weight: 700; text-decoration: none; }
+.skip:focus { top: 12px; }

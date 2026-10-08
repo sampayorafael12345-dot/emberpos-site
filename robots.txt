@@ -3,3 +3,7 @@ Disallow: /app/
 Disallow: /order.html
 Disallow: /office/
 Disallow: /ops/
+Disallow: /reset-password.html
+Disallow: /reserve.html
+
+Sitemap: https://emberpos.net/sitemap.xml

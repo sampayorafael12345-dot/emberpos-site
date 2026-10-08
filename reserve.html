@@ -223,7 +223,10 @@ const ANON = 'sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX';
 
 const el = (id) => document.getElementById(id);
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
-const money = (c) => 'P' + (Math.round(c) / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+/* THE SHOP'S OWN CURRENCY SIGN, from the booking info (kiosk_reserve_info / kiosk_reservation). 'P' only until
+   it arrives or for an older server that does not send one. */
+let CUR = 'P';
+const money = (c) => CUR + (Math.round(c) / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 async function rpc(fn, args) {
   const r = await fetch(URLB + '/rest/v1/rpc/' + fn, {
@@ -240,6 +243,22 @@ const TOKEN = params.get('t') || '';
 const RESTOK = params.get('r') || '';
 
 let INFO = null;         // kiosk_reserve_info for the chosen day
+/* TODAY IN THE SHOP'S OWN ZONE ('YYYY-MM-DD'), from the server. The page used to take today, the weekday and
+   the greyed past days from the visitor's phone, so a visitor in another zone (or near midnight) was offered
+   days the server then refused, or not offered days the shop is open. */
+let SHOPDAY = '';
+function takeInfo(r) {
+  INFO = r;
+  if (r && typeof r.currency === 'string' && r.currency) CUR = r.currency;
+  if (r && typeof r.today === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(r.today)) SHOPDAY = r.today;
+}
+/* Calendar arithmetic on the shop's date, in UTC parts so the phone's zone and daylight saving cannot shift it. */
+function shopDayPlus(i) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(SHOPDAY);
+  if (!m) { const t = new Date(); return new Date(Date.UTC(t.getFullYear(), t.getMonth(), t.getDate() + i)); }
+  return new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]) + i));
+}
+const ymdUtc = (d) => d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') + '-' + String(d.getUTCDate()).padStart(2, '0');
 let DAY = null;          // 'YYYY-MM-DD'
 let TIME = null;         // 'HH:MM'
 let PARTY = 2;
@@ -268,15 +287,14 @@ function dayOptions(policy) {
      kind of mismatch because the customer only finds out at the end. */
   const open = String(policy.days ?? '0,1,2,3,4,5,6').split(',').map((s) => s.trim()).filter(Boolean);
   const horizon = Number(policy.horizon_days || 30);
-  const today = new Date();
   for (let i = 0; i <= Math.min(horizon, 90); i++) {
-    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
-    if (open.indexOf(String(d.getDay())) === -1) continue;
-    const ymd = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const d = shopDayPlus(i);
+    if (open.indexOf(String(d.getUTCDay())) === -1) continue;
+    const ymd = ymdUtc(d);
     out.push({
       ymd,
       label: i === 0 ? 'Today' : i === 1 ? 'Tomorrow'
-        : d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }),
+        : new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }),
     });
   }
   return out;
@@ -293,7 +311,7 @@ function ymdOf(d) {
 }
 function calendarHtml(days) {
   const ok = new Set(days.map((d) => d.ymd));
-  const todayYmd = ymdOf(new Date());
+  const todayYmd = SHOPDAY || ymdOf(new Date());
   const base = DAY ? new Date(DAY + 'T00:00:00') : new Date();
   const first = new Date(base.getFullYear(), base.getMonth() + CAL_SHIFT, 1);
   const monthKey = (d) => d.getFullYear() * 12 + d.getMonth();
@@ -333,7 +351,7 @@ async function loadDay(ymd) {
   TIME = null;
   render();
   try {
-    INFO = await rpc('kiosk_reserve_info', { p_token: TOKEN, p_date: ymd });
+    takeInfo(await rpc('kiosk_reserve_info', { p_token: TOKEN, p_date: ymd }));
   } catch (e) {
     INFO = { ok: false, error: 'network' };
   }
@@ -538,6 +556,7 @@ async function showBooking(tok) {
     return;
   }
 
+  if (typeof r.currency === 'string' && r.currency) CUR = r.currency;
   el('shopname').textContent = r.shop || 'Your booking';
   el('herosub').textContent = 'Your table';
 
@@ -591,7 +610,7 @@ if (RESTOK) {
   showBooking(RESTOK);
 } else if (TOKEN) {
   (async () => {
-    INFO = await rpc('kiosk_reserve_info', { p_token: TOKEN, p_date: null }).catch(() => ({ ok: false, error: 'network' }));
+    takeInfo(await rpc('kiosk_reserve_info', { p_token: TOKEN, p_date: null }).catch(() => ({ ok: false, error: 'network' })));
     const days = INFO && INFO.policy ? dayOptions(INFO.policy) : [];
     if (INFO && INFO.ok !== false && days.length) { await loadDay(days[0].ymd); } else { render(); }
   })();
