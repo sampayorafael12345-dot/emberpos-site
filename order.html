@@ -798,6 +798,31 @@ const taxOf = () => {
   return Math.round((vatable() + (base > 0 ? svc * (vatable() / base) : svc)) * TAXPCT / 100);
 };
 const total = () => subtotal() + deliveryFee() + svcOf() + taxOf();
+/* THE SHOP'S AUTOMATIC OFFER, PREVIEWED. The server takes the offer off when the order is placed; this asks it
+   (kiosk_promo_preview) how much, so the cart can show it and the pay-online minimum is judged on what will
+   really be charged. A preview that cannot be had (offline, an older server) is simply zero: the server's
+   figure at checkout is the one that counts. */
+let PROMO_PREVIEW = { cents: 0, name: '', key: '' };
+const cartKey = () => JSON.stringify(CART.map((l) => [l.item_id, l.price, l.qty]));
+const promoCents = () => (STORE && STORE.has_promo && (!COUPONS_ON || COUPON.trim() === '') && PROMO_PREVIEW.key === cartKey())
+  ? Math.min(PROMO_PREVIEW.cents, subtotal()) : 0;
+const payTotal = () => Math.max(0, total() - promoCents());
+async function refreshPromo(after) {
+  if (!(STORE && STORE.has_promo) || !CART.length) return;
+  const key = cartKey();
+  if (PROMO_PREVIEW.key === key) return;
+  let next = { cents: 0, name: '', key };
+  try {
+    const r = await rpc('kiosk_promo_preview', {
+      p_token: TOKEN,
+      p_lines: CART.map((l) => ({ item_id: l.item_id, unit_cents: l.price, qty: l.qty })),
+    });
+    if (r && r.ok) next = { cents: Math.max(0, Number(r.cents) || 0), name: String(r.name || ''), key };
+  } catch (e) { /* no preview: the server decides at checkout */ }
+  if (cartKey() !== key) return;
+  PROMO_PREVIEW = next;
+  if (next.cents > 0 && after) after();
+}
 const minPay = () => PAYMIN;
 
 let toastTimer;
@@ -1280,7 +1305,21 @@ function madeBy() {
     '<span class="flame">Ember</span> POS</a></div>';
 }
 
+/* A sheet that has something running behind it (the Scan-to-pay sheet polls and keeps a timer) registers
+   SHEET_STOP, run quietly whenever that sheet closes or another opens over it, and SHEET_DISMISS, run when
+   the customer taps outside it or presses Escape - the same as pressing its own back-out button. */
+let SHEET_STOP = null, SHEET_DISMISS = null;
+function dropSheetHooks() {
+  const stop = SHEET_STOP;
+  SHEET_STOP = null; SHEET_DISMISS = null;
+  if (stop) { try { stop(); } catch (e) { /* nothing to stop */ } }
+}
+function dismissSheet() {
+  const d = SHEET_DISMISS;
+  if (d) { SHEET_DISMISS = null; d(); } else closeSheet();
+}
 function openSheet(html, full) {
+  dropSheetHooks();
   el('sheet').innerHTML = '<div class="grab"></div>' + html;
   el('sheet').classList.toggle('full', !!full);
   el('scrim').classList.add('on');
@@ -1288,11 +1327,12 @@ function openSheet(html, full) {
   el('sheet').scrollTop = 0;
 }
 function closeSheet() {
+  dropSheetHooks();
   el('scrim').classList.remove('on');
   document.body.style.overflow = '';
 }
-el('scrim').onclick = (e) => { if (e.target.id === 'scrim') closeSheet(); };
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheet(); });
+el('scrim').onclick = (e) => { if (e.target.id === 'scrim') dismissSheet(); };
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') dismissSheet(); });
 
 /**
  * WHAT THE SHOP HAS SAID ABOUT THIS DISH.
@@ -1320,7 +1360,7 @@ const DIET_LABELS = {
  * nothing they could do about it.
  */
 const CSAT_FACES = [[1, ':-('], [2, ':-/'], [3, ':-|'], [4, ':-)'], [5, ':-D']];
-const CSAT_KEY = 'ember.qr.csat';
+const CSAT_KEY = 'ember.qr.csat.' + TOKEN; // per link: a rating at one shop must not silence another
 let ASK_CSAT = false;
 // 1.5.0: the shop's review link, when "Ask for a review" is on (0217).
 let REVIEW_URL = '';
@@ -1393,11 +1433,12 @@ function foodFacts(it) {
     + (nutri.length ? '<div class="nutri">' + esc(nutri.join(' \u00b7 ')) + '</div>' : '');
 }
 
-function openItem(id) {
+function openItem(id, opts) {
   const it = MENU.items.find((x) => x.id === id);
   if (soldOut(it)) { toast(it.name + ' is sold out right now.'); return; }
   let size = (it.sizes && it.sizes.length) ? it.sizes[0].id : null;
-  let qty = 1;
+  // "Make it a meal" opens the meal for the SAME number the diner already had, and only swaps the lines when the meal is added.
+  let qty = Math.max(1, Math.min(20, Number(opts && opts.qty) || 1));
   const picks = {};
   (it.slots || []).forEach((s) => { if (s.options.length) picks[s.id] = s.options[0].id; });
 
@@ -1611,6 +1652,7 @@ function openItem(id) {
     el('cancel').onclick = closeSheet;
     el('add').onclick = () => {
       const v = size ? it.sizes.find((s) => s.id === size) : null;
+      if (opts && opts.replaceLine) { const at = CART.indexOf(opts.replaceLine); if (at >= 0) CART.splice(at, 1); }
       CART.push({
         item_id: it.id, name: it.name, qty, price: unit(),
         taxExempt: !!it.tax_exempt,
@@ -1628,7 +1670,7 @@ function openItem(id) {
       closeSheet(); BUMP = true; render();
       // The same upgrade the cashier is offered: this item has a meal version.
       const meal = it.meal_item_id ? MENU.items.find((x) => x.id === it.meal_item_id) : null;
-      if (meal) offerMeal(it, meal);
+      if (meal) offerMeal(it, meal, CART[CART.length - 1]);
       else if (!offerUpsell(it)) toast(qty + ' ' + it.name + ' added');
     };
   }
@@ -1692,7 +1734,7 @@ function lastOrderAgain() {
 
 /** "Make it a meal?" - the same nudge the register gives the cashier. Swaps the
  *  a-la-carte line for the meal so the customer never pays for both. */
-function offerMeal(from, meal) {
+function offerMeal(from, meal, line) {
   const extra = Math.max(0, meal.price_cents - from.price_cents);
   openSheet('<h2>Make it a meal?</h2>' +
     '<p class="lede">Add ' + esc(meal.slots.map((s) => esc(s.label).toLowerCase()).join(' and ')) +
@@ -1702,9 +1744,8 @@ function offerMeal(from, meal) {
       '<button class="primary" id="yesmeal">Make it a meal</button></div>');
   el('nomeal').onclick = () => { closeSheet(); toast(from.name + ' added'); };
   el('yesmeal').onclick = () => {
-    // Drop the plain item we just added, then build the meal properly.
-    for (let i = CART.length - 1; i >= 0; i--) { if (CART[i].item_id === from.id) { CART.splice(i, 1); break; } }
-    closeSheet(); render(); openItem(meal.id);
+    // The plain line stays in the basket until the meal is really added, and the meal starts at the same quantity.
+    closeSheet(); render(); openItem(meal.id, { qty: line ? line.qty : 1, replaceLine: line || null });
   };
 }
 
@@ -1729,8 +1770,9 @@ function openCart() {
         (deliveryFee() > 0 ? '<div><span>Delivery fee</span><span>' + money(deliveryFee()) + '</span></div>' : '') +
         (svcOf() > 0 ? '<div><span>Service charge (' + SVCPCT + '%)</span><span>' + money(svcOf()) + '</span></div>' : '') +
         (tax > 0 ? '<div><span>Tax</span><span>' + money(tax) + '</span></div>' : '') +
-        '<div class="grand"><span>' + (STORE && STORE.has_promo ? 'Total before offers' : 'Total') + '</span><span>' + money(total()) + '</span></div>' +
-        (STORE && STORE.has_promo ? '<div class="lede" style="font-size:12.5px;margin-top:4px">The shop&rsquo;s offer is taken off when you place the order.</div>' : '') +
+        (promoCents() > 0 ? '<div><span>' + esc(PROMO_PREVIEW.name || 'Offer') + '</span><span>&minus;' + money(promoCents()) + '</span></div>' : '') +
+        '<div class="grand"><span>' + (STORE && STORE.has_promo && promoCents() === 0 ? 'Total before offers' : 'Total') + '</span><span>' + money(payTotal()) + '</span></div>' +
+        (STORE && STORE.has_promo && promoCents() === 0 ? '<div class="lede" style="font-size:12.5px;margin-top:4px">The shop&rsquo;s offer is taken off when you place the order.</div>' : '') +
       '</div>' +
       storeFields() +
       kioskModeHtml() +
@@ -1755,8 +1797,8 @@ function openCart() {
     document.querySelectorAll('.sheet .row.line, .sheet .totals.card, .sheet .also-t').forEach((x, n) => x.style.setProperty('--i', String(Math.min(n, 8))));
     if (TICK >= 0) { const sp = document.querySelectorAll('.stepper span')[TICK]; if (sp) sp.classList.add('tick'); TICK = -1; }
     const gt = document.querySelector('.totals div.grand span:last-child');
-    if (gt && LAST_TOTAL !== null && LAST_TOTAL !== total()) gt.classList.add('pulse');
-    LAST_TOTAL = total();
+    if (gt && LAST_TOTAL !== null && LAST_TOTAL !== payTotal()) gt.classList.add('pulse');
+    LAST_TOTAL = payTotal();
     document.querySelectorAll('[data-m]').forEach((b) => b.onclick = () => {
       const i = Number(b.dataset.m); CART[i].qty--; if (CART[i].qty <= 0) CART.splice(i, 1); else TICK = i; redrawKeeping(); render();
     });
@@ -1819,6 +1861,12 @@ function openCart() {
     }
     el('back').onclick = closeSheet;
     el('send').onclick = send;
+    // Ask for the shop's offer on this basket; redraw once it is known, but never over somebody typing.
+    refreshPromo(function () {
+      var a = document.activeElement;
+      if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;
+      if (el('send')) redrawKeeping();
+    });
   }
   /* Redraw the sheet without eating what the customer already typed. */
   function redrawKeeping() {
@@ -1926,17 +1974,28 @@ function hhmmLabel(hhmm) {
    the day where no closing time is set. Capped so the list stays a list. */
 function whenSlots() {
   var lead = Math.max(0, Number((STORE && STORE.lead_minutes) || 20));
-  var start = shopNowMinutes() + lead;
+  var nowM = shopNowMinutes();
+  var start = nowM + lead;
   start = Math.ceil(start / 15) * 15;
-  var close = null, cm = /^(\d{2}):(\d{2})$/.exec((STORE && STORE.close) || '');
+  var close = null, cm = /^(\d{1,2}):(\d{2})$/.exec((STORE && STORE.close) || '');
   if (cm) close = Number(cm[1]) * 60 + Number(cm[2]);
-  // A shop that closes after midnight (a 2am bar) closes TOMORROW.
-  if (close !== null && close < 6 * 60) close += 24 * 60;
-  // Past closing - or too close to it for the soonest promise - there is no
-  // time left to offer. This used to fall through to "until 11:45pm", so at
-  // 8:50 a shop closing at 9 offered pickups from 9:15 to 11:45 at night,
-  // and the server took them (24 Sep 2026 check).
-  if (close !== null && close < start) return [];
+  var open = null, om = /^(\d{1,2}):(\d{2})$/.exec((STORE && STORE.open) || '');
+  if (om) open = Number(om[1]) * 60 + Number(om[2]);
+  if (close !== null) {
+    // Where the shop's clock sits decides whether the closing time is today's or tomorrow's.
+    // With the opening time known: a shop that closes before it opens is overnight; in the
+    // evening part (clock at or after opening) it closes tomorrow, in the small hours (clock
+    // before closing) it closes today, and in between it is shut.
+    // Without it, a closing time before 6am is read as an overnight close.
+    var overnight = open !== null ? close < open : close < 6 * 60;
+    if (overnight) {
+      if (nowM < close) { /* small hours, still open: closes today */ }
+      else if (open !== null ? nowM >= open : nowM >= 6 * 60) close += 24 * 60;
+      else return [];                  // shut between closing and opening
+    }
+    // The clock plus the soonest promise may already be past closing.
+    if (close < start) return [];
+  }
   var end = close !== null ? close : 24 * 60 - 15;
   var out = [];
   for (var t = start; t <= end && out.length < 48; t += 15) {
@@ -1963,7 +2022,7 @@ function whenHtml() {
 }
 
 function defaultPayChoice() {
-  if (!PAYON || total() < minPay()) return 'later';
+  if (!PAYON || payTotal() < minPay()) return 'later';
   return 'now';
 }
 
@@ -2021,13 +2080,13 @@ function couponFieldHtml() {
 }
 
 function payChoiceHtml() {
-  var canNow = PAYON && total() >= minPay();
+  var canNow = PAYON && payTotal() >= minPay();
   var canLater = counterPayAllowed();
   if (!canNow && canLater) { PAYCHOICE = 'later'; return ''; }
   if (!canNow && !canLater) {
     return '<div class="lede" style="font-size:12.5px;margin-top:10px;display:flex;gap:7px;align-items:flex-start">' + ICON_WARN + '<span>This shop takes ' +
       (OMODE === 'delivery' ? 'delivery' : 'pickup') + ' orders with online payment only' +
-      (total() < minPay() ? ' (minimum ' + money(minPay()) + ' — add a little more)' : '') + '.</span></div>';
+      (payTotal() < minPay() ? ' (minimum ' + money(minPay()) + ' — add a little more)' : '') + '.</span></div>';
   }
   if (canNow && !canLater) {
     PAYCHOICE = 'now';
@@ -2046,7 +2105,7 @@ function sendLabel() {
   // would be wrong twice over - once about the money, once about who decided.
   // Same for the shop's own automatic offer (0306): the server takes it off, so the button names no amount.
   var withCode = (COUPONS_ON && COUPON.trim() !== '') || !!(STORE && STORE.has_promo);
-  if (PAYON && PAYCHOICE === 'now' && total() >= minPay()) {
+  if (PAYON && PAYCHOICE === 'now' && payTotal() >= minPay()) {
     return withCode ? 'Place order & pay' : 'Place order & pay ' + money(total());
   }
   if (!STORE) return 'Send to the cashier for payment';
@@ -2079,7 +2138,7 @@ async function send() {
     // (or a basket under the online minimum), used to let the order through -
     // and the card then told the customer to tap a Pay now button that is
     // only drawn when paying online is possible. Nothing happened, ever.
-    if (prepayRequired(OMODE) && (!PAYON || total() < minPay())) {
+    if (prepayRequired(OMODE) && (!PAYON || payTotal() < minPay())) {
       toast(OMODE === 'delivery'
         ? 'This shop takes delivery orders with online payment only.'
         : 'This shop takes pickup orders with online payment only \u2014 please order at the counter.');
@@ -2215,12 +2274,15 @@ async function openPaySheet(num, type) {
       .then(done).catch(function () { done(null); });
   };
   el('paylater').onclick = function () { giveUp(false); };
+  var giveUpTimer = null;
+  SHEET_STOP = function () { stopped = true; if (giveUpTimer) { clearTimeout(giveUpTimer); giveUpTimer = null; } };
+  SHEET_DISMISS = function () { giveUp(false); };
   // A KIOSK TABLET BELONGS TO THE SHOP, NOT TO THE PERSON WHO WALKED AWAY.
   // Left on a payment code, it is a tablet nobody else can order from - so on
   // a kiosk link only, it hands itself back to the menu. Five minutes is far
   // longer than opening GCash and scanning takes, and the cancel above honors
   // a payment that lands in the same breath, so nothing can be lost by it.
-  if (SHARED) setTimeout(function () { giveUp(true); }, 5 * 60 * 1000);
+  if (SHARED) giveUpTimer = setTimeout(function () { giveUpTimer = null; giveUp(true); }, 5 * 60 * 1000);
   var tickPay = function () {
     if (stopped || !el('paystate')) return;   // sheet was replaced or closed
     payFn({ action: 'kiosk_status', token: TOKEN, orderNumber: num, intentId: intent }).then(function (st) {
@@ -2267,6 +2329,8 @@ function markOrder(num, state, paid) {
   const becameCollected = state === 'collected' && a[i].state !== 'collected';
   const paidChanged = paid === true && !a[i].paid;
   if (a[i].state !== state || paidChanged) {
+    // An order that goes back to preparing (or on to collected) starts fresh: its next ready rings again.
+    if (state !== 'ready') delete a[i].acked;
     a[i].state = state;
     if (paid === true) a[i].paid = true;
     writeOrders(a);
@@ -2287,6 +2351,8 @@ function forgetAll() {
   idleOff();
   stopRinging();
   try { localStorage.removeItem(LS_KEY); } catch (e) { /* private mode */ }
+  // A handed-over tablet asks the next customer how it was.
+  if (SHARED) { try { localStorage.removeItem(CSAT_KEY); } catch (e) { /* private mode */ } }
   for (var k in MINE) { if (Object.prototype.hasOwnProperty.call(MINE, k)) delete MINE[k]; }
   CART = []; KMODE = null;
   Q = '';
