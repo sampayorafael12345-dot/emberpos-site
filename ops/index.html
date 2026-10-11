@@ -22,6 +22,9 @@
       form-action 'none';
       frame-ancestors 'none';
     " />
+    <!-- frame-ancestors above is ignored in a meta tag and the host cannot send
+         headers, so a page that frames this one is refused here instead. -->
+    <script>if (window.top !== window.self) { document.documentElement.style.display = 'none'; try { window.top.location.replace(window.self.location.href); } catch (e) {} }</script>
     <title>Ember Ops</title>
     <!--
       Relative, not root-relative. The old href was "/brand/logo-mark.png",
@@ -51,7 +54,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="Ops" />
     <link rel="apple-touch-icon" href="icons/icon-180.png" />
-    <script type="module" crossorigin src="/ops/assets/index.ops-mwIRoN-G.js"></script>
+    <script type="module" crossorigin src="/ops/assets/index.ops-DVw5zFNE.js"></script>
     <link rel="stylesheet" crossorigin href="/ops/assets/index-BUwuyLwg.css">
   </head>
   <body>

@@ -28,12 +28,15 @@
       form-action 'none';
       frame-ancestors 'none';
     " />
+    <!-- frame-ancestors above is ignored in a meta tag and the host cannot send
+         headers, so a page that frames this one is refused here instead. -->
+    <script>if (window.top !== window.self) { document.documentElement.style.display = 'none'; try { window.top.location.replace(window.self.location.href); } catch (e) {} }</script>
     <title>Ember Back Office</title>
     <!-- A SQUARE file, not the trimmed mark: a tab slot is square and the
          browser stretches rather than letterboxes, which fattened the flame. -->
     <link rel="icon" href="/office/brand/favicon.png" type="image/png" />
     <meta name="robots" content="noindex" />
-    <script type="module" crossorigin src="/office/assets/index.office-BxXSWyY6.js"></script>
+    <script type="module" crossorigin src="/office/assets/index.office-4otAEX2S.js"></script>
     <link rel="stylesheet" crossorigin href="/office/assets/index-CJ-LaUD-.css">
   </head>
   <body>

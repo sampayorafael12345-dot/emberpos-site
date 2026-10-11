@@ -1,8 +1,8 @@
 /* EmberPOS service worker — so a browser-only shop can open its till with no
  * internet.
  *
- * WHY THIS EXISTS. Three shops (Funtask Chiks, KOPIKOPI - ALABEL, Mashita
- * Cabantan) have never opened the Android app: emberpos.net IS their register.
+ * WHY THIS EXISTS. Some shops have never opened the Android app:
+ * emberpos.net IS their register.
  * The app has been offline-capable since v1.1.47 — sales queue and replay — but
  * that only helps a tab that is ALREADY OPEN. Restart the phone during a
  * brownout and the browser has nothing to load, because the bundle itself came
