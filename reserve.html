@@ -171,13 +171,26 @@
   .cal-day[aria-pressed="true"], #slots .chip[aria-pressed="true"] { animation: chosen .32s cubic-bezier(.2,.9,.3,1.3); }
   .cal-day, #slots .chip, .cal-nav, .primary, .ghost { transition: transform .1s ease, background-color .15s ease, border-color .15s ease; }
   .cal-day:not([disabled]):active, #slots .chip:not([disabled]):active, .cal-nav:not([disabled]):active, .primary:not([disabled]):active, .ghost:active { transform: scale(.94); }
-  .primary:not([disabled]) { box-shadow: 0 6px 18px -8px rgb(255 92 0 / .8); }
   .done-tick { display: block; width: 64px; height: 64px; margin: 4px auto 12px; }
   .done-tick circle { fill: #16a34a; }
   .done-tick path { fill: none; stroke: #fff; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 60; stroke-dashoffset: 60; animation: draw .5s .15s ease-out forwards; }
+  /* 15 Oct 2026: the times ease in when a new day's arrive, the booking card
+     when it loads, a message when it appears - never on a tap that only marks
+     a choice. */
+  @keyframes swapIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes breathe { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+  #slots.fresh .chip { animation: swapIn .3s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 25ms); }
+  .swapin { animation: swapIn .3s cubic-bezier(.2,.8,.2,1) both; }
+  .booked .card, .booked > .ghost, .booked > .lede { animation: cardIn .45s cubic-bezier(.2,.8,.2,1) both; }
+  .booked > .ghost { animation-delay: .08s; }
+  .booked > .lede { animation-delay: .12s; }
+  .waitdot { display: inline-block; width: 8px; height: 8px; border-radius: 99px; background: var(--accent); margin-right: 8px; vertical-align: 1px; animation: breathe 1.2s ease-in-out infinite; }
+  .formmsg { text-align: center; margin: 10px 0 0; font-size: 13.5px; color: var(--warn); }
+  .formmsg:empty { display: none; }
   @media (prefers-reduced-motion: reduce) {
     body.intro .hero .mark, body.intro .hero .nm, body.intro .card, body.intro #go, h2.step.done .num,
-    .cal-day[aria-pressed="true"], #slots .chip[aria-pressed="true"] { animation: none !important; }
+    .cal-day[aria-pressed="true"], #slots .chip[aria-pressed="true"],
+    #slots.fresh .chip, .swapin, .booked .card, .booked > .ghost, .booked > .lede, .waitdot { animation: none !important; }
     .done-tick path { animation: none; stroke-dashoffset: 0; }
     .cal-day, #slots .chip, .cal-nav, .primary, .ghost { transition: none; }
   }
@@ -216,6 +229,7 @@
   <p id="herosub">Loading&hellip;</p>
 </div>
 <div class="wrap" id="app"></div>
+<p class="wrap lede" style="text-align:center;padding-top:0"><a href="/privacy-policy.html" target="_blank" rel="noopener" style="color:inherit">Privacy</a></p>
 
 <script>
 const URLB = 'https://qqmkgafyfxrcnwdkkyxc.supabase.co';
@@ -226,7 +240,9 @@ const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':
 /* THE SHOP'S OWN CURRENCY SIGN, from the booking info (kiosk_reserve_info / kiosk_reservation). 'P' only until
    it arrives or for an older server that does not send one. */
 let CUR = 'P';
-const money = (c) => CUR + (Math.round(c) / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// 'en-US', like the order page: a phone set to German never shows 1.250,00.
+// A sign made of letters (AED, RM, Rp) gets a no-break space, as on the till: "AED 95.00", not "AED95.00".
+const money = (c) => CUR + (/\p{L}{2}$/u.test(CUR) ? '\u00a0' : '') + (Math.round(c) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 async function rpc(fn, args) {
   const r = await fetch(URLB + '/rest/v1/rpc/' + fn, {
@@ -260,6 +276,11 @@ function shopDayPlus(i) {
 }
 const ymdUtc = (d) => d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') + '-' + String(d.getUTCDate()).padStart(2, '0');
 let DAY = null;          // 'YYYY-MM-DD'
+/* LOADING: a new day's times are on their way - the old day's must not stand
+   in for them. FRESH: they have just arrived, so they ease in (once). */
+let LOADING = false, FRESH = false;
+/* A problem with the form, said under the button (it used to be an alert box). */
+let FORMMSG = '';
 let TIME = null;         // 'HH:MM'
 let PARTY = 2;
 let BUSY = false;
@@ -349,12 +370,14 @@ async function loadDay(ymd) {
   CAL_SHIFT = 0;
   DAY = ymd;
   TIME = null;
+  LOADING = true;
   render();
   try {
     takeInfo(await rpc('kiosk_reserve_info', { p_token: TOKEN, p_date: ymd }));
   } catch (e) {
     INFO = { ok: false, error: 'network' };
   }
+  LOADING = false; FRESH = true;
   render();
 }
 
@@ -416,6 +439,13 @@ function render() {
 
   const days = dayOptions(policy);
   const slots = INFO.slots || [];
+  // A shop taking bookings on no day at all: one card that says so, not an
+  // empty calendar over "No times left on this day".
+  if (!days.length) {
+    app.innerHTML = '<div class="card"><h2>No bookings right now</h2>'
+      + '<p class="lede">This shop is not taking bookings on any day right now. Please message them.</p></div>';
+    return;
+  }
 
   app.innerHTML =
     '<div class="card">'
@@ -425,13 +455,15 @@ function render() {
 
     + '<div class="card">'
     + stepH(2, 'What time?', !!TIME)
-    + (slots.length === 0
+    + (LOADING
+        ? '<p class="lede" style="margin-top:6px"><span class="waitdot"></span>Finding the times&hellip;</p>'
+        : slots.length === 0
         ? '<p class="lede" style="margin-top:6px">No times left on this day. Try another.</p>'
         : '<div class="row" style="margin-top:8px" id="slots">'
-          + slots.map((s) => {
+          + slots.map((s, n) => {
               const left = Number(s.seats_left);
               const full = left <= 0 || left < PARTY;
-              return '<button class="chip" data-time="' + esc(s.time) + '" aria-pressed="' + (s.time === TIME) + '"'
+              return '<button class="chip" style="--i:' + Math.min(n, 12) + '" data-time="' + esc(s.time) + '" aria-pressed="' + (s.time === TIME) + '"'
                 + (full ? ' disabled' : '') + '>' + esc(s.label)
                 + '<small>' + (left <= 0 ? 'full' : left < PARTY ? 'only ' + left + ' left' : left + ' seats left') + '</small></button>';
             }).join('')
@@ -443,7 +475,7 @@ function render() {
     + '<label class="f" style="margin-top:8px"><span>How many people?</span>'
     + '<select id="party">' + partyOptions(Number(policy.max_party || 12)) + '</select></label>'
     + '<label class="f"><span>Name</span><input type="text" id="name" autocomplete="name" placeholder="Who is the table for?"></label>'
-    + '<label class="f"><span>Mobile number</span><input type="tel" id="phone" autocomplete="tel" inputmode="tel" placeholder="09XX XXX XXXX"></label>'
+    + '<label class="f"><span>Mobile number</span><input type="tel" id="phone" autocomplete="tel" inputmode="tel" placeholder="' + ((CUR === '₱' || CUR === 'P') ? '09XX XXX XXXX' : 'For the shop to reach you') + '"></label>'
     + '<label class="f"><span>Email <span class="lede">(optional)</span></span><input type="email" id="email" autocomplete="email" placeholder="For your confirmation"></label>'
     + '<label class="f"><span>Anything they should know? <span class="lede">(optional)</span></span>'
     + '<textarea id="note" placeholder="Birthday, high chair, wheelchair access, allergies&hellip;"></textarea></label>'
@@ -453,6 +485,7 @@ function render() {
 
     + '<button class="primary" id="go"' + (TIME && DAY ? '' : ' disabled') + '>'
     + (TIME ? 'Book ' + esc(bookingLabel()) : 'Pick a time first') + '</button>'
+    + '<p class="formmsg" id="formmsg" role="status">' + esc(FORMMSG) + '</p>'
     + '<p class="lede" style="text-align:center;margin-top:10px">'
     + 'You can cancel up to ' + esc(String(policy.cancel_hours || 12)) + ' hours before.</p>';
 
@@ -462,17 +495,18 @@ function render() {
     document.body.classList.add('intro');
     setTimeout(() => document.body.classList.remove('intro'), 1100);
   }
+  if (FRESH) { FRESH = false; const sw = el('slots'); if (sw) sw.classList.add('fresh'); }
   const dayWrap = el('days');
   if (dayWrap) dayWrap.onclick = (e) => {
     const m = e.target.closest('[data-month]');
     if (m && !m.disabled) { CAL_SHIFT += Number(m.getAttribute('data-month')); render(); return; }
     const b = e.target.closest('[data-day]');
-    if (b && !b.disabled) loadDay(b.getAttribute('data-day'));
+    if (b && !b.disabled) { FORMMSG = ''; loadDay(b.getAttribute('data-day')); }
   };
   const slotWrap = el('slots');
   if (slotWrap) slotWrap.onclick = (e) => {
     const b = e.target.closest('[data-time]');
-    if (b && !b.disabled) { TIME = b.getAttribute('data-time'); render(); }
+    if (b && !b.disabled) { TIME = b.getAttribute('data-time'); FORMMSG = ''; render(); }
   };
   const partySel = el('party');
   if (partySel) partySel.onchange = (e) => {
@@ -490,14 +524,24 @@ function render() {
   fillForm();               // the last thing: the nodes exist by now
 }
 
+/** Say something under the Book button, easing it in; '' clears it. */
+function formSay(text) {
+  FORMMSG = text;
+  const m = el('formmsg');
+  if (!m) return;
+  m.textContent = text;
+  m.classList.remove('swapin'); void m.offsetWidth; if (text) m.classList.add('swapin');
+}
+
 async function submit() {
   if (BUSY) return;
   const name = (el('name').value || '').trim();
   const phone = (el('phone').value || '').trim();
   if (!name || !phone) {
-    alert('Please put your name and mobile number so the shop can reach you.');
+    formSay('Please put your name and mobile number so the shop can reach you.');
     return;
   }
+  formSay('');
   BUSY = true;
   el('go').disabled = true;
   el('go').textContent = 'Booking…';
@@ -521,7 +565,7 @@ async function submit() {
       too_far: 'That is further ahead than this shop takes bookings.',
       closed_that_day: 'The shop does not open that day.',
       closed_then: 'The shop is not taking bookings at that time. Please pick one of the times shown.',
-      party_too_big: 'That is a bigger party than they take online — please message the shop directly.',
+      party_too_big: 'That is a bigger party than they take online, please message the shop directly.',
       need_name_and_phone: 'Please put your name and mobile number.',
       too_many: 'There are already several bookings from this number today.',
       busy: 'The shop is taking a lot of bookings right now. Please try again in a little while.',
@@ -531,7 +575,8 @@ async function submit() {
       off: 'This shop has stopped taking online bookings.',
       network: 'Could not reach the shop. Please try again.',
     }[res && res.error] || 'That booking could not be made. Please try another time.';
-    alert(m);
+    // Kept through the refresh below, which redraws the form.
+    FORMMSG = m;
     // The slots are stale the moment somebody else books, so refresh them.
     loadDay(DAY);
     return;
@@ -544,7 +589,8 @@ async function submit() {
 
 async function showBooking(tok) {
   const app = el('app');
-  app.innerHTML = '<div class="card"><p class="lede">Loading your booking&hellip;</p></div>';
+  app.classList.remove('booked');
+  app.innerHTML = '<div class="card"><p class="lede"><span class="waitdot"></span>Loading your booking&hellip;</p></div>';
   let r;
   try { r = await rpc('kiosk_reservation', { p_res_token: tok }); }
   catch (e) { r = { ok: false, error: 'network' }; }
@@ -588,20 +634,25 @@ async function showBooking(tok) {
     + (r.can_cancel
         ? '<button class="ghost" id="cancel" style="width:100%">Cancel this booking</button>'
         : '<p class="lede" style="text-align:center">To change this booking, please message the shop.</p>')
-    + '<p class="lede" style="text-align:center;margin-top:14px">Keep this page — the link is your booking.</p>';
+    + '<p class="formmsg" id="cancelmsg" role="status"></p>'
+    + '<p class="lede" style="text-align:center;margin-top:14px">Keep this page, the link is your booking.</p>';
+  // The booking arrives, rather than appearing.
+  app.classList.add('booked');
 
   const c = el('cancel');
   if (c) c.onclick = async () => {
     if (!confirm('Cancel this booking?')) return;
-    c.disabled = true;
+    c.disabled = true; c.textContent = 'Cancelling…';
     let out;
     try { out = await rpc('kiosk_reservation_cancel', { p_res_token: tok }); }
     catch (e) { out = { ok: false, error: 'network' }; }
     if (out && out.ok === true) { showBooking(tok); return; }
-    alert(out && out.error === 'too_late'
-      ? 'It is too close to the time to cancel here — please message the shop.'
-      : 'That could not be cancelled. Please message the shop.');
-    c.disabled = false;
+    const m = el('cancelmsg');
+    m.textContent = out && out.error === 'too_late'
+      ? 'It is too close to the time to cancel here, please message the shop.'
+      : 'That could not be cancelled. Please message the shop.';
+    m.classList.remove('swapin'); void m.offsetWidth; m.classList.add('swapin');
+    c.disabled = false; c.textContent = 'Cancel this booking';
   };
 }
 

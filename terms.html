@@ -27,7 +27,7 @@
       <a class="lnk" href="office/">Back Office</a>
       <a class="cta" href="app/">Open the app</a>
     </nav>
-    <button class="menu" id="k-menu" type="button" aria-expanded="false" aria-controls="k-links" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <button class="menu" id="k-menu" type="button" aria-expanded="false" aria-controls="k-links" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
   </div>
 </header>
 <main id="main">
@@ -72,16 +72,16 @@
 
 <h2>3. Subscription, trial and payment</h2>
 <ul>
-  <li>New shops get a free 30-day trial. After it, continued use requires a paid subscription —
+  <li>New shops get a free 30-day trial. After it, continued use requires a paid subscription -
       currently <strong>₱599/month or ₱5,990/year</strong>, charged through Google Play or through
       our website (QR Ph, GCash, Maya or the other methods shown at checkout). Prices may change with notice; a change never applies retroactively to a
       period you have already paid for.</li>
   <li>If a subscription lapses, the app moves to a limited mode. <strong>Your data is not
-      deleted</strong> when a subscription lapses — see section 5.</li>
+      deleted</strong> when a subscription lapses, see section 5.</li>
   <li>Payments made through Google Play are also subject to Google Play's terms and are refunded
       through Google Play's own processes. For website payments we refund directly. When we refund,
       how to ask, and how long it takes are set out in full in our
-      <a href="refund-policy.html">Returns &amp; Refunds</a> policy — including a refund of the
+      <a href="refund-policy.html">Returns &amp; Refunds</a> policy, including a refund of the
       whole months you have not used on an annual subscription.</li>
 </ul>
 
@@ -102,11 +102,11 @@
       <a href="privacy-policy.html">Privacy Policy</a>.</li>
   <li>You can export your data (CSV reports throughout the app) at any time while your account
       is active, including during the trial and any grace period.</li>
-  <li>You can request account deletion at any time — see
+  <li>You can request account deletion at any time, see
       <a href="account-deletion.html">Delete account</a>. Deletion is permanent.</li>
 </ul>
 
-<h2>5a. Your staff and your customers &mdash; who answers for them</h2>
+<h2>5a. Your staff and your customers, who answers for them</h2>
 <p>
   Your shop enters other people's personal information into the app: your employees' names and wages,
   the customers you add, the people on your utang list. The law splits responsibility for that
@@ -120,8 +120,8 @@
   <li><strong>We are the personal information processor.</strong> We hold and process it only to run
       the service for you and only on your instructions. We do not sell it, do not use it for
       advertising, and do not use it for anything other than making the app work for you.</li>
-  <li><strong>If one of your people asks you something</strong> &mdash; to see what you hold, to
-      correct it, or to delete it &mdash; that request is yours to answer. The app gives you the tools
+  <li><strong>If one of your people asks you something</strong>: to see what you hold, to
+      correct it, or to delete it, that request is yours to answer. The app gives you the tools
       to do it, and we will help if you ask.</li>
   <li><strong>If data is exposed,</strong> we will tell you promptly and give you what you need to
       notify your own people and the National Privacy Commission. Our own notification duties are set
@@ -141,14 +141,14 @@
   registration, receipting, bookkeeping or tax obligation of your business. Whether and how you
   register machines or issue official receipts is between you, your accountant and the BIR.
   Reports in the app (P&amp;L, sales, payroll and the rest) are operational summaries of the data
-  you entered — they are not audited financial statements or tax filings.
+  you entered, they are not audited financial statements or tax filings.
 </p>
 
 <h2>7. Availability and offline mode</h2>
 <p>
   We work to keep the service available, and the app is built to keep selling offline when the
   internet drops. Still, no software is perfect: outages, sync delays, device failures and bugs
-  can happen. Keep your own routine checks (drawer counts, stock counts) — the app is a tool to
+  can happen. Keep your own routine checks (drawer counts, stock counts), the app is a tool to
   help them, not a replacement for them.
 </p>
 
@@ -165,7 +165,7 @@
 <ul>
   <li>You can stop any time: cancel the subscription and, if you wish, request deletion.</li>
   <li>We may suspend or terminate accounts that break these terms, abuse the service, or create
-      risk for other shops on the platform — with notice where practicable.</li>
+      risk for other shops on the platform, with notice where practicable.</li>
 </ul>
 
 <h2>10. Changes to these terms</h2>
@@ -178,14 +178,14 @@
 <h2>11. Law, complaints and contact</h2>
 <p>
   These terms are governed by the laws of the Republic of the Philippines. Questions, concerns,
-  or refund requests: <a href="mailto:hello@emberpos.net">hello@emberpos.net</a> — or use
+  or refund requests: <a href="mailto:hello@emberpos.net">hello@emberpos.net</a>, or use
   <em>Message us</em> inside the app. Our full business and registration details are on the
   <a href="contact.html">Contact page</a>.
 </p>
 <p>
   If we have not put something right, <a href="disputes.html">Complaints &amp; Disputes</a> sets
   out what we promise on timing, how to have a complaint escalated, and which Philippine agency to
-  go to if we cannot settle it — including the DTI and, for anything about your information, the
+  go to if we cannot settle it, including the DTI and, for anything about your information, the
   National Privacy Commission. Nothing in these terms asks you to give up a remedy Philippine law
   gives you, or to come to us before using one.
 </p>
@@ -243,6 +243,8 @@
 </footer>
 
 <script>
+  /* a link to a spot on the page: no drop-in, so the jump lands where it should */
+  if (location.hash) document.documentElement.classList.add('k-hash');
   /* the menu on a phone */
   (function () {
     var h = document.getElementById('k-head'), b = document.getElementById('k-menu');

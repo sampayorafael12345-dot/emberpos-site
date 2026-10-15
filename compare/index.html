@@ -8,13 +8,23 @@
 <meta name="description" content="What most POS apps charge extra for, and what Ember POS includes in one price." />
 <link rel="icon" href="../favicon.png" type="image/png" />
 <style>
+  @font-face { font-family: 'Space Grotesk'; src: url('../fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; }
   html { background: #ffffff; }
   body { margin: 0; font-family: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif; color: #14120f; }
   main { max-width: 760px; margin: 0 auto; padding: 20px 16px 48px; }
   img { display: block; width: 100%; height: auto; }
   .go { display: block; margin: 28px auto 0; max-width: 420px; text-align: center; padding: 16px 24px; border-radius: 999px;
-        background: #d94e00; color: #fff; font-size: 18px; font-weight: 700; text-decoration: none; }
-  .go:hover { background: #c24907; }
+        background: #c24907; color: #fff; font-size: 18px; font-weight: 700; text-decoration: none;
+        transition: background-color 150ms, transform 120ms cubic-bezier(0.16, 1, 0.3, 1); }
+  .go:hover { background: #b03e00; }
+  .go:active { transform: scale(.97); }
+  /* the picture settles in, then the button and the line under it */
+  @keyframes up { from { opacity: 0; transform: translateY(14px); } }
+  @media (prefers-reduced-motion: no-preference) {
+    main > img { animation: up .6s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+    .go { animation: up .5s cubic-bezier(0.16, 1, 0.3, 1) 160ms backwards; }
+    main > p { animation: up .5s cubic-bezier(0.16, 1, 0.3, 1) 220ms backwards; }
+  }
   p { text-align: center; color: #3c352b; font-size: 15px; margin: 14px 0 0; }
   a.t { color: #b03e00; font-weight: 600; }
 </style>

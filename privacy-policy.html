@@ -27,7 +27,7 @@
       <a class="lnk" href="office/">Back Office</a>
       <a class="cta" href="app/">Open the app</a>
     </nav>
-    <button class="menu" id="k-menu" type="button" aria-expanded="false" aria-controls="k-links" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <button class="menu" id="k-menu" type="button" aria-expanded="false" aria-controls="k-links" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
   </div>
 </header>
 <main id="main">
@@ -60,12 +60,12 @@
 </p>
 <p>
   That split matters in law, so we state it plainly. For the personal information <em>your shop</em> puts
-  into the app &mdash; your employees' names and wages, the customers you add, the people on your utang
-  list &mdash; <strong>your shop is the personal information controller</strong>: you decide what is
+  into the app, your employees' names and wages, the customers you add, the people on your utang
+  list, <strong>your shop is the personal information controller</strong>: you decide what is
   collected and why, and you are the one those people deal with. <strong>We are the personal information
   processor</strong>: we hold and process it only to run the service for you, on your instructions, and we
-  do nothing else with it. For your own account with us &mdash; the email you sign in with, your
-  subscription status, error reports from the app &mdash; <strong>we are the controller</strong>.
+  do nothing else with it. For your own account with us, the email you sign in with, your
+  subscription status, error reports from the app, <strong>we are the controller</strong>.
 </p>
 <p>
   In practice: if one of your staff or customers asks to see, correct or delete what your shop holds about
@@ -78,7 +78,7 @@
   <tr><th>Category</th><th>Examples</th><th>Why</th></tr>
   <tr>
     <td>Account &amp; sign-in</td>
-    <td>Your email address and a securely hashed password, or — if you choose "Continue with Google" — your
+    <td>Your email address and a securely hashed password, or, if you choose "Continue with Google", your
         Google account email and name. We never see your Google password.</td>
     <td>To create and secure your shop account and sign you in.</td>
   </tr>
@@ -106,6 +106,21 @@
     <td>Delivery address and fee, and the clock-in fence. Location is read only when the person taps the button or clocks in, kept with the order or the shop settings, and deleted when the order or the shop is deleted.</td>
   </tr>
   <tr>
+    <td>Customers of a shop (ordering and booking pages)</td>
+    <td>The name, mobile number, delivery address and note a customer types when ordering, and the name, mobile number, party size, email (if given) and note a guest gives when booking a table.</td>
+    <td>So the shop can make, deliver or seat the order or booking. The shop decides how it is used; Ember POS processes it for the shop. It is deleted with the order or booking, or when the shop is deleted.</td>
+  </tr>
+  <tr>
+    <td>A shop&rsquo;s riders (the delivery link)</td>
+    <td>The rider&rsquo;s first name as the shop types it, and, only between Start delivery and Delivered, the rider&rsquo;s phone location. Only the latest position is kept, never a trail.</td>
+    <td>So the shop and that order&rsquo;s customer can see the delivery coming. The position is wiped when the rider taps Delivered or the shop stops the link, and after 12 hours at the latest. The rest of the delivery record is deleted after 90 days. The shop decides how it is used; Ember POS processes it for the shop.</td>
+  </tr>
+  <tr>
+    <td>People using the shop finder (emberpos.net/shops)</td>
+    <td>If you tap Near me, your approximate location, sent once to sort the shops by distance. Only shops whose owner chose to be listed are shown.</td>
+    <td>To show you the nearest shops. Your location is not saved.</td>
+  </tr>
+  <tr>
     <td>Subscription &amp; purchase</td>
     <td>If you subscribe, our billing provider receives your account identifier and the purchase and renewal
         status Google Play reports for it. If you pay on our website, our payment provider receives the payment details you enter on its own page; we receive only confirmation of the payment.</td>
@@ -119,7 +134,7 @@
 
 <h2>3. How payments work</h2>
 <p>
-  Sales you record in the POS (cash, card, e-wallet, etc.) are <em>your own bookkeeping entries</em> — the app
+  Sales you record in the POS (cash, card, e-wallet, etc.) are <em>your own bookkeeping entries</em>, the app
   records the amount and method; it does not process or transmit your customers' card numbers. The EmberPOS
   subscription itself is purchased either through <strong>Google Play Billing</strong> under Google's own terms, or on our
   website through a licensed Philippine payment provider (QR Ph, GCash, Maya or card, as shown at checkout) on that
@@ -134,7 +149,7 @@
   reachable only with your authenticated session. We use Google Sign-In (by Google LLC) only if you choose it.
   Subscription purchases are processed by <strong>Google Play Billing</strong> and their status is managed for us
   by <strong>RevenueCat, Inc.</strong>, which receives your account identifier and your purchase and renewal
-  status — but no card details and none of your shop's sales, staff or customer data.
+  status, but no card details and none of your shop's sales, staff or customer data.
   Website payments are processed by our payment provider, which receives only what is needed to take the payment.
   These providers process data solely to deliver the service to you.
 </p>
@@ -155,21 +170,21 @@
   you can exercise yourself, in the app, without asking anyone:
 </p>
 <ul>
-  <li><strong>To be informed</strong> &mdash; to know that your data is being collected and what it is used
+  <li><strong>To be informed</strong>: to know that your data is being collected and what it is used
       for. That is what this document is.</li>
-  <li><strong>To access</strong> &mdash; to see what we hold. Your shop data is visible to you in the app at
+  <li><strong>To access</strong>: to see what we hold. Your shop data is visible to you in the app at
       any time; for anything else, ask us.</li>
-  <li><strong>To correct it</strong> &mdash; to have anything inaccurate fixed. You can edit your shop data
+  <li><strong>To correct it</strong>: to have anything inaccurate fixed. You can edit your shop data
       directly in the app.</li>
-  <li><strong>To object</strong> &mdash; to say no to processing you did not agree to. We do not use your
+  <li><strong>To object</strong>: to say no to processing you did not agree to. We do not use your
       data for advertising, profiling or automated decisions of any kind.</li>
-  <li><strong>To erasure or blocking</strong> &mdash; to have your data removed. You can delete your entire
+  <li><strong>To erasure or blocking</strong>: to have your data removed. You can delete your entire
       shop and account from inside the app (section 7).</li>
-  <li><strong>To data portability</strong> &mdash; to take your data with you in a usable form. You can
+  <li><strong>To data portability</strong>: to take your data with you in a usable form. You can
       export your menu, sales and reports from <strong>Settings &rarr; Data &amp; Backup</strong> as CSV files.</li>
-  <li><strong>To damages</strong> &mdash; to be compensated if you suffer harm because your data was
+  <li><strong>To damages</strong>: to be compensated if you suffer harm because your data was
       handled wrongly.</li>
-  <li><strong>To complain</strong> &mdash; if you are not satisfied with how we have answered you, you can
+  <li><strong>To complain</strong>: if you are not satisfied with how we have answered you, you can
       lodge a complaint with the National Privacy Commission at
       <a href="https://privacy.gov.ph">privacy.gov.ph</a>. You do not need our permission to do so.</li>
 </ul>
@@ -181,9 +196,9 @@
 <h2 id="delete">7. Deleting your account and data</h2>
 <div class="card">
   <p style="margin-top:0"><strong>In the app:</strong> Open <strong>Settings → Data &amp; Backup → Danger zone → "Delete shop &amp; account"</strong>,
-  type <code>DELETE</code> to confirm, and tap <strong>Permanently delete</strong>.</p>
-  <p style="margin-bottom:0">This immediately and permanently erases your shop and all of its data — sales, menu,
-  inventory, customers, staff records, reports — and closes your EmberPOS account. This cannot be undone. Only your
+  type <code>DELETE</code> and your owner password, and tap <strong>Permanently delete</strong>.</p>
+  <p style="margin-bottom:0">This immediately and permanently erases your shop and all of its data, sales, menu,
+  inventory, customers, staff records, reports, and closes your EmberPOS account. This cannot be undone. Only your
   sales record, Z readings and payments to us are kept, without a name, as tax law requires. You can
   also request deletion by emailing us at <strong>hello@emberpos.net</strong> and we will action it.</p>
 </div>
@@ -193,7 +208,7 @@
 
 <h2>9. Security</h2>
 <p>
-  Account and staff passwords are stored only as salted bcrypt hashes — never in plain text — and password
+  Account and staff passwords are stored only as salted bcrypt hashes, never in plain text, and password
   hashes cannot be read back through the app's API. Connections are encrypted in transit (HTTPS/TLS), and
   access to your data requires your authenticated session. Each shop's records are separated at the database
   level, so one shop's session can never read or change another shop's data.
@@ -283,6 +298,8 @@
 </footer>
 
 <script>
+  /* a link to a spot on the page: no drop-in, so the jump lands where it should */
+  if (location.hash) document.documentElement.classList.add('k-hash');
   /* the menu on a phone */
   (function () {
     var h = document.getElementById('k-head'), b = document.getElementById('k-menu');

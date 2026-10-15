@@ -27,7 +27,7 @@
       <a class="lnk" href="office/">Back Office</a>
       <a class="cta" href="app/">Open the app</a>
     </nav>
-    <button class="menu" id="k-menu" type="button" aria-expanded="false" aria-controls="k-links" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <button class="menu" id="k-menu" type="button" aria-expanded="false" aria-controls="k-links" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
   </div>
 </header>
 <main id="main">
@@ -54,7 +54,7 @@
 
 <h2>1. What you are buying</h2>
 <p>
-  EmberPOS is <strong>software delivered over the internet</strong> — a point of sale, inventory,
+  EmberPOS is <strong>software delivered over the internet</strong>: a point of sale, inventory,
   staff and reporting system for small food businesses. Nothing is shipped to you, so there is
   nothing to post back. What you are buying is <strong>access for a period of time</strong>, for
   one branch.
@@ -82,13 +82,13 @@
       date moving forward is your proof the payment arrived and was applied.</li>
   <li><strong>We email you an acknowledgment</strong> as soon as the payment is applied, to the
       address on your account. It states the amount, the date, what period it bought, the payment
-      provider's reference, and the date your subscription renews on. Keep it — that email is your
+      provider's reference, and the date your subscription renews on. Keep it, that email is your
       receipt from us.</li>
   <li>Every payment is written to our records against your shop, with the amount, the date, the
       number of months it bought, and the payment provider's own reference. If you ever lose the
       email, we will reproduce that record for you on request.</li>
   <li>If a payment leaves your account and the app does <strong>not</strong> unlock, that is a
-      failed delivery. Tell us and we will either put the time on or refund you in full — your
+      failed delivery. Tell us and we will either put the time on or refund you in full, your
       choice. See section 4.</li>
 </ul>
 
@@ -124,7 +124,7 @@
   <li><strong>Months you have already used.</strong> A monthly subscription that has run its month
       has been delivered.</li>
   <li>A period you used and then let lapse, asked about long afterwards.</li>
-  <li>Payments made to somebody other than us — if you bought EmberPOS from a reseller or a
+  <li>Payments made to somebody other than us, if you bought EmberPOS from a reseller or a
       referral partner, ask them first, and tell us if you cannot get anywhere.</li>
 </ul>
 <p>
@@ -147,7 +147,7 @@
 </div>
 <p class="muted">
   You do not need an invoice number or any paperwork from us to make a request. If you only have
-  the shop name, send that — we can find the payment.
+  the shop name, send that, we can find the payment.
 </p>
 
 <h2>7. How long it takes, and where the money goes</h2>
@@ -155,13 +155,18 @@
   <li>We <strong>acknowledge your email within 1 business day</strong>.</li>
   <li>We <strong>decide within 3 business days</strong> of having what we need, and we tell you the
       decision and the reason in writing.</li>
-  <li>An approved refund is <strong>sent back by the same method you paid with</strong> — a card
+  <li>An approved refund is <strong>released within 3 business days</strong> of the decision.</li>
+  <li>An approved refund is <strong>sent back by the same method you paid with</strong>: a card
       payment is refunded to that same card, an e-wallet payment to that same e-wallet. We cannot
       redirect a refund to a different account, and we will never ask you for card details to
       process one.</li>
   <li>Once we release it, the money typically reaches you in <strong>5 to 10 banking days</strong>.
       That last leg is handled by your bank or card issuer and is not something we control.</li>
 </ul>
+<p class="muted">
+  Business days are Monday to Saturday, Philippine public holidays excepted. Philippine Standard Time
+  (UTC+8).
+</p>
 
 <h2>8. If you paid through Google Play</h2>
 <p>
@@ -174,7 +179,7 @@
 </p>
 <p>
   If Google declines and you believe the case falls under section 4, <strong>write to us
-  anyway</strong> — we will look at it on its merits.
+  anyway</strong>: we will look at it on its merits.
 </p>
 
 <h2>9. Cancelling</h2>
@@ -195,7 +200,7 @@
 <h2>10. Getting it wrong</h2>
 <p>
   If we charge you in error, we fix it without waiting to be asked twice, and we do not deduct a
-  fee from the refund. If you think a charge is wrong, do not worry about the wording — just send
+  fee from the refund. If you think a charge is wrong, do not worry about the wording, just send
   us the shop name and the amount.
 </p>
 
@@ -265,6 +270,8 @@
 </footer>
 
 <script>
+  /* a link to a spot on the page: no drop-in, so the jump lands where it should */
+  if (location.hash) document.documentElement.classList.add('k-hash');
   /* the menu on a phone */
   (function () {
     var h = document.getElementById('k-head'), b = document.getElementById('k-menu');

@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ff5c00">
+<title>Ember shops near you</title>
+<meta name="description" content="Cafes and food shops near you that take orders with Ember. Order for pickup or delivery straight from the shop.">
+<link rel="icon" href="favicon.png">
+<!--
+  EMBER SHOPS NEAR YOU (15 Oct 2026, migrations 0519 + 0521).  emberpos.net/shops
+
+  Every shop whose owner ticked "List my shop on Ember's shop finder" in the
+  till, nearest first. A shop is only here by its owner's choice, and only
+  what its own storefront already shows the public appears: name, street
+  address, opening hours, pickup/delivery. Tapping a shop opens that shop's
+  own ordering page.
+
+  The customer's position (when they share it) is sent once to work out the
+  distances and is not stored anywhere. A signed-in Ember account also sees
+  its own shops first, with the stamps on each card.
+
+  One public door: dir_shops. The map is free (ember-map.js).
+-->
+<style>
+  @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; }
+  :root {
+    color-scheme: light dark;
+    --bg: #f1ece1; --bg-sub: #f4f0e6; --card: #ffffff;
+    --line: rgba(58, 50, 40, 0.14); --text: #14120f; --muted: #5d5446;
+    --accent: #ff5c00; --accent-ink: #1a0e05; --accent-text: #b03e00;
+    --ok: #047857; --r-sm: 12px; --r-md: 16px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121415; --bg-sub: #21252a; --card: #191c1e;
+      --line: rgba(255, 255, 255, 0.08); --text: #ece7df; --muted: rgba(236, 231, 223, 0.74);
+      --accent-text: #ff8340; --ok: #34d399;
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-size: 16px; line-height: 1.45;
+         font-family: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+  button, input { font: inherit; color: inherit; }
+  button { cursor: pointer; border: 0; background: none; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+  .hero { background: var(--accent); color: #0b0c0d; padding: calc(22px + env(safe-area-inset-top)) 16px 20px; }
+  .hero .in, main { max-width: 760px; margin: 0 auto; }
+  .hero .brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px; letter-spacing: .14em;
+                 text-transform: uppercase; text-decoration: none; color: rgb(11 12 13 / .78); }
+  /* The flame is orange: on the orange band it sits on its dark tile, as on every order page. */
+  .hero .brand .mk { width: 30px; height: 30px; border-radius: 8px; background: #0b0c0d; display: grid; place-items: center; }
+  .hero .brand img { width: 14px; height: 20px; display: block; }
+  .hero h1 { margin: 10px 0 4px; font-size: 30px; line-height: 1.1; font-weight: 700; letter-spacing: -.02em; }
+  .hero p { margin: 0; font-size: 15px; color: rgb(11 12 13 / .78); }
+
+  main { padding: 16px; display: grid; gap: 12px; }
+  .bar { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+  .bar input { height: 48px; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--card); padding: 0 14px; width: 100%; }
+  .btn { height: 48px; padding: 0 16px; border-radius: var(--r-sm); font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
+  .btn svg { width: 18px; height: 18px; }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .btn.ghost { background: var(--card); border: 1px solid var(--line); }
+  .btn[disabled] { opacity: .6; cursor: default; }
+  .views { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 4px; }
+  .views button { height: 38px; border-radius: 9px; font-weight: 650; font-size: 14px; color: var(--muted); }
+  .views button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  .note { font-size: 13.5px; color: var(--muted); }
+  .h2 { font-size: 13px; font-weight: 700; color: var(--muted); margin: 6px 2px 0; }
+
+  .list { display: grid; gap: 12px; }
+  .shop { display: grid; grid-template-columns: 48px 1fr; gap: 12px; align-items: start; text-decoration: none;
+          background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md); padding: 16px; }
+  .tile { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; font-weight: 700; font-size: 20px; color: #fff;
+          background: hsl(var(--h, 20) 55% 42%); }
+  .shop .nm { font-weight: 700; font-size: 17px; line-height: 1.25; }
+  .shop .ad { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { font-size: 12.5px; font-weight: 650; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg-sub); }
+  .chip.open { border-color: rgba(4, 120, 87, .45); color: var(--ok); }
+  .chip.km { font-variant-numeric: tabular-nums; }
+  .chip.stamps { border-color: rgba(255, 92, 0, .45); color: var(--accent-text); }
+  #map { height: 420px; border-radius: var(--r-md); overflow: hidden; border: 1px solid var(--line); background: var(--card); }
+  #map[hidden], .list[hidden] { display: none; }
+  .empty { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md); padding: 20px 16px; text-align: center; }
+  .empty b { display: block; font-size: 17px; margin-bottom: 4px; }
+  .foot { text-align: center; font-size: 12.5px; color: var(--muted); padding: 18px 16px calc(24px + env(safe-area-inset-bottom)); }
+  .foot a { color: var(--muted); }
+  .maplibregl-popup-content { background: var(--card) !important; color: var(--text); border-radius: 12px !important; padding: 10px 12px !important; font-family: inherit; }
+  .maplibregl-popup-tip { border-top-color: var(--card) !important; border-bottom-color: var(--card) !important; }
+  .pop a { font-weight: 700; color: var(--accent-text); }
+  @media (prefers-reduced-motion: no-preference) {
+    .list > * { animation: rise .3s cubic-bezier(.2, .8, .2, 1) backwards; animation-delay: calc(var(--i, 0) * 40ms); }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .shop, .btn { transition: transform .12s ease; }
+    .shop:active, .btn:active:not([disabled]) { transform: scale(.985); }
+    #map:not([hidden]) { animation: rise .3s cubic-bezier(.2, .8, .2, 1) backwards; }
+  }
+</style>
+</head>
+<body>
+<header class="hero"><div class="in">
+  <a class="brand" href="/"><span class="mk"><img src="logo.png" alt=""></span>Ember POS</a>
+  <h1>Ember shops near you</h1>
+  <p>Cafes and food shops that take orders with Ember. Order straight from the shop, for pickup or delivery.</p>
+</div></header>
+<main>
+  <div class="bar">
+    <input id="q" type="search" placeholder="Search a shop or a street" aria-label="Search a shop or a street" maxlength="60">
+    <button class="btn primary" id="near" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+      <span>Near me</span>
+    </button>
+  </div>
+  <div class="views" role="group" aria-label="Show shops as" id="views" hidden>
+    <button type="button" data-view="list" aria-pressed="true">List</button>
+    <button type="button" data-view="map" aria-pressed="false">Map</button>
+  </div>
+  <div class="note" id="note" aria-live="polite"></div>
+  <div id="mine"></div>
+  <div id="map" hidden></div>
+  <div class="list" id="list"></div>
+</main>
+<div class="foot">
+  Shops choose to be listed here. Your location is used only to sort the list and is not saved.
+  <br><a href="customer-terms.html">Terms and privacy</a> &middot; <a href="/">Own a shop? Get Ember POS</a>
+</div>
+<script src="ember-account.js"></script>
+<script src="ember-map.js"></script>
+<script>
+(function () {
+  'use strict';
+  var URLB = 'https://qqmkgafyfxrcnwdkkyxc.supabase.co';
+  var ANON = 'sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX';
+  var el = function (id) { return document.getElementById(id); };
+  var SHOPS = [], HERE = null, VIEW = 'list', mapH = null, timer = null, seq = 0;
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  async function rpc(fn, args) {
+    var r = await fetch(URLB + '/rest/v1/rpc/' + fn, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON },
+      body: JSON.stringify(args || {}),
+    });
+    if (!r.ok) throw new Error('http ' + r.status);
+    return r.json();
+  }
+  function hue(name) { var h = 0, t = String(name || ''); for (var i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) % 360; return h; }
+  function hhmm(t) {
+    var m = /^(\d{1,2}):(\d{2})/.exec(String(t || '')); if (!m) return '';
+    var h = Number(m[1]), ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+    return h + (m[2] === '00' ? '' : ':' + m[2]) + ' ' + ap;
+  }
+  function href(s) { return s.link.indexOf('order.html') === 0 ? s.link : '/' + s.link; }
+
+  function shopCard(s, i) {
+    var chips = [];
+    if (s.km != null) chips.push('<span class="chip km">' + (s.km < 1 ? Math.max(0.1, s.km) : s.km) + ' km</span>');
+    if (s.open_now === true) chips.push('<span class="chip open">Open now</span>');
+    else if (s.open_now === false) chips.push('<span class="chip">' + (s.opens ? 'Opens ' + esc(hhmm(s.opens)) : 'Closed now') + '</span>');
+    else if (s.opens && s.closes) chips.push('<span class="chip">' + esc(hhmm(s.opens)) + ' to ' + esc(hhmm(s.closes)) + '</span>');
+    if (s.pickup) chips.push('<span class="chip">Pickup</span>');
+    if (s.delivery) chips.push('<span class="chip">Delivery</span>');
+    return '<a class="shop" style="--i:' + Math.min(i, 8) + '" href="' + esc(href(s)) + '">' +
+      '<span class="tile" style="--h:' + hue(s.name) + '" aria-hidden="true">' + esc((s.name || '?').trim().charAt(0).toUpperCase()) + '</span>' +
+      '<span><span class="nm">' + esc(s.name) + '</span>' +
+        (s.address ? '<span class="ad" style="display:block">' + esc(s.address) + '</span>' : '') +
+        '<span class="chips">' + chips.join('') + '</span></span></a>';
+  }
+
+  function draw() {
+    var q = el('q').value.trim();
+    el('views').hidden = !SHOPS.length;
+    el('list').hidden = VIEW !== 'list';
+    el('map').hidden = VIEW !== 'map' || !SHOPS.length;
+    if (!SHOPS.length) {
+      el('list').hidden = false;
+      el('list').innerHTML = '<div class="empty"><b>' + (q ? 'No shop matches that' : HERE ? 'No Ember shop near you yet' : 'No shops listed yet') + '</b>' +
+        '<span class="note">' + (q ? 'Try another name or street.' : HERE ? 'Search by name to find a shop further away.' : 'Tap Near me, or search a shop by name.') + '</span></div>';
+      return;
+    }
+    el('list').innerHTML = SHOPS.map(shopCard).join('');
+    if (VIEW === 'map') drawMap();
+  }
+
+  function drawMap() {
+    var box = el('map');
+    if (!window.EmberMap || !EmberMap.canDraw()) {
+      box.hidden = true; el('list').hidden = false;
+      el('note').textContent = 'This phone cannot show the map, so here is the list.';
+      return;
+    }
+    var pinned = SHOPS.filter(function (s) { return s.lat != null && s.lng != null; });
+    var start = HERE || (pinned[0] ? { lat: pinned[0].lat, lng: pinned[0].lng } : null);
+    var place = function (h) {
+      if (h.__pins) h.__pins.forEach(function (m) { m.remove(); });
+      h.__pins = pinned.map(function (s) {
+        var d = document.createElement('div');
+        d.className = 'em-pin em-shop';
+        d.title = s.name;
+        d.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/></svg>';
+        var pop = new maplibregl.Popup({ offset: 22, closeButton: false }).setHTML(
+          '<div class="pop"><b>' + esc(s.name) + '</b>' + (s.km != null ? ' &middot; ' + esc(s.km) + ' km' : '') +
+          '<br><a href="' + esc(href(s)) + '">Order from this shop</a></div>');
+        return new maplibregl.Marker({ element: d }).setLngLat([s.lng, s.lat]).setPopup(pop).addTo(h.map);
+      });
+      h.set('me', HERE);
+      var b = new maplibregl.LngLatBounds();
+      pinned.forEach(function (s) { b.extend([s.lng, s.lat]); });
+      if (HERE) b.extend([HERE.lng, HERE.lat]);
+      if (!b.isEmpty()) h.map.fitBounds(b, { padding: 50, maxZoom: 15, duration: 0 });
+    };
+    if (mapH) { mapH.resize(); place(mapH); return; }
+    EmberMap.create(box, { center: start, zoom: 12 }).then(function (h) {
+      if (!h) { box.hidden = true; el('list').hidden = false; VIEW = 'list'; setView(); return; }
+      mapH = h;
+      h.map.once('load', function () { place(h); });
+    });
+  }
+
+  async function load() {
+    var my = ++seq;
+    var q = el('q').value.trim();
+    try {
+      var r = await rpc('dir_shops', { p_lat: HERE ? HERE.lat : null, p_lng: HERE ? HERE.lng : null, p_q: q || null });
+      if (my !== seq) return;          // a newer search already answered
+      SHOPS = Array.isArray(r) ? r : [];
+      el('note').textContent = HERE
+        ? (SHOPS.length ? 'Nearest first.' : '')
+        : (SHOPS.length && !q ? 'Tap Near me to see the nearest first.' : '');
+    } catch (e) {
+      if (my !== seq) return;
+      SHOPS = [];
+      el('note').textContent = 'Could not reach Ember. Check your signal and try again.';
+    }
+    draw();
+  }
+
+  function setView() {
+    document.querySelectorAll('[data-view]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-view') === VIEW)); });
+    draw();
+  }
+  document.querySelectorAll('[data-view]').forEach(function (b) {
+    b.onclick = function () { VIEW = b.getAttribute('data-view'); setView(); };
+  });
+  el('q').addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(load, 300); });
+  el('near').onclick = function () {
+    var b = el('near');
+    if (!navigator.geolocation) { el('note').textContent = 'This phone cannot share its location. Search by name instead.'; return; }
+    b.disabled = true; b.querySelector('span').textContent = 'Finding you…';
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      HERE = { lat: Math.round(pos.coords.latitude * 1e4) / 1e4, lng: Math.round(pos.coords.longitude * 1e4) / 1e4 };
+      b.disabled = false; b.querySelector('span').textContent = 'Near me';
+      if (mapH && mapH.__pins) { mapH.remove(); mapH = null; }
+      load();
+    }, function () {
+      b.disabled = false; b.querySelector('span').textContent = 'Near me';
+      el('note').textContent = 'Location is blocked for this page. Allow it in your browser, or search by name.';
+    }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 });
+  };
+
+  // Signed in with an Ember account: their own shops first, with the stamps on each card.
+  async function mine() {
+    if (!window.EmberAccount || !EmberAccount.getSession()) return;
+    try {
+      var me = await EmberAccount.rpc('cust_me', { p_session: EmberAccount.getSession() });
+      var shops = (me && me.ok && me.shops) || [];
+      shops = shops.filter(function (s) { return s.store_token; });
+      if (!shops.length) return;
+      el('mine').innerHTML = '<div class="h2">Your shops</div><div class="list" style="margin-top:8px">' +
+        shops.slice(0, 6).map(function (s, i) {
+          var req = Number(s.stamps_required) || 0;
+          return '<a class="shop" style="--i:' + i + '" href="order.html?t=' + encodeURIComponent(s.store_token) + '">' +
+            '<span class="tile" style="--h:' + hue(s.shop) + '" aria-hidden="true">' + esc((s.shop || '?').trim().charAt(0).toUpperCase()) + '</span>' +
+            '<span><span class="nm">' + esc(s.shop) + '</span><span class="chips">' +
+              (s.linked && s.loyalty_on ? '<span class="chip stamps">' + esc(s.stamps || 0) + (req ? ' of ' + esc(req) : '') + ' stamps</span>' : '') +
+              '<span class="chip">Order again</span></span></span></a>';
+        }).join('') + '</div><div class="h2" style="margin-top:14px">All shops</div>';
+    } catch (e) { /* the public list is enough */ }
+  }
+
+  var q0 = new URLSearchParams(location.search).get('q');
+  if (q0) el('q').value = q0.slice(0, 60);
+  mine();
+  load();
+})();
+</script>
+</body>
+</html>

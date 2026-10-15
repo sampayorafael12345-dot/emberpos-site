@@ -438,6 +438,17 @@
   .qa details[open] .pm::after { transform: rotate(0deg); }
   .qa details p { padding: 0 20px 20px; color: var(--ink2); font-size: 16.5px; }
   .qa details p a { color: var(--flame-ink); font-weight: 600; }
+  /* An answer opens with its words easing down (opacity and transform only,
+     so Chrome 83 runs it too and nothing below jumps about). The menu
+     board's categories open the same way on a phone. */
+  @keyframes ansIn { from { opacity: 0; transform: translateY(-6px); } }
+  @media (prefers-reduced-motion: no-preference) {
+    .qa details[open] p { animation: ansIn .32s var(--ease); }
+  }
+  @media (max-width: 720px) and (prefers-reduced-motion: no-preference) {
+    .cat[open] ul { animation: ansIn .32s var(--ease); }
+    .dock .btn:active { transform: scale(.96); }
+  }
 
   /* ================= ORDER UP ================= */
   .final { padding: 120px 0 110px; text-align: center; }
@@ -477,7 +488,7 @@
   .foot nav a { font-size: 14.5px; color: var(--d-ink2); text-decoration: none; padding: 8px 0; }
   @media (hover: hover) { .foot nav a:hover { color: #fff; } }
   .foot-base { display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center; margin-top: 48px; padding-top: 28px; border-top: 1px dashed rgba(255,255,255,.18); }
-  .bir-seal img { width: 190px; height: auto; border-radius: 8px; background: #fff; }
+  .bir-seal img { width: 320px; max-width: 100%; height: auto; border-radius: 8px; background: #fff; }
   .bir-seal p, .ver { font-size: 13px; color: var(--d-ink3); line-height: 1.55; max-width: 72ch; }
   .bir-seal p a { color: var(--d-ink2); }
   .ver { margin-top: 8px; font-family: var(--mono); font-size: 12px; }
@@ -632,6 +643,8 @@
     .stubs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .stub:nth-child(3) { border-left: 0; padding-left: 0; }
     .stub:nth-child(n+3) { border-top: 3px dashed var(--ink); }
+    /* one size for all four, small enough that "Brownout?" fits a 360px phone */
+    .stub b { font-size: clamp(26px, 8.2vw, 34px); }
   }
   @media (max-width: 720px) {
     body { font-size: 16.5px; }
@@ -832,7 +845,7 @@
   <div class="wrap">
     <div class="hero-grid">
       <div>
-        <a class="announce rv" href="#features"><span class="new">New</span><span>v1.6.6 is out: your floor plan live with bookings, and a new sign-in page</span><svg class="i"><use href="#i-arrow"/></svg></a>
+        <a class="announce rv" href="#included"><span class="new">New</span><span>v1.6.7 is out: watch your rider come on a map, and new customers can find your shop</span><svg class="i"><use href="#i-arrow"/></svg></a>
         <h1 class="poster rv" id="hero-h" style="--d:60ms">Run your whole shop from <span class="box">one app</span></h1>
         <p class="lede rv" style="--d:120ms">For cafés, milk tea shops, carinderias and food stalls in the Philippines. Take orders, send them to the kitchen, track your stock, record utang, pay your staff, and see your <b>profit every day</b>.</p>
         <div class="hero-ctas rv" style="--d:180ms" id="hero-ctas">
@@ -861,8 +874,8 @@
 </section>
 
 <!-- the Now Serving board, for the kinds of shop we serve -->
-<div class="serving" aria-label="Made for cafés, milk tea shops, carinderias, food stalls, bakeries, restaurants, kiosks, bars and food parks">
-  <div class="serving-l"><i></i>Now serving</div>
+<div class="serving">
+  <div class="serving-l"><i></i>Now serving<span class="sr">: cafés, milk tea shops, carinderias, food stalls, bakeries, restaurants, kiosks, bars and food parks</span></div>
   <div class="serving-m" aria-hidden="true"><div class="serving-row"><span><em>#21</em>Cafés</span><span><em>#22</em>Milk tea shops</span><span><em>#23</em>Carinderias</span><span><em>#24</em>Food stalls</span><span><em>#25</em>Bakeries</span><span><em>#26</em>Restaurants</span><span><em>#27</em>Kiosks</span><span><em>#28</em>Bars</span><span><em>#29</em>Food parks</span><span><em>#21</em>Cafés</span><span><em>#22</em>Milk tea shops</span><span><em>#23</em>Carinderias</span><span><em>#24</em>Food stalls</span><span><em>#25</em>Bakeries</span><span><em>#26</em>Restaurants</span><span><em>#27</em>Kiosks</span><span><em>#28</em>Bars</span><span><em>#29</em>Food parks</span></div></div>
 </div>
 
@@ -942,10 +955,9 @@
         </div>
       </div>
     </div>
-    <p class="stage-note"><svg class="i"><use href="#i-info"/></svg>This is a practice till with our sample café's real menu and recipes. Tap some items, then press Send + Pay. Nothing is saved.</p>
+    <p class="stage-note"><svg class="i"><use href="#i-info"/></svg>Nothing you tap here is saved.</p>
   </div>
   <div class="sr" aria-live="polite" id="till-status"></div>
-  </div>
 </section>
 
 <!-- ================= ORDER #003: HOW IT WORKS ================= -->
@@ -1105,7 +1117,7 @@
           <div class="viz log">
             <div><span class="tm">2:11</span><span class="who"><b>Maria</b><small>Senior 20% · ID saved</small></span><span class="amt">₱27.00</span></div>
             <div><span class="tm">1:49</span><span class="who"><b>Maria</b><small>Cancelled · wrong table</small></span><span class="amt">₱149.00</span></div>
-            <div><span class="tm">1:32</span><span class="who"><b>Ana</b><small>Opened drawer · no sale</small></span><span class="amt">—</span></div>
+            <div><span class="tm">1:32</span><span class="who"><b>Ana</b><small>Opened drawer · no sale</small></span><span class="amt">-</span></div>
           </div>
         </div>
       </article>
@@ -1173,8 +1185,8 @@
         <span><svg class="i"><use href="#i-check"/></svg>Download your data any time</span>
       </div>
     </div>
-    <div class="board-menu rv" style="--d:80ms" id="board-menu"><details class="cat" open><summary><b>Selling</b><span class="count">10 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>Sizes, add-ons and notes for each item</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Hold orders, split bills, refunds and cancellations</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A map of your tables for dine-in</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Utang, with a limit for each customer</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Senior and PWD discounts, with the ID number saved</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Discounts, coupons, gift cards and store credit</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Happy hour and prices that change by time of day</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Meals and combos sold at one price</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A second screen that shows customers their order</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Tips, takeout packaging and one-off custom items</span><i></i><b>INCLUDED</b></li></ul></details><details class="cat" open><summary><b>Kitchen and orders</b><span class="count">9 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>A kitchen screen where late orders change colour</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Mark one dish or the whole order as done</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A Now Serving screen for customers</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A prep screen for food you make ahead</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Order number stubs and cup stickers</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Kitchen tickets that print as soon as an order is sent</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Customers order from their table with a QR code</span><i></i><b>INCLUDED</b></li><li class="mi"><span>An online shop for pickup and delivery, paid by QR Ph</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Book a Lalamove rider with your own account</span><i></i><b>INCLUDED</b></li></ul></details><details class="cat" open><summary><b>Stock</b><span class="count">8 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>Recipes for each size and add-on, so stock goes down with every sale</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Purchase orders and supplier records</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Count stock in kg, g, L, mL or packs</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Record spoiled or wasted items, with who saw it</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A shopping list of what you are running out of</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Low-stock and expiry alerts, by email too</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Send stock to your other branch</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Mark an item sold out in one tap</span><i></i><b>INCLUDED</b></li></ul></details><details class="cat" open><summary><b>Money</b><span class="count">9 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>Daily profit after ingredients, wages and expenses</span><i></i><b>INCLUDED</b></li><li class="mi"><span>The cost of each item, cups and packaging included</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Break-even point, cash flow, and cash in and out</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Count the cash drawer bill by bill and coin by coin</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Track cash from the drawer all the way to the bank</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Compare GCash and Maya with what the till recorded</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Add your own payment types</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A sales report in BIR columns, with a missing-receipt check</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Price quotes for catering and big orders</span><i></i><b>INCLUDED</b></li></ul></details><details class="cat" open><summary><b>Staff</b><span class="count">6 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>Clock in and out on the sign-in screen</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Schedules, timecards and shift reports</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Payroll based on the hours actually worked</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Choose what each staff member can see and do</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Every discount, cancellation and drawer opening saved with a name</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Notes one shift can leave for the next</span><i></i><b>INCLUDED</b></li></ul></details><details class="cat" open><summary><b>Everything else</b><span class="count">8 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>Keeps selling in a brownout, saves online when the internet is back</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Works on Android, iPhone, tablet and computer</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Add a second branch to the same account</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Loyalty points, and a list of regulars who stopped coming</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Bluetooth receipt printers, cash drawers and label printers</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Bring in your data from a spreadsheet, and download it any time</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Daily sales goals, and reminders before permits expire</span><i></i><b>INCLUDED</b></li><li class="mi"><span>All future updates, at no extra cost</span><i></i><b>INCLUDED</b></li></ul></details></div>
-    <p class="menu-foot"><span>This menu matches app version v1.6.6</span><a href="demo/">Try any of it in the live demo first</a></p>
+    <div class="board-menu rv" style="--d:80ms" id="board-menu"><details class="cat" open><summary><b>Selling</b><span class="count">11 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>Sizes, add-ons and notes for each item</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Hold orders, split bills, refunds and cancellations</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A map of your tables for dine-in</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Table bookings that show live on your floor plan</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Utang, with a limit for each customer</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Senior and PWD discounts, with the ID number saved</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Discounts, coupons, gift cards and store credit</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Happy hour and prices that change by time of day</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Meals and combos sold at one price</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A second screen that shows customers their order</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Tips, takeout packaging and one-off custom items</span><i></i><b>INCLUDED</b></li></ul></details><details class="cat" open><summary><b>Kitchen and orders</b><span class="count">11 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>A kitchen screen where late orders change colour</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Mark one dish or the whole order as done</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A Now Serving screen for customers</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A prep screen for food you make ahead</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Order number stubs and cup stickers</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Kitchen tickets that print as soon as an order is sent</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Customers order from their table with a QR code</span><i></i><b>INCLUDED</b></li><li class="mi"><span>An online shop for pickup and delivery, paid by QR Ph</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Book a Lalamove rider with your own account</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Customers watch your own rider come on a map</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A free listing so people nearby find your shop</span><i></i><b>INCLUDED</b></li></ul></details><details class="cat" open><summary><b>Stock</b><span class="count">8 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>Recipes for each size and add-on, so stock goes down with every sale</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Purchase orders and supplier records</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Count stock in kg, g, L, mL or packs</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Record spoiled or wasted items, with who saw it</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A shopping list of what you are running out of</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Low-stock and expiry alerts, by email too</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Send stock to your other branch</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Mark an item sold out in one tap</span><i></i><b>INCLUDED</b></li></ul></details><details class="cat" open><summary><b>Money</b><span class="count">9 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>Daily profit after ingredients, wages and expenses</span><i></i><b>INCLUDED</b></li><li class="mi"><span>The cost of each item, cups and packaging included</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Break-even point, cash flow, and cash in and out</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Count the cash drawer bill by bill and coin by coin</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Track cash from the drawer all the way to the bank</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Compare GCash and Maya with what the till recorded</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Add your own payment types</span><i></i><b>INCLUDED</b></li><li class="mi"><span>A sales report in BIR columns, with a missing-receipt check</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Price quotes for catering and big orders</span><i></i><b>INCLUDED</b></li></ul></details><details class="cat" open><summary><b>Staff</b><span class="count">6 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>Clock in and out on the sign-in screen</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Schedules, timecards and shift reports</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Payroll based on the hours actually worked</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Choose what each staff member can see and do</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Every discount, cancellation and drawer opening saved with a name</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Notes one shift can leave for the next</span><i></i><b>INCLUDED</b></li></ul></details><details class="cat" open><summary><b>Everything else</b><span class="count">8 items</span><span class="pm" aria-hidden="true"></span></summary><ul><li class="mi"><span>Keeps selling in a brownout, saves online when the internet is back</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Works on Android, iPhone, tablet and computer</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Add a second branch to the same account</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Loyalty points, and a list of regulars who stopped coming</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Bluetooth receipt printers, cash drawers and label printers</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Bring in your data from a spreadsheet, and download it any time</span><i></i><b>INCLUDED</b></li><li class="mi"><span>Daily sales goals, and reminders before permits expire</span><i></i><b>INCLUDED</b></li><li class="mi"><span>All future updates, at no extra cost</span><i></i><b>INCLUDED</b></li></ul></details></div>
+    <p class="menu-foot"><span>This menu matches app version v1.6.7</span><a href="demo/">Try any of it in the live demo first</a></p>
   </div>
 </section>
 
@@ -1412,7 +1424,7 @@
         <p>Ember POS Computer Software Store is registered with the Bureau of Internal Revenue,
            RDO 041 Mandaluyong. This seal confirms the business is BIR-registered. It is not a POS
            accreditation. See the <a href="faq.html#bir">FAQ</a>.</p>
-        <p class="ver">Ember POS v1.6.6 · Philippines</p>
+        <p class="ver">Ember POS v1.6.7 · Philippines</p>
       </div>
     </div>
   </div>
@@ -1712,27 +1724,6 @@ document.documentElement.classList.add('js');
 
   renderCart(); renderTickets(false); renderStock(shown);
 
-  /* ---------------- how it works: the sticky frame follows the steps ---------------- */
-  var steps = $$('.step'), frameImgs = $$('#frame img'), railBtns = $$('#rail button');
-  function setStep(n) {
-    steps.forEach(function (s, i) { s.classList.toggle('on', i === n); });
-    frameImgs.forEach(function (im, i) { im.classList.toggle('on', i === n); });
-    railBtns.forEach(function (b, i) { if (i === n) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
-  }
-  if (hasIO) {
-    var sio = new IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (e.isIntersecting) setStep(+e.target.getAttribute('data-step')); });
-    }, { rootMargin: '-45% 0px -45% 0px' });
-    steps.forEach(function (s) { sio.observe(s); });
-  }
-  railBtns.forEach(function (b) {
-    b.addEventListener('click', function () {
-      var s = steps[+b.getAttribute('data-go')];
-      var y = s.getBoundingClientRect().top + scrollY - innerHeight * 0.3;
-      scrollTo({ top: y, behavior: reduced ? 'auto' : 'smooth' });
-    });
-  });
-
   /* brownout card: no signal, then back online, again */
   var net = $('#net');
   if (!reduced) setInterval(function () { net.classList.toggle('live'); }, 3200);
@@ -1746,29 +1737,6 @@ document.documentElement.classList.add('js');
     ana.textContent = Math.floor(m / 60) + 'h ' + ('0' + (m % 60)).slice(-2) + 'm';
   }
   hrs(); setInterval(hrs, 30000);
-
-  /* ---------------- everything included: tabs ---------------- */
-  var tabs = $$('#tabbar [role=tab]'), panels = tabs.map(function (t) { return d.getElementById(t.getAttribute('aria-controls')); });
-  function select(i, focus) {
-    tabs.forEach(function (t, j) {
-      var on = i === j;
-      t.setAttribute('aria-selected', on ? 'true' : 'false');
-      t.tabIndex = on ? 0 : -1;
-      panels[j].hidden = !on;
-      panels[j].classList.toggle('show', on);
-    });
-    if (focus) tabs[i].focus();
-  }
-  tabs.forEach(function (t, i) {
-    t.addEventListener('click', function () { select(i, false); });
-    t.addEventListener('keydown', function (e) {
-      var k = e.key, n = tabs.length;
-      if (k === 'ArrowRight') { e.preventDefault(); select((i + 1) % n, true); }
-      else if (k === 'ArrowLeft') { e.preventDefault(); select((i - 1 + n) % n, true); }
-      else if (k === 'Home') { e.preventDefault(); select(0, true); }
-      else if (k === 'End') { e.preventDefault(); select(n - 1, true); }
-    });
-  });
 
   /* ---------------- setup: the paper menu becomes tiles ---------------- */
   var paperRows = $$('#paper div'), madeTiles = $$('#made-tiles span');
@@ -1786,7 +1754,7 @@ document.documentElement.classList.add('js');
   } else build();
 
   /* ---------------- the phone dock ---------------- */
-  var dock = $('#dock'), heroCtas = $('#hero-ctas'), foot = $('footer'), final = $('#demo');
+  var dock = $('#dock'), heroCtas = $('#hero-ctas'), final = $('#demo');
   if (hasIO) {
     var past = false, end = false;
     var upd = function () { dock.classList.toggle('show', past && !end); };

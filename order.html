@@ -274,7 +274,7 @@
   }
 
   /* Sheet --------------------------------------------------------------- */
-  .scrim { position: fixed; inset: 0; z-index: 40; background: rgb(0 0 0 / .5); display: none; }
+  .scrim { position: fixed; top: 0; right: 0; bottom: 0; left: 0; inset: 0; z-index: 40; background: rgb(0 0 0 / .5); display: none; }
   .scrim.on { display: block; }
   .sheet {
     position: absolute; left: 0; right: 0; bottom: 0; max-height: 90vh; overflow: auto;
@@ -332,33 +332,43 @@
      loudest thing under the name: it is the one line on this page that can
      matter medically, and burying it in grey beside the calories would be a
      design decision with a consequence. */
+  /* Dark amber and green ink on paper; the pale ones were drawn for the coal
+     ground and nearly vanished on a phone in daylight. */
   .sheet .allergens {
     margin: 6px 0 2px; padding: 8px 10px; border-radius: 10px;
-    background: rgba(255,176,32,0.10); border: 1px solid rgba(255,176,32,0.34);
-    color: #ffd79a; font-size: 13px; line-height: 1.45;
+    background: rgba(255,176,32,0.14); border: 1px solid rgba(180,83,9,0.35);
+    color: #7a4a00; font-size: 13px; line-height: 1.45;
   }
   .sheet .diet { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px; }
   .sheet .diet span {
     font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
     padding: 3px 7px; border-radius: 999px;
-    background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.30); color: #86efac;
+    background: rgba(22,163,74,0.10); border: 1px solid rgba(22,163,74,0.35); color: #166534;
+  }
+  @media (prefers-color-scheme: dark) {
+    .sheet .allergens { background: rgba(255,176,32,0.10); border-color: rgba(255,176,32,0.34); color: #ffd79a; }
+    .sheet .diet span { background: rgba(74,222,128,0.12); border-color: rgba(74,222,128,0.30); color: #86efac; }
   }
   .sheet .nutri { color: var(--muted); font-size: 12px; margin: 4px 0 2px; }
   /* The one-tap "how was it?" on the confirmation screen. */
   .csat { margin-top: 18px; text-align: center; }
-  .csat .q { color: var(--muted); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 8px; }
-  .csat .row { display: flex; justify-content: center; gap: 6px; }
+  .csat .q { font-size: 14px; font-weight: 650; color: var(--text); margin-bottom: 8px; }
+  .csat .row { display: flex; justify-content: center; gap: 6px; border-bottom: 0; }
   /* The rating stars are the one place a star IS the content, so they stay -
      drawn rather than typed, at a real 44px touch target. */
-  #stars span, #svcstars span { display: inline-grid; place-items: center; width: 44px; height: 44px; cursor: pointer; }
+  #stars button, #svcstars button {
+    display: inline-grid; place-items: center; width: 44px; height: 44px; cursor: pointer;
+    border: 0; background: none; padding: 0;
+  }
   #stars .mi, #svcstars .mi { width: 27px; height: 27px; }
-  .csat button {
-    font: inherit; font-size: 20px; line-height: 1; cursor: pointer; color: var(--muted);
-    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
+  /* The faces only - Skip and Send keep their own button look. */
+  .csat .row button {
+    font: inherit; font-size: 20px; line-height: 1; cursor: pointer;
+    background: var(--bg-sub); border: 1px solid var(--line); color: var(--text);
     border-radius: 999px; min-width: 52px; min-height: 52px;
   }
-  .csat button:active { background: rgba(255,92,0,0.18); color: #fff; }
-  .csat .done { color: #86efac; font-size: 14px; }
+  .csat .row button:active { background: var(--line); color: var(--text); }
+  .csat .done { color: var(--ok); font-size: 14px; }
   /* A question, set like a question. These were uppercase and letter-spaced -
      sixteen tracked eyebrows down one phone screen, which is grammar nobody
      chose. Sentence case, a size you can actually read, and the weight doing
@@ -424,7 +434,7 @@
     background: var(--text); color: var(--bg); padding: 11px 18px; border-radius: 999px;
     font-size: 14px; font-weight: 600; box-shadow: var(--shadow); max-width: 90vw;
   }
-  .scrim.on ~ .toast {
+  .scrim.on:not(.closing) ~ .toast {
     bottom: auto; top: calc(76px + env(safe-area-inset-top));
   }
   .num { font-size: 40px; font-weight: 800; letter-spacing: .5px; margin: 10px 0 18px; }
@@ -467,6 +477,32 @@
   }
   .when-sel { width: 100%; padding: 12px; border-radius: var(--r-sm);
               border: 1px solid var(--line); background: var(--bg-sub); margin-top: 8px; }
+  /* 0517: a later day beside the time - one row, two equal boxes. */
+  .when-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  /* 0519: the rider on the way - a card inside the order card, one map. */
+  .trip { margin: 0 0 12px; padding: 12px; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--bg-sub); }
+  .trip .tt { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14.5px; }
+  .trip .tt svg { color: var(--accent-text); }
+  .trip .ti { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .trip .tripmap { height: 210px; margin-top: 10px; border-radius: var(--r-sm); overflow: hidden; background: var(--card); }
+  .trip .tripmap > div { width: 100%; height: 100%; }
+  @media (prefers-reduced-motion: no-preference) {
+    .trip.swapin { animation: tripIn .32s cubic-bezier(.2, .8, .2, 1) both; }
+    @keyframes tripIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  }
+  /* 0517: tips - five equal buttons on one row, the amount under each. */
+  .tips { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .tips .when { min-width: 0; padding: 10px 4px; font-size: 13.5px; line-height: 1.2; }
+  .tips .when small { display: block; font-size: 11.5px; font-weight: 500; color: var(--muted); margin-top: 2px; }
+  .tips .when[aria-pressed="true"] small { color: inherit; }
+  /* 0517: the search and the food filter share one row, one height. */
+  .srow { display: flex; gap: 8px; margin: 0 0 10px; }
+  .srow .search { flex: 1; margin: 0; }
+  .fbtn { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px;
+          border-radius: 12px; border: 1px solid var(--line); background: var(--bg-sub); font-size: 14px; font-weight: 650; }
+  .fbtn.on { border-color: var(--accent); color: var(--accent-text); background: var(--bg-sub); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .fchips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .fchips .when { flex: 0 0 auto; min-width: 0; padding: 10px 14px; }
   /* The shop wants the money first. Said once, plainly, where the customer is
      deciding - not as an error after they have tapped Place order. */
   .prepay-note {
@@ -657,16 +693,120 @@
   .sheet { background: var(--card); }
   .note-in { background: var(--bg-sub); border-color: var(--line); }
   .opt { border-radius: var(--r-sm); }
+  /* EMBER ACCOUNT (0515). The sign-in button sits with "Your orders" in the
+     header; the sheets reuse the page's own rows, labels and buttons. */
+  .hero .mine.acct { display: flex; align-items: center; justify-content: center; gap: 7px; }
+  .hero .mine.acct svg { width: 16px; height: 16px; }
+  .ea-tick { display: flex; align-items: flex-start; gap: 10px; margin: 12px 0 0; font-size: 14px; line-height: 1.4; color: var(--text); cursor: pointer; }
+  .ea-tick input { width: 18px; height: 18px; margin: 1px 0 0; flex: none; accent-color: var(--accent); }
+  .ea-tick a { color: var(--accent-text); }
+  .acard { border: 1px solid var(--line); border-radius: var(--r-md); background: var(--bg-sub); padding: 14px; margin: 12px 0 4px; }
+  .acard .qr { background: #fff; border-radius: 12px; padding: 12px; width: 200px; height: 200px; margin: 12px auto 6px; }
+  .acard .qr svg { width: 100%; height: 100%; display: block; }
+  .acard .ccode { text-align: center; font-weight: 700; letter-spacing: 3px; font-size: 18px; margin-bottom: 4px; }
+  .acard .stamprow, .acard .balrow { display: flex; align-items: center; gap: 7px; font-size: 15px; margin-top: 6px; }
+  .acard .stamprow .mi { color: var(--accent-text); width: 18px; height: 18px; }
+  .adet { border: 1px solid var(--line); border-radius: var(--r-md); padding: 10px 14px; margin: 10px 0 0; background: var(--bg-sub); }
+  .adet summary { cursor: pointer; font-weight: 650; font-size: 14px; }
+  .adet[open] summary { margin-bottom: 10px; }
+  .row.ord { align-items: center; }
+  .row .gdel { padding: 6px; min-width: 0; }
+  .btnlink { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text); text-align: center; }
+  .chip.chipbtn { border: 0; cursor: pointer; font: inherit; font-size: 12.5px; font-weight: 650; }
+  .chip.chipbtn svg { width: 13px; height: 13px; }
+  .favbtn { margin-top: 10px; display: inline-flex; align-items: center; gap: 7px; font-size: 14px; }
+  .favbtn .mi { width: 16px; height: 16px; color: var(--accent-text); }
+
+  /* YOUR ORDERS: one column of cards, 12px apart, 16px off the screen edge. */
+  .olist { display: grid; gap: 12px; padding: 0 16px; background: transparent; }
+  .olist > .acard, .olist > .csat { margin: 0; }
+  /* A long address wraps inside its chip instead of running off the header. */
+  .chip.addr { white-space: normal; max-width: 100%; border-radius: 12px; align-items: flex-start; text-align: left; }
+  .chip.addr svg { flex: none; margin-top: 2px; }
+  /* Liked / not for me on the rating sheet: drawn thumbs, coloured when chosen. */
+  .fbv { padding: 6px 10px; display: inline-grid; place-items: center; }
+  .fbv[aria-pressed="true"].up { color: var(--ok); border-color: currentColor; }
+  .fbv[aria-pressed="true"].down { color: var(--accent-text); border-color: currentColor; }
+  /* A computer: the sheets, the basket and the order cards keep a phone's
+     width in the middle instead of stretching edge to edge. */
+  @media (min-width: 700px) {
+    .sheet { max-width: 560px; margin: 0 auto; }
+    .sheet.full { top: 24px; height: auto; bottom: 0; border-radius: var(--r-lg) var(--r-lg) 0 0; }
+    .bar { max-width: 560px; margin: 0 auto; }
+    .olist { max-width: 640px; margin: 0 auto; }
+  }
+  /* The paid tick and the waiting dot. */
+  .okmark { display: block; width: 56px; height: 56px; margin: 6px auto 10px; color: var(--ok); }
+  .okmark circle, .okmark path { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+  .okmark circle { stroke-width: 3; }
+  .okmark path { stroke-width: 4; stroke-dasharray: 40; stroke-dashoffset: 0; }
+  .waitdot { display: inline-block; width: 8px; height: 8px; border-radius: 99px; background: var(--accent); margin-right: 8px; vertical-align: 1px; }
+
+  /* MOTION, PART TWO (15 Oct 2026) - the owner: "add some motion and
+     animation to the other pages". The sheets now fade and slide both ways,
+     the toast slides, the choice just tapped answers, the tracker's step moves
+     when the order does. The menu's own easings, transform and opacity only,
+     never on a keystroke, never in the way of a tap - a closing sheet lets
+     taps through at once. All of it lives inside no-preference, and the page's
+     script checks the same setting before it waits on anything. */
+  @keyframes scrimIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scrimOut { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes sheetOut { from { transform: none; } to { transform: translateY(32px); } }
+  @keyframes swapIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes chosen { 0% { transform: scale(.95); } 60% { transform: scale(1.03); } 100% { transform: scale(1); } }
+  @keyframes nudge { 0% { transform: scale(1); } 40% { transform: scale(1.03); } 100% { transform: scale(1); } }
+  @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+  @keyframes toastOut { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, 6px); } }
+  @keyframes stepArrive { from { opacity: .4; transform: scale(.96); } to { opacity: 1; transform: none; } }
+  @keyframes drawTick { to { stroke-dashoffset: 0; } }
+  @keyframes shake { 0%, 100% { transform: none; } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+  @media (prefers-reduced-motion: no-preference) {
+    .scrim.on { animation: scrimIn .2s ease-out; }
+    .scrim.closing { animation: scrimOut .18s ease-in both; pointer-events: none; }
+    .scrim.closing .sheet { animation: sheetOut .2s cubic-bezier(.4,0,1,1) both; }
+    .sheet.swap > * { animation: swapIn .24s cubic-bezier(.2,.8,.2,1) both; }
+    .sheet.intro .row, .sheet.intro .opt, .sheet.intro .acard, .sheet.intro .adet,
+    .sheet.intro .fchips .when, .sheet.intro .tips .when, .sheet.intro .modes button {
+      animation: tileIn .38s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 40ms);
+    }
+    .sheet .just { animation: chosen .28s cubic-bezier(.2,.9,.3,1.3); }
+    .sheet .adq b.tick { display: inline-block; animation: tick .25s ease-out; }
+    .sheet .nudged { animation: nudge .32s ease-out; }
+    .swapin { animation: swapIn .26s cubic-bezier(.2,.8,.2,1) both; }
+    .toast { animation: toastIn .24s cubic-bezier(.16,1,.3,1); }
+    .toast.out { animation: toastOut .18s ease-in both; }
+    .step.on.arrive { animation: stepArrive .4s cubic-bezier(.2,.9,.3,1.2) both; }
+    .step.on.arrive .dot { animation: badge .45s .1s cubic-bezier(.2,.9,.3,1.3); }
+    .obanner.arrive { animation: tileIn .4s cubic-bezier(.2,.8,.2,1) both; }
+    .olist.intro > :not(.new-order) { animation: tileIn .42s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 40ms); }
+    #app.screen-in { animation: scrimIn .22s ease-out; }
+    .center.fatal > * { animation: tileIn .45s cubic-bezier(.2,.8,.2,1) both; }
+    .center.fatal > :nth-child(2) { animation-delay: .06s; }
+    .center.fatal > :nth-child(3) { animation-delay: .12s; }
+    .csat .row button, .when, .opt, .fbtn, .chip.chipbtn, .sheet .x, .fbv { transition: transform .1s ease; }
+    .csat .row button:active { transform: scale(.92); }
+    .when:active, .opt:active, .fbtn:active, .chip.chipbtn:active, .sheet .x:active, .fbv:active { transform: scale(.96); }
+    #stars button.pop, #svcstars button.pop { animation: chosen .32s cubic-bezier(.2,.9,.3,1.3) both; animation-delay: calc(var(--i, 0) * 30ms); }
+    .okmark { animation: chosen .4s cubic-bezier(.2,.9,.3,1.3) both; }
+    .okmark path { stroke-dashoffset: 40; animation: drawTick .45s .12s ease-out forwards; }
+    .waitdot { animation: pulse 1.2s ease-in-out infinite; }
+    .ea-in > * { animation: swapIn .24s cubic-bezier(.2,.8,.2,1) both; }
+    .ea-shake { animation: shake .36s ease-out; }
+    .sdots span { display: inline-block; animation: tileIn .3s cubic-bezier(.2,.9,.3,1.3) both; animation-delay: calc(.08s + var(--i, 0) * 30ms); }
+  }
 </style>
 </head>
 <body>
-<main id="app" aria-live="polite">
+<main id="app">
   <div class="list" aria-hidden="true">
     <div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>
   </div>
 </main>
 <div class="scrim" id="scrim"><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
 
+<script src="ember-account.js"></script>
+<script src="order-tl.js"></script>
+<script src="ember-map.js" defer></script>
 <script>
 const TOKEN = new URLSearchParams(location.search).get('t') || '';
 const URLB = 'https://qqmkgafyfxrcnwdkkyxc.supabase.co';
@@ -712,6 +852,15 @@ const OFFERED = {};
    the shop's ordering rules straight from kiosk_menu - the server re-checks
    every one of them in kiosk_place_order, so this is display, not the fence. */
 let STORE = null;
+/* EMBER CUSTOMER ACCOUNTS (0515, 15 Oct 2026). ACC_ON: this shop's storefront
+   offers Sign in (both the platform switch and the shop's own are on - the
+   server decides). ACCT: what cust_shop answered for the signed-in customer,
+   or null. Only ever on a STORE link - never on a table or a shared tablet,
+   where the next person would inherit the account. */
+let ACC_ON = false;
+let ACCT = null;
+/* 0516: the shop's number, hours, address and delivery minimum (kiosk_shop_info). */
+let SHOPINFO = null;
 let OMODE = 'pickup';       // 'pickup' | 'delivery'
 let PAYCHOICE = 'later';    // 'now' | 'later'
 /* CAN THIS LINK BE PAID FROM A PHONE, RIGHT NOW? (0165)
@@ -755,7 +904,10 @@ const ADDON_LABELS = {
   omit: 'Leave out', spice: 'Spice', service: 'Service', other: 'Options',
 };
 
-const money = (c) => CUR + (c / 100).toFixed(2);
+// Thousands grouped, like the account and booking pages - and always 'en-US',
+// so a phone set to German never shows 1.250,00.
+// A sign made of letters (AED, RM, Rp) gets a no-break space, as on the till: "AED 95.00", not "AED95.00".
+const money = (c) => (c < 0 ? '-' : '') + CUR + (/\p{L}{2}$/u.test(CUR) ? '\u00a0' : '') + (Math.abs(c) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const count = () => CART.reduce((s, l) => s + l.qty, 0);
 const subtotal = () => CART.reduce((s, l) => s + l.price * l.qty, 0);
 // Mirror of the server's arithmetic (migrations 0045 + 0137) so the number
@@ -771,7 +923,10 @@ const zoneFee = () => { const z = zones().find((r) => r.name === ZONE); return z
    taps "Use my location"; this works the fee out the same way the server does
    (lib/delivery-distance.ts) and the server works it out again from the
    coordinates at the start of the address, never from this figure. */
-var GEO = null;            // { lat, lng, km, fee } once located, or { err }
+var GEO = null;            // { lat, lng, km, fee, saved? } once located, or { err }
+/* "A new address" picked in the basket: the default saved address must not
+   fill itself back in on the next redraw. Cleared when the basket opens. */
+var ADDR_NEW = false;
 const kmCfg = () => (STORE && !zones().length && STORE.delivery_km && STORE.delivery_km.rate_cents != null ? STORE.delivery_km : null);
 function kmFee(cfg, lat, lng) {
   const R = 6371, rad = (d) => d * Math.PI / 180;
@@ -825,6 +980,17 @@ async function refreshPromo(after) {
 }
 const minPay = () => PAYMIN;
 
+/* The phone's "reduce motion" setting. Read each time: nothing waits on an
+   animation when it is on. */
+const calm = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+/** Play a one-shot animation class again on an element that is already on screen. */
+function replay(node, cls) {
+  if (!node) return;
+  node.classList.remove(cls);
+  void node.offsetWidth;            // a reflow, so the browser sees the class come back
+  node.classList.add(cls);
+}
+
 let toastTimer;
 function toast(msg) {
   document.querySelectorAll('.toast').forEach((t) => t.remove());
@@ -832,7 +998,12 @@ function toast(msg) {
   d.className = 'toast'; d.setAttribute('role', 'status'); d.textContent = msg;
   document.body.appendChild(d);
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => d.remove(), 2600);
+  // Slides out, then goes. Under reduced motion it simply goes.
+  toastTimer = setTimeout(() => {
+    if (calm()) { d.remove(); return; }
+    d.classList.add('out');
+    setTimeout(() => d.remove(), 200);
+  }, 2600);
 }
 
 /* ONE ICON FAMILY: a 24-unit box, 2px stroke, round caps and joins, drawn in
@@ -886,6 +1057,10 @@ var ICON_WARN  = ico('<path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.
 var ICON_PHONE = ico('<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/>');
 var ICON_STAR_ON  = '<svg class="mi" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/></svg>';
 var ICON_STAR_OFF = '<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/></svg>';
+var ICON_THUMB_UP   = ico('<path d="M7 10v11"/><path d="M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.6l-2.3 7A2 2 0 0 1 17.5 21H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1h2.8a2 2 0 0 0 1.8-1.1L12 2a3.1 3.1 0 0 1 3 3.9z"/>');
+var ICON_THUMB_DOWN = ico('<path d="M17 14V3"/><path d="M9 18.1 10 14H4.2a2 2 0 0 1-1.9-2.6l2.3-7A2 2 0 0 1 6.5 3H20a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-2.8a2 2 0 0 0-1.8 1.1L12 22a3.1 3.1 0 0 1-3-3.9z"/>');
+/* The paid tick: a ring and a check that draws itself (still, under reduced motion). */
+var OK_MARK = '<svg class="okmark" viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="25"/><path d="M17 29l7.5 7.5L39 21"/></svg>';
 
 function visibleItems() {
   const q = Q.trim().toLowerCase();
@@ -893,11 +1068,12 @@ function visibleItems() {
     // No category filter any more: the tabs SCROLL to a section rather than
     // hiding the other nine, so the only thing that narrows this list is a
     // search the customer typed.
+    if (!passesFilters(i)) return false;
     if (!q) return true;
     return i.name.toLowerCase().includes(q) || (i.description || '').toLowerCase().includes(q);
   });
   // Sold-out items sink to the bottom of their category. They are still on the
-  // page — the whole point — but nobody has to scroll past them to order.
+  // page - the whole point - but nobody has to scroll past them to order.
   // A stable sort, so the shop's own display order survives inside each half.
   return list
     .map((i, n) => [i, n])
@@ -912,22 +1088,30 @@ function render() {
   const mine = loadOrders();
   const again = lastOrderAgain();
   const catName = (id) => (MENU.categories.find((c) => c.id === id) || {}).name || '';
+  // Back from "Your orders": the menu fades in rather than snapping over it.
+  const fromOrders = !!el('tomenu');
 
   let body = '';
   if (!items.length) {
-    body = '<div class="center"><h2>Nothing matches</h2><p>' +
-      (Q ? 'Try a different word, or browse the categories above.' : 'This part of the menu is not being served right now.') + '</p></div>';
+    body = filtersOn() && !Q
+      ? '<div class="center"><h2>Nothing fits those filters</h2><p><button class="ghost" id="fclear2">Clear filters</button></p></div>'
+      : '<div class="center"><h2>Nothing matches</h2><p>' +
+        (Q ? 'Try a different word, or browse the categories above.' : 'This part of the menu is not being served right now.') + '</p></div>';
   } else if (!Q) {
     // EVERY category is rendered, always. The tabs SCROLL to a section now
     // instead of filtering to one - filtering hid the rest of the menu, which
     // is how a customer misses the pastries entirely. Items arrive in the
     // shop's own display order, not grouped, so walk the categories and pull
     // each one's items out.
-    body = MENU.categories.map((c) => {
+    // 0515: a signed-in customer's favourites, first.
+    const favs = ACCT ? items.filter((i) => isFav(i.id)) : [];
+    body = (favs.length ? '<section class="sec" id="sec-fav"><div class="grp">Your favourites<span class="n">' + favs.length + '</span></div>' +
+      '<div class="list list-tight">' + favs.map(itemCard).join('') + '</div></section>' : '') +
+      MENU.categories.map((c) => {
       const inCat = items.filter((i) => i.category_id === c.id);
       if (!inCat.length) return '';
       return '<section class="sec" id="sec-' + c.id + '" data-sec="' + c.id + '">' +
-        '<div class="grp">' + esc(c.name) + '<span class="n">' + inCat.length + '</span></div>' +
+        '<div class="grp" data-notl>' + esc(c.name) + '<span class="n">' + inCat.length + '</span></div>' +
         '<div class="list list-tight">' + inCat.map(itemCard).join('') + '</div></section>';
     }).join('');
   } else {
@@ -943,8 +1127,11 @@ function render() {
     (st.delivery ? '<span class="chip">' + ICON_MOTO + 'Delivery</span>' : '') +
     (st.pickup_times ? '<span class="chip">' + ICON_CLOCK + 'Order ahead</span>' : '') +
     (shop.closed ? '<span class="chip solid">Closed right now</span>' : '') +
+    (window.EmberLang && EmberLang.allowed()
+      ? '<button class="chip chipbtn" id="lang" type="button" data-notl>' + (EmberLang.isTagalog() ? 'English' : 'Tagalog') + '</button>' : '') +
     (link.label && !STORE ? '<span class="chip">' + esc(link.label) + '</span>' : '') +
-    (st.address ? '<span class="chip">' + ICON_PIN + esc(st.address) + '</span>' : '');
+    (st.address ? '<span class="chip addr" data-notl>' + ICON_PIN + esc(st.address) + '</span>' : '') +
+    (STORE ? '<button class="chip chipbtn" id="shopinfo" type="button">' + ICON_PHONE + 'Shop info</button>' : '');
 
   el('app').innerHTML =
     '<header class="hero">' +
@@ -953,24 +1140,28 @@ function render() {
       // corner the app has (1.5.2).
       heroId(shop.logo, shop.name) +
       (chips ? '<div class="meta">' + chips + '</div>' : '') +
+      acctButtonHtml() +
       (mine.length ? '<button class="mine" id="mine">Your orders (' + mine.length + ')</button>' : '') +
       (again && !CART.length ? '<button class="mine" id="again">Order again: ' +
         esc(again.map((l) => l.qty + '× ' + l.name).join(', ')) + '</button>' : '') +
     '</header>' +
     '<div class="stick">' +
-      '<div class="search">' +
+      '<div class="srow"><div class="search">' +
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' +
         '<input id="q" type="text" inputmode="search" placeholder="Search the menu" value="' + esc(Q) + '" aria-label="Search the menu">' +
       '</div>' +
+      ((menuDiets().length || menuAllergens().length)
+        ? '<button class="fbtn' + (filtersOn() ? ' on' : '') + '" id="filt" type="button">' + (filtersOn() ? 'Filter (' + filtersOn() + ')' : 'Filter') + '</button>' : '') +
+      '</div>' +
       '<div class="cats-wrap"><div class="cats" role="tablist" aria-label="Menu sections">' +
         MENU.categories.map((c, n) => (items.some((i) => i.category_id === c.id)
-          ? '<button class="cat" role="tab" data-c="' + c.id + '" style="--f:' + catFill(c.id) + '" aria-current="' + (n === 0) + '">' + esc(c.name) + '</button>'
+          ? '<button class="cat" role="tab" data-notl data-c="' + c.id + '" style="--f:' + catFill(c.id) + '" aria-current="' + (n === 0) + '">' + esc(c.name) + '</button>'
           : '')).join('') +
       '</div></div>' +
     '</div>' + body +
     // Rate-your-visit: same token, straight into the owner's Logbook. Sits
     // above the cart bar so it never competes with "Review order".
-    '<div style="text-align:center;padding:6px 0 90px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">' +
+    '<div style="text-align:center;padding:6px 16px 0;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">' +
       '<button class="ghost" id="rate" style="font-size:14px">' + ICON_STAR_OFF + ' Rate your visit</button>' +
       // Only when the shop opted in. The RPC checks the same setting server-side,
       // so a cached page can never keep asking after it is switched off.
@@ -992,6 +1183,8 @@ function render() {
     FIRST_PAINT = false;
     document.body.classList.add('intro');
     setTimeout(() => document.body.classList.remove('intro'), 1400);
+  } else if (fromOrders) {
+    replay(el('app'), 'screen-in');
   }
 
   const q = el('q');
@@ -1024,6 +1217,322 @@ function render() {
   };
   el('rate').onclick = openRating;
   if (el('stamps')) el('stamps').onclick = openStamps;
+  if (el('acct')) el('acct').onclick = openAccount;
+  if (el('shopinfo')) el('shopinfo').onclick = openShopInfo;
+  if (el('filt')) el('filt').onclick = openFilters;
+  if (el('fclear2')) el('fclear2').onclick = function () { DIETF = []; AVOID = []; render(); };
+  if (el('lang')) el('lang').onclick = function () { EmberLang.set(!EmberLang.isTagalog()); render(); };
+}
+
+// ---- Ember account (0515) -------------------------------------------------
+const ICON_USER = ico('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>');
+const ICON_HEART_ON = '<svg class="mi" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.1 0 3.6 1.2 5.2 3 1.6-1.8 3.1-3 5.2-3 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z"/></svg>';
+const ICON_HEART_OFF = '<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.1 0 3.6 1.2 5.2 3 1.6-1.8 3.1-3 5.2-3 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z"/></svg>';
+function shopName() { return (MENU && MENU.shop && MENU.shop.name) || 'this shop'; }
+function acctFirst() { const n = (ACCT && ACCT.profile && ACCT.profile.name) || ''; return n.split(' ')[0] || 'you'; }
+function isFav(id) { return !!(ACCT && ACCT.card && (ACCT.card.favorites || []).indexOf(id) >= 0); }
+
+async function loadAcct() {
+  if (!ACC_ON || !window.EmberAccount || !EmberAccount.getSession()) { ACCT = null; return; }
+  try {
+    const r = await EmberAccount.rpc('cust_shop', { p_session: EmberAccount.getSession(), p_token: TOKEN });
+    ACCT = r && r.ok ? r : null;
+  } catch (e) { /* offline: keep what we had */ }
+}
+
+function acctButtonHtml() {
+  if (!ACC_ON || SHARED || !STORE) return '';
+  if (ACCT && ACCT.profile && ACCT.profile.needs_profile) {
+    return '<button class="mine acct" id="acct">' + ICON_USER + ' Finish your Ember account</button>';
+  }
+  return ACCT
+    ? '<button class="mine acct" id="acct">' + ICON_USER + ' ' + esc(acctFirst()) + ' &middot; Your account</button>'
+    : '<button class="mine acct" id="acct">' + ICON_USER + ' Sign in to save your details</button>';
+}
+
+function openSignIn(then, startAt) {
+  openSheet('<div id="ea-box"></div>');
+  const ph = CUR === '₱';
+  const h = EmberAccount.signIn(el('ea-box'), {
+    token: TOKEN, shopName: shopName(), toast: toast, startAt: startAt || null,
+    // A Philippine name and number only for a Philippine shop.
+    phonePlaceholder: ph ? '0917 123 4567' : null, namePlaceholder: ph ? 'Juan Dela Cruz' : null,
+    onCancel: closeSheet,
+    onDone: async function (res) {
+      if (res && res.shopMessages === true) {
+        try { await EmberAccount.rpc('cust_shop_marketing_by_link', { p_session: EmberAccount.getSession(), p_token: TOKEN, p_on: true }); } catch (e) { /* later */ }
+      }
+      await loadAcct();
+      await claimRecent();
+      closeSheet(); render();
+      toast(ACCT ? 'Signed in. Your details will fill in for you.' : 'Signed in.');
+      if (then) then();
+    },
+  });
+  // The "Send a new code in 30s" clock stops when the sheet closes.
+  SHEET_STOP = h && h.stop;
+}
+
+/** A past order from the server as basket lines - the same rules as "Order
+ *  again" on this phone: only what is still on the menu, at today's prices. */
+function linesFromServerOrder(o) {
+  const lines = []; let skipped = 0;
+  (o.items || []).forEach(function (l) {
+    const it = l.menu_item_id && MENU.items.find((x) => x.id === l.menu_item_id);
+    if (!it || soldOut(it) || (it.slots && it.slots.length)) { skipped++; return; }
+    const size = l.variant_id ? (it.sizes || []).find((z) => z.id === l.variant_id) : null;
+    if (l.variant_id && !size) { skipped++; return; }
+    const ids = Array.isArray(l.modifier_ids) ? l.modifier_ids : [];
+    const ads = ids.map((id) => MENU.addons.find((a) => a.id === id)).filter(Boolean);
+    if (ads.length !== ids.length) { skipped++; return; }
+    const unitPrice = it.price_cents + (size ? size.delta : 0) + ads.reduce((t, a) => t + Math.max(0, a.price_cents || 0), 0);
+    lines.push({
+      item_id: it.id, name: it.name, qty: Math.max(1, Math.round(Number(l.qty) || 1)), price: Math.round(unitPrice),
+      taxExempt: !!it.tax_exempt, variant_id: size ? size.id : null, variant_label: size ? size.label : null,
+      options: [], option_labels: [], addons: ids, addon_labels: ads.map((a) => a.text), note: l.note || '',
+    });
+  });
+  return { lines: lines, skipped: skipped };
+}
+
+function openAccount() {
+  if (!ACCT) { openSignIn(); return; }
+  // Signed in, details never finished: straight to them.
+  if (ACCT.profile && ACCT.profile.needs_profile) { openSignIn(null, 'profile'); return; }
+  const c = ACCT.card || {}, p = ACCT.profile || {};
+  const qr = c.card_code ? EmberAccount.cardQrSvg(c.card_code) : '';
+  const code = c.card_code ? (c.card_code.length === 10 ? c.card_code.slice(0, 5) + ' ' + c.card_code.slice(5) : c.card_code) : '';
+  const bal = Number(c.balance_cents || 0);
+  const orders = (ACCT.orders || []).slice(0, 8);
+  openSheet(
+    '<div class="shead"><div style="flex:1;min-width:0"><h2>' + esc(p.name || 'Your account') + '</h2>' +
+      '<div class="lede" style="font-size:13px">' + esc(p.email || '') + '</div></div>' +
+      '<button class="x" id="acx" aria-label="Close">' + ICON_X + '</button></div>' +
+    (c.linked
+      ? '<div class="acard card">' +
+          '<div class="label" style="margin-top:0">Your card at ' + esc(shopName()) + '</div>' +
+          (c.loyalty_on ? '<div class="stamprow">' + ICON_STAR_ON + ' <b>' + Number(c.stamps || 0) + ' of ' + Number(c.stamps_required || 10) + '</b> stamps' +
+            (c.free_ready ? ' &middot; <b>a free one is ready</b>' : '') + '</div>' : '') +
+          // The code shows even before the QR maker has loaded - the cashier can type it.
+          (code ? (qr ? '<div class="qr">' + qr + '</div>' : '') + '<div class="ccode">' + esc(code) + '</div>' +
+                '<div class="lede" style="font-size:13px;text-align:center">Show this at the counter so your visit counts.</div>' : '') +
+          (bal > 0 ? '<div class="balrow">Your tab here: <b>' + money(bal) + '</b></div>'
+            : bal < 0 ? '<div class="balrow">Credit you have here: <b>' + money(-bal) + '</b></div>' : '') +
+        '</div>'
+      : '<p class="lede">Your card at ' + esc(shopName()) + ' is made with your first order here.</p>') +
+    ((c.gift_cards || []).length
+      ? '<div class="label">Gift cards</div>' + c.gift_cards.map((g) =>
+          '<div class="row"><div style="flex:1">Card ending ' + esc(g.code_end) + (g.active ? '' : ' (not active)') + '</div>' +
+          '<b>' + money(g.balance_cents) + '</b><button class="ghost gdel" data-gdel="' + g.id + '" aria-label="Remove gift card ending ' + esc(g.code_end) + '">' + ICON_X + '</button></div>').join('')
+      : '') +
+    '<details class="adet"><summary>Add a gift card</summary>' +
+      '<input class="note-in" id="acgift" type="text" maxlength="24" autocapitalize="characters" placeholder="Gift card code">' +
+      '<button class="primary" id="acgiftgo" style="width:100%;margin-top:8px">Add gift card</button></details>' +
+    (!c.linked || c.card_code
+      ? '<details class="adet"><summary>Already have a stamp card from ' + esc(shopName()) + '?</summary>' +
+          '<p class="lede" style="font-size:13px">Type the code printed under the QR on your card to bring your stamps into your account.</p>' +
+          '<input class="note-in" id="accard" type="text" maxlength="14" autocapitalize="characters" placeholder="Card code, like ABCDE 23456">' +
+          '<button class="primary" id="accardgo" style="width:100%;margin-top:8px">Link my card</button></details>'
+      : '') +
+    (orders.length
+      ? '<div class="label">Your orders here</div>' + orders.map((o, n) =>
+          '<div class="row ord"><div style="flex:1;min-width:0"><div style="font-weight:600">' +
+            esc(new Date(o.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })) + ' &middot; ' + money(o.total_cents) + '</div>' +
+            '<div class="lede" style="font-size:13px" data-notl>' + esc((o.items || []).map((l) => (Number(l.qty) || 1) + '× ' + l.name).join(', ')) + '</div>' +
+            '<div class="lede" style="font-size:12px">' + esc(EmberAccount.statusWord(o)) + '</div></div>' +
+            '<button class="ghost" data-again="' + n + '">Order again</button></div>').join('')
+      : '') +
+    '<label class="ea-tick" style="margin-top:16px"><input type="checkbox" id="acmkt"' + (c.marketing ? ' checked' : '') + '> ' +
+      '<span>' + esc(shopName()) + ' may send me offers and news</span></label>' +
+    '<div style="display:flex;gap:10px;margin-top:16px">' +
+      // Its own tab, so this page - and the basket in it - stays open.
+      '<a class="ghost btnlink" href="account.html" target="_blank" rel="noopener" style="flex:1">Manage my Ember account</a>' +
+      '<button class="ghost" id="acout" style="flex:1">Sign out</button></div>', true);
+  el('acx').onclick = closeSheet;
+  el('acout').onclick = async function () {
+    await EmberAccount.signOut(false);
+    ACCT = null; closeSheet(); render(); toast('Signed out on this phone.');
+  };
+  el('acmkt').onchange = async function () {
+    const on = el('acmkt').checked;
+    try {
+      const r = await EmberAccount.rpc('cust_shop_marketing_by_link', { p_session: EmberAccount.getSession(), p_token: TOKEN, p_on: on });
+      if (!r || !r.ok) { toast((r && r.error) || 'Could not save that.'); el('acmkt').checked = !on; return; }
+      if (ACCT.card) ACCT.card.marketing = on;
+      toast(on ? 'You will hear about offers from ' + shopName() + '.' : 'No more offers from ' + shopName() + '.');
+    } catch (e) { toast('No connection. Try again.'); el('acmkt').checked = !on; }
+  };
+  if (el('acgiftgo')) el('acgiftgo').onclick = async function () {
+    const code = (el('acgift').value || '').trim();
+    if (!code) { toast('Type the gift card code.'); return; }
+    const b = this; b.disabled = true;
+    try {
+      const r = await EmberAccount.rpc('cust_gift_add', { p_session: EmberAccount.getSession(), p_token: TOKEN, p_code: code });
+      if (!r || !r.ok) { toast((r && r.error) || 'Could not add that card.'); b.disabled = false; return; }
+      ACCT.card = r.card; toast('Gift card saved.'); SHEET_SAME = true; openAccount();
+    } catch (e) { toast('No connection. Try again.'); b.disabled = false; }
+  };
+  document.querySelectorAll('[data-gdel]').forEach(function (b) {
+    b.onclick = async function () {
+      // One tap used to remove it, with no way back short of the code.
+      if (!confirm('Remove this gift card from your account? You will need its code to add it again.')) return;
+      b.disabled = true;
+      let r;
+      try { r = await EmberAccount.rpc('cust_gift_remove', { p_session: EmberAccount.getSession(), p_gift_card_id: Number(b.dataset.gdel) }); }
+      catch (e) { toast('No connection. Try again.'); b.disabled = false; return; }
+      if (!r || !r.ok) { toast((r && r.error) || 'Could not remove that card.'); b.disabled = false; return; }
+      await loadAcct();
+      if (!ACCT) { closeSheet(); render(); return; }
+      SHEET_SAME = true; openAccount(); toast('Gift card removed.');
+    };
+  });
+  if (el('accardgo')) el('accardgo').onclick = async function () {
+    const code = (el('accard').value || '').trim();
+    if (!code) { toast('Type the code on your card.'); return; }
+    const b = this; b.disabled = true;
+    try {
+      const r = await EmberAccount.rpc('cust_link_card', { p_session: EmberAccount.getSession(), p_token: TOKEN, p_card_code: code });
+      if (!r || !r.ok) { toast((r && r.error) || 'Could not link that card.'); b.disabled = false; return; }
+      ACCT.card = r.card; toast('Your stamps are in your account now.'); SHEET_SAME = true; openAccount();
+    } catch (e) { toast('No connection. Try again.'); b.disabled = false; }
+  };
+  document.querySelectorAll('[data-again]').forEach(function (b) {
+    b.onclick = function () {
+      const o = orders[Number(b.dataset.again)];
+      const r = linesFromServerOrder(o);
+      if (!r.lines.length) { toast('Those items are not on the menu right now.'); return; }
+      r.lines.forEach((l) => CART.push(l));
+      closeSheet(); render();
+      toast(r.skipped ? 'Added what is still on the menu. Check your basket before you send.' : 'Added to your basket. Change anything before you send.');
+    };
+  });
+}
+
+/** 0516: the goods total, before any delivery fee - what a delivery minimum is measured on. */
+function goodsCents() { return CART.reduce((t, l) => t + l.price * l.qty, 0); }
+function deliveryMinCents() { return (STORE && SHOPINFO && Number(SHOPINFO.delivery_min_cents)) || 0; }
+function underDeliveryMin() { return OMODE === 'delivery' && deliveryMinCents() > 0 && goodsCents() < deliveryMinCents(); }
+
+function hhmm12(t) {
+  const m = /^(\d{1,2}):(\d{2})/.exec(String(t || ''));
+  if (!m) return '';
+  let h = Number(m[1]); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+  return h + ':' + m[2] + ' ' + ap;
+}
+
+/** "Shop info": how to reach the shop, when it is open, where it is. Only what
+ *  the shop itself typed in Settings - the same things its receipts print. */
+async function openShopInfo() {
+  if (!SHOPINFO) { try { SHOPINFO = await rpc('kiosk_shop_info', { p_token: TOKEN }); } catch (e) { /* offline */ } }
+  const i = SHOPINFO && SHOPINFO.ok ? SHOPINFO : {};
+  const tel = i.phone ? String(i.phone).replace(/[^0-9+]/g, '') : '';
+  const map = i.address ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(i.address) : '';
+  openSheet('<div class="shead"><div style="flex:1;min-width:0"><h2>' + esc(i.name || shopName()) + '</h2></div>' +
+      '<button class="x" id="sinx" aria-label="Close">' + ICON_X + '</button></div>' +
+    ((i.open && i.close) ? '<div class="row"><span style="display:flex">' + ICON_CLOCK + '</span><div style="flex:1">Open ' + esc(hhmm12(i.open)) + ' to ' + esc(hhmm12(i.close)) + '</div></div>' : '') +
+    (i.address ? '<div class="row"><span style="display:flex">' + ICON_PIN + '</span><div style="flex:1">' + esc(i.address) + '</div></div>' : '') +
+    (deliveryMinCents() ? '<div class="row"><span style="display:flex">' + ICON_MOTO + '</span><div style="flex:1">Delivery orders start at ' + money(deliveryMinCents()) + '</div></div>' : '') +
+    '<div style="display:flex;gap:10px;margin-top:16px">' +
+      (tel ? '<a class="primary btnlink" href="tel:' + esc(tel) + '" style="flex:1">' + ICON_PHONE + ' Call the shop</a>' : '') +
+      (map ? '<a class="ghost btnlink" href="' + esc(map) + '" target="_blank" rel="noopener" style="flex:1">' + ICON_PIN + ' Open in Maps</a>' : '') +
+    '</div>' +
+    (!tel && !map && !(i.open && i.close) ? '<p class="lede">The shop has not added its details yet.</p>' : ''));
+  el('sinx').onclick = closeSheet;
+}
+
+/** After signing in: hand this phone's orders from the last half hour to the account. */
+async function claimRecent() {
+  if (!ACCT || !EmberAccount.getSession() || (ACCT.profile && ACCT.profile.needs_profile)) return;
+  const cut = Date.now() - 29 * 60 * 1000;
+  const mine = loadOrders().filter((o) => o.ref && o.at > cut && !o.claimed);
+  for (const o of mine) {
+    try {
+      const r = await EmberAccount.rpc('cust_claim_order', { p_session: EmberAccount.getSession(), p_token: TOKEN, p_order_number: o.num, p_client_ref: o.ref });
+      if (r && r.ok) { const a = loadOrders(); const k = a.findIndex((x) => x.num === o.num); if (k >= 0) { a[k].claimed = true; writeOrders(a); } }
+    } catch (e) { /* try again next time */ }
+  }
+  if (mine.length) await loadAcct();
+}
+
+async function cancelOrder(num) {
+  const o = loadOrders().find((x) => x.num === num);
+  if (!o || !o.ref) return;
+  if (!confirm('Cancel this order? The shop has not started on it yet.')) return;
+  try {
+    const r = await rpc('kiosk_cancel_order', { p_token: TOKEN, p_order_number: num, p_client_ref: o.ref });
+    if (!r || !r.ok) { toast((r && r.error) || 'Could not cancel. Please call the shop.'); return; }
+    markOrder(num, 'cancelled'); STEP_MOVED[num] = 1;
+    toast('Your order is cancelled.');
+    showOrders();
+  } catch (e) { toast('No connection. Try again, or call the shop.'); }
+}
+
+async function imHere(num) {
+  const o = loadOrders().find((x) => x.num === num);
+  if (!o || !o.ref) return;
+  try {
+    const r = await rpc('kiosk_arrived', { p_token: TOKEN, p_order_number: num, p_client_ref: o.ref });
+    if (!r || !r.ok) { toast('Could not reach the shop. Please tell the counter you are here.'); return; }
+    const a = loadOrders(); const k = a.findIndex((x) => x.num === num); if (k >= 0) { a[k].arrived = true; writeOrders(a); }
+    toast('The shop knows you are here.'); HERE_JUST = num;
+    showOrders();
+  } catch (e) { toast('No connection. Please tell the counter you are here.'); }
+}
+
+/** The saved-address picker, drawn just above the delivery address box. */
+function savedAddressPicker() {
+  const adds = (STORE && ACCT && ACCT.addresses) || [];
+  if (!adds.length) return '';
+  return '<div class="label">Saved addresses</div><select class="when-sel" id="oaddrsel" aria-label="Saved addresses">' +
+    '<option value="">Choose a saved address</option>' +
+    adds.map((a) => '<option value="' + a.id + '" data-notl>' + esc((a.label ? a.label + ' - ' : '') + a.address) + '</option>').join('') +
+    '<option value="new">A new address</option></select>';
+}
+
+/** The signed-in extras at checkout: keep this address, the shop's offers. */
+function accountFieldsHtml() {
+  if (!STORE || !ACCT) return '';
+  const adds = ACCT.addresses || [];
+  let h = '';
+  if (OMODE === 'delivery') {
+    h += '<label class="ea-tick"><input type="checkbox" id="osaveaddr"' + (adds.length ? '' : ' checked') + '> <span>Save this address to my account</span></label>';
+  }
+  if (!(ACCT.card && ACCT.card.marketing)) {
+    h += '<label class="ea-tick"><input type="checkbox" id="omkt"> <span>' + esc(shopName()) + ' may send me offers and news</span></label>';
+  }
+  return h;
+}
+
+function fillAddress(a) {
+  if (!a || !el('oaddr')) return;
+  el('oaddr').value = a.address + (a.landmark ? ' (' + a.landmark + ')' : '') + (a.note ? ' - ' + a.note : '');
+  if (el('osaveaddr')) el('osaveaddr').checked = false;
+  // A saved pin works out the delivery fee without asking for the location again.
+  // It is marked as the address's own, so picking another address drops it
+  // rather than charging this one's fee (a "Use my location" pin is kept).
+  if (a.lat != null && a.lng != null && kmCfg()) {
+    const r = kmFee(kmCfg(), a.lat, a.lng);
+    GEO = { lat: a.lat, lng: a.lng, km: r.km, fee: r.fee, saved: true };
+  } else if (GEO && GEO.saved) {
+    GEO = null;
+  }
+}
+
+/** After a signed-in order: hand it to the account, keep the new address, the offers answer. */
+async function afterAccountOrder(num, ref, addrTyped, keepAddr, mkt) {
+  if (!ACCT || !EmberAccount.getSession()) return;
+  // An account with no name or number yet would put a nameless customer on the shop's list.
+  if (ACCT.profile && ACCT.profile.needs_profile) return;
+  const ses = EmberAccount.getSession();
+  try { await EmberAccount.rpc('cust_claim_order', { p_session: ses, p_token: TOKEN, p_order_number: num, p_client_ref: ref }); } catch (e) { /* the order itself is safe */ }
+  if (keepAddr && addrTyped) {
+    try {
+      await EmberAccount.rpc('cust_address_save', { p_session: ses, p_id: null, p_label: null, p_address: addrTyped,
+        p_landmark: null, p_note: null, p_lat: (GEO && GEO.fee >= 0) ? GEO.lat : null, p_lng: (GEO && GEO.fee >= 0) ? GEO.lng : null, p_default: false });
+    } catch (e) { /* not essential */ }
+  }
+  if (mkt) { try { await EmberAccount.rpc('cust_shop_marketing_by_link', { p_session: ses, p_token: TOKEN, p_on: true }); } catch (e) { /* later */ } }
+  await loadAcct();
 }
 
 // ---- my stamps: the customer checks their own punch card -----------------
@@ -1035,9 +1544,8 @@ function openStamps() {
   try { saved = localStorage.getItem('ember.phone') || ''; } catch (_) {}
   openSheet(
     '<h2>My stamps</h2><p class="lede">Type the mobile number you give at the counter.</p>' +
-    '<input id="ph" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" value="' + esc(saved) + '" ' +
-      'placeholder="0917 123 4567" style="width:100%;border:1.5px solid var(--line);border-radius:12px;' +
-      'background:transparent;color:var(--text);padding:12px;font:inherit;font-size:17px">' +
+    '<input class="note-in" id="ph" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" value="' + esc(saved) + '" ' +
+      'placeholder="' + (CUR === '₱' ? '0917 123 4567' : 'Mobile number') + '" style="font-size:17px">' +
     '<div id="stout" style="padding:14px 0;min-height:26px;text-align:center"></div>' +
     '<div style="display:flex;gap:10px;margin-top:4px">' +
       '<button class="ghost" id="stcancel" style="flex:1">Close</button>' +
@@ -1052,7 +1560,7 @@ function openStamps() {
       return;
     }
     el('stgo').disabled = true;
-    el('stout').innerHTML = '<span style="color:var(--muted)">Checking…</span>';
+    el('stout').innerHTML = '<span style="color:var(--muted)"><span class="waitdot"></span>Checking…</span>';
     try {
       var r = await rpc('kiosk_my_stamps', { p_token: TOKEN, p_phone: phone });
       if (!r || !r.ok) {
@@ -1063,15 +1571,17 @@ function openStamps() {
         try { localStorage.setItem('ember.phone', phone); } catch (_) {}
         var have = r.stamps || 0, need = r.required || 10;
         var dots = '';
-        for (var i = 0; i < need; i++) dots += (i < have ? '●' : '○');
+        // One span per stamp, so they can land one after another.
+        for (var i = 0; i < need; i++) dots += '<span style="--i:' + Math.min(i, 12) + '">' + (i < have ? '●' : '○') + '</span>';
         el('stout').innerHTML =
-          '<div style="font-size:26px;letter-spacing:4px;line-height:1.4;word-break:break-all">' + dots + '</div>' +
+          '<div class="sdots" style="font-size:26px;letter-spacing:4px;line-height:1.4;word-break:break-all">' + dots + '</div>' +
           '<div style="margin-top:8px;font-size:15px">' +
             (r.free_ready
               ? '<b>Free item ready!</b> Claim it at the counter.'
-              : esc(r.first_name || 'You') + ' — <b>' + have + ' of ' + need + '</b>. ' +
+              : esc(r.first_name || 'You') + ', <b>' + have + ' of ' + need + '</b>. ' +
                 (need - have) + ' more for a free item.') +
           '</div>';
+        replay(el('stout'), 'swapin');
       }
     } catch (_) {
       el('stout').innerHTML = '<span style="color:var(--muted)">No connection. Try again in a moment.</span>';
@@ -1081,9 +1591,9 @@ function openStamps() {
 }
 
 // ---- rate your visit → the shop's own logbook (kiosk_feedback RPC) --------
-// v1.1.62: not just one star row. The diner rates the WHOLE visit — overall,
+// v1.1.62: not just one star row. The diner rates the WHOLE visit - overall,
 // the service, and each thing they ordered (pulled from their own last order
-// on this phone, never the server) — and may sign it or stay anonymous.
+// on this phone, never the server) - and may sign it or stay anonymous.
 let RATING = 0;
 let SERVICE = 0;
 function openRating() {
@@ -1093,45 +1603,52 @@ function openRating() {
   // itemVotes[i]: 1 = liked, -1 = not for me, 0 = no opinion.
   const itemVotes = lastItems.map(function () { return 0; });
   openSheet(
-    '<h2>How was it?</h2><p class="lede">Goes straight to the owner — not to the internet.</p>' +
+    '<h2>How was it?</h2><p class="lede">Goes straight to the owner, not to the internet.</p>' +
     '<div class="label">Overall</div>' +
-    '<div id="stars" style="font-size:38px;letter-spacing:6px;text-align:center;padding:6px 0;cursor:pointer;user-select:none"></div>' +
+    '<div id="stars" role="group" aria-label="Overall" style="text-align:center;padding:6px 0;user-select:none"></div>' +
     '<div class="label">The service</div>' +
-    '<div id="svcstars" style="font-size:26px;letter-spacing:5px;text-align:center;padding:2px 0;cursor:pointer;user-select:none"></div>' +
+    '<div id="svcstars" role="group" aria-label="The service" style="text-align:center;padding:2px 0;user-select:none"></div>' +
     (lastItems.length ? '<div class="label">What you ordered</div><div id="fbitems"></div>' : '') +
-    '<textarea id="fbtext" maxlength="400" placeholder="Anything you want them to know? (optional)" ' +
-      'style="width:100%;min-height:70px;border:1.5px solid var(--line);border-radius:12px;background:transparent;color:var(--text);padding:10px;font:inherit;font-size:15px;margin-top:8px"></textarea>' +
-    '<input id="fbname" type="text" maxlength="40" placeholder="Your name (optional — blank stays anonymous)" ' +
-      'style="width:100%;border:1.5px solid var(--line);border-radius:12px;background:transparent;color:var(--text);padding:10px;font:inherit;font-size:14px;margin-top:8px">' +
+    '<textarea class="note-in" id="fbtext" maxlength="400" placeholder="Anything you want them to know? (optional)" ' +
+      'style="min-height:70px;font-size:15px;margin-top:8px"></textarea>' +
+    '<input class="note-in" id="fbname" type="text" maxlength="40" placeholder="Your name (optional, blank stays anonymous)" ' +
+      'style="font-size:14px;margin-top:8px">' +
     '<div style="display:flex;gap:10px;margin-top:12px">' +
       '<button class="ghost" id="fbcancel" style="flex:1">Cancel</button>' +
       '<button class="primary" id="fbsend" style="flex:1" disabled>Send</button>' +
     '</div>'
   );
+  // What was just tapped, so only that answers with a little motion - never the whole sheet.
+  let tapped = null;
+  const starsHtml = (val, which) => [1, 2, 3, 4, 5].map((n) =>
+    '<button type="button" data-n="' + n + '" aria-label="' + n + ' out of 5" aria-pressed="' + (n === val) + '"' +
+      (tapped && tapped[0] === which && n <= val ? ' class="pop" style="--i:' + (n - 1) + ';' : ' style="') +
+      'color:' + (n <= val ? 'var(--accent)' : 'var(--muted)') + '">' + (n <= val ? ICON_STAR_ON : ICON_STAR_OFF) + '</button>').join('');
   const draw = () => {
-    el('stars').innerHTML = [1, 2, 3, 4, 5].map((n) =>
-      '<span data-n="' + n + '" style="color:' + (n <= RATING ? 'var(--accent)' : 'var(--muted)') + '">' + (n <= RATING ? ICON_STAR_ON : ICON_STAR_OFF) + '</span>').join('');
-    el('stars').querySelectorAll('span').forEach((s) => s.onclick = () => { RATING = Number(s.dataset.n); draw(); });
-    el('svcstars').innerHTML = [1, 2, 3, 4, 5].map((n) =>
-      '<span data-n="' + n + '" style="color:' + (n <= SERVICE ? 'var(--accent)' : 'var(--muted)') + '">' + (n <= SERVICE ? ICON_STAR_ON : ICON_STAR_OFF) + '</span>').join('');
-    el('svcstars').querySelectorAll('span').forEach((s) => s.onclick = () => { SERVICE = Number(s.dataset.n); draw(); });
+    el('stars').innerHTML = starsHtml(RATING, 'r');
+    el('stars').querySelectorAll('button').forEach((s) => s.onclick = () => { RATING = Number(s.dataset.n); tapped = ['r']; draw(); });
+    el('svcstars').innerHTML = starsHtml(SERVICE, 's');
+    el('svcstars').querySelectorAll('button').forEach((s) => s.onclick = () => { SERVICE = Number(s.dataset.n); tapped = ['s']; draw(); });
     if (el('fbitems')) {
       el('fbitems').innerHTML = lastItems.map(function (it, i) {
         var label = it.name + (it.variant_label ? ' (' + it.variant_label + ')' : '');
+        var just = function (v) { return tapped && tapped[0] === 'i' && tapped[1] === i && tapped[2] === v ? ' just' : ''; };
         return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0">' +
-          '<span style="flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(label) + '</span>' +
-          '<button class="ghost" data-fi="' + i + '" data-v="1" style="padding:6px 10px;font-size:15px;' + (itemVotes[i] === 1 ? 'border-color:#2fbf71;color:#2fbf71' : '') + '">&#128077;</button>' +
-          '<button class="ghost" data-fi="' + i + '" data-v="-1" style="padding:6px 10px;font-size:15px;' + (itemVotes[i] === -1 ? 'border-color:#e85200;color:#e85200' : '') + '">&#128078;</button>' +
+          '<span data-notl style="flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(label) + '</span>' +
+          '<button class="ghost fbv up' + just(1) + '" data-fi="' + i + '" data-v="1" aria-pressed="' + (itemVotes[i] === 1) + '" aria-label="I liked ' + esc(it.name) + '">' + ICON_THUMB_UP + '</button>' +
+          '<button class="ghost fbv down' + just(-1) + '" data-fi="' + i + '" data-v="-1" aria-pressed="' + (itemVotes[i] === -1) + '" aria-label="Not for me: ' + esc(it.name) + '">' + ICON_THUMB_DOWN + '</button>' +
         '</div>';
       }).join('');
       el('fbitems').querySelectorAll('button').forEach(function (b) {
         b.onclick = function () {
           var i = Number(b.dataset.fi), v = Number(b.dataset.v);
           itemVotes[i] = itemVotes[i] === v ? 0 : v;
+          tapped = ['i', i, v];
           draw();
         };
       });
     }
+    tapped = null;
     el('fbsend').disabled = RATING < 1;
   };
   draw();
@@ -1153,24 +1670,24 @@ function openRating() {
     try {
       const r = await rpc('kiosk_feedback', { p_token: TOKEN, p_rating: RATING, p_text: parts.join(' | ') });
       if (r && r.ok) {
-        openSheet('<h2>Thank you!</h2><p class="lede">The owner will see it.</p>' +
+        openSheet('<div style="text-align:center">' + OK_MARK + '<h2>Thank you!</h2><p class="lede">The owner will see it.</p></div>' +
           '<button class="primary" id="fbdone" style="width:100%;margin-top:12px">Done</button>');
         el('fbdone').onclick = closeSheet;
       } else {
         el('fbsend').disabled = false;
         el('fbsend').textContent = 'Send';
-        alert((r && r.error) || 'Could not send right now.');
+        toast((r && r.error) || 'Could not send right now.');
       }
     } catch (e) {
       el('fbsend').disabled = false;
       el('fbsend').textContent = 'Send';
-      alert('No connection. Check your signal and try again.');
+      toast('No connection. Check your signal and try again.');
     }
   };
 }
 
 /** Has the shop marked this item sold out? Older servers send no flag at all,
- *  and those only ever sent items that WERE available — so absent means yes. */
+ *  and those only ever sent items that WERE available - so absent means yes. */
 function soldOut(i) { return i.available === 0 || i.available === false; }
 
 /* The till's colours (0228). An item's own colour wins, then its category's;
@@ -1216,7 +1733,7 @@ function alsoLikeHtml() {
   if (!list.length) return '';
   return '<div class="label">You might also like</div><div class="also">' +
     list.map((i) => '<button class="also-t" data-also="' + i.id + '" style="--f:' + fillOf(i) + '">' +
-      '<span class="nm">' + esc(i.name) + '</span>' +
+      '<span class="nm" data-notl>' + esc(i.name) + '</span>' +
       '<span class="ft"><span class="pr">' + money(i.price_cents) + '</span><span class="plus" aria-hidden="true">' + ICON_PLUS + '</span></span>' +
     '</button>').join('') + '</div>';
 }
@@ -1237,8 +1754,8 @@ function itemCard(i) {
     ? '<img class="pic" src="' + esc(src) + '" alt="" loading="lazy" decoding="async">' : '';
   return '<button class="item' + (out ? ' out' : '') + '" data-i="' + i.id + '" style="--f:' + fillOf(i) + '"' +
       (out ? ' disabled aria-disabled="true"' : '') + '>' + pic +
-    '<div class="mid"><div class="nm">' + esc(i.name) + '</div>' +
-    (i.description ? '<div class="ds">' + esc(i.description) + '</div>' : '') + meal +
+    '<div class="mid"><div class="nm" data-notl>' + esc(i.name) + '</div>' +
+    (i.description ? '<div class="ds" data-notl>' + esc(i.description) + '</div>' : '') + meal +
     (out ? '<div class="soldout">Sold out</div>' : '') +
     '<div class="foot"><div class="pr">' + money(i.price_cents) + '</div>' +
     (out ? '' : '<div class="plus" aria-hidden="true">' + ICON_PLUS + '</div>') + '</div></div></button>';
@@ -1302,13 +1819,20 @@ function heroId(logo, name) {
 /** Ours, at the bottom, small. The storefront is the shop's. */
 function madeBy() {
   return '<div class="madeby">Powered by <a href="https://emberpos.net" target="_blank" rel="noopener">' +
-    '<span class="flame">Ember</span> POS</a></div>';
+    '<span class="flame">Ember</span> POS</a> · <a href="/privacy-policy.html" target="_blank" rel="noopener">Privacy</a></div>';
 }
 
 /* A sheet that has something running behind it (the Scan-to-pay sheet polls and keeps a timer) registers
    SHEET_STOP, run quietly whenever that sheet closes or another opens over it, and SHEET_DISMISS, run when
    the customer taps outside it or presses Escape - the same as pressing its own back-out button. */
 let SHEET_STOP = null, SHEET_DISMISS = null;
+/* SHEET_SAME: the next openSheet REDRAWS the sheet already showing (a size
+   tapped, a tip chosen). It keeps its scroll - every tap used to jump the
+   sheet back to the top - keeps focus where it is, and plays nothing but a
+   small answer on the control that was tapped. */
+let SHEET_SAME = false;
+let SHEET_RETURN = null;     // what had focus before the sheet opened, given back on close
+let SHEET_CLOSE_T = null;
 function dropSheetHooks() {
   const stop = SHEET_STOP;
   SHEET_STOP = null; SHEET_DISMISS = null;
@@ -1318,18 +1842,129 @@ function dismissSheet() {
   const d = SHEET_DISMISS;
   if (d) { SHEET_DISMISS = null; d(); } else closeSheet();
 }
+/** A sheet is up and not on its way out. */
+function sheetOpen() {
+  const s = el('scrim');
+  return s.classList.contains('on') && !s.classList.contains('closing');
+}
+/* The control just tapped inside a sheet, so its redraw can answer that one. */
+let JUST = null;
+const JUST_ATTRS = ['data-adp', 'data-adm', 'data-sz', 'data-op', 'data-ad', 'data-fd', 'data-fa', 'data-tip', 'data-when', 'data-omode', 'data-paych', 'data-kmode'];
+const JUST_SEL = JUST_ATTRS.map((a) => '[' + a + ']').join(',');
+el('sheet').addEventListener('click', (e) => {
+  JUST = null;
+  const t = e.target;
+  if (!t || !t.closest) return;
+  if (t.closest('#minus, #plus')) { JUST = ['qv']; return; }
+  const hit = t.closest(JUST_SEL);
+  if (hit) for (const a of JUST_ATTRS) if (hit.hasAttribute(a)) { JUST = [a, hit.getAttribute(a)]; break; }
+}, true);
+/* Buttons whose words carry a price or a count, and fields that appear when a
+   choice is made (a time box after "At a time", the address after Delivery). */
+const NUDGE_IDS = ['add', 'fgo', 'send'];
+const APPEAR_IDS = ['whensel', 'daysel', 'otip', 'oaddrsel', 'oaddr', 'ozone', 'ogeo', 'oph'];
+const STAGGER = '.row, .opt, .acard, .adet, .fchips .when, .tips .when, .modes button';
+function sheetSnapshot() {
+  const ids = {}, txt = {};
+  el('sheet').querySelectorAll('[id]').forEach((x) => { ids[x.id] = 1; });
+  NUDGE_IDS.forEach((id) => { const x = el(id); if (x) txt[id] = x.textContent; });
+  return { ids, txt };
+}
+function answerTap(before) {
+  const sheet = el('sheet');
+  const j = JUST; JUST = null;
+  if (j && j[0] === 'qv') replay(el('qv'), 'tick');
+  else if (j && (j[0] === 'data-adp' || j[0] === 'data-adm')) {
+    const row = [...sheet.querySelectorAll('[data-ad]')].find((x) => x.getAttribute('data-ad') === j[1]);
+    const b = row && row.querySelector('.adq b');
+    if (b) replay(b, 'tick');
+  } else if (j) {
+    const hit = [...sheet.querySelectorAll('[' + j[0] + ']')].find((x) => x.getAttribute(j[0]) === j[1]);
+    if (hit) replay(hit, 'just');
+  }
+  NUDGE_IDS.forEach((id) => {
+    const x = el(id);
+    if (x && before.txt[id] != null && before.txt[id] !== x.textContent) replay(x, 'nudged');
+  });
+  APPEAR_IDS.forEach((id) => {
+    const x = el(id);
+    if (!x || before.ids[id]) return;
+    const box = x.closest('.when-pair') || x;
+    replay(box, 'swapin');
+    const lab = box.previousElementSibling;
+    if (lab && lab.classList.contains('label')) replay(lab, 'swapin');
+  });
+}
+/** The sheet is named by its own heading, for a screen reader. */
+function labelSheet() {
+  const sheet = el('sheet'), h = sheet.querySelector('h2');
+  if (h) { if (!h.id) h.id = 'sheet-h'; sheet.setAttribute('aria-labelledby', h.id); }
+  else sheet.removeAttribute('aria-labelledby');
+}
 function openSheet(html, full) {
   dropSheetHooks();
-  el('sheet').innerHTML = '<div class="grab"></div>' + html;
+  const scrim = el('scrim'), sheet = el('sheet');
+  const same = SHEET_SAME && sheetOpen();
+  SHEET_SAME = false;
+  const fresh = !sheetOpen();              // nothing up, or one on its way out
+  const before = same ? sheetSnapshot() : null;
+  // A redraw replaces every button, so keyboard focus is carried across by id.
+  const ae = document.activeElement;
+  const fid = same && ae && ae.id && sheet.contains(ae) ? ae.id : '';
+  if (SHEET_CLOSE_T) { clearTimeout(SHEET_CLOSE_T); SHEET_CLOSE_T = null; }
+  if (!scrim.classList.contains('on')) SHEET_RETURN = document.activeElement;
+  const top = same ? sheet.scrollTop : 0;
+  scrim.classList.remove('closing');
+  sheet.innerHTML = '<div class="grab"></div>' + html;
   el('sheet').classList.toggle('full', !!full);
-  el('scrim').classList.add('on');
+  scrim.classList.add('on');
   document.body.style.overflow = 'hidden';
-  el('sheet').scrollTop = 0;
+  sheet.scrollTop = top;
+  labelSheet();
+  if (same) {
+    sheet.classList.remove('intro', 'swap');
+    if (fid && el(fid)) { try { el(fid).focus({ preventScroll: true }); } catch (e) { /* old browser */ } }
+    answerTap(before);
+    return;
+  }
+  JUST = null;
+  if (fresh) {
+    // Rises again even when the last sheet had not finished leaving.
+    sheet.classList.remove('swap');
+    sheet.style.animation = 'none'; void sheet.offsetWidth; sheet.style.animation = '';
+    sheet.querySelectorAll(STAGGER).forEach((x, n) => x.style.setProperty('--i', String(Math.min(n, 8))));
+    replay(sheet, 'intro');
+    setTimeout(() => sheet.classList.remove('intro'), 900);
+  } else {
+    // One sheet becoming the next ("Thank you!", "Make it a meal?"): its content fades over.
+    sheet.classList.remove('intro');
+    replay(sheet, 'swap');
+  }
+  // Focus goes into the sheet - its first button, never a text box (that would
+  // throw a keyboard up) - unless the sheet has already placed it.
+  setTimeout(() => {
+    if (!sheetOpen() || sheet.contains(document.activeElement)) return;
+    labelSheet();
+    const f = sheet.querySelector('button:not([disabled]), [href]');
+    if (f) { try { f.focus({ preventScroll: true }); } catch (e) { /* old browser */ } }
+  }, 60);
 }
 function closeSheet() {
   dropSheetHooks();
-  el('scrim').classList.remove('on');
+  SHEET_SAME = false; JUST = null;
   document.body.style.overflow = '';
+  const scrim = el('scrim'), sheet = el('sheet');
+  if (!scrim.classList.contains('on') || scrim.classList.contains('closing')) return;
+  const back = SHEET_RETURN; SHEET_RETURN = null;
+  const done = () => {
+    SHEET_CLOSE_T = null;
+    scrim.classList.remove('on', 'closing');
+    sheet.classList.remove('intro', 'swap');
+    sheet.innerHTML = '';
+  };
+  // It slides away, but lets taps through to the page at once (.closing).
+  if (calm()) done(); else { scrim.classList.add('closing'); SHEET_CLOSE_T = setTimeout(done, 200); }
+  if (back && back !== document.body && document.contains(back)) { try { back.focus({ preventScroll: true }); } catch (e) { /* gone */ } }
 }
 el('scrim').onclick = (e) => { if (e.target.id === 'scrim') dismissSheet(); };
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') dismissSheet(); });
@@ -1371,47 +2006,68 @@ function csatAnswered() {
     return at > 0 && (Date.now() - at) < 86400000;
   } catch (e) { return false; }
 }
+/* A low score waiting for its word. Kept here, not only on screen: the
+   tracker rebuilds the page whenever an order moves, and that used to wipe
+   the comment half-typed and put the thank-you up instead. */
+let CSAT_LOW = null;         // { score, sent, text }
+function csatSend(score, comment) {
+  try {
+    rpc('kiosk_csat', { p_token: TOKEN, p_score: score, p_comment: comment || null })
+      .catch(() => { /* already said thank you */ });
+  } catch (e) { /* the thank-you stands either way */ }
+}
+function csatLowHtml() {
+  return '<div class="q">Sorry about that. What went wrong?</div>' +
+    '<textarea class="note-in" id="csatwhy" rows="3" maxlength="400" placeholder="Only the owner reads this" style="margin-top:8px">' +
+      esc(CSAT_LOW ? CSAT_LOW.text : '') + '</textarea>' +
+    '<div style="display:flex;gap:8px;margin-top:8px;justify-content:center">' +
+      '<button class="ghost" id="csatskip">Skip</button><button class="primary" id="csatsend">Send to the owner</button></div>';
+}
 function csatHtml() {
   if (!ASK_CSAT) return '';
+  if (CSAT_LOW && !CSAT_LOW.sent) return '<div class="csat" id="csat">' + csatLowHtml() + '</div>';
   if (csatAnswered()) return '<div class="csat"><div class="done">Thank you for telling us.</div></div>';
   return '<div class="csat" id="csat"><div class="q">How was it?</div><div class="row">'
     + CSAT_FACES.map((f) => '<button type="button" data-csat="' + f[0] + '" aria-label="' + f[0] + ' out of 5">' + f[1] + '</button>').join('')
     + '</div></div>';
 }
+let CSAT_VIS = false;        // the "left the page" listener, added once
+function wireCsatLow() {
+  const box = el('csat');
+  if (!box || !el('csatsend')) return;
+  const once = (c) => { if (CSAT_LOW && !CSAT_LOW.sent) { CSAT_LOW.sent = true; csatSend(CSAT_LOW.score, c); } };
+  const done = () => { box.innerHTML = '<div class="done">Thank you. The owner will see it.</div>'; replay(box, 'swapin'); };
+  el('csatwhy').oninput = () => { if (CSAT_LOW) CSAT_LOW.text = el('csatwhy').value; };
+  el('csatsend').onclick = () => { once((el('csatwhy').value || '').trim()); done(); };
+  el('csatskip').onclick = () => { once(null); done(); };
+  if (!CSAT_VIS) {
+    CSAT_VIS = true;
+    document.addEventListener('visibilitychange', () => { if (document.hidden) once(null); });
+  }
+}
 function wireCsat() {
+  wireCsatLow();               // a low-score step the tracker just redrew
   document.querySelectorAll('[data-csat]').forEach((b) => {
     b.onclick = () => {
       const score = Number(b.getAttribute('data-csat')) || 0;
       try { localStorage.setItem(CSAT_KEY, String(Date.now())); } catch (e) { /* private window */ }
       const box = el('csat');
-      const sendScore = (comment) => {
-        try {
-          rpc('kiosk_csat', { p_token: TOKEN, p_score: score, p_comment: comment || null })
-            .catch(() => { /* already said thank you */ });
-        } catch (e) { /* the thank-you stands either way */ }
-      };
       // THE REVIEW BOOSTER (1.5.0). A low score waits for a word about what
       // went wrong - it reaches the owner's "Was it good?" card, never the
       // public - and is sent the moment they send, skip or leave. A happy
       // one is thanked and, if the shop asks for reviews, pointed at them.
       if (score <= 2) {
-        let sent = false;
-        const once = (c) => { if (!sent) { sent = true; sendScore(c); } };
-        if (box) box.innerHTML = '<div class="q">Sorry about that. What went wrong?</div>' +
-          '<textarea id="csatwhy" rows="3" maxlength="400" placeholder="Only the owner reads this" style="width:100%;margin-top:8px"></textarea>' +
-          '<div style="display:flex;gap:8px;margin-top:8px;justify-content:center">' +
-            '<button class="ghost" id="csatskip">Skip</button><button class="primary" id="csatsend">Send to the owner</button></div>';
-        const done = () => { if (box) box.innerHTML = '<div class="done">Thank you. The owner will see it.</div>'; };
-        el('csatsend').onclick = () => { once((el('csatwhy').value || '').trim()); done(); };
-        el('csatskip').onclick = () => { once(null); done(); };
-        document.addEventListener('visibilitychange', () => { if (document.hidden) once(null); }, { once: true });
+        CSAT_LOW = { score: score, sent: false, text: '' };
+        if (box) { box.innerHTML = csatLowHtml(); replay(box, 'swapin'); }
+        wireCsatLow();
         return;
       }
-      sendScore(null);
+      csatSend(score, null);
       if (box) box.innerHTML = score >= 4 && REVIEW_URL
         ? '<div class="done">Thank you! Would you tell others too?</div>' +
           '<a class="primary" style="display:inline-block;margin-top:10px;text-decoration:none;padding:10px 16px" target="_blank" rel="noopener" href="' + esc(REVIEW_URL) + '">Leave us a Google review</a>'
         : '<div class="done">Thank you for telling us.</div>';
+      if (box) replay(box, 'swapin');
     };
   });
 }
@@ -1449,7 +2105,7 @@ function openItem(id, opts) {
   // A COUNT per add-on, not a yes/no (v1.1.67). "May isang customer po kanina
   // na same item po na add on ang gusto niya. Di po siya pde maselect twice."
   // Double pearls is one add-on taken twice, and the old on/off toggle had no
-  // way to say it — the diner had to ask at the counter, which is exactly the
+  // way to say it - the diner had to ask at the counter, which is exactly the
   // trip the QR menu exists to save.
   const addonQty = new Map();
   const qtyOf = (aid) => addonQty.get(aid) || 0;
@@ -1501,7 +2157,7 @@ function openItem(id, opts) {
     return Math.max(1, raw);
   };
   const picksIn = (key) => addons.filter((a) => (a.category || 'other') === key && addonPicks.has(a.id));
-  /** How many picks a group holds IN TOTAL — two of one add-on is two picks,
+  /** How many picks a group holds IN TOTAL - two of one add-on is two picks,
    *  which is what a "pick up to 2" cap has to count. */
   const countIn = (key) => addons.reduce((n, a) => n + ((a.category || 'other') === key ? qtyOf(a.id) : 0), 0);
   // A size switch can LOWER the cap (Barkada -> Solo): keep the first picks
@@ -1545,18 +2201,20 @@ function openItem(id, opts) {
     openSheet(
       '<div class="shead">' +
         '<div style="flex:1;min-width:0">' +
-          '<h2>' + esc(it.name) + '</h2>' +
-          (it.description ? '<p class="biglead">' + esc(it.description) + '</p>' : '') +
+          '<h2 data-notl>' + esc(it.name) + '</h2>' +
+          (it.description ? '<p class="biglead" data-notl>' + esc(it.description) + '</p>' : '') +
           '<div class="bigprice">' + money(it.price_cents) + '</div>' +
+          (ACCT ? '<button class="ghost favbtn" id="favtog" aria-pressed="' + isFav(it.id) + '">' +
+            (isFav(it.id) ? ICON_HEART_ON + ' In your favourites' : ICON_HEART_OFF + ' Save as a favourite') + '</button>' : '') +
         '</div>' +
         '<button class="x" id="xclose" aria-label="Close">' + ICON_X + '</button>' +
       '</div>' +
       foodFacts(it) +
       ((it.sizes && it.sizes.length) ? '<div class="label">Size</div>' + it.sizes.map((s) =>
-        '<button class="opt" data-sz="' + s.id + '" aria-pressed="' + (size === s.id) + '"><span>' + esc(s.label) + '</span>' +
+        '<button class="opt" data-sz="' + s.id + '" aria-pressed="' + (size === s.id) + '"><span data-notl>' + esc(s.label) + '</span>' +
         '<span class="delta">' + (s.delta ? (s.delta > 0 ? '+' : '') + money(s.delta) : 'Included') + '</span></button>').join('') : '') +
-      (it.slots || []).map((s) => '<div class="label">' + esc(s.label) + '</div>' + s.options.map((o) =>
-        '<button class="opt" data-sl="' + s.id + '" data-op="' + o.id + '" aria-pressed="' + (picks[s.id] === o.id) + '"><span>' + esc(o.label) + '</span>' +
+      (it.slots || []).map((s) => '<div class="label" data-notl>' + esc(s.label) + '</div>' + s.options.map((o) =>
+        '<button class="opt" data-sl="' + s.id + '" data-op="' + o.id + '" aria-pressed="' + (picks[s.id] === o.id) + '"><span data-notl>' + esc(o.label) + '</span>' +
         '<span class="delta">' + (o.delta ? '+' + money(o.delta) : 'Included') + '</span></button>').join('')).join('') +
       addonGroups.map((g) => {
         const need = reqCats.has(g.key);
@@ -1569,12 +2227,12 @@ function openItem(id, opts) {
           (badge ? '<span class="req' + (unanswered ? ' req-on' : '') + '">' + badge + '</span>' : '') + '</div>' +
           g.items.map((a) => {
             const n = qtyOf(a.id);
-            // "Pick one" groups stay a radio — a quantity there means nothing
+            // "Pick one" groups stay a radio - a quantity there means nothing
             // (you cannot have two of your one flavour choice). Everything
             // else gets a stepper once it is taken.
             const stepper = n > 0 && !(need && cap === 1);
             return '<div class="opt" data-ad="' + a.id + '" role="button" tabindex="0" aria-pressed="' + (n > 0) + '">' +
-              '<span>' + esc(a.text) + '</span>' +
+              '<span data-notl>' + esc(a.text) + '</span>' +
               '<span class="delta">' + (a.price_cents > 0 ? '+' + money(a.price_cents) : 'Free') + '</span>' +
               (stepper
                 ? '<span class="adq"><button type="button" data-adm="' + a.id + '" aria-label="One less ' + esc(a.text) + '">&minus;</button>' +
@@ -1598,6 +2256,18 @@ function openItem(id, opts) {
       '</div>', true);   // full screen: this page is too tall for a half sheet
 
     if (el('xclose')) el('xclose').onclick = closeSheet;
+    if (el('favtog')) el('favtog').onclick = async function () {
+      const on = !isFav(it.id), b = el('favtog');
+      b.disabled = true;
+      try {
+        const r = await EmberAccount.rpc('cust_favorite', { p_session: EmberAccount.getSession(), p_token: TOKEN, p_item: it.id, p_on: on });
+        if (!r || !r.ok) { toast((r && r.error) || 'Could not save that.'); b.disabled = false; return; }
+        const f = (ACCT.card.favorites = ACCT.card.favorites || []);
+        if (on) f.push(it.id); else ACCT.card.favorites = f.filter((x) => x !== it.id);
+        b.innerHTML = on ? ICON_HEART_ON + ' In your favourites' : ICON_HEART_OFF + ' Save as a favourite';
+        b.setAttribute('aria-pressed', String(on)); b.disabled = false;
+      } catch (e) { toast('No connection. Try again.'); b.disabled = false; }
+    };
 
     document.querySelectorAll('[data-sz]').forEach((b) => b.onclick = () => { size = Number(b.dataset.sz); trimToCap(); redraw(); });
     document.querySelectorAll('[data-op]').forEach((b) => b.onclick = () => { picks[Number(b.dataset.sl)] = Number(b.dataset.op); redraw(); });
@@ -1632,7 +2302,7 @@ function openItem(id, opts) {
     document.querySelectorAll('[data-ad]').forEach((b) => {
       const tap = () => {
         const id = Number(b.dataset.ad);
-        // Tapping a taken add-on clears it — the same "tap again to remove"
+        // Tapping a taken add-on clears it - the same "tap again to remove"
         // it has always had. The stepper is for going past one.
         // EXCEPT in a compulsory pick-one group, which behaves like a radio:
         // there is no legal state with nothing chosen, so a second tap (or a
@@ -1659,7 +2329,7 @@ function openItem(id, opts) {
         variant_id: size, variant_label: v ? v.label : null,
         options: Object.values(picks),
         option_labels: (it.slots || []).map((s) => { const o = s.options.find((x) => x.id === picks[s.id]); return o ? o.label : null; }).filter(Boolean),
-        // One entry PER unit — the server prices each entry, so two of an
+        // One entry PER unit - the server prices each entry, so two of an
         // add-on charge twice. It also re-checks the group cap against the
         // same count, so a tampered page cannot smuggle in a third flavour.
         addons: addons.flatMap((a) => Array(qtyOf(a.id)).fill(a.id)),
@@ -1675,7 +2345,7 @@ function openItem(id, opts) {
     };
   }
   // Keep the typed note when the sheet redraws after a size or option tap.
-  function redraw() { const n = el('inote') ? el('inote').value : ''; draw(); if (n) el('inote').value = n; }
+  function redraw() { const n = el('inote') ? el('inote').value : ''; SHEET_SAME = true; draw(); if (n) el('inote').value = n; }
   draw();
 }
 
@@ -1737,7 +2407,7 @@ function lastOrderAgain() {
 function offerMeal(from, meal, line) {
   const extra = Math.max(0, meal.price_cents - from.price_cents);
   openSheet('<h2>Make it a meal?</h2>' +
-    '<p class="lede">Add ' + esc(meal.slots.map((s) => esc(s.label).toLowerCase()).join(' and ')) +
+    '<p class="lede">Add ' + esc(meal.slots.map((s) => String(s.label || '').toLowerCase()).join(' and ')) +
     ' for about ' + money(extra) + ' more.</p>' +
     '<div style="display:flex;gap:10px;margin-top:20px">' +
       '<button class="ghost" id="nomeal">No thanks</button>' +
@@ -1757,28 +2427,35 @@ function openCart() {
       '<button class="x" id="cartx" aria-label="Close">' + ICON_X + '</button></div>' +
       '<div class="count">' + CART.reduce((n, l) => n + l.qty, 0) + (CART.reduce((n, l) => n + l.qty, 0) === 1 ? ' item' : ' items') + '</div>' +
       CART.map((l, idx) => '<div class="row line" style="--f:' + lineFill(l) + '"><div style="flex:1;min-width:0">' +
-        '<div style="font-weight:600">' + esc(l.name) + (l.variant_label ? ', ' + esc(l.variant_label) : '') + '</div>' +
-        (l.option_labels.length ? '<div class="lede" style="font-size:13px">' + esc(l.option_labels.join(', ')) + '</div>' : '') +
-        ((l.addon_labels || []).length ? '<div class="lede" style="font-size:13px">' + esc(l.addon_labels.map((a) => '+ ' + a).join(', ')) + '</div>' : '') +
-        (l.note ? '<div class="lede" style="font-size:13px">' + esc(l.note) + '</div>' : '') +
+        '<div style="font-weight:600" data-notl>' + esc(l.name) + (l.variant_label ? ', ' + esc(l.variant_label) : '') + '</div>' +
+        (l.option_labels.length ? '<div class="lede" style="font-size:13px" data-notl>' + esc(l.option_labels.join(', ')) + '</div>' : '') +
+        ((l.addon_labels || []).length ? '<div class="lede" style="font-size:13px" data-notl>' + esc(l.addon_labels.map((a) => '+ ' + a).join(', ')) + '</div>' : '') +
+        (l.note ? '<div class="lede" style="font-size:13px" data-notl>' + esc(l.note) + '</div>' : '') +
         '<div class="lede" style="font-size:13px">' + money(l.price) + ' each</div>' +
         '<div class="ltot">' + money(l.price * l.qty) + '</div></div>' +
         '<div class="stepper"><button data-m="' + idx + '" aria-label="One less">&minus;</button>' +
         '<span>' + l.qty + '</span><button data-p="' + idx + '" aria-label="One more">+</button></div></div>').join('') +
       '<div class="totals card">' +
-        ((tax > 0 || deliveryFee() > 0 || svcOf() > 0) ? '<div><span>Subtotal</span><span>' + money(subtotal()) + '</span></div>' : '') +
+        ((tax > 0 || deliveryFee() > 0 || svcOf() > 0 || tipCents() > 0) ? '<div><span>Subtotal</span><span>' + money(subtotal()) + '</span></div>' : '') +
         (deliveryFee() > 0 ? '<div><span>Delivery fee</span><span>' + money(deliveryFee()) + '</span></div>' : '') +
         (svcOf() > 0 ? '<div><span>Service charge (' + SVCPCT + '%)</span><span>' + money(svcOf()) + '</span></div>' : '') +
         (tax > 0 ? '<div><span>Tax</span><span>' + money(tax) + '</span></div>' : '') +
         (promoCents() > 0 ? '<div><span>' + esc(PROMO_PREVIEW.name || 'Offer') + '</span><span>&minus;' + money(promoCents()) + '</span></div>' : '') +
-        '<div class="grand"><span>' + (STORE && STORE.has_promo && promoCents() === 0 ? 'Total before offers' : 'Total') + '</span><span>' + money(payTotal()) + '</span></div>' +
+        (tipCents() > 0 ? '<div><span>Tip</span><span>' + money(tipCents()) + '</span></div>' : '') +
+        '<div class="grand"><span>' + (STORE && STORE.has_promo && promoCents() === 0 ? 'Total before offers' : 'Total') + '</span><span>' + money(payTotal() + tipCents()) + '</span></div>' +
         (STORE && STORE.has_promo && promoCents() === 0 ? '<div class="lede" style="font-size:12.5px;margin-top:4px">The shop&rsquo;s offer is taken off when you place the order.</div>' : '') +
       '</div>' +
       storeFields() +
+      (underDeliveryMin()
+        ? '<div class="lede" style="margin:10px 0 0;padding:10px 12px;border:1px solid rgba(255,92,0,.45);border-radius:var(--r-md);font-size:13.5px">' +
+          'Delivery orders start at <b>' + money(deliveryMinCents()) + '</b>. Add ' + money(deliveryMinCents() - goodsCents()) + ' more, or choose pickup.</div>'
+        : '') +
+      accountFieldsHtml() +
       kioskModeHtml() +
       '<div class="label">Your name</div>' +
       '<input class="note-in" id="who" type="text" maxlength="40" placeholder="' + (STORE ? 'Who is this order for?' : 'So the staff can call you') + '" aria-label="Your name">' +
       couponFieldHtml() +
+      tipHtml() +
       payChoiceHtml() +
       alsoLikeHtml() +
       '<div class="foot">' +
@@ -1797,8 +2474,8 @@ function openCart() {
     document.querySelectorAll('.sheet .row.line, .sheet .totals.card, .sheet .also-t').forEach((x, n) => x.style.setProperty('--i', String(Math.min(n, 8))));
     if (TICK >= 0) { const sp = document.querySelectorAll('.stepper span')[TICK]; if (sp) sp.classList.add('tick'); TICK = -1; }
     const gt = document.querySelector('.totals div.grand span:last-child');
-    if (gt && LAST_TOTAL !== null && LAST_TOTAL !== payTotal()) gt.classList.add('pulse');
-    LAST_TOTAL = payTotal();
+    if (gt && LAST_TOTAL !== null && LAST_TOTAL !== payTotal() + tipCents()) gt.classList.add('pulse');
+    LAST_TOTAL = payTotal() + tipCents();
     document.querySelectorAll('[data-m]').forEach((b) => b.onclick = () => {
       const i = Number(b.dataset.m); CART[i].qty--; if (CART[i].qty <= 0) CART.splice(i, 1); else TICK = i; redrawKeeping(); render();
     });
@@ -1812,10 +2489,10 @@ function openCart() {
         const lat = Math.round(pos.coords.latitude * 1e5) / 1e5, lng = Math.round(pos.coords.longitude * 1e5) / 1e5;
         const r = kmFee(kmCfg(), lat, lng);
         GEO = { lat: lat, lng: lng, km: r.km, fee: r.fee };
-        redrawKeeping();
+        if (sheetOpen() && el('send')) redrawKeeping();   // never reopen a basket they closed
       }, function () {
         GEO = { err: 'Could not get your location. Allow location for this page, then tap again.' };
-        redrawKeeping();
+        if (sheetOpen() && el('send')) redrawKeeping();
       }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
     };
     document.querySelectorAll('[data-kmode]').forEach(function (b) {
@@ -1824,9 +2501,34 @@ function openCart() {
     if (STORE) {
       // Remembered from the last order on this phone - typing an address twice
       // is how a customer gives up.
+      // Signed in (0515): the account's own details come first.
+      const ap = ACCT && ACCT.profile;
+      if (ap) {
+        if (el('who') && !el('who').value && ap.name) el('who').value = ap.name;
+        if (el('oph') && !el('oph').value && ap.phone) el('oph').value = ap.phone;
+        const da = (ACCT.addresses || []).find((a) => a.is_default);
+        if (el('oaddr') && !el('oaddr').value && da && !ADDR_NEW) { fillAddress(da); if (el('oaddrsel')) el('oaddrsel').value = String(da.id); }
+      }
+      if (ADDR_NEW && el('oaddrsel')) el('oaddrsel').value = 'new';
+      if (el('oaddrsel')) el('oaddrsel').onchange = function () {
+        const v = el('oaddrsel').value;
+        if (v === 'new') {
+          // A new address starts clean: no saved pin, so no saved address's fee.
+          ADDR_NEW = true;
+          if (GEO && GEO.saved) GEO = null;
+          el('oaddr').value = '';
+          redrawKeeping();
+          if (el('osaveaddr')) el('osaveaddr').checked = true;
+          if (el('oaddr')) el('oaddr').focus();
+          return;
+        }
+        ADDR_NEW = false;
+        fillAddress((ACCT.addresses || []).find((a) => String(a.id) === v));
+        redrawKeeping();
+      };
       if (el('who') && !el('who').value) el('who').value = lsGet('ember.who');
       if (el('oph') && !el('oph').value) el('oph').value = lsGet('ember.phone');
-      if (el('oaddr') && !el('oaddr').value) el('oaddr').value = lsGet('ember.addr');
+      if (el('oaddr') && !el('oaddr').value && !ADDR_NEW) el('oaddr').value = lsGet('ember.addr');
       if (el('ozone') && !ZONE && lsGet('ember.zone') && zones().some((r) => r.name === lsGet('ember.zone'))) {
         ZONE = lsGet('ember.zone'); redrawKeeping(); return;
       }
@@ -1837,13 +2539,31 @@ function openCart() {
         b.onclick = function () {
           // Switching to "At a time" lands on the FIRST slot the shop can
           // actually make, so the picker opens on a real answer.
-          var slots = whenSlots();
-          WHEN = b.getAttribute('data-when') === 'asap' ? null : (WHEN || slots[0] || null);
+          if (b.getAttribute('data-when') === 'asap') { WHEN = null; WHENDAY = ''; redrawKeeping(); return; }
+          var days = availDays();
+          if (days.length && !days.some(function (d) { return d.v === WHENDAY; })) WHENDAY = days[0].v;
+          WHEN = WHEN || slotsFor(WHENDAY)[0] || null;
           redrawKeeping();
         };
       });
       if (el('ozone')) el('ozone').onchange = function () { ZONE = el('ozone').value || null; if (ZONE) lsSet('ember.zone', ZONE); redrawKeeping(); };
       if (el('whensel')) el('whensel').onchange = function () { WHEN = el('whensel').value; };
+      if (el('daysel')) el('daysel').onchange = function () { WHENDAY = el('daysel').value; redrawKeeping(); };
+      document.querySelectorAll('[data-tip]').forEach(function (b) {
+        b.onclick = function () {
+          TIPPCT = Number(b.getAttribute('data-tip'));
+          redrawKeeping();
+          if (TIPPCT === -1 && el('otip')) el('otip').focus();
+        };
+      });
+      if (el('otip')) {
+        // Typing only changes the number; the totals catch up when they leave the box.
+        el('otip').oninput = function () {
+          var v = Number(String(el('otip').value).replace(/[^0-9.]/g, ''));
+          TIPOTHER = isFinite(v) && v > 0 ? Math.round(v * 100) : 0;
+        };
+        el('otip').onchange = function () { redrawKeeping(); };
+      }
     }
     // Outside the block above on purpose: a table QR and a kiosk tablet get
     // this choice too (0165).
@@ -1865,7 +2585,7 @@ function openCart() {
     refreshPromo(function () {
       var a = document.activeElement;
       if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;
-      if (el('send')) redrawKeeping();
+      if (sheetOpen() && el('send')) redrawKeeping();
     });
   }
   /* Redraw the sheet without eating what the customer already typed. */
@@ -1873,15 +2593,21 @@ function openCart() {
     var w = el('who') ? el('who').value : '';
     var ph = el('oph') ? el('oph').value : '';
     var ad = el('oaddr') ? el('oaddr').value : '';
+    var sa = el('osaveaddr') ? el('osaveaddr').checked : null;
+    var mk = el('omkt') ? el('omkt').checked : null;
     // 0175: through the module variable, because the send label reads it too.
     if (el('ocpn')) COUPON = el('ocpn').value;
+    SHEET_SAME = true;
     draw();
     if (el('who') && w) el('who').value = w;
     if (el('oph') && ph) el('oph').value = ph;
     if (el('oaddr') && ad) el('oaddr').value = ad;
+    if (el('osaveaddr') && sa !== null) el('osaveaddr').checked = sa;
+    if (el('omkt') && mk !== null) el('omkt').checked = mk;
   }
   // The lines slide in when the sheet opens, not on every + and -.
   LAST_TOTAL = null;
+  ADDR_NEW = false;
   el('sheet').classList.add('intro');
   setTimeout(() => el('sheet').classList.remove('intro'), 900);
   PAYCHOICE = defaultPayChoice();
@@ -1901,13 +2627,13 @@ function kioskModeHtml() {
 function storeFields() {
   if (!STORE) return '';
   var h = '';
-  if (STORE.pickup && STORE.delivery) {
+  if (STORE.pickup && STORE.delivery && !AHEAD_ONLY) {
     h += '<div class="label">How do you want it?</div>' +
       '<div class="modes">' +
       '<button class="' + (OMODE === 'pickup' ? 'primary' : 'ghost') + '" data-omode="pickup">' + ICON_BAG + 'Pickup</button>' +
       '<button class="' + (OMODE === 'delivery' ? 'primary' : 'ghost') + '" data-omode="delivery">' + ICON_MOTO + 'Delivery</button></div>';
   } else if (OMODE === 'pickup') {
-    h += '<div class="label">' + ICON_BAG + ' Pickup order' + (STORE.address ? ' &mdash; collect at ' + esc(STORE.address) : '') + '</div>';
+    h += '<div class="label">' + ICON_BAG + ' Pickup order' + (STORE.address ? ', collect at ' + esc(STORE.address) : '') + '</div>';
   } else {
     h += '<div class="label">' + ICON_MOTO + ' Delivery order</div>';
   }
@@ -1915,7 +2641,7 @@ function storeFields() {
   // for it: a shop that makes everything to order does not want to be asked.
   if (OMODE === 'pickup' && STORE.pickup_times) h += whenHtml();
   h += '<div class="label">Your mobile number</div>' +
-    '<input class="note-in" id="oph" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="0917 123 4567" aria-label="Your mobile number">';
+    '<input class="note-in" id="oph" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="' + (CUR === '₱' ? '0917 123 4567' : 'Mobile number') + '" aria-label="Your mobile number">';
   if (OMODE === 'delivery' && kmCfg()) {
     h += '<div class="label">Your location</div>' +
       '<button class="ghost" id="ogeo" style="width:100%">' + (GEO && GEO.fee >= 0 ? 'Update my location' : 'Use my location') + '</button>' +
@@ -1932,12 +2658,12 @@ function storeFields() {
       h += '<div class="label">Delivery area</div>' +
         '<select class="when-sel" id="ozone" aria-label="Delivery area">' +
         '<option value=""' + (ZONE ? '' : ' selected') + ' disabled>Choose your area</option>' +
-        zones().map((r) => '<option value="' + esc(r.name) + '"' + (r.name === ZONE ? ' selected' : '') + '>' +
-          esc(r.name) + ' — ' + (r.fee_cents ? money(r.fee_cents) : 'free') + '</option>').join('') +
+        zones().map((r) => '<option value="' + esc(r.name) + '" data-notl' + (r.name === ZONE ? ' selected' : '') + '>' +
+          esc(r.name) + ', ' + (r.fee_cents ? money(r.fee_cents) : 'free') + '</option>').join('') +
         '</select>';
     }
-    h += '<div class="label">Delivery address</div>' +
-      '<textarea class="note-in" id="oaddr" rows="2" maxlength="300" placeholder="House no., street, barangay, city — a landmark helps" aria-label="Delivery address"></textarea>';
+    h += savedAddressPicker() + '<div class="label">Delivery address</div>' +
+      '<textarea class="note-in" id="oaddr" rows="2" maxlength="300" placeholder="' + (CUR === '₱' ? 'House no., street, barangay, city' : 'House no., street, city') + ', a landmark helps" aria-label="Delivery address"></textarea>';
   }
   return h;
 }
@@ -1957,6 +2683,127 @@ function storeFields() {
    somebody pick a time to buy a coffee would be a worse page for the majority
    in service of the minority. */
 var WHEN = null;              // null = as soon as possible; else 'HH:MM'
+/* ORDER AHEAD FOR ANOTHER DAY (0517). The shop says how many days ahead it
+   takes (online_order_days_ahead, pickup only, only with pickup times on).
+   WHENDAY is '' for today or the SHOP's calendar date 'YYYY-MM-DD'; the server
+   gets 'YYYY-MM-DD HH:MM' and refuses a day too far or a time too soon out
+   loud. AHEAD_ONLY: the counter is closed right now, so the only order this
+   page can take is one for a later day - no "as soon as possible", no today. */
+var WHENDAY = '';
+var AHEAD_ONLY = false;
+function aheadDays() { return (STORE && SHOPINFO && Number(SHOPINFO.days_ahead)) || 0; }
+function availDays() {
+  var t = SHOPINFO && /^\d{4}-\d{2}-\d{2}$/.test(SHOPINFO.today || '') ? SHOPINFO.today : null;
+  if (!t || !aheadDays()) return [];
+  var base = Date.parse(t + 'T00:00:00Z'), out = [];
+  for (var i = 0; i <= aheadDays(); i++) {
+    if (i === 0 && (AHEAD_ONLY || !whenSlots().length)) continue;
+    var d = new Date(base + i * 86400000);
+    out.push({ v: i === 0 ? '' : d.toISOString().slice(0, 10),
+      label: i === 0 ? 'Today' : i === 1 ? 'Tomorrow'
+        : d.toLocaleDateString(window.EmberLang && EmberLang.isTagalog() ? 'fil-PH' : 'en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' }) });
+  }
+  return out;
+}
+/* A later day: every quarter-hour the shop is open. Without opening hours on
+   file, 8am to 8pm - a guess, but never 3am. */
+function daySlots() {
+  var om = /^(\d{1,2}):(\d{2})$/.exec((STORE && STORE.open) || ''), cm = /^(\d{1,2}):(\d{2})$/.exec((STORE && STORE.close) || '');
+  var start = om ? Number(om[1]) * 60 + Number(om[2]) : 8 * 60;
+  var end = cm ? Number(cm[1]) * 60 + Number(cm[2]) : 20 * 60;
+  if (end <= start) end = 24 * 60 - 15;          // closes after midnight: up to the end of that day
+  start = Math.ceil(start / 15) * 15;
+  var out = [];
+  for (var t = start; t <= end && out.length < 96; t += 15) out.push(pad2(Math.floor(t / 60)) + ':' + pad2(t % 60));
+  return out;
+}
+function slotsFor(day) { return day ? daySlots() : whenSlots(); }
+/* What goes to the server: 'HH:MM' for today, 'YYYY-MM-DD HH:MM' for a later day. */
+function wantedValue() {
+  if (WHEN === null) return null;
+  return WHENDAY ? WHENDAY + ' ' + WHEN : WHEN;
+}
+
+/* TIPS ON ONLINE ORDERS (0517). Only where the shop switched them on. A
+   percentage of the food, rounded to a whole peso, or an amount they type.
+   Never more than the order - the server refuses that too. */
+var TIPPCT = 0;               // 0 none, 5 / 10 / 15, -1 = their own amount
+var TIPOTHER = 0;             // cents, for -1
+function tipsOn() { return !!(STORE && SHOPINFO && SHOPINFO.tips); }
+function tipFor(pct) { return Math.round(subtotal() * pct / 100 / 100) * 100; }
+function tipCents() {
+  if (!tipsOn()) return 0;
+  var t = TIPPCT === -1 ? TIPOTHER : tipFor(TIPPCT);
+  return Math.max(0, Math.min(t, payTotal()));
+}
+function tipHtml() {
+  if (!tipsOn()) return '';
+  var opts = [[0, 'No tip'], [5, '5%'], [10, '10%'], [15, '15%'], [-1, 'Other']];
+  var h = '<div class="label">Add a tip?</div><div class="tips">' + opts.map(function (o) {
+    return '<button class="when" data-tip="' + o[0] + '" aria-pressed="' + (TIPPCT === o[0]) + '">' + o[1] +
+      (o[0] > 0 ? '<small>' + money(tipFor(o[0])) + '</small>' : o[0] === -1 && TIPOTHER > 0 && TIPPCT === -1 ? '<small>' + money(TIPOTHER) + '</small>' : '') + '</button>';
+  }).join('') + '</div>';
+  if (TIPPCT === -1) {
+    h += '<input class="note-in" id="otip" type="text" inputmode="decimal" maxlength="8" placeholder="Tip amount" aria-label="Tip amount" style="margin-top:8px" value="' +
+      (TIPOTHER > 0 ? esc(String(TIPOTHER / 100)) : '') + '">';
+  }
+  return h;
+}
+
+/* WHAT CAN I EAT (0517). The shop's own diet tags and allergens, as filters.
+   A dish with nothing listed is NOT hidden by an allergen filter - the shop has
+   said nothing, which is not the same as "no peanuts" - and the sheet says so. */
+var DIETF = [];               // diet keys every shown dish must carry
+var AVOID = [];               // allergens (lower case) a shown dish must not list
+function csvList(v) { return String(v || '').split(',').map(function (x) { return x.trim(); }).filter(Boolean); }
+function menuDiets() {
+  var seen = {};
+  ((MENU && MENU.items) || []).forEach(function (i) { csvList(i.diet_tags).forEach(function (k) { if (DIET_LABELS[k] && k !== 'spicy') seen[k] = 1; }); });
+  return Object.keys(DIET_LABELS).filter(function (k) { return seen[k]; });
+}
+function menuAllergens() {
+  var seen = {};
+  ((MENU && MENU.items) || []).forEach(function (i) { csvList(i.allergens).forEach(function (a) { var k = a.toLowerCase(); if (!seen[k]) seen[k] = a.charAt(0).toUpperCase() + a.slice(1); }); });
+  return Object.keys(seen).sort().slice(0, 24).map(function (k) { return { k: k, label: seen[k] }; });
+}
+function filtersOn() { return DIETF.length + AVOID.length; }
+function passesFilters(i) {
+  if (!filtersOn()) return true;
+  var tags = csvList(i.diet_tags);
+  for (var a = 0; a < DIETF.length; a++) if (tags.indexOf(DIETF[a]) < 0) return false;
+  var al = csvList(i.allergens).map(function (x) { return x.toLowerCase(); });
+  for (var b = 0; b < AVOID.length; b++) if (al.indexOf(AVOID[b]) >= 0) return false;
+  return true;
+}
+function openFilters() {
+  function draw() {
+    var diets = menuDiets(), als = menuAllergens();
+    var shown = MENU.items.filter(passesFilters).length;
+    openSheet('<div class="shead"><div style="flex:1;min-width:0"><h2>Food filters</h2></div>' +
+        '<button class="x" id="fx" aria-label="Close">' + ICON_X + '</button></div>' +
+      (diets.length ? '<div class="label">Show only</div><div class="fchips">' + diets.map(function (k) {
+        return '<button class="when" data-fd="' + k + '" aria-pressed="' + (DIETF.indexOf(k) >= 0) + '">' + esc(DIET_LABELS[k]) + '</button>';
+      }).join('') + '</div>' : '') +
+      (als.length ? '<div class="label">Leave out anything with</div><div class="fchips">' + als.map(function (a) {
+        return '<button class="when" data-fa="' + esc(a.k) + '" aria-pressed="' + (AVOID.indexOf(a.k) >= 0) + '">' + esc(a.label) + '</button>';
+      }).join('') + '</div>' +
+      '<p class="lede" style="font-size:12.5px;margin-top:10px">Dishes the shop has not listed allergens for still show. If an allergy is serious, ask the shop.</p>' : '') +
+      '<div class="foot"><button class="ghost" id="fclear"' + (filtersOn() ? '' : ' disabled') + '>Clear filters</button>' +
+        '<button class="primary" id="fgo">' + (shown === 1 ? 'Show 1 item' : 'Show ' + shown + ' items') + '</button></div>');
+    el('fx').onclick = function () { closeSheet(); render(); };
+    el('fgo').onclick = function () { closeSheet(); render(); };
+    el('fclear').onclick = function () { DIETF = []; AVOID = []; again(); };
+    document.querySelectorAll('[data-fd]').forEach(function (b) { b.onclick = function () {
+      var k = b.getAttribute('data-fd'), i = DIETF.indexOf(k); if (i >= 0) DIETF.splice(i, 1); else DIETF.push(k); again();
+    }; });
+    document.querySelectorAll('[data-fa]').forEach(function (b) { b.onclick = function () {
+      var k = b.getAttribute('data-fa'), i = AVOID.indexOf(k); if (i >= 0) AVOID.splice(i, 1); else AVOID.push(k); again();
+    }; });
+  }
+  // A chip tapped redraws the same sheet: it keeps its place and only the chip answers.
+  function again() { SHEET_SAME = true; draw(); }
+  draw();
+}
 
 function shopNowMinutes() {
   var t = (STORE && STORE.now) || '';
@@ -1981,6 +2828,10 @@ function whenSlots() {
   if (cm) close = Number(cm[1]) * 60 + Number(cm[2]);
   var open = null, om = /^(\d{1,2}):(\d{2})$/.exec((STORE && STORE.open) || '');
   if (om) open = Number(om[1]) * 60 + Number(om[2]);
+  // Before opening on an ordinary day, the first slot is opening time, not
+  // "now plus the lead" - a 6am visitor was offered 6:30 at a shop opening at 8.
+  var overnightDay = close !== null && (open !== null ? close < open : close < 6 * 60);
+  if (!overnightDay && open !== null && start < open) start = Math.ceil(open / 15) * 15;
   if (close !== null) {
     // Where the shop's clock sits decides whether the closing time is today's or tomorrow's.
     // With the opening time known: a shop that closes before it opens is overnight; in the
@@ -2005,20 +2856,48 @@ function whenSlots() {
   return out;
 }
 function whenHtml() {
-  var slots = whenSlots();
-  // Past closing, or a shop with a lead time that runs out the clock: say so
-  // rather than offering an empty menu. The order still goes through as ASAP.
-  if (!slots.length) return '';
-  var h = '<div class="label">' + ICON_CLOCK + ' When do you want it?</div><div class="whens">' +
-    '<button class="when" data-when="asap" aria-pressed="' + (WHEN === null) + '">As soon as possible</button>' +
-    '<button class="when" data-when="time" aria-pressed="' + (WHEN !== null) + '">At a time</button></div>';
-  if (WHEN !== null) {
-    h += '<select class="when-sel" id="whensel" aria-label="Pickup time">' +
-      slots.map(function (t) {
-        return '<option value="' + t + '"' + (t === WHEN ? ' selected' : '') + '>' + hhmmLabel(t) + '</option>';
-      }).join('') + '</select>';
+  var days = availDays();
+  if (!days.length) {
+    WHENDAY = '';
+    var slots = whenSlots();
+    // Past closing, or a shop with a lead time that runs out the clock: say so
+    // rather than offering an empty menu. The order still goes through as ASAP.
+    if (!slots.length) return '';
+    var h = '<div class="label">' + ICON_CLOCK + ' When do you want it?</div><div class="whens">' +
+      '<button class="when" data-when="asap" aria-pressed="' + (WHEN === null) + '">As soon as possible</button>' +
+      '<button class="when" data-when="time" aria-pressed="' + (WHEN !== null) + '">At a time</button></div>';
+    if (WHEN !== null) {
+      if (slots.indexOf(WHEN) < 0) WHEN = slots[0];
+      h += '<select class="when-sel" id="whensel" aria-label="Pickup time">' +
+        slots.map(function (t) {
+          return '<option value="' + t + '"' + (t === WHEN ? ' selected' : '') + '>' + hhmmLabel(t) + '</option>';
+        }).join('') + '</select>';
+    }
+    return h;
   }
-  return h;
+  // 0517: a day as well as a time.
+  if (!days.some(function (d) { return d.v === WHENDAY; })) WHENDAY = days[0].v;
+  if (AHEAD_ONLY && WHEN === null) WHEN = slotsFor(WHENDAY)[0] || null;
+  var ds = slotsFor(WHENDAY);
+  if (WHEN !== null && ds.indexOf(WHEN) < 0) WHEN = ds[0] || null;
+  var h2 = '<div class="label">' + ICON_CLOCK + ' When do you want it?</div>';
+  if (AHEAD_ONLY) {
+    h2 += '<p class="lede" style="font-size:13.5px;margin:0 0 2px">The shop is closed right now. You can order for a later day.</p>';
+  } else {
+    h2 += '<div class="whens">' +
+      '<button class="when" data-when="asap" aria-pressed="' + (WHEN === null) + '">As soon as possible</button>' +
+      '<button class="when" data-when="time" aria-pressed="' + (WHEN !== null) + '">At a time</button></div>';
+  }
+  if (WHEN !== null) {
+    h2 += '<div class="when-pair">' +
+      '<select class="when-sel" id="daysel" aria-label="Pickup day">' + days.map(function (d) {
+        return '<option value="' + d.v + '"' + (d.v === WHENDAY ? ' selected' : '') + '>' + esc(d.label) + '</option>';
+      }).join('') + '</select>' +
+      '<select class="when-sel" id="whensel" aria-label="Pickup time">' + ds.map(function (t) {
+        return '<option value="' + t + '"' + (t === WHEN ? ' selected' : '') + '>' + hhmmLabel(t) + '</option>';
+      }).join('') + '</select></div>';
+  }
+  return h2;
 }
 
 function defaultPayChoice() {
@@ -2079,18 +2958,32 @@ function couponFieldHtml() {
       'placeholder="From your voucher or flyer" aria-label="Coupon code" value="' + esc(COUPON) + '">';
 }
 
+/* A pay-first mode at a shop whose online payment is not connected: nothing
+   on this page can take that order, so say so and point somewhere that can.
+   The other mode is only offered when it really is open (and not pay-first). */
+function noOnlinePayWords() {
+  var mode = OMODE === 'delivery' ? 'delivery' : 'pickup';
+  var other = mode === 'delivery' ? 'pickup' : 'delivery';
+  var otherOk = !!(STORE && STORE.pickup && STORE.delivery && !AHEAD_ONLY && !prepayRequired(other));
+  return 'This shop is not taking ' + mode + ' orders online right now.' +
+    (mode === 'pickup' ? ' Please order at the counter.' : ' Please message the shop.') +
+    (otherOk ? ' Try ' + other + ' instead.' : '');
+}
+
 function payChoiceHtml() {
   var canNow = PAYON && payTotal() >= minPay();
   var canLater = counterPayAllowed();
   if (!canNow && canLater) { PAYCHOICE = 'later'; return ''; }
   if (!canNow && !canLater) {
-    return '<div class="lede" style="font-size:12.5px;margin-top:10px;display:flex;gap:7px;align-items:flex-start">' + ICON_WARN + '<span>This shop takes ' +
-      (OMODE === 'delivery' ? 'delivery' : 'pickup') + ' orders with online payment only' +
-      (payTotal() < minPay() ? ' (minimum ' + money(minPay()) + ' — add a little more)' : '') + '.</span></div>';
+    return '<div class="lede" style="font-size:12.5px;margin-top:10px;display:flex;gap:7px;align-items:flex-start">' + ICON_WARN + '<span>' +
+      (PAYON
+        ? 'This shop takes ' + (OMODE === 'delivery' ? 'delivery' : 'pickup') + ' orders with online payment only' +
+          (payTotal() < minPay() ? ' (minimum ' + money(minPay()) + ', add a little more)' : '') + '.'
+        : noOnlinePayWords()) + '</span></div>';
   }
   if (canNow && !canLater) {
     PAYCHOICE = 'now';
-    return '<div class="lede" style="font-size:12.5px;margin-top:10px">Pays online (GCash / Maya / bank app) — the shop sees it instantly.</div>';
+    return '<div class="lede" style="font-size:12.5px;margin-top:10px">Pays online (GCash / Maya / bank app), the shop sees it instantly.</div>';
   }
   return '<div class="label">Payment</div>' +
     '<div style="display:flex;gap:8px">' +
@@ -2106,7 +2999,7 @@ function sendLabel() {
   // Same for the shop's own automatic offer (0306): the server takes it off, so the button names no amount.
   var withCode = (COUPONS_ON && COUPON.trim() !== '') || !!(STORE && STORE.has_promo);
   if (PAYON && PAYCHOICE === 'now' && payTotal() >= minPay()) {
-    return withCode ? 'Place order & pay' : 'Place order & pay ' + money(total());
+    return withCode ? 'Place order & pay' : 'Place order & pay ' + money(total() + tipCents());
   }
   if (!STORE) return 'Send to the cashier for payment';
   return OMODE === 'delivery' ? 'Place delivery order' : 'Place pickup order';
@@ -2114,7 +3007,7 @@ function sendLabel() {
 
 /* Every send ATTEMPT for the current cart carries the same ref (v1.1.64):
    a retry after a lost response (slow cafe wifi, page killed mid-send) then
-   returns the order that already landed instead of creating a second one —
+   returns the order that already landed instead of creating a second one -
    the server dedupes on it. A NEW cart gets a new ref. */
 let SEND_REF = null;
 async function send() {
@@ -2133,15 +3026,18 @@ async function send() {
       return;
     }
     if (OMODE === 'delivery' && !addr) { toast('Please give the delivery address.'); return; }
+    if (AHEAD_ONLY && !(WHEN && WHENDAY)) { toast('Please choose a day for your order.'); return; }
+    if (underDeliveryMin()) { toast('Delivery orders start at ' + money(deliveryMinCents()) + '. Add a little more, or choose pickup.'); return; }
     // prepayRequired(OMODE), not a delivery-only test (21 Sep 2026). A shop
     // with "pickup orders must be paid first" on, and PayMongo not connected
     // (or a basket under the online minimum), used to let the order through -
     // and the card then told the customer to tap a Pay now button that is
     // only drawn when paying online is possible. Nothing happened, ever.
     if (prepayRequired(OMODE) && (!PAYON || payTotal() < minPay())) {
-      toast(OMODE === 'delivery'
+      toast(!PAYON ? noOnlinePayWords()
+        : OMODE === 'delivery'
         ? 'This shop takes delivery orders with online payment only.'
-        : 'This shop takes pickup orders with online payment only \u2014 please order at the counter.');
+        : 'This shop takes pickup orders with online payment only, please order at the counter.');
       return;
     }
     lsSet('ember.who', who); lsSet('ember.phone', phone); if (addr) lsSet('ember.addr', addr);
@@ -2149,6 +3045,12 @@ async function send() {
   if (!STORE && SHARED && !KMODE) { toast('Dine in or take out? Tap one, then send your order.'); return; }
   btn.disabled = true; btn.textContent = 'Sending…';
   if (!SEND_REF) SEND_REF = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  // 0515: read before the sheet closes - the claim needs this exact ref.
+  const acctRef = SEND_REF;
+  const acctKeep = !!(el('osaveaddr') && el('osaveaddr').checked && addr);
+  const acctMkt = !!(el('omkt') && el('omkt').checked);
+  // 0517: read now, while the basket it is worked out from still exists.
+  const tip = tipCents();
   try {
     const res = await rpc('kiosk_place_order', {
       p_token: TOKEN,
@@ -2160,7 +3062,7 @@ async function send() {
       // Pickup only, and only where the shop asked for times. The server
       // resolves it in the SHOP's timezone and ignores anything it cannot
       // read - a bad time must never cost somebody their order.
-      p_wanted_hhmm: (STORE && OMODE === 'pickup' && STORE.pickup_times) ? WHEN : null,
+      p_wanted_hhmm: (STORE && OMODE === 'pickup' && STORE.pickup_times) ? wantedValue() : null,
       // 0175. Always sent so the argument binds by name; the server treats an
       // empty code as no code at all.
       p_coupon: (COUPONS_ON && COUPON.trim()) ? COUPON.trim().toUpperCase() : null,
@@ -2169,14 +3071,28 @@ async function send() {
       toast((res && res.error) || 'Could not send. Please ask a staff member.');
       btn.disabled = false; btn.textContent = sendLabel(); return;
     }
+    // 0517: the tip goes on the order the moment it exists, before any payment
+    // is made for it - the pay sheet then asks for food and tip together.
+    var tipped = 0;
+    if (tip > 0 && !res.duplicate) {
+      try {
+        const tr = await rpc('kiosk_set_tip', { p_token: TOKEN, p_order_number: res.order_number, p_client_ref: acctRef, p_tip_cents: tip });
+        if (tr && tr.ok) tipped = Number(tr.tip_cents) || tip;
+      } catch (e) { /* said below */ }
+      if (!tipped) setTimeout(function () { toast('Your order is in, but the tip could not be added. You can tip at the counter.'); }, 2600);
+    }
     rememberOrder({
-      num: res.order_number, at: Date.now(), total: res.total_cents,
+      num: res.order_number, at: Date.now(), total: (res.total_cents || 0) + tipped, tip: tipped,
+      // 0516: the proof this phone sent it - for Cancel, "I'm here" and signing in afterwards.
+      ref: STORE ? acctRef : null, claimed: !!ACCT,
       type: STORE ? (res.order_type || OMODE) : null, prepaid: false,
       // v1.1.62: the pickup label is STAMPED on the order server-side; keeping
       // it here means this phone shows the exact same number as the board even
       // if the shop re-words its numbers later in the day.
       pickup: res.pickup || null,
       wanted: res.wanted_label || null,
+      // 0517: the shop's date it is wanted on, when that is a later day.
+      wantedDay: (STORE && OMODE === 'pickup' && STORE.pickup_times && WHEN !== null && WHENDAY) || null,
       state: res.accepted ? 'making' : 'waiting',
       items: CART.map((l) => ({
         name: l.name, qty: l.qty, price: l.price, variant_label: l.variant_label,
@@ -2190,21 +3106,23 @@ async function send() {
     // 0175: the code is spent now, whether or not this phone sends again.
     var saved = Number(res.discount_cents || 0);
     COUPON = '';
-    var payNow = PAYON && PAYCHOICE === 'now' && (res.total_cents || 0) >= minPay() && !res.duplicate;
-    CART = []; SEND_REF = null; KMODE = null; closeSheet(); showOrders(res.order_number);
-    // The unmistakable confirmation the shop asked for — the screen also
+    var payNow = PAYON && PAYCHOICE === 'now' && (res.total_cents || 0) + tipped >= minPay() && !res.duplicate;
+    CART = []; SEND_REF = null; KMODE = null; WHEN = null; WHENDAY = ''; closeSheet(); showOrders(res.order_number);
+    if (ACCT && !res.duplicate) afterAccountOrder(res.order_number, acctRef, addr, acctKeep, acctMkt);
+    else if (ACCT && res.duplicate) afterAccountOrder(res.order_number, acctRef, null, false, false);
+    // The unmistakable confirmation the shop asked for - the screen also
     // switches to "Your orders" with this order on top.
     toast(res.duplicate
-      ? (STORE ? 'This order was already sent to the shop — here it is.' : 'This order was already sent to the cashier — here it is.')
+      ? (STORE ? 'This order was already sent to the shop, here it is.' : 'This order was already sent to the cashier, here it is.')
       : saved > 0 && res.promo_name
         // 0268: the shop's own promo applied itself.
-        ? res.promo_name + ' — ' + money(saved) + ' off. ' + (STORE ? 'Order sent to the shop!' : 'Order sent to the cashier!')
+        ? res.promo_name + ', ' + money(saved) + ' off. ' + (STORE ? 'Order sent to the shop!' : 'Order sent to the cashier!')
       : saved > 0
-        ? 'Code accepted — ' + money(saved) + ' off. ' + (STORE ? 'Order sent to the shop!' : 'Order sent to the cashier!')
+        ? 'Code accepted, ' + money(saved) + ' off. ' + (STORE ? 'Order sent to the shop!' : 'Order sent to the cashier!')
         : (STORE ? 'Order sent to the shop!' : 'Order sent to the cashier!'));
     if (payNow) openPaySheet(res.order_number);
   } catch (e) {
-    toast('No connection. Try again in a moment — your order was NOT sent twice.');
+    toast('No connection. Try again in a moment, your order was NOT sent twice.');
     btn.disabled = false; btn.textContent = sendLabel();
   }
 }
@@ -2222,13 +3140,13 @@ function markPrepaid(num) {
 async function openPaySheet(num, type) {
   // The ORDER's own type, never the basket's - see counterPayAllowed.
   var otype = type || ((loadOrders().find(function (x) { return x.num === num; }) || {}).type) || OMODE;
-  openSheet('<h2>Pay now</h2><p class="lede" style="text-align:center;padding:26px 0" id="paywait">Getting your payment code…</p>' +
+  openSheet('<h2>Pay now</h2><p class="lede" style="text-align:center;padding:26px 0" id="paywait"><span class="waitdot"></span>Getting your payment code…</p>' +
     '<div style="display:flex;gap:10px"><button class="ghost" id="payabort" style="flex:1">Not now</button></div>');
   el('payabort').onclick = function () { closeSheet(); showOrders(num); };
   var r;
   try { r = await payFn({ action: 'kiosk_create', token: TOKEN, orderNumber: num }); }
   catch (e) { r = null; }
-  if (r && (r.alreadyPaid || r.paid)) { markPrepaid(num); closeSheet(); showOrders(num); toast('Already paid!'); return; }
+  if (r && (r.alreadyPaid || r.paid)) { markPrepaid(num); BANNER_NEW[num] = 1; closeSheet(); showOrders(num); toast('Already paid!'); return; }
   if (!r || !r.ok) {
     closeSheet(); showOrders(num);
     toast(((r && r.error) || 'Could not start the payment.') + ' You can pay ' +
@@ -2241,8 +3159,8 @@ async function openPaySheet(num, type) {
       'style="width:230px;max-width:78vw;border-radius:12px;background:#fff;padding:8px"></div>' +
     '<div style="text-align:center;font-weight:900;font-size:24px;margin:8px 0">' + money(r.amountCents) + '</div>' +
     '<p class="lede" style="text-align:center;font-size:13px">Open GCash, Maya or your bank app and scan this QR Ph code' +
-    ' — or screenshot it and upload inside the app.<br>This screen confirms by itself the moment the money lands.</p>' +
-    '<div class="lede" id="paystate" style="text-align:center;padding:6px 0" aria-live="polite">Waiting for the payment…</div>' +
+    ', or screenshot it and upload inside the app.<br>This screen confirms by itself the moment the money lands.</p>' +
+    '<div class="lede" id="paystate" style="text-align:center;padding:6px 0" aria-live="polite"><span class="waitdot"></span>Waiting for the payment…</div>' +
     // BACKING OUT IS ALWAYS ALLOWED - nobody is trapped on a payment screen.
     // But what backing out MEANS depends on the shop. Where the counter is
     // open it moves payment there. Where the shop has said pickup is paid
@@ -2253,7 +3171,7 @@ async function openPaySheet(num, type) {
       ? ''
       : '<p class="lede" style="text-align:center;font-size:12.5px;margin:2px 0 0">' +
         'This shop starts ' + (otype === 'delivery' ? 'delivery' : 'pickup') + ' orders once they are paid.' +
-        ' Your order is saved \u2014 you can come back to it under <strong>Your orders<\/strong>.</p>') +
+        ' Your order is saved, you can come back to it under <strong>Your orders<\/strong>.</p>') +
     '<div style="display:flex;gap:10px;margin-top:8px">' +
       '<button class="ghost" id="paylater" style="flex:1">' +
         (!counterPayAllowed(otype)
@@ -2267,6 +3185,7 @@ async function openPaySheet(num, type) {
       // The customer-paid-in-the-same-breath race: cancel of a paid intent
       // comes back PAID, and the money is honored, never lost.
       if (c && c.paid) { markPrepaid(num); toast('Paid!'); }
+      if (c && c.paid) BANNER_NEW[num] = 1;
       closeSheet();
       if (toMenu) render(); else showOrders(num);
     };
@@ -2288,8 +3207,8 @@ async function openPaySheet(num, type) {
     payFn({ action: 'kiosk_status', token: TOKEN, orderNumber: num, intentId: intent }).then(function (st) {
       if (stopped) return;
       if (st && st.paid) {
-        stopped = true; markPrepaid(num); closeSheet(); showOrders(num);
-        toast('Paid — the shop sees it instantly!');
+        stopped = true; markPrepaid(num); BANNER_NEW[num] = 1; closeSheet(); showOrders(num);
+        toast('Paid, the shop sees it instantly!');
         return;
       }
       setTimeout(tickPay, 3000);
@@ -2381,7 +3300,7 @@ function idleArm() {
 document.addEventListener('pointerdown', function () { if (IDLE_T) idleArm(); });
 
 /* The diner pressed "Got it": stop the ringing for this order. Stored beside
-   the order so a reload — or the screen locking and coming back — doesn't
+   the order so a reload - or the screen locking and coming back - doesn't
    start the whole thing over again. */
 function ackOrder(num) {
   const a = loadOrders();
@@ -2396,14 +3315,14 @@ function ackOrder(num) {
 /* ---- "Your order is ready" on the CUSTOMER'S phone -------------------------
    Ring + vibrate + flash the tab title when an order flips to ready, so the
    phone in their pocket does the pager's job. Web audio only runs after a
-   real tap, so the context is primed by whatever tap they already made —
-   adding to cart, sending the order — and resumed on every later tap. */
+   real tap, so the context is primed by whatever tap they already made -
+   adding to cart, sending the order - and resumed on every later tap. */
 let AUDIO = null;
 function primeAudio() {
   try {
     if (!AUDIO) AUDIO = new (window.AudioContext || window.webkitAudioContext)();
     if (AUDIO.state === 'suspended') AUDIO.resume();
-  } catch (e) { /* no audio — vibration and the title still alert */ }
+  } catch (e) { /* no audio, vibration and the title still alert */ }
 }
 document.addEventListener('pointerdown', primeAudio);
 function chime() {
@@ -2422,7 +3341,7 @@ function chime() {
 }
 /* The phone is the pager, so it has to behave like one: keep ringing until
    somebody answers. It stops on the diner's own "Got it" button, or when staff
-   mark the order collected — never on a timer, because a phone face-down in a
+   mark the order collected - never on a timer, because a phone face-down in a
    pocket that rings once has told nobody anything. */
 const ORIG_TITLE = document.title;
 let titleTimer = null;
@@ -2451,8 +3370,8 @@ function stopRinging() {
 function alertReady(num) {
   var ord = loadOrders().find(function (x) { return x.num === num; }) || {};
   toast(ord.type === 'delivery'
-    ? 'Order ' + pickupNum(num, ord.pickup) + ' is packed — the rider is on the way soon!'
-    : 'Order ' + pickupNum(num, ord.pickup) + ' is ready — please collect it at the counter!');
+    ? 'Order ' + pickupNum(num, ord.pickup) + ' is packed, the rider is on the way soon!'
+    : 'Order ' + pickupNum(num, ord.pickup) + ' is ready, please collect it at the counter!');
   buzz(num);
   if (ringTimer) return;
   ringTimer = setInterval(() => {
@@ -2470,21 +3389,28 @@ function resumeRinging() {
 
 /* ---- keep the pager ALIVE (v1.1.64) ----------------------------------------
    KOPIKOPI: "sobrang hirap kung hindi mag-ring ang phone kapag off ang screen
-   o na-exit ang browser." A web page can't ring a closed browser — that
-   honestly needs an installed app — but it CAN stop the screen turning off
+   o na-exit ang browser." A web page can't ring a closed browser - that
+   honestly needs an installed app - but it CAN stop the screen turning off
    while an order is live (wake lock), fire a system notification when the tab
    is merely in the background, and re-check the moment the page comes back. */
+/* An order booked for a later day: nothing will ring today, so the page does
+   not hold the screen awake for it or ask the customer to keep it open. It is
+   still polled, so the tracker stays true. */
+function isLaterDay(o) {
+  return !!(o && o.wantedDay && SHOPINFO && SHOPINFO.today && o.wantedDay > SHOPINFO.today);
+}
 let WAKE = null;
 async function holdWake() {
   try {
     const live = loadOrders().some(function (o) {
+      if (isLaterDay(o)) return false;
       return o.state === 'waiting' || o.state === 'making' || (o.state === 'ready' && !o.acked);
     });
     if (!live) { if (WAKE) { try { WAKE.release(); } catch (e) { /* gone */ } WAKE = null; } return; }
     if (WAKE || !('wakeLock' in navigator)) return;
     WAKE = await navigator.wakeLock.request('screen');
     WAKE.addEventListener('release', function () { WAKE = null; });
-  } catch (e) { WAKE = null; /* low battery or unsupported — the ring still works while open */ }
+  } catch (e) { WAKE = null; /* low battery or unsupported, the ring still works while open */ }
 }
 function askNotify() {
   try {
@@ -2496,8 +3422,10 @@ function notifyReady(num, stamped) {
   try {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
     if (document.visibilityState === 'visible') return;    // the in-page ring already has them
-    new Notification('Order ' + pickupNum(num, stamped) + ' is ready',
-      { body: 'Please collect it at the counter.', tag: 'ember-ready' });
+    // A delivery is not collected at the counter - the same words alertReady uses.
+    var ord = loadOrders().find(function (x) { return x.num === num; }) || {};
+    new Notification(ord.type === 'delivery' ? 'Order ' + pickupNum(num, stamped) + ' is packed' : 'Order ' + pickupNum(num, stamped) + ' is ready',
+      { body: ord.type === 'delivery' ? 'The rider is on the way soon.' : 'Please collect it at the counter.', tag: 'ember-ready' });
   } catch (e) { /* the title flash + ring remain */ }
 }
 document.addEventListener('visibilitychange', function () {
@@ -2508,7 +3436,7 @@ const STATE_TEXT = {
   waiting: 'Staff are confirming it',
   making: 'Being prepared',
   ready: 'Ready, please collect',
-  collected: 'Collected — enjoy!',
+  collected: 'Collected, enjoy!',
   cancelled: 'Cancelled, ask a staff member',
 };
 /* The same four steps read differently when nobody is sitting at a table. */
@@ -2516,20 +3444,20 @@ const STATE_TEXT_BY_TYPE = {
   pickup: {
     waiting: 'The shop is confirming it',
     making: 'Being prepared',
-    ready: 'Ready — come get it!',
-    collected: 'Picked up — enjoy!',
-    cancelled: 'Cancelled — please contact the shop',
+    ready: 'Ready, come get it!',
+    collected: 'Picked up, enjoy!',
+    cancelled: 'Cancelled, please contact the shop',
   },
   delivery: {
     waiting: 'The shop is confirming it',
     making: 'Being prepared',
-    ready: 'Packed — waiting for the rider',
+    ready: 'Packed, waiting for the rider',
     collected: 'On the way to you!',
-    cancelled: 'Cancelled — please contact the shop',
+    cancelled: 'Cancelled, please contact the shop',
   },
 };
 /* The shop's own wording for the number it calls out. Mirrors boardLabel() in
-   src/lib/pickup.ts — the board, the claim stub, the kitchen ticket and this
+   src/lib/pickup.ts - the board, the claim stub, the kitchen ticket and this
    page must never disagree about what a customer is waiting for. */
 function pickupNum(raw, stamped) {
   // The label stamped on the order at creation wins; computing is the
@@ -2548,24 +3476,149 @@ function pickupNum(raw, stamped) {
   return s;
 }
 
-function stepsHtml(state, type, wanted) {
+/* What moved since the last look, so the tracker animates THAT and nothing
+   else: an order's step (STEP_MOVED) and the banner or button that came with
+   it - ready, collected, paid (BANNER_NEW). Cleared once drawn. */
+const STEP_MOVED = {}, BANNER_NEW = {};
+let HERE_JUST = null;
+function clearMoved() {
+  for (const k in STEP_MOVED) delete STEP_MOVED[k];
+  for (const k in BANNER_NEW) delete BANNER_NEW[k];
+  HERE_JUST = null;
+}
+function stepsHtml(state, type, wanted, arrive) {
   let texts = (type && STATE_TEXT_BY_TYPE[type]) || STATE_TEXT;
   // An order booked for later sits on its first step until the shop starts
   // it near the time. "Confirming" for forty minutes reads as "lost" (2 Oct
   // 2026, KOPIKOPI): say what is actually happening.
-  if (wanted && state === 'waiting') texts = Object.assign({}, texts, { waiting: 'Booked for ' + esc(wanted) + ' — the shop starts it nearer the time' });
+  if (wanted && state === 'waiting') texts = Object.assign({}, texts, { waiting: 'Booked for ' + esc(wanted) + ', the shop starts it nearer the time' });
   if (state === 'cancelled') {
-    return '<div class="step on"><span class="dot"></span><span>' + texts.cancelled + '</span></div>';
+    return '<div class="step on' + (arrive ? ' arrive' : '') + '"><span class="dot"></span><span>' + texts.cancelled + '</span></div>';
   }
   const seq = ['waiting', 'making', 'ready', 'collected'];
   const at = seq.indexOf(state);
-  return seq.map((s, i) => '<div class="step ' + (i < at ? 'done' : i === at ? 'on' : '') + '">' +
+  return seq.map((s, i) => '<div class="step ' + (i < at ? 'done' : i === at ? 'on' + (arrive ? ' arrive' : '') : '') + '">' +
     '<span class="dot"></span><span>' + texts[s] + '</span></div>').join('');
+}
+
+/* ---- THE RIDER ON THE WAY (0519) ---------------------------------------
+   A delivery order whose shop sent its rider a link shows who is bringing it
+   and, once the rider taps Start, where they are on a map. Asked with the
+   order's own ref, so only the phone that placed the order sees the rider,
+   and only while the order is on its way. The map is kept between redraws of
+   this screen (moved, not rebuilt), so it never flashes every 15 seconds. */
+const TRIPS = {};             // order number -> the server's word on its trip
+const TRIPMAPS = {};          // order number -> { el, h, moved }
+let TRIP_NEW = null;          // the trip card that just appeared, for its entrance
+let tripTimer = null;
+function tripTrackable(o) {
+  // Only once the order is ready or has left the shop (or a rider is already
+  // known): before that there is no rider to ask about, and asking every 15
+  // seconds would spend the data allowance on nothing.
+  return !!(STORE && o.type === 'delivery' && o.ref && o.state !== 'cancelled'
+    && (o.state === 'ready' || o.state === 'collected' || TRIPS[o.num])
+    && Date.now() - o.at < 20 * 3600 * 1000 && !(TRIPS[o.num] && TRIPS[o.num].delivered_at));
+}
+function agoWords(iso) {
+  const s = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
+  return s < 20 ? 'just now' : s < 90 ? s + ' s ago' : Math.round(s / 60) + ' min ago';
+}
+function tripInfo(t) {
+  if (!t.started) return 'Your rider is getting ready.';
+  if (t.lat == null) return t.at ? 'On the way · last seen ' + agoWords(t.at) : 'On the way. The rider\u2019s location shows here once it comes in.';
+  const k = (window.EmberMap && t.dest) ? EmberMap.km({ lat: t.lat, lng: t.lng }, t.dest) : null;
+  return 'On the way' + (k != null ? ' · about ' + (k < 1 ? Math.max(0.1, Math.round(k * 10) / 10) : Math.round(k * 10) / 10) + ' km from you' : '') +
+    ' · updated ' + agoWords(t.at);
+}
+function tripHtml(o) {
+  const t = TRIPS[o.num];
+  if (!t || !STORE || o.type !== 'delivery') return '';
+  // Delivered. When the shop already marked it sent out, the green banner above
+  // says so; otherwise this card does, so the customer is never left guessing.
+  if (t.delivered_at) {
+    return o.state === 'collected' ? '' :
+      '<div class="obanner swapin" style="display:flex;gap:8px;align-items:center;background:rgba(4,120,87,.12);' +
+        'border:1px solid rgba(4,120,87,.45);border-radius:var(--r-md);padding:10px 12px;margin-bottom:12px">' +
+        '<span style="color:var(--ok);display:flex">' + ICON_CHECK + '</span>' +
+        '<b style="font-size:14.5px">Delivered at ' + esc(new Date(t.delivered_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })) + ', enjoy!</b></div>';
+  }
+  return '<div class="trip' + (TRIP_NEW === o.num ? ' swapin' : '') + '">' +
+    '<div class="tt">' + ICON_MOTO + '<span>' + (t.rider ? esc(t.rider) + ' is bringing your order' : 'Your rider') + '</span></div>' +
+    '<div class="ti" data-tripinfo="' + esc(o.num) + '">' + esc(tripInfo(t)) + '</div>' +
+    (t.started && window.EmberMap && EmberMap.canDraw() ? '<div class="tripmap" data-tripmap="' + esc(o.num) + '"></div>' : '') +
+    '</div>';
+}
+function tripPins(h, t) {
+  h.set('shop', t.shop);
+  h.set('home', t.dest);
+  h.set('rider', t.lat != null ? { lat: t.lat, lng: t.lng } : null);
+  h.stale(t.at && Date.now() - new Date(t.at).getTime() > 3 * 60 * 1000);
+}
+function mountTripMaps() {
+  document.querySelectorAll('[data-tripmap]').forEach((slot) => {
+    const num = slot.getAttribute('data-tripmap');
+    const t = TRIPS[num];
+    const have = TRIPMAPS[num];
+    if (have) { slot.appendChild(have.el); if (have.h) have.h.resize(); return; }
+    const box = document.createElement('div');
+    slot.appendChild(box);
+    const rec = TRIPMAPS[num] = { el: box, h: null, moved: false };
+    EmberMap.create(box, { center: t.lat != null ? { lat: t.lat, lng: t.lng } : (t.dest || t.shop) }).then((h) => {
+      if (!h) { slot.remove(); delete TRIPMAPS[num]; return; }
+      rec.h = h;
+      tripPins(h, TRIPS[num] || t);
+      // Once the customer pans or zooms, the map stops re-framing itself.
+      h.map.on('dragstart', () => { rec.moved = true; });
+      h.map.on('zoomstart', (e) => { if (e.originalEvent) rec.moved = true; });
+      h.map.once('load', () => h.fit());
+    });
+  });
+}
+function dropTripMap(num) {
+  const m = TRIPMAPS[num];
+  if (m) { if (m.h) m.h.remove(); delete TRIPMAPS[num]; }
+}
+async function trackTrips() {
+  const mine = loadOrders().filter(tripTrackable);
+  if (!mine.length) { if (tripTimer) { clearInterval(tripTimer); tripTimer = null; } return; }
+  let redraw = false;
+  for (const o of mine) {
+    try {
+      const r = await rpc('kiosk_track', { p_token: TOKEN, p_order_number: o.num, p_client_ref: o.ref });
+      if (!r || !r.ok) continue;
+      const was = TRIPS[o.num], t = r.trip;
+      if (!t) continue;
+      TRIPS[o.num] = t;
+      if (!was) { TRIP_NEW = o.num; redraw = true; continue; }
+      if (!!was.delivered_at !== !!t.delivered_at || was.started !== t.started) {
+        if (t.delivered_at) dropTripMap(o.num);
+        redraw = true; continue;
+      }
+      // Same stage: only the words and the pin move.
+      const info = document.querySelector('[data-tripinfo="' + o.num + '"]');
+      if (info) info.textContent = tripInfo(t);
+      const m = TRIPMAPS[o.num];
+      if (m && m.h) { tripPins(m.h, t); if (!m.moved) m.h.fit(); }
+    } catch (e) { /* no signal: next round */ }
+  }
+  if (redraw && el('tomenu')) showOrders();
+  TRIP_NEW = null;
+}
+function startTripTracking() {
+  if (!loadOrders().some(tripTrackable)) return;
+  if (!tripTimer) { trackTrips(); tripTimer = setInterval(trackTrips, 15000); }
 }
 
 function showOrders(highlight) {
   const list = loadOrders();
   if (!list.length) { render(); return; }
+  // Coming from the menu, the screen fades in and the cards settle one after
+  // another; the tracker's own redraws (every status change) play none of it.
+  const fromMenu = !el('tomenu');
+  // A low-score comment being typed keeps its place across the redraw.
+  const ae = document.activeElement;
+  const typing = ae && ae.id === 'csatwhy' ? [ae.selectionStart, ae.selectionEnd] : null;
+  const arr = (num) => (BANNER_NEW[num] ? ' arrive' : '');
 
   el('app').innerHTML =
     // The same hero the menu has. A customer who ordered from three shops has
@@ -2574,17 +3627,19 @@ function showOrders(highlight) {
     '<header class="hero">' +
       heroId(MENU && MENU.shop && MENU.shop.logo, (MENU && MENU.shop && MENU.shop.name) || 'Your orders') +
       '<div class="meta"><span class="chip">Your orders</span>' +
-      ((MENU && MENU.link && MENU.link.label) ? '<span class="chip">' + esc(MENU.link.label) + '</span>' : '') +
+      // A table's or a kiosk's own label ("Table 4"); never the store link's internal one.
+      ((MENU && MENU.link && MENU.link.label && !STORE) ? '<span class="chip">' + esc(MENU.link.label) + '</span>' : '') +
       '</div>' +
     '</header><div style="height:14px"></div>' +
-    // The page IS the pager: it can only ring while it exists. Say so plainly —
+    '<div class="list olist' + (fromMenu ? ' intro' : '') + '">' +
+    // The page IS the pager: it can only ring while it exists. Say so plainly -
     // the shop reported diners closing the browser and missing every alert.
-    (list.some((o) => !FINAL[o.state])
-      ? '<div class="lede" style="margin:0 0 12px;padding:10px 12px;border:1px dashed var(--line);border-radius:var(--r-md);font-size:12.5px">' +
-        ICON_PHONE + ' <b>Keep this page open</b> — your phone rings and vibrates here when your order is ready. ' +
+    (list.some((o) => !FINAL[o.state] && !isLaterDay(o))
+      ? '<div class="lede" style="margin:0;padding:10px 12px;border:1px solid var(--line);background:var(--card);border-radius:var(--r-md);font-size:12.5px">' +
+        ICON_PHONE + ' <b>Keep this page open</b>: your phone rings and vibrates here when your order is ready. ' +
         'The screen is kept awake for you while you wait.</div>'
       : '') +
-    '<div class="list">' + list.map((o) => {
+    list.map((o) => {
       const isNew = o.num === highlight;
       return '<div' + (isNew ? ' class="new-order"' : '') + ' style="background:var(--card);border:1px solid ' + (isNew ? 'var(--accent)' : 'var(--line)') +
         ';border-radius:var(--r-md);padding:14px">' +
@@ -2597,7 +3652,7 @@ function showOrders(highlight) {
         '<div class="lede" style="font-size:12px;margin-top:2px">Watch for this number</div>' +
         (o.wanted
           ? '<div style="display:flex;align-items:center;gap:6px;margin-top:8px;padding:8px 10px;border-radius:var(--r-sm);' +
-            'background:color-mix(in srgb, var(--accent) 12%, transparent);color:var(--accent);font-weight:700;font-size:13.5px">' +
+            'background:var(--bg-sub);background:color-mix(in srgb, var(--accent) 12%, transparent);color:var(--accent-text);font-weight:700;font-size:13.5px">' +
             ICON_CLOCK + 'Collect at ' + esc(o.wanted) + '</div>'
           : '') +
         '<div class="lede" style="font-size:12.5px;margin:2px 0 10px">' +
@@ -2611,7 +3666,7 @@ function showOrders(highlight) {
         '<div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:12px">' +
           o.items.map((l) => '<div style="display:flex;gap:10px;padding:3px 0;font-size:14px">' +
             '<span style="color:var(--muted);min-width:22px">' + l.qty + 'x</span>' +
-            '<span style="flex:1;min-width:0">' + esc(l.name) +
+            '<span style="flex:1;min-width:0" data-notl>' + esc(l.name) +
               (l.variant_label ? ', ' + esc(l.variant_label) : '') +
               ((l.option_labels || []).length ? '<span class="lede" style="display:block;font-size:12.5px">' + esc(l.option_labels.join(', ')) + '</span>' : '') +
               ((l.addon_labels || []).length ? '<span class="lede" style="display:block;font-size:12.5px">' + esc(l.addon_labels.map((a) => '+ ' + a).join(', ')) + '</span>' : '') +
@@ -2619,11 +3674,11 @@ function showOrders(highlight) {
             '</span>' +
             '<span style="color:var(--muted)">' + money(l.price * l.qty) + '</span></div>').join('') +
         '</div>' +
-        // The phone is ringing for this one — the button that stops it has to
+        // The phone is ringing for this one - the button that stops it has to
         // be the biggest thing on the card, not a line of small print.
         (o.state === 'ready' && !o.acked
-          ? '<button class="primary" data-ack="' + esc(o.num) + '" style="width:100%;margin-bottom:12px">' +
-              ICON_BELL + ' Got it — stop ringing</button>'
+          ? '<button class="primary obanner' + arr(o.num) + '" data-ack="' + esc(o.num) + '" style="width:100%;margin-bottom:12px">' +
+              ICON_BELL + ' Got it, stop ringing</button>'
           : '') +
         // Pickup orders say WHERE - the address is the half of "come get it"
         // a first-time customer does not have.
@@ -2632,20 +3687,23 @@ function showOrders(highlight) {
           : '') +
         // Collected: the staff handed it over. Says so on the diner's phone.
         (o.state === 'collected'
-          ? '<div style="display:flex;gap:8px;align-items:center;background:rgba(4,120,87,.12);' +
+          ? '<div class="obanner' + arr(o.num) + '" style="display:flex;gap:8px;align-items:center;background:rgba(4,120,87,.12);' +
               'border:1px solid rgba(4,120,87,.45);border-radius:var(--r-md);padding:10px 12px;margin-bottom:12px">' +
               '<span style="color:var(--ok);display:flex">' + ICON_CHECK + '</span>' +
-              '<b style="font-size:14.5px">' + (o.type === 'delivery' ? 'On the way — enjoy!' : 'Collected — enjoy!') + '</b></div>'
+              '<b style="font-size:14.5px">' + (o.type === 'delivery'
+                ? (TRIPS[o.num] && TRIPS[o.num].delivered_at ? 'Delivered, enjoy!' : 'On the way, enjoy!')
+                : 'Collected, enjoy!') + '</b></div>'
           : '') +
+        tripHtml(o) +
         // Unpaid orders say so LOUDLY, above the progress steps: a customer who
         // only sees "Staff are confirming it" assumes they are done and sits down.
         // Paid-online orders get the opposite banner, equally loud - the shop
         // must never ask this customer for money twice.
         (o.paid ? '' : o.prepaid
-          ? '<div style="display:flex;gap:8px;align-items:center;background:rgba(4,120,87,.12);' +
+          ? '<div class="obanner' + arr(o.num) + '" style="display:flex;gap:8px;align-items:center;background:rgba(4,120,87,.12);' +
               'border:1px solid rgba(4,120,87,.45);border-radius:var(--r-md);padding:10px 12px;margin-bottom:12px">' +
               '<span style="color:var(--ok);display:flex">' + ICON_CHECK + '</span>' +
-              '<b style="font-size:14.5px">PAID online — show this screen if asked</b></div>'
+              '<b style="font-size:14.5px">PAID online, show this screen if asked</b></div>'
           : o.state === 'cancelled' ? '' :
           '<div style="display:flex;gap:8px;align-items:flex-start;background:rgba(255,92,0,.12);' +
             'border:1px solid rgba(255,92,0,.45);border-radius:var(--r-md);padding:10px 12px;margin-bottom:12px">' +
@@ -2654,7 +3712,7 @@ function showOrders(highlight) {
             // change: it is waiting, and the Pay now button below is the way on.
             (prepayRequired(o.type)
               ? '<span><b style="display:block;font-size:14.5px">Waiting for your payment</b>' +
-                '<span class="lede" style="font-size:12.5px">The shop starts this order once it is paid \u2014 tap Pay now below.</span></span>'
+                '<span class="lede" style="font-size:12.5px">The shop starts this order once it is paid, tap Pay now below.</span></span>'
               : o.type === 'delivery'
               ? '<span><b style="display:block;font-size:14.5px">Cash on delivery</b>' +
                 '<span class="lede" style="font-size:12.5px">Have ' + money(o.total) + ' ready for the rider.</span></span>'
@@ -2669,12 +3727,30 @@ function showOrders(highlight) {
           // the tablet remembers the last person's orders, and a button that
           // pays a stranger's bill is not a feature.
           (PAYON && o.total >= minPay() && (!SHARED || MINE[o.num])
-            ? '<button class="primary" data-paynow="' + esc(o.num) + '" data-paytype="' + esc(o.type || '') + '" style="width:100%;margin-bottom:12px">Pay now — ' + money(o.total) + '</button>'
+            ? '<button class="primary" data-paynow="' + esc(o.num) + '" data-paytype="' + esc(o.type || '') + '" style="width:100%;margin-bottom:12px">Pay now, ' + money(o.total) + '</button>'
             : '')) +
         '<div class="steps" data-track="' + esc(o.num) + '">' + stepsHtml(o.state || 'waiting', o.type, o.wanted) + '</div>' +
+        // 0516: the two things a customer can do about an order from here.
+        (STORE && o.ref && o.type === 'pickup' && !FINAL[o.state] && o.state !== 'cancelled'
+          ? (o.arrived
+              ? '<div class="lede' + (HERE_JUST === o.num ? ' swapin' : '') + '" style="font-size:13px;margin-top:10px;display:flex;gap:6px;align-items:center">' + ICON_CHECK + ' The shop knows you are here.</div>'
+              : '<button class="ghost" data-here="' + esc(o.num) + '" style="width:100%;margin-top:10px">' + ICON_PIN + ' I’m here</button>')
+          : '') +
+        (STORE && o.ref && (o.state || 'waiting') === 'waiting' && !o.paid && !o.prepaid
+          ? '<button class="ghost" data-cancel="' + esc(o.num) + '" style="width:100%;margin-top:10px">Cancel this order</button>'
+          : '') +
       '</div>';
-    }).join('') + '</div>' +
-    csatHtml() +
+    }).join('') +
+    // 0516: THE BEST MOMENT TO OFFER AN ACCOUNT is right after the order (the
+    // research: guests asked after checkout sign up far more than guests asked
+    // before it). Never on a shared tablet.
+    (ACC_ON && !ACCT && STORE && !SHARED && list.some((o) => o.ref && !o.claimed && Date.now() - o.at < 29 * 60 * 1000)
+      ? '<div class="acard card"><b style="font-size:15px">Save your details for next time</b>' +
+        '<p class="lede" style="font-size:13.5px;margin:6px 0 10px">Make a free Ember account with your email. Your name, number and addresses fill in for you, ' +
+        'this order is kept with your stamps, and you can order again in one tap - at any shop that uses Ember.</p>' +
+        '<button class="primary" id="saveme" style="width:100%">Save my details</button></div>'
+      : '') +
+    csatHtml() + '</div>' +
     madeBy() +
     (SHARED && FORGET
       ? '<div class="bar two"><button class="primary" id="tomenu">Order more</button>' +
@@ -2686,6 +3762,21 @@ function showOrders(highlight) {
   // KOPIKOPI's customer saw "Ready" and "Collected" hidden under the bar).
   document.body.classList.add('has-cart');
   el('tomenu').onclick = () => { render(); };
+  // The step an order has just moved to arrives; nothing else on the card moves.
+  for (const num in STEP_MOVED) {
+    const on = [...document.querySelectorAll('[data-track] .step.on')].find((x) => x.parentElement.getAttribute('data-track') === num);
+    if (on) on.classList.add('arrive');
+  }
+  clearMoved();
+  if (fromMenu) {
+    replay(el('app'), 'screen-in');
+    document.querySelectorAll('.olist > *').forEach((x, n) => x.style.setProperty('--i', String(Math.min(n, 8))));
+    setTimeout(() => { const ol = document.querySelector('.olist'); if (ol) ol.classList.remove('intro'); }, 900);
+  }
+  if (typing && el('csatwhy')) {
+    el('csatwhy').focus();
+    try { el('csatwhy').setSelectionRange(typing[0], typing[1]); } catch (e) { /* not a text box any more */ }
+  }
   if (el('nextcust')) el('nextcust').onclick = forgetAll;
   idleArm();                      // no-op unless this is a kiosk that asked
   wireCsat();
@@ -2695,6 +3786,11 @@ function showOrders(highlight) {
   document.querySelectorAll('[data-paynow]').forEach((b) => {
     b.onclick = () => openPaySheet(b.getAttribute('data-paynow'), b.getAttribute('data-paytype') || null);
   });
+  document.querySelectorAll('[data-cancel]').forEach((b) => { b.onclick = () => cancelOrder(b.getAttribute('data-cancel')); });
+  document.querySelectorAll('[data-here]').forEach((b) => { b.onclick = () => imHere(b.getAttribute('data-here')); });
+  if (el('saveme')) el('saveme').onclick = () => openSignIn(() => showOrders());
+  mountTripMaps();
+  startTripTracking();
   trackAll();
   resumeRinging();
   // While an order is live: keep the screen awake (this page IS the pager) and
@@ -2715,25 +3811,29 @@ function trackAll() {
       try {
         const r = await rpc('kiosk_order_status', { p_token: TOKEN, p_order_number: o.num });
         if (r && r.ok) {
+          // Did it move since the last look? Only then does its step animate.
+          const moved = (o.state || 'waiting') !== r.state;
           const ch = markOrder(o.num, r.state, r.paid);
           // The server's word on the online payment - a payment finished on
           // ANOTHER device (or after this page reloaded) still lands here.
           if (r.prepaid && !o.prepaid) { markPrepaid(o.num); redraw = true; }
+          if (r.prepaid && !o.prepaid) BANNER_NEW[o.num] = 1;     // the PAID banner arrives
           // Redraw as well as ring: the "Got it" button lives outside the
           // steps box, so patching the steps alone would leave no way to stop
           // the ringing until the next full render.
-          if (ch.becameReady) { alertReady(o.num); notifyReady(o.num, o.pickup); redraw = true; }
+          if (ch.becameReady) { alertReady(o.num); notifyReady(o.num, o.pickup); redraw = true; BANNER_NEW[o.num] = 1; }
           // Handed over at the counter: stop any ringing and redraw so the
           // card says "Collected" instead of still asking them to come over.
-          if (ch.becameCollected) { stopRinging(); redraw = true; }
+          if (ch.becameCollected) { stopRinging(); redraw = true; BANNER_NEW[o.num] = 1; }
           if (ch.paidChanged) redraw = true; // the paid badge + banner live outside the steps box
+          if (moved) STEP_MOVED[o.num] = 1;
           const box = document.querySelector('[data-track="' + o.num + '"]');
-          if (box) box.innerHTML = stepsHtml(r.state, o.type, o.wanted);
+          if (box) box.innerHTML = stepsHtml(r.state, o.type, o.wanted, moved);
         }
       } catch (e) { /* keep the last known state and try again next tick */ }
     }
     // Only rebuild when the "Your orders" list is what's on screen.
-    if (redraw && el('tomenu')) showOrders();
+    if (redraw && el('tomenu')) showOrders(); else clearMoved();
     holdWake(); // release the screen once nothing is live any more
   };
   tick();
@@ -2741,7 +3841,7 @@ function trackAll() {
 }
 
 function fatal(title, msg) {
-  el('app').innerHTML = '<div class="center"><h2>' + esc(title) + '</h2><p>' + esc(msg) + '</p>' +
+  el('app').innerHTML = '<div class="center fatal"><h2>' + esc(title) + '</h2><p>' + esc(msg) + '</p>' +
     '<div style="margin-top:22px"><button class="ghost" id="retry">Try again</button></div></div>';
   el('retry').onclick = () => location.reload();
 }
@@ -2757,13 +3857,27 @@ function fatal(title, msg) {
       fatal('This link is not active', (m && m.error) || 'Please ask a staff member for help.');
       return;
     }
+    // Tagalog, decided as soon as the shop is known: a Philippine storefront's
+    // closed screen can be in Tagalog, and no other shop's error ever is.
+    if (window.EmberLang) EmberLang.allow((m.shop && m.shop.currency || '₱') === '₱' && !!m.link && m.link.kind === 'store');
     // The shop gates QR ordering on an open shift (0068) and none is open.
-    // Server-enforced too — this screen is just the polite version of the
+    // Server-enforced too - this screen is just the polite version of the
     // refusal kiosk_place_order would give anyway.
     if (m.shop && m.shop.closed) {
-      fatal((m.shop.name || 'This shop') + ' is closed right now',
-        'Ordering opens again when the counter does. Please come back later!');
-      return;
+      // 0517: a shop that takes orders for later days still takes them while
+      // the counter is closed - for a later day only (the server checks).
+      var ord = (m.link && m.link.kind === 'store' && m.shop.ordering) || null;
+      if (ord && ord.pickup && ord.pickup_times) {
+        try {
+          const si = await rpc('kiosk_shop_info', { p_token: TOKEN });
+          if (si && si.ok && Number(si.days_ahead) > 0) { SHOPINFO = si; AHEAD_ONLY = true; }
+        } catch (e) { /* offline: the closed screen below */ }
+      }
+      if (!AHEAD_ONLY) {
+        fatal((m.shop.name || 'This shop') + ' is closed right now',
+          'Ordering opens again when the counter does. Please come back later!');
+        return;
+      }
     }
     if (!m.items.length) {
       fatal('Not serving right now', 'The kitchen has nothing on the menu at the moment. Please ask a staff member.');
@@ -2800,6 +3914,8 @@ function fatal(title, msg) {
       }
       OMODE = STORE.pickup ? 'pickup' : 'delivery';
     }
+    // Tagalog is offered on a Philippine shop's storefront only.
+    if (window.EmberLang) EmberLang.allow(CUR === '₱' && !!STORE);
     // 0165: what THIS link may offer. A store link takes it from the shop's
     // storefront rules; a table or kiosk link from the in-store switch, which
     // the server has already ANDed with "is PayMongo actually connected".
@@ -2811,6 +3927,26 @@ function fatal(title, msg) {
     // 0175: the same switch reaches both blocks, because a customer holding
     // a flyer can be at a table just as easily as on the storefront.
     COUPONS_ON = (STORE ? STORE.coupons : instore.coupons) === true;
+    // 0515: only a storefront link on a personal phone offers an Ember account.
+    if (STORE && !SHOPINFO) { rpc('kiosk_shop_info', { p_token: TOKEN }).then((i) => { SHOPINFO = i && i.ok ? i : null; }).catch(() => {}); }
+    if (STORE && window.EmberAccount) {
+      try {
+        const st = await rpc('cust_status', { p_token: TOKEN });
+        ACC_ON = !!(st && st.accounts);
+      } catch (e) { ACC_ON = false; }
+      if (ACC_ON) {
+        // The card's QR maker, fetched only for a shop that offers accounts.
+        if (typeof qrcode !== 'function') {
+          const sc = document.createElement('script');
+          sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+          sc.async = true;
+          // Open on the account sheet already? Draw it again with the QR in.
+          sc.onload = function () { if (el('acx') && sheetOpen()) { SHEET_SAME = true; openAccount(); } };
+          document.head.appendChild(sc);
+        }
+        await loadAcct();
+      }
+    }
     render();
   } catch (e) {
     fatal('No connection', 'Check your signal and try again.');

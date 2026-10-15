@@ -31,10 +31,13 @@ lives elsewhere and is not public.
 
 ## Updating
 
-Replace the changed files, then:
+Replace the changed files, then stage exactly those files by path (never
+`git add -A` or `git add .`: work in progress can sit in this folder and must
+not go live by accident). Check `git status` first.
 
 ```bash
-git add -A
+git status --short
+git add <each changed file or folder, by path>
 git commit -m "Update site"
 git push
 ```

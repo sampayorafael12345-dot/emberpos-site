@@ -19,23 +19,27 @@
   The card is remembered on this phone, so opening the link again shows it.
 -->
 <style>
+  /* The order page's paint (1.5.2): the app's surfaces and inks and Space
+     Grotesk, so the loyalty card looks like the rest of the shop's pages. */
+  @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; }
+  @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-ext-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20C0; }
   :root {
     color-scheme: light dark;
-    --bg: #f2f2f4; --card: #ffffff; --line: #e8e8ec;
-    --text: #18181b; --muted: #5f5f6b;
-    --accent: #ff5c00; --accent-ink: #1a0e05; --accent-text: #b84000;
+    --bg: #f1ece1; --card: #ffffff; --line: rgba(58, 50, 40, 0.14);
+    --text: #14120f; --muted: #5d5446;
+    --accent: #ff5c00; --accent-ink: #1a0e05; --accent-text: #b03e00;
     --r: 16px;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #0e0f11; --card: #17181b; --line: #292b31;
-      --text: #f4f4f5; --muted: #a5a5ae; --accent-text: #ff8340;
+      --bg: #121415; --card: #191c1e; --line: rgba(255, 255, 255, 0.08);
+      --text: #ece7df; --muted: rgba(236, 231, 223, 0.74); --accent-text: #ff8340;
     }
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body {
     margin: 0; background: var(--bg); color: var(--text);
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: 'Space Grotesk', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     font-size: 16px; line-height: 1.45;
   }
   button, input { font: inherit; color: inherit; }
@@ -62,13 +66,35 @@
   .msg { min-height: 22px; margin-top: 12px; font-size: 14.5px; color: var(--muted); text-align: center; }
   .note { font-size: 12.5px; color: var(--muted); margin-top: 14px; text-align: center; }
   .loyal { text-align: center; }
-  .loyal .shop { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .loyal .shop { font-size: 15px; font-weight: 650; color: var(--muted); }
   .loyal .who { font-size: 22px; font-weight: 800; margin-top: 4px; }
   .qr { background: #fff; border-radius: 14px; padding: 14px; width: 250px; height: 250px; margin: 16px auto 10px; }
   .qr svg { width: 100%; height: 100%; display: block; }
   .code { font-family: ui-monospace, "Courier New", monospace; font-size: 19px; letter-spacing: 2px; font-weight: 700; }
   .made { text-align: center; font-size: 12px; color: var(--muted); margin-top: 22px; }
   .made a { color: var(--muted); font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--line); }
+  .waitdot { display: inline-block; width: 8px; height: 8px; border-radius: 99px; background: var(--accent); margin-right: 8px; vertical-align: 1px; }
+
+  /* MOTION (15 Oct 2026). The form eases in; while the card is being made a
+     dot breathes beside the words; the card itself arrives in three beats -
+     the name, the QR, the code. Transform and opacity only, all of it off
+     under reduced motion. */
+  @keyframes cardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @keyframes qrIn { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
+  @keyframes shake { 0%, 100% { transform: none; } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-3px); } }
+  @keyframes breathe { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+  @media (prefers-reduced-motion: no-preference) {
+    main > .card { animation: cardIn .4s cubic-bezier(.2,.8,.2,1) both; }
+    .loyal > * { animation: cardIn .42s cubic-bezier(.2,.8,.2,1) both; }
+    .loyal > .who { animation-delay: .06s; }
+    .loyal > .qr { animation: qrIn .5s .14s cubic-bezier(.2,.9,.3,1.2) both; }
+    .loyal > .code { animation-delay: .24s; }
+    .loyal > .note { animation-delay: .3s; }
+    .msg.bad { animation: shake .34s ease-out; }
+    .waitdot { animation: breathe 1.2s ease-in-out infinite; }
+    .go { transition: transform .1s ease; }
+    .go:not(:disabled):active { transform: scale(.97); }
+  }
 </style>
 </head>
 <body>
@@ -110,7 +136,7 @@ function cardHtml(c) {
     (svg ? '<div class="qr">' + svg + '</div>' : '') +
     '<div class="code">' + esc(shown) + '</div>' +
     '<div class="note">Show this at the counter every time you order. Take a screenshot to keep it handy, ' +
-    'or open this link again &mdash; your card stays on this phone.</div></div>';
+    'or open this link again, your card stays on this phone.</div></div>';
 }
 
 function showCard(c) {
@@ -125,28 +151,38 @@ function showForm(shop) {
   el('main').innerHTML =
     '<div class="card">' +
       '<label for="nm">Your name</label>' +
-      '<input id="nm" autocomplete="name" maxlength="60" placeholder="Juan Dela Cruz">' +
+      // Neutral words: this page is not told the shop's country.
+      '<input id="nm" autocomplete="name" maxlength="60" placeholder="Your name">' +
       '<label for="ph">Mobile number</label>' +
-      '<input id="ph" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="0917 123 4567">' +
+      '<input id="ph" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="Mobile number">' +
       '<label for="bd">Birthday <span>(optional, for a birthday treat)</span></label>' +
       '<input id="bd" type="date" autocomplete="bday">' +
       '<button class="go" id="go">Get my card</button>' +
       '<div class="msg" id="msg"></div>' +
       '<div class="note">Your name and number go to this shop only, for its loyalty card.</div>' +
     '</div>';
+  /* The line under the button: a problem gives it a small shake, a wait a breathing dot. */
+  const say = (text, kind) => {
+    const m = el('msg');
+    m.classList.remove('bad');
+    if (kind === 'wait') { m.innerHTML = '<span class="waitdot"></span>' + esc(text); return; }
+    m.textContent = text;
+    if (kind === 'bad') { void m.offsetWidth; m.classList.add('bad'); }
+  };
   el('go').onclick = async function () {
+    if (el('go').disabled) return;
     const name = el('nm').value.trim(), phone = el('ph').value.trim(), bday = el('bd').value || null;
-    if (name.length < 2) { el('msg').textContent = 'Type your name.'; return; }
-    if (phone.replace(/\D/g, '').length < 10) { el('msg').textContent = 'Type your full mobile number.'; return; }
-    el('go').disabled = true; el('msg').textContent = 'Making your card…';
+    if (name.length < 2) { say('Type your name.', 'bad'); return; }
+    if (phone.replace(/\D/g, '').length < 10) { say('Type your full mobile number.', 'bad'); return; }
+    el('go').disabled = true; say('Making your card…', 'wait');
     try {
       const r = await rpc('loyalty_join', { p_token: TOKEN, p_name: name, p_phone: phone, p_birthday: bday });
-      if (!r || !r.ok) { el('msg').textContent = (r && r.error) || 'Please ask at the counter.'; el('go').disabled = false; return; }
+      if (!r || !r.ok) { say((r && r.error) || 'Please ask at the counter.', 'bad'); el('go').disabled = false; return; }
       const card = { code: r.card_code, name: name, shop: r.shop || shop.shop || '' };
       try { localStorage.setItem(KEY, JSON.stringify(card)); } catch (e) { /* the card still shows */ }
       showCard(card);
     } catch (e) {
-      el('msg').textContent = 'No connection. Try again in a moment.';
+      say('No connection. Try again in a moment.', 'bad');
       el('go').disabled = false;
     }
   };

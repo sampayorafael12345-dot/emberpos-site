@@ -1,0 +1,1 @@
+(function(){System.register([],function(e,t){var n;function r(e,t){return`${e}${e.includes(`?`)?`&`:`?`}t=${encodeURIComponent(t)}`}return e(`s`,r),{setters:[],execute:function(){e(`a`,n=`https://emberpos.net`),e(`r`,`${n}/order.html`),e(`i`,`${n}/reset-password.html`),e(`t`,`/demo/index.html`),e(`o`,`${n}/app/`),e(`n`,`${n}/office/`)}}})})();

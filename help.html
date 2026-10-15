@@ -27,7 +27,7 @@
       <a class="lnk" href="office/">Back Office</a>
       <a class="cta" href="app/">Open the app</a>
     </nav>
-    <button class="menu" id="k-menu" type="button" aria-expanded="false" aria-controls="k-links" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <button class="menu" id="k-menu" type="button" aria-expanded="false" aria-controls="k-links" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
   </div>
 </header>
 <main id="main">
@@ -140,6 +140,8 @@
 
 <script src="beacon.js" defer></script>
 <script>
+  /* a link to a spot on the page: no drop-in, so the jump lands where it should */
+  if (location.hash) document.documentElement.classList.add('k-hash');
   /* the menu on a phone */
   (function () {
     var h = document.getElementById('k-head'), b = document.getElementById('k-menu');

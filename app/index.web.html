@@ -16,7 +16,7 @@
       Content Security Policy.
 
       `script-src` has to keep 'unsafe-inline': the boot screen below is an inline
-      script (on purpose — it is what shows a readable message when the bundle is
+      script (on purpose, it is what shows a readable message when the bundle is
       too modern for an old WebView), and @vitejs/plugin-legacy emits its own
       inline System.import loader with a per-build hashed filename. So this policy
       does NOT try to prevent script injection.
@@ -52,7 +52,7 @@
     <title>Ember POS</title>
     <!-- Browser-tab niceties for the web deploy. Inert inside Capacitor (no
          tabs) and harmless in dev. noindex: this is an app shell, not content
-         — the landing page is what search engines should hold. -->
+ - the landing page is what search engines should hold. -->
     <!-- A SQUARE file, not the trimmed mark: a tab slot is square and the
          browser stretches rather than letterboxes, which fattened the flame. -->
     <link rel="icon" href="/app/brand/favicon.png" type="image/png" />
@@ -77,6 +77,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="Ember POS" />
     <style>html,body{color:#ece7df;background:#151210;height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif}#boot{text-align:center;z-index:9999;background:#151210;justify-content:center;align-items:center;padding:24px;display:flex;position:fixed;top:0;bottom:0;left:0;right:0}#boot .msg{max-width:560px;font-size:15px;line-height:1.5}#boot .err{white-space:pre-wrap;word-break:break-word;color:#fca5a5;text-align:left;background:rgba(0,0,0,.3);border-radius:8px;max-height:50vh;margin-top:14px;padding:10px;font-size:12px;overflow:auto}#boot strong{color:#fbbf24}#boot .logo{height:84px}</style>
+    
+    
     
     
     
@@ -144,6 +146,6 @@
     </script>
     <script src="/app/brand/logo-loader.js"></script>
     <script crossorigin id="vite-legacy-polyfill" src="/app/assets/polyfills-legacy-BSIRy77V.js"></script>
-    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-BX0HBgrw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-BgmY7aIr.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
   </body>
 </html>

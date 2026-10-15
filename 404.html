@@ -3,7 +3,12 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Page not found: Ember POS</title>
+<!-- A shop's short link (emberpos.net/<name>) is served by THIS page, so its
+     built-in title is what a chat or Facebook preview shows. Neutral on purpose
+     (16 Oct 2026); a real missing page is retitled by the script below. -->
+<title>Ember POS: order online</title>
+<meta property="og:title" content="Order online">
+<meta property="og:site_name" content="Ember POS">
 <meta name="robots" content="noindex" />
 <meta name="theme-color" content="#ff5c00" />
 <link rel="icon" href="/favicon.png" type="image/png" />
@@ -44,12 +49,26 @@
   .looking .box > :not(.opening) { display: none; }
   .opening { display: none; color: #3d444c; }
   .looking .opening { display: block; padding-top: 24px; }
+  /* The ticket drops onto the rail like the home page's; while a short link is
+     looked up, "Opening the shop" breathes; when it turns out to be missing,
+     the not-found lines ease in. Transform and opacity only. */
+  @keyframes drop { from { opacity: 0; transform: translateY(-26px) rotate(-1.5deg); } }
+  @keyframes up { from { opacity: 0; transform: translateY(10px); } }
+  @keyframes breathe { 50% { opacity: .45; } }
+  @media (prefers-reduced-motion: no-preference) {
+    .box { transform-origin: 50% 0; animation: drop .7s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+    .box > h1, .box > p:not(.opening), .box > .row { animation: up .45s cubic-bezier(0.16, 1, 0.3, 1) 200ms backwards; }
+    .box > p:not(.opening) { animation-delay: 250ms; }
+    .box > .row { animation-delay: 300ms; }
+    .looking .opening { animation: breathe 1.4s ease-in-out infinite; }
+  }
 </style>
 <script>
   // Decided before the page paints, so a shop link never flashes "not found".
   (function () {
     var slug = location.pathname.replace(/^\/+|\/+$/g, '');
     if (/^[A-Za-z0-9-]{3,30}$/.test(slug)) document.documentElement.className = 'looking';
+    else document.title = 'Page not found: Ember POS';
   })();
 </script>
 </head>
@@ -74,7 +93,7 @@
     var slug = location.pathname.replace(/^\/+|\/+$/g, '');
     var URLB = 'https://qqmkgafyfxrcnwdkkyxc.supabase.co';
     var ANON = 'sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX';
-    var done = function () { document.documentElement.className = ''; };
+    var done = function () { document.documentElement.className = ''; document.title = 'Page not found: Ember POS'; };
     fetch(URLB + '/rest/v1/rpc/shop_link_token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON },

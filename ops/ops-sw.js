@@ -2,7 +2,7 @@
 //
 // This file deliberately has NO fetch handler and caches NOTHING. The ops
 // build strips the till's sw.js precisely because offline-caching
-// cross-tenant data on an operator console is a leak, not a feature — that
+// cross-tenant data on an operator console is a leak, not a feature - that
 // stance holds. A service worker is required for Web Push, so this one does
 // push and only push. Emitted into dist-ops as ops-sw.js by the vite plugin
 // (vite.ops.config.ts), registered from the Messages tab.

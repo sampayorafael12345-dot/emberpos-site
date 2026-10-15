@@ -20,13 +20,13 @@
       described: the sample shop fetches its own wasm and its own seeded
       demo-shop.db, and the only other address it may reach in the world is
       the one named below. That is the demo-ping function, which takes a
-      random id the device made up for itself and nothing else — no account,
+      random id the device made up for itself and nothing else, no account,
       no shop, nothing typed in here (see src/demo/ping.ts and migration
       0154). Anything else the code might one day try to send anywhere is
       stopped by the browser, not by a comment.
 
       NOTE THE PATH. What is allowed is not the Supabase ORIGIN but one exact
-      endpoint, and that distinction is the whole control — because this
+      endpoint, and that distinction is the whole control, because this
       bundle is NOT free of the cloud client. It bundles the shared app code,
       which drags supabase-js and the publishable key in with it. Allowing the
       bare origin would have left the REST and auth APIs reachable from this
@@ -36,7 +36,7 @@
       Adding a host here is therefore a deliberate act, and there should never
       be a second one. Note also that a blocked request FAILS SILENTLY by
       design (the ping swallows its own errors so it can never break the cafe)
-      — so a ping added without its path here would ship dead and look fine,
+, so a ping added without its path here would ship dead and look fine,
       which is exactly what happened before this line existed.
     -->
     <meta http-equiv="Content-Security-Policy" content="
@@ -51,9 +51,9 @@
       form-action 'none';
     " />
     <meta name="robots" content="noindex" />
-    <title>Ember POS — Live Demo</title>
+    <title>Ember POS, Live Demo</title>
     <style>html,body{background:#151210;height:100%;margin:0}#demo-boot{color:#a89c90;z-index:9999;background:#151210;flex-direction:column;justify-content:center;align-items:center;gap:14px;font:15px/1.5 ui-sans-serif,system-ui,sans-serif;transition:opacity .3s;display:flex;position:fixed;top:0;bottom:0;left:0;right:0}#demo-boot .logo{height:84px}</style>
-    <script type="module" crossorigin src="/demo/assets/index.demo-zx5rk83P.js"></script>
+    <script type="module" crossorigin src="/demo/assets/index.demo-BncpQ4hJ.js"></script>
   </head>
   <body class="bg-ember-coal text-white">
     <div id="demo-boot">
