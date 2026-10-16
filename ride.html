@@ -114,6 +114,7 @@
   var ANON = 'sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX';
   var TOKEN = (new URLSearchParams(location.search).get('t') || '').trim();
   var PING_MS = 15000;
+  var FIX_MAX_MS = 60000;          // a fix older than this is not sent as if it were now
   var app = document.getElementById('app');
   var T = null;                    // the trip, as the server last said
   var watch = null, beat = null, lock = null;
@@ -166,14 +167,31 @@
         esc(new Date(T.delivered_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })) + '. Sharing stopped.</span></div>';
     }
     if (!watch) {
+      // A blocked location says why, and what to do, even though sharing has stopped.
+      if (gpsErr) return '<div class="status"><span class="dot warn"></span><span>' + esc(gpsErr) + '</span></div>';
       return '<div class="status"><span class="dot"></span><span>' +
         (T.started_at ? 'Your location is not being shared right now.' : 'Not started yet.') + '</span></div>';
     }
     if (gpsErr) return '<div class="status"><span class="dot warn"></span><span>' + esc(gpsErr) + '</span></div>';
+    if (last && Date.now() - last.at > FIX_MAX_MS) return '<div class="status"><span class="dot warn"></span><span>Waiting for GPS. Step outside or turn on Location.</span></div>';
     if (!sentOk) return '<div class="status"><span class="dot warn"></span><span>Finding you&hellip;</span></div>';
     var ago = Math.max(0, Math.round((Date.now() - sentOk) / 1000));
     return '<div class="status"><span class="dot live"></span><span>Sharing your location with the customer &middot; sent ' +
       (ago < 5 ? 'just now' : ago + ' s ago') + '</span></div>';
+  }
+
+  function cashHtml(due, cur) {
+    return due > 0
+      ? '<div class="cash"><span>Collect in cash</span><b>' + esc(money(due, cur)) + '</b></div>'
+      : '<div class="cash paid"><span>Paid already. Collect nothing.</span>' + I.check + '</div>';
+  }
+  /* The shop's sum can change after the link was opened (the customer pays online, adds a tip). */
+  function showDue(due) {
+    due = Number(due);
+    if (!isFinite(due) || due < 0 || !T || !T.order || due === Number(T.order.to_collect_cents)) return;
+    T.order.to_collect_cents = due;
+    var box = document.getElementById('cashbox');
+    if (box) box.innerHTML = cashHtml(due, T.order.currency);
   }
 
   function draw() {
@@ -198,18 +216,20 @@
           (o.items || []).map(function (i) {
             return '<li><span class="q">' + esc(Number(i.qty)) + '&times;</span><span>' + esc(i.name) + (i.variant ? ', ' + esc(i.variant) : '') + '</span></li>';
           }).join('') + '</ul>' +
-          (due > 0
-            ? '<div class="cash"><span>Collect in cash</span><b>' + esc(money(due, o.currency)) + '</b></div>'
-            : '<div class="cash paid"><span>Paid already. Collect nothing.</span>' + I.check + '</div>') +
+          '<div id="cashbox">' + cashHtml(due, o.currency) + '</div>' +
         '</section>' +
         '<section class="card" id="share"><h2>Your trip</h2>' +
           '<div id="st">' + statusHtml() + '</div>' +
           (T.delivered_at ? ''
-            : !watch
-              ? '<div class="row one"><button class="btn primary huge" id="start">' + I.go + (T.started_at ? 'Share my location again' : 'Start delivery') + '</button></div>' +
-                '<p class="note">While you deliver, your location is shared with this customer and the shop. It stops when you tap Delivered. Keep this page open on the way.</p>'
-              : '<div class="row one"><button class="btn done huge" id="done">' + I.check + 'Delivered</button></div>' +
-                '<p class="note">Keep this page open until you hand the order over. The screen stays on for you.</p>') +
+            : (!watch
+                ? '<div class="row one"><button class="btn primary huge" id="start">' + I.go + (T.started_at ? 'Share my location again' : 'Start delivery') + '</button></div>' +
+                  '<p class="note">While you deliver, your location is shared with this customer and the shop. It stops when you tap Delivered. Keep this page open on the way.</p>'
+                : '') +
+              // Delivered is there whenever the trip has started, even if location is blocked or not shared.
+              (watch || T.started_at
+                ? '<div class="row one"><button class="btn done huge" id="done">' + I.check + 'Delivered</button></div>' +
+                  (watch ? '<p class="note">Keep this page open until you hand the order over. The screen stays on for you.</p>' : '')
+                : '')) +
         '</section>' +
         (s.phone
           ? '<section class="card"><h2>Need help?</h2><div class="row one"><a class="btn ghost" href="tel:' + esc(digits(s.phone)) + '">' + I.call + 'Call ' + esc(s.name || 'the shop') + '</a></div></section>'
@@ -243,6 +263,8 @@
      red light still shows as here. */
   async function send() {
     if (!last || !T || T.delivered_at) return;
+    // No new fix for a minute (a tunnel, indoors): say nothing rather than send an old spot as "just now".
+    if (Date.now() - last.at > FIX_MAX_MS) return;
     if (Date.now() - lastSent < PING_MS - 1500) return;
     lastSent = Date.now();
     try {
@@ -253,7 +275,7 @@
         if (!t || !t.ok) { fatal(t && t.done ? 'Delivered' : 'This delivery is closed', (t && t.error) || 'Please ask the shop.'); return; }
         T = t; draw(); return;
       }
-      if (r && r.ok) sentOk = Date.now();
+      if (r && r.ok) { sentOk = Date.now(); showDue(r.to_collect_cents); }
     } catch (e) { /* no signal: the next beat tries again */ }
     redrawStatus();
   }
@@ -268,7 +290,8 @@
     }
     gpsErr = '';
     watch = navigator.geolocation.watchPosition(function (pos) {
-      last = { lat: pos.coords.latitude, lng: pos.coords.longitude, acc: Math.round(pos.coords.accuracy || 0) };
+      last = { lat: pos.coords.latitude, lng: pos.coords.longitude, acc: Math.round(pos.coords.accuracy || 0),
+               at: pos.timestamp > 1e12 ? pos.timestamp : Date.now() };
       gpsErr = '';
       if (mapH) mapH.set('rider', last);
       if (!sentOk) { lastSent = 0; send(); }
@@ -277,7 +300,12 @@
       gpsErr = err && err.code === 1
         ? 'Location is blocked for this page. Allow location in your browser settings, then tap Share my location again.'
         : 'Waiting for GPS. Step outside or turn on Location.';
-      if (err && err.code === 1 && watch != null && watch !== -1) { navigator.geolocation.clearWatch(watch); watch = null; draw(); return; }
+      if (err && err.code === 1 && watch != null && watch !== -1) {
+        // Blocked: stop everything that was waiting on a fix, but keep the message and the Delivered button.
+        stopSharing();
+        draw();
+        return;
+      }
       redrawStatus();
     }, { enableHighAccuracy: true, maximumAge: 10000, timeout: 30000 });
     if (beat) clearInterval(beat);

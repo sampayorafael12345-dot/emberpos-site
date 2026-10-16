@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- Where the "Stop these emails" link in a first-sale email lands (16 Oct 2026).
+     The function saves the choice and redirects here, because Supabase's
+     gateway serves HTML from a function as plain text. The query says how it
+     went: ?s=ok, ?s=bad (link not valid) or ?s=err (could not save). -->
+<title>Ember POS: emails stopped</title>
+<meta name="robots" content="noindex" />
+<meta name="theme-color" content="#ff5c00" />
+<link rel="icon" href="/favicon.png" type="image/png" />
+<style>
+  @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; }
+  * { box-sizing: border-box; margin: 0; }
+  body { min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 48px 20px;
+    background: #ff5c00; color: #0b0c0d; font: 17px/1.6 'Space Grotesk', system-ui, 'Segoe UI', Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  .box { width: 440px; max-width: 100%; text-align: center; background: #fbfaf7; border-radius: 8px; padding: 30px 28px;
+    box-shadow: 0 1px 0 rgba(0,0,0,.08), 0 26px 40px -26px rgba(0,0,0,.5); }
+  .box img { height: 46px; width: auto; display: block; margin: 0 auto 14px; }
+  p { color: #3d444c; }
+  [data-s] { display: none; }
+  .ok [data-s="ok"], .bad [data-s="bad"], .err [data-s="err"] { display: block; }
+  a { color: #0b0c0d; font-weight: 700; }
+  a:focus-visible { outline: 3px solid #0b0c0d; outline-offset: 3px; }
+</style>
+<script>
+  (function () {
+    var s = new URLSearchParams(location.search).get('s');
+    document.documentElement.className = s === 'bad' ? 'bad' : s === 'err' ? 'err' : 'ok';
+  })();
+</script>
+</head>
+<body>
+<main class="box">
+  <img src="/logo.png" alt="Ember POS" />
+  <p data-s="ok">Done. You will not get these emails again.</p>
+  <p data-s="bad">This link is not valid. Reply to the email and we will stop them for you.</p>
+  <p data-s="err">Something went wrong. Reply to the email and we will stop them for you.</p>
+  <noscript><p>If you reached this page from the "Stop these emails" link and nothing else went wrong, you are done. Otherwise reply to the email and we will stop them for you.</p></noscript>
+</main>
+</body>
+</html>

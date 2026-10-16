@@ -66,7 +66,7 @@
     font-size: 16px; line-height: 1.45;
     padding-bottom: env(safe-area-inset-bottom);
   }
-  button, input { font: inherit; color: inherit; }
+  button, input, textarea { font: inherit; color: inherit; }
   button { cursor: pointer; border: 0; background: none; }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
 
@@ -394,7 +394,9 @@
   .opt[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); font-weight: 600; }
   .opt .delta { margin-left: auto; color: var(--muted); font-size: 14px; }
   .opt[aria-pressed="true"] .delta { color: var(--accent-text); }
-  .note-in { width: 100%; padding: 12px; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--bg-sub); }
+  .note-in { width: 100%; padding: 12px; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--bg-sub);
+    /* 16 Oct 2026: in the full-height cart the address box was squeezed to half a line. */
+    flex-shrink: 0; }
   /* A coupon code reads as capitals whatever the customer typed - but the
      placeholder is our words, not theirs, and text-transform paints it too. */
   #ocpn { text-transform: uppercase; letter-spacing: .5px; }
@@ -883,8 +885,8 @@ let SHARED = false;
 /* Whether this shop wants its kiosk tablet wiped between customers (0166).
    Only ever true on a kiosk link - see SHARED. */
 let FORGET = false;
-/* DINE IN OR TAKE OUT, ON THE KIOSK (2 Oct 2026, k8s Coffee: "right now every
-   order is labeled as take out"). The server always took either; this page
+/* DINE IN OR TAKE OUT, ON THE KIOSK (2 Oct 2026, a shop reported that every
+   order was labeled as take out). The server always took either; this page
    never asked, so a kiosk order was filed as takeout every time. The customer
    now picks, and nothing is assumed for them: the button that sends the order
    asks first. */
@@ -938,7 +940,7 @@ function kmFee(cfg, lat, lng) {
 }
 const deliveryFee = () => (STORE && OMODE === 'delivery'
   ? (zones().length ? zoneFee() : kmCfg() ? (GEO && GEO.fee >= 0 ? GEO.fee : 0) : (STORE.delivery_fee_cents || 0)) : 0);
-// 0231: a shop's service charge (Cup Oh Mug: 10% on dine-in), by the till's
+// 0231: a shop's service charge (for example 10% on dine-in), by the till's
 // rule - on the bill after any discount, only for the order types the shop
 // chose, and carrying VAT in the same share the goods do. A table link is a
 // dine-in order, a counter kiosk a takeout one, the store link what they pick.
@@ -1288,7 +1290,7 @@ function linesFromServerOrder(o) {
     const unitPrice = it.price_cents + (size ? size.delta : 0) + ads.reduce((t, a) => t + Math.max(0, a.price_cents || 0), 0);
     lines.push({
       item_id: it.id, name: it.name, qty: Math.max(1, Math.round(Number(l.qty) || 1)), price: Math.round(unitPrice),
-      taxExempt: !!it.tax_exempt, variant_id: size ? size.id : null, variant_label: size ? size.label : null,
+      taxExempt: !!(it.tax_exempt || it.zero_rated), variant_id: size ? size.id : null, variant_label: size ? size.label : null,
       options: [], option_labels: [], addons: ids, addon_labels: ads.map((a) => a.text), note: l.note || '',
     });
   });
@@ -1715,7 +1717,8 @@ function alsoLike() {
   if (!MENU) return [];
   const inCart = new Set(CART.map((l) => l.item_id));
   const cats = new Set(CART.map((l) => (MENU.items.find((m) => m.id === l.item_id) || {}).category_id));
-  const ok = (i) => i && !inCart.has(i.id) && !soldOut(i) && i.price_cents > 0;
+  // passesFilters: nothing the customer's food filters hide is ever suggested.
+  const ok = (i) => i && !inCart.has(i.id) && !soldOut(i) && i.price_cents > 0 && passesFilters(i);
   const out = [];
   CART.forEach((l) => (UPSELLS[l.item_id] || []).forEach((id) => {
     const it = MENU.items.find((m) => m.id === id);
@@ -2325,7 +2328,7 @@ function openItem(id, opts) {
       if (opts && opts.replaceLine) { const at = CART.indexOf(opts.replaceLine); if (at >= 0) CART.splice(at, 1); }
       CART.push({
         item_id: it.id, name: it.name, qty, price: unit(),
-        taxExempt: !!it.tax_exempt,
+        taxExempt: !!(it.tax_exempt || it.zero_rated),
         variant_id: size, variant_label: v ? v.label : null,
         options: Object.values(picks),
         option_labels: (it.slots || []).map((s) => { const o = s.options.find((x) => x.id === picks[s.id]); return o ? o.label : null; }).filter(Boolean),
@@ -2393,7 +2396,7 @@ function lastOrderAgain() {
     // stores them (see unit() there), so their prices simply add up.
     const unitPrice = it.price_cents + (size ? size.delta : 0) + ads.reduce((t, a) => t + Math.max(0, a.price_cents || 0), 0);
     lines.push({
-      item_id: it.id, name: it.name, qty: l.qty || 1, price: Math.round(unitPrice), taxExempt: !!it.tax_exempt,
+      item_id: it.id, name: it.name, qty: l.qty || 1, price: Math.round(unitPrice), taxExempt: !!(it.tax_exempt || it.zero_rated),
       variant_id: size ? size.id : null, variant_label: size ? size.label : null,
       options: [], option_labels: [], addons: l.addons || [],
       addon_labels: ads.map((a) => a.text), note: l.note || '',
@@ -2669,7 +2672,7 @@ function storeFields() {
 }
 
 /* ---- WHEN THEY ARE COMING FOR IT (0162) --------------------------------
-   Macoi: "tapos baka puwede po may time kung kelan i-pick up."
+   A shop asked for a time for when they are coming to pick up.
 
    Two decisions worth writing down.
 
@@ -2910,9 +2913,8 @@ function defaultPayChoice() {
  *
  * PICKUP CAN REFUSE CASH (0162). Delivery has been able to since 0137;
  * pickup had `true` hardcoded, which is the entire reason a shop could not
- * ask to be paid before making a pickup order. Macoi: "baka po kasi mangyari
- * yung maraming ooorder online for pick-up tapos walang dadating kasi scam
- * pala".
+ * ask to be paid before making a pickup order. A shop feared many online
+ * pickup orders that nobody would come for, so it wanted to be paid first.
  *
  * IN-STORE, PAYING AT THE COUNTER IS ALWAYS ALLOWED (0165). The diner is
  * standing in the shop; there is nothing for a prepayment to protect against,
@@ -2922,9 +2924,8 @@ function defaultPayChoice() {
  * ASKING (13 Sep 2026). The rule lived inline in payChoiceHtml, so the
  * ordering screen correctly hid "Pay at the counter" for a pay-first shop -
  * and then the QR sheet offered 'Pay at the counter instead' anyway, on a
- * hardcoded line. Macoi, with the box ticked: "Eventhough naka-tick na po
- * yung pick up orders must be paid first - nasend pa rin po siya sa cashier."
- * He was right. One button undid the whole setting.
+ * hardcoded line. A shop with the box ticked still got an order sent to the
+ * cashier. One button undid the whole setting.
  */
 function counterPayAllowed(type) {
   if (!STORE) return true;
@@ -2933,7 +2934,7 @@ function counterPayAllowed(type) {
   // switching the basket to pickup applied the pickup rule to it.
   return !prepayRequired(type || OMODE);
 }
-/* THE CASH A SHOP HAD REFUSED (0179, k8s Coffee). The same question asked
+/* THE CASH A SHOP HAD REFUSED (0179). The same question asked
    of a PLACED order, by type, so "Your orders" can say what is true of each
    one: a delivery at a shop with cash switched off is waiting for payment,
    not "have cash ready for the rider". Pickup obeys its own switch; delivery
@@ -3008,8 +3009,16 @@ function sendLabel() {
 /* Every send ATTEMPT for the current cart carries the same ref (v1.1.64):
    a retry after a lost response (slow cafe wifi, page killed mid-send) then
    returns the order that already landed instead of creating a second one -
-   the server dedupes on it. A NEW cart gets a new ref. */
-let SEND_REF = null;
+   the server dedupes on it. A NEW cart gets a new ref: SEND_SIG remembers what
+   the ref was made for, so a basket edited after a lost response (an extra
+   drink, another address) is not answered with the old order. */
+let SEND_REF = null, SEND_SIG = null;
+function refFor(sig) {
+  if (SEND_REF && SEND_SIG !== sig) SEND_REF = null;
+  if (!SEND_REF) SEND_REF = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  SEND_SIG = sig;
+  return SEND_REF;
+}
 async function send() {
   const btn = el('send');
   if (btn.disabled) return;
@@ -3044,19 +3053,10 @@ async function send() {
   }
   if (!STORE && SHARED && !KMODE) { toast('Dine in or take out? Tap one, then send your order.'); return; }
   btn.disabled = true; btn.textContent = 'Sending…';
-  if (!SEND_REF) SEND_REF = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
-  // 0515: read before the sheet closes - the claim needs this exact ref.
-  const acctRef = SEND_REF;
-  const acctKeep = !!(el('osaveaddr') && el('osaveaddr').checked && addr);
-  const acctMkt = !!(el('omkt') && el('omkt').checked);
-  // 0517: read now, while the basket it is worked out from still exists.
-  const tip = tipCents();
-  try {
-    const res = await rpc('kiosk_place_order', {
+  const sendArgs = {
       p_token: TOKEN,
       p_items: CART.map((l) => ({ item_id: l.item_id, qty: l.qty, variant_id: l.variant_id, options: l.options, addons: l.addons || [], note: l.note })),
       p_name: who || null, p_note: null, p_order_type: STORE ? OMODE : (SHARED ? (KMODE || 'takeout') : null),
-      p_client_ref: SEND_REF,
       p_phone: STORE ? phone : null, p_address: (STORE && OMODE === 'delivery') ? ((zones().length && ZONE) ? ZONE + ' · ' + addr
         : (kmCfg() && GEO && GEO.fee >= 0) ? 'GPS ' + GEO.lat.toFixed(5) + ',' + GEO.lng.toFixed(5) + ' · ' + addr : addr) : null,
       // Pickup only, and only where the shop asked for times. The server
@@ -3066,7 +3066,17 @@ async function send() {
       // 0175. Always sent so the argument binds by name; the server treats an
       // empty code as no code at all.
       p_coupon: (COUPONS_ON && COUPON.trim()) ? COUPON.trim().toUpperCase() : null,
-    });
+  };
+  // The ref is tied to what is being sent (see refFor): an edited basket after
+  // a lost response is a NEW order, never the old one handed back.
+  // 0515: read before the sheet closes - the claim needs this exact ref.
+  const acctRef = refFor(JSON.stringify(sendArgs));
+  const acctKeep = !!(el('osaveaddr') && el('osaveaddr').checked && addr);
+  const acctMkt = !!(el('omkt') && el('omkt').checked);
+  // 0517: read now, while the basket it is worked out from still exists.
+  const tip = tipCents();
+  try {
+    const res = await rpc('kiosk_place_order', Object.assign({}, sendArgs, { p_client_ref: acctRef }));
     if (!res || !res.ok) {
       toast((res && res.error) || 'Could not send. Please ask a staff member.');
       btn.disabled = false; btn.textContent = sendLabel(); return;
@@ -3074,7 +3084,10 @@ async function send() {
     // 0517: the tip goes on the order the moment it exists, before any payment
     // is made for it - the pay sheet then asks for food and tip together.
     var tipped = 0;
-    if (tip > 0 && !res.duplicate) {
+    // A duplicate (the first answer was lost) already carries the tip the first
+    // send managed to set; only when none is on it does the tip go again.
+    if (res.duplicate && Number(res.tip_cents) > 0) tipped = Number(res.tip_cents);
+    else if (tip > 0) {
       try {
         const tr = await rpc('kiosk_set_tip', { p_token: TOKEN, p_order_number: res.order_number, p_client_ref: acctRef, p_tip_cents: tip });
         if (tr && tr.ok) tipped = Number(tr.tip_cents) || tip;
@@ -3231,8 +3244,13 @@ const FINAL = { collected: 1, cancelled: 1 };
 
 function loadOrders() {
   try {
-    const cut = Date.now() - 14 * 3600 * 1000; // a sitting, not a history book
-    return JSON.parse(localStorage.getItem(LS_KEY) || '[]').filter((o) => o.at > cut);
+    const now = Date.now();
+    const cut = now - 14 * 3600 * 1000; // a sitting, not a history book
+    // An order booked for a later day (up to 14 days ahead) is kept until two days
+    // after its pickup date: the customer opens the page on that day to cancel,
+    // tap "I'm here" or see the ready ring. Two days covers every time zone.
+    const wantedKeep = (o) => !!(o.wantedDay && Date.parse(o.wantedDay + 'T00:00:00Z') + 48 * 3600 * 1000 > now);
+    return JSON.parse(localStorage.getItem(LS_KEY) || '[]').filter((o) => o && (o.at > cut || wantedKeep(o)));
   } catch (e) { return []; }
 }
 function writeOrders(list) {
@@ -3388,8 +3406,8 @@ function resumeRinging() {
 }
 
 /* ---- keep the pager ALIVE (v1.1.64) ----------------------------------------
-   KOPIKOPI: "sobrang hirap kung hindi mag-ring ang phone kapag off ang screen
-   o na-exit ang browser." A web page can't ring a closed browser - that
+   A shop said it is very hard when the phone does not ring with the screen off
+   or the browser closed. A web page can't ring a closed browser - that
    honestly needs an installed app - but it CAN stop the screen turning off
    while an order is live (wake lock), fire a system notification when the tab
    is merely in the background, and re-check the moment the page comes back. */
@@ -3490,7 +3508,7 @@ function stepsHtml(state, type, wanted, arrive) {
   let texts = (type && STATE_TEXT_BY_TYPE[type]) || STATE_TEXT;
   // An order booked for later sits on its first step until the shop starts
   // it near the time. "Confirming" for forty minutes reads as "lost" (2 Oct
-  // 2026, KOPIKOPI): say what is actually happening.
+  // 2026): say what is actually happening.
   if (wanted && state === 'waiting') texts = Object.assign({}, texts, { waiting: 'Booked for ' + esc(wanted) + ', the shop starts it nearer the time' });
   if (state === 'cancelled') {
     return '<div class="step on' + (arrive ? ' arrive' : '') + '"><span class="dot"></span><span>' + texts.cancelled + '</span></div>';
@@ -3517,7 +3535,9 @@ function tripTrackable(o) {
   // seconds would spend the data allowance on nothing.
   return !!(STORE && o.type === 'delivery' && o.ref && o.state !== 'cancelled'
     && (o.state === 'ready' || o.state === 'collected' || TRIPS[o.num])
-    && Date.now() - o.at < 20 * 3600 * 1000 && !(TRIPS[o.num] && TRIPS[o.num].delivered_at));
+    && Date.now() - o.at < 20 * 3600 * 1000 && !(TRIPS[o.num] && TRIPS[o.num].delivered_at)
+    // A rider who has not been heard from for 2 hours is not on the road: stop asking.
+    && !(TRIPS[o.num] && TRIPS[o.num].at && Date.now() - new Date(TRIPS[o.num].at).getTime() > 2 * 3600 * 1000));
 }
 function agoWords(iso) {
   const s = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
@@ -3532,7 +3552,7 @@ function tripInfo(t) {
 }
 function tripHtml(o) {
   const t = TRIPS[o.num];
-  if (!t || !STORE || o.type !== 'delivery') return '';
+  if (!t || !STORE || o.type !== 'delivery' || o.state === 'cancelled') return '';
   // Delivered. When the shop already marked it sent out, the green banner above
   // says so; otherwise this card does, so the customer is never left guessing.
   if (t.delivered_at) {
@@ -3587,7 +3607,11 @@ async function trackTrips() {
       const r = await rpc('kiosk_track', { p_token: TOKEN, p_order_number: o.num, p_client_ref: o.ref });
       if (!r || !r.ok) continue;
       const was = TRIPS[o.num], t = r.trip;
-      if (!t) continue;
+      if (!t) {
+        // The shop stopped the link (or the order was called off): the card goes, the polling with it.
+        if (was) { delete TRIPS[o.num]; dropTripMap(o.num); redraw = true; }
+        continue;
+      }
       TRIPS[o.num] = t;
       if (!was) { TRIP_NEW = o.num; redraw = true; continue; }
       if (!!was.delivered_at !== !!t.delivered_at || was.started !== t.started) {
@@ -3759,7 +3783,7 @@ function showOrders(highlight) {
 
   // The "Order more" bar floats over the page here too, with the basket empty,
   // so the last step of the tracker has to clear it the same way (2 Oct 2026:
-  // KOPIKOPI's customer saw "Ready" and "Collected" hidden under the bar).
+  // a customer saw "Ready" and "Collected" hidden under the bar).
   document.body.classList.add('has-cart');
   el('tomenu').onclick = () => { render(); };
   // The step an order has just moved to arrives; nothing else on the card moves.

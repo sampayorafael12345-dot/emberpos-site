@@ -1,9 +1,9 @@
-/* EmberPOS service worker — so a browser-only shop can open its till with no
+/* EmberPOS service worker, so a browser-only shop can open its till with no
  * internet.
  *
  * WHY THIS EXISTS. Some shops have never opened the Android app:
  * emberpos.net IS their register.
- * The app has been offline-capable since v1.1.47 — sales queue and replay — but
+ * The app has been offline-capable since v1.1.47, sales queue and replay, but
  * that only helps a tab that is ALREADY OPEN. Restart the phone during a
  * brownout and the browser has nothing to load, because the bundle itself came
  * from the network. The Play app carries its own copy and boots regardless.
@@ -15,7 +15,7 @@
  *
  *   1. NAVIGATION IS ALWAYS NETWORK FIRST. Online, the shop always gets the
  *      HTML that was just deployed. The cache is a fallback for when the
- *      network genuinely is not there — never a shortcut when it is.
+ *      network genuinely is not there, never a shortcut when it is.
  *   2. ONLY HASHED ASSETS ARE SERVED CACHE FIRST, and they are immutable by
  *      construction: Vite puts a content hash in the filename, so a changed
  *      file is a different URL. Serving one from cache cannot be wrong.
@@ -31,6 +31,10 @@
 // Bump on any change to THIS file. Asset caching is keyed by URL hash anyway;
 // this only controls when old cache generations get swept.
 const CACHE = 'ember-v1';
+
+// How long a navigation waits for the network before falling back to the
+// saved shell (only when one is saved).
+const NAV_TIMEOUT_MS = 4000;
 
 self.addEventListener('install', (event) => {
   // Take over as soon as possible. Safe here because navigation is network
@@ -75,21 +79,47 @@ self.addEventListener('fetch', (event) => {
   if (!url.pathname.startsWith(new URL('./', self.registration.scope).pathname)) return;
 
   // 1. The page itself: network first, cache as a safety net.
+  //    Two guards keep the safety net good:
+  //    - Only a good answer (2xx) is ever saved as the shell. A 404 or 503
+  //      page from a deploy still propagating must never replace the copy the
+  //      shop will need when the power and wifi go.
+  //    - When a shell is already saved, a network that does not answer within
+  //      NAV_TIMEOUT_MS (wifi with no uplink hangs, it does not fail) hands
+  //      back the saved shell instead of a frozen blank page.
   if (req.mode === 'navigate') {
     event.respondWith((async () => {
+      const cached = await caches.match(shellKey());
+      let fresh;
       try {
-        const fresh = await fetch(req);
-        const cache = await caches.open(CACHE);
-        cache.put(shellKey(), fresh.clone());
-        // Tidy up behind the new shell without making the page wait.
-        event.waitUntil(pruneOldAssets(cache, fresh.clone()).catch(() => undefined));
-        return fresh;
+        const net = fetch(req);
+        if (cached) {
+          net.catch(() => undefined);
+          fresh = await Promise.race([
+            net,
+            new Promise((_, reject) => setTimeout(() => reject(new Error('slow')), NAV_TIMEOUT_MS)),
+          ]);
+        } else {
+          fresh = await net;
+        }
       } catch {
-        const cached = await caches.match(shellKey());
         // No network and nothing cached: let the browser show its own offline
         // page rather than inventing a worse one.
         return cached ?? Response.error();
       }
+      if (!fresh.ok) {
+        // A server error while a good shell is saved: serve the saved one.
+        // Anything else (a redirect, a 404) is passed through untouched and
+        // never saved.
+        if (fresh.status >= 500 && cached) return cached;
+        return fresh;
+      }
+      if (!fresh.redirected) {
+        const cache = await caches.open(CACHE);
+        event.waitUntil(cache.put(shellKey(), fresh.clone()).catch(() => undefined));
+        // Tidy up behind the new shell without making the page wait.
+        event.waitUntil(pruneOldAssets(cache, fresh.clone()).catch(() => undefined));
+      }
+      return fresh;
     })());
     return;
   }
