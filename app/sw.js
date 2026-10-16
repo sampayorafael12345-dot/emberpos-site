@@ -90,8 +90,9 @@ self.addEventListener('fetch', (event) => {
     event.respondWith((async () => {
       const cached = await caches.match(shellKey());
       let fresh;
+      let net;
       try {
-        const net = fetch(req);
+        net = fetch(req);
         if (cached) {
           net.catch(() => undefined);
           fresh = await Promise.race([
@@ -102,6 +103,13 @@ self.addEventListener('fetch', (event) => {
           fresh = await net;
         }
       } catch {
+        // A SLOW LINK IS NOT A DEAD ONE. When the timer won, the page that is
+        // still coming is saved when it lands, so the next load opens the new
+        // build. Thrown away, a till whose link always took longer than the
+        // timer stayed on the previous release for good.
+        if (net && cached) {
+          event.waitUntil(net.then((late) => saveShell(late)).catch(() => undefined));
+        }
         // No network and nothing cached: let the browser show its own offline
         // page rather than inventing a worse one.
         return cached ?? Response.error();
@@ -113,12 +121,7 @@ self.addEventListener('fetch', (event) => {
         if (fresh.status >= 500 && cached) return cached;
         return fresh;
       }
-      if (!fresh.redirected) {
-        const cache = await caches.open(CACHE);
-        event.waitUntil(cache.put(shellKey(), fresh.clone()).catch(() => undefined));
-        // Tidy up behind the new shell without making the page wait.
-        event.waitUntil(pruneOldAssets(cache, fresh.clone()).catch(() => undefined));
-      }
+      if (!fresh.redirected) event.waitUntil(saveShell(fresh.clone()).catch(() => undefined));
       return fresh;
     })());
     return;
@@ -154,6 +157,15 @@ self.addEventListener('fetch', (event) => {
     return cached ?? network;
   })());
 });
+
+/** Save a good page as the shell (never an error page or a redirect), then
+ *  tidy up behind it. */
+async function saveShell(res) {
+  if (!res || !res.ok || res.redirected) return;
+  const cache = await caches.open(CACHE);
+  await cache.put(shellKey(), res.clone());
+  await pruneOldAssets(cache, res.clone()).catch(() => undefined);
+}
 
 /** One cache key for the shell, whatever path the navigation used. */
 function shellKey() {

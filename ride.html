@@ -114,11 +114,12 @@
   var ANON = 'sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX';
   var TOKEN = (new URLSearchParams(location.search).get('t') || '').trim();
   var PING_MS = 15000;
-  var FIX_MAX_MS = 60000;          // a fix older than this is not sent as if it were now
+  var FIX_MAX_MS = 60000;          // a quiet watch this long is checked before its spot is sent again
   var app = document.getElementById('app');
   var T = null;                    // the trip, as the server last said
   var watch = null, beat = null, lock = null;
   var last = null, lastSent = 0, sentOk = 0, gpsErr = '';
+  var lost = false, asking = false, askedAt = 0;   // the quiet-watch check (see checkFix)
   var mapH = null;
 
   function esc(s) {
@@ -169,11 +170,12 @@
     if (!watch) {
       // A blocked location says why, and what to do, even though sharing has stopped.
       if (gpsErr) return '<div class="status"><span class="dot warn"></span><span>' + esc(gpsErr) + '</span></div>';
+      if (T.capped) return '<div class="status"><span class="dot"></span><span>Sharing ended 4 hours after Start. Tap Delivered when you hand the order over.</span></div>';
       return '<div class="status"><span class="dot"></span><span>' +
         (T.started_at ? 'Your location is not being shared right now.' : 'Not started yet.') + '</span></div>';
     }
     if (gpsErr) return '<div class="status"><span class="dot warn"></span><span>' + esc(gpsErr) + '</span></div>';
-    if (last && Date.now() - last.at > FIX_MAX_MS) return '<div class="status"><span class="dot warn"></span><span>Waiting for GPS. Step outside or turn on Location.</span></div>';
+    if (last && lost) return '<div class="status"><span class="dot warn"></span><span>Waiting for GPS. Step outside or turn on Location.</span></div>';
     if (!sentOk) return '<div class="status"><span class="dot warn"></span><span>Finding you&hellip;</span></div>';
     var ago = Math.max(0, Math.round((Date.now() - sentOk) / 1000));
     return '<div class="status"><span class="dot live"></span><span>Sharing your location with the customer &middot; sent ' +
@@ -221,7 +223,7 @@
         '<section class="card" id="share"><h2>Your trip</h2>' +
           '<div id="st">' + statusHtml() + '</div>' +
           (T.delivered_at ? ''
-            : (!watch
+            : (!watch && !T.capped
                 ? '<div class="row one"><button class="btn primary huge" id="start">' + I.go + (T.started_at ? 'Share my location again' : 'Start delivery') + '</button></div>' +
                   '<p class="note">While you deliver, your location is shared with this customer and the shop. It stops when you tap Delivered. Keep this page open on the way.</p>'
                 : '') +
@@ -260,11 +262,37 @@
 
   /* SHARING. watchPosition keeps the newest fix; a heartbeat sends it every
      15 s (and right away on the first fix), so a rider standing still at a
-     red light still shows as here. */
+     red light still shows as here. A fix is stamped with this page's own clock
+     when it arrives (the phone's GPS time can be a minute or more off). */
+  function gotFix(pos) {
+    last = { lat: pos.coords.latitude, lng: pos.coords.longitude, acc: Math.round(pos.coords.accuracy || 0), at: Date.now() };
+    gpsErr = ''; lost = false;
+    if (mapH) mapH.set('rider', last);
+  }
+  /* Some phones (iPhones) only report a new spot when the rider moves, so a
+     quiet watch is not proof the GPS is gone: a rider waiting at the gate is
+     still there. After a quiet minute, ask the phone once for a fresh spot.
+     An answer is sent as usual; no answer (a tunnel, indoors) stops the old
+     spot going out as "just now" until a new fix comes in. */
+  function checkFix() {
+    if (asking || !navigator.geolocation || !navigator.geolocation.getCurrentPosition) { if (!asking) lost = true; return; }
+    if (lost && Date.now() - askedAt < PING_MS) return;
+    asking = true; askedAt = Date.now();
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      asking = false;
+      if (watch == null) return;
+      gotFix(pos); lastSent = 0; send(); redrawStatus();
+    }, function () {
+      asking = false;
+      if (watch == null) return;
+      if (last && Date.now() - last.at > FIX_MAX_MS) lost = true;
+      redrawStatus();
+    }, { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 });
+  }
   async function send() {
     if (!last || !T || T.delivered_at) return;
-    // No new fix for a minute (a tunnel, indoors): say nothing rather than send an old spot as "just now".
-    if (Date.now() - last.at > FIX_MAX_MS) return;
+    // A quiet minute: check the phone still knows where it is before sending the spot again.
+    if (Date.now() - last.at > FIX_MAX_MS) { checkFix(); return; }
     if (Date.now() - lastSent < PING_MS - 1500) return;
     lastSent = Date.now();
     try {
@@ -288,12 +316,9 @@
       gpsErr = 'This phone cannot share its location. You can still tap Delivered when you arrive.';
       watch = -1; draw(); return;
     }
-    gpsErr = '';
+    gpsErr = ''; lost = false;
     watch = navigator.geolocation.watchPosition(function (pos) {
-      last = { lat: pos.coords.latitude, lng: pos.coords.longitude, acc: Math.round(pos.coords.accuracy || 0),
-               at: pos.timestamp > 1e12 ? pos.timestamp : Date.now() };
-      gpsErr = '';
-      if (mapH) mapH.set('rider', last);
+      gotFix(pos);
       if (!sentOk) { lastSent = 0; send(); }
       redrawStatus();
     }, function (err) {
@@ -312,6 +337,8 @@
     beat = setInterval(function () { send(); redrawStatus(); }, 5000);
     keepAwake();
     rpc('rider_start', { p_token: TOKEN }).then(function (r) {
+      // Past 4 hours from Start: sharing does not come back, Delivered stays.
+      if (r && r.capped) { stopSharing(); T.capped = true; draw(); return; }
       if (r && r.ok === false && r.error) fatal('This delivery link is closed', r.error);
     }).catch(function () { /* the first ping starts it too */ });
     if (!T.started_at) T.started_at = new Date().toISOString();
