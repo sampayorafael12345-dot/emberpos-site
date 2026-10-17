@@ -21,6 +21,7 @@ Key facts:
 - [Live demo](https://emberpos.net/demo/): the full app with a sample café
 - [Compare](https://emberpos.net/compare/): one app instead of several bills
 - [Google Play](https://play.google.com/store/apps/details?id=com.emberpos.app)
+- [Facebook](https://www.facebook.com/profile.php?id=61590988585668)
 - [Contact](https://emberpos.net/contact.html)
 
 ## Guides
