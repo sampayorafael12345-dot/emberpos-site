@@ -1,0 +1,38 @@
+# Ember POS
+
+> Ember POS is an all-in-one point-of-sale (POS) app for cafés, milk tea shops, restaurants, bakeries and other small food shops in the Philippines. It runs on Android (Google Play) and in any browser (computer, iPhone, iPad). Price: free for 30 days with no card needed, then ₱599 a month or ₱5,990 a year per branch; no fee per device and no cut of sales. Made by Ember POS Computer Software Store, Mandaluyong City, Philippines (hello@emberpos.net).
+
+Key facts:
+- Selling: sizes and add-ons with their own prices and ingredients, modifiers, dine-in, takeout and delivery, tables and bookings, held tickets, discounts including senior citizen and PWD (20%, ID saved), split payments.
+- Payments: cash, card, GCash, Maya, gift cards; matches GCash or Maya statements to sales; online payments through PayMongo.
+- Works offline: the Android app keeps selling, printing receipts and signing staff in during brownouts, and syncs when the internet returns.
+- Kitchen: kitchen and bar display with timers, how-to-make cards, Now Serving screen, thermal printers by Bluetooth or Wi-Fi.
+- Stock: recipes take ingredients out as items sell; costed recipes; delivery receiving; stock counts; waste logging; shopping list and purchase orders; batch prep.
+- Utang: per-customer credit with limits, part payments and reminders.
+- Staff: own PIN and access per person, time clock, schedule, payroll with SSS, PhilHealth, Pag-IBIG and withholding tax from the government tables, payslips, activity log.
+- Online: QR ordering at tables, the shop's own store page for pickup and delivery, live map for the shop's own riders, shop finder at emberpos.net/shops.
+- Reports: profit and loss, best sellers, menu engineering, food and paper cost, cash flow, multi-branch Back Office at emberpos.net/office.
+- BIR (in the Back Office): works out estimates of quarterly returns (2551Q, 1701Q, 2550Q, annual 1701A), deadlines, checks before an audit, and prints books of accounts. Ember POS is NOT a BIR-accredited POS and files nothing; figures are estimates for the shop's accountant.
+- Setup: free menu setup by the Ember team; full live demo at emberpos.net/demo.
+
+## Main pages
+- [Home](https://emberpos.net/): overview, features and pricing
+- [FAQ](https://emberpos.net/faq.html): answers to common questions
+- [Live demo](https://emberpos.net/demo/): the full app with a sample café
+- [Compare](https://emberpos.net/compare/): one app instead of several bills
+- [Google Play](https://play.google.com/store/apps/details?id=com.emberpos.app)
+- [Contact](https://emberpos.net/contact.html)
+
+## Guides
+- [A POS app for cafés and coffee shops in the Philippines](https://emberpos.net/cafe-pos-philippines.html): Ember POS is a point of sale for Philippine cafés: drink sizes and add-ons, a kitchen and bar screen, stock that follows every cup, GCash and Maya, staff and payroll. Free for 30 days.
+- [A POS for milk tea shops and drink kiosks](https://emberpos.net/milk-tea-shop-pos.html): Sizes, sinkers, sugar levels and add-ons with their own prices and ingredients; stock that follows every cup; GCash and Maya. Ember POS, made in the Philippines. Free for 30 days.
+- [A restaurant POS with tables, a kitchen screen and real stock](https://emberpos.net/restaurant-pos-philippines.html): Ember POS for Philippine restaurants and carinderias: a floor plan with tables and bookings, a kitchen display, recipes that take stock out, senior and PWD discounts, GCash and Maya, payroll. Free for 30 days.
+- [A POS for bakeries and pastry shops](https://emberpos.net/bakery-pos.html): Ember POS tracks what you bake in batches, what it really costs, and what sells: a prep station, recipe costing, waste logging, price quotes for big orders. Free for 30 days.
+- [A POS that keeps selling when the internet drops](https://emberpos.net/offline-pos-app.html): The Ember POS Android app keeps selling, printing receipts and signing staff in during brownouts and signal drops, and saves everything online when the connection returns.
+- [Utang, tracked in your POS instead of a notebook](https://emberpos.net/utang-tracker-pos.html): Ember POS records utang (credit) per customer: who owes, how much and for how long, with limits, part payments and a polite reminder you can send on Messenger.
+- [GCash and Maya at the counter, and checked against your statement](https://emberpos.net/gcash-maya-pos.html): Take GCash, Maya, cash and card, split a bill, keep the reference number, and let Ember POS match your GCash or Maya statement to your sales so missing money stands out.
+- [Stock that follows every sale, and a cost on every recipe](https://emberpos.net/inventory-recipe-costing.html): Ember POS takes ingredients out of stock as you sell, costs every recipe, counts deliveries in, logs waste, and writes your shopping list. For cafés and food shops in the Philippines.
+- [Payroll for small shops, with SSS, PhilHealth and Pag-IBIG](https://emberpos.net/payroll-sss-philhealth-pagibig.html): Ember POS turns time-clock hours into payroll: regular hours, overtime, tips, and one tap to fill SSS, PhilHealth, Pag-IBIG and withholding tax from the government tables, with payslips.
+- [BIR tax help for small shops: your figures, ready for your accountant](https://emberpos.net/bir-tax-help-small-shops.html): The Ember POS Back Office works out estimates of your quarterly BIR returns (2551Q, 1701Q, 2550Q and the annual 1701A), lists deadlines, checks your records before an audit, and prints your books of accounts. It does not file, and it is not BIR-accredited.
+- [QR ordering, your own online store, and delivery with your own riders](https://emberpos.net/qr-ordering-online-store.html): Customers order from a QR code at the table or your own Ember store page, pay with GCash or Maya, and watch your own rider on a live map. No app for the customer or the rider.
+- [How to choose a POS for a small food shop in the Philippines](https://emberpos.net/how-to-choose-a-pos-philippines.html): A plain checklist for café, milk tea and restaurant owners: the price you really pay, offline selling, GCash and Maya, recipes and stock, staff, BIR, support. With how Ember POS answers each.
