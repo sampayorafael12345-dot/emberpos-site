@@ -1,0 +1,1 @@
+var e=()=>typeof window.ember?.business?.provision==`function`,t=()=>!!window.Capacitor?.isNativePlatform?.(),n=()=>typeof window<`u`&&!!window.__EMBER_DEMO__,r=()=>t()&&window.Capacitor?.getPlatform?.()===`ios`;export{n as i,r as n,t as r,e as t};

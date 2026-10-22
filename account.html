@@ -165,6 +165,14 @@
     try { return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); } catch (e) { return ''; }
   }
   function shopLink(token) { return token ? 'order.html?t=' + encodeURIComponent(token) : ''; }
+  /* 0640: an order's own follow page (see LINK_ORDER in order.html). Needs the
+     order's follow code, which older orders and a server before 0640 lack: then
+     no link, never a half one. */
+  function followLink(o) {
+    if (!o || !o.store_token || !o.client_ref || o.order_number == null || o.order_number === '') return '';
+    return 'order.html?t=' + encodeURIComponent(o.store_token) + '&o=' + encodeURIComponent(String(o.order_number)) +
+      '&r=' + encodeURIComponent(String(o.client_ref));
+  }
   async function call(fn, args) {
     var r;
     try { r = await A.rpc(fn, Object.assign({ p_session: A.getSession() }, args || {})); }
@@ -274,9 +282,10 @@
     var fresh = n >= SHOWN_BEFORE;
     return '<div class="item' + (fresh ? ' fresh" style="--i:' + Math.min(n - SHOWN_BEFORE, 10) : '') + '"><div class="grow"><div><b>' + esc(o.shop) + '</b> &middot; ' + money(o.total_cents, o.currency) + '</div>' +
       '<div class="muted">' + esc((o.items || []).map(function (l) { return (Number(l.qty) || 1) + '× ' + l.name; }).join(', ')) + '</div>' +
-      '<div class="muted">' + esc(when(o.created_at)) + ' &middot; ' + esc(o.order_number || '') + '</div></div>' +
+      '<div class="muted">' + esc(when(o.created_at)) + ' &middot; ' + esc(A.orderLabel ? A.orderLabel(o) : (o.order_number || '')) + '</div></div>' +
       '<span class="pill">' + esc(A.statusWord(o)) + '</span>' +
-      (o.store_token ? '<a class="ghost" href="' + esc(shopLink(o.store_token)) + '">Shop</a>' : '') + '</div>';
+      (followLink(o) ? '<a class="ghost" href="' + esc(followLink(o)) + '">Open</a>'
+        : o.store_token ? '<a class="ghost" href="' + esc(shopLink(o.store_token)) + '">Shop</a>' : '') + '</div>';
   }
   function ordersHtml() {
     var all = (ME.orders || []).concat(MORE_ORDERS);

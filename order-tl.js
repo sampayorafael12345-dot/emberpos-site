@@ -80,6 +80,24 @@
     'Tomorrow': 'Bukas',
     'The shop is closed right now. You can order for a later day.': 'Sarado ang shop ngayon. Puwede kang umorder para sa ibang araw.',
     'Please choose a day for your order.': 'Pakipili ang araw ng order mo.',
+    // 22 Oct 2026 (0642): opening hours, days off, the pause, and an order nobody has opened
+    'Paused right now': 'Naka-pause ngayon',
+    'The shop is closed right now. You can order for later.': 'Sarado ang shop ngayon. Puwede kang umorder para mamaya.',
+    'The shop has paused online orders for a short while. You can order for later.': 'Naka-pause muna ang online order ng shop. Puwede kang umorder para mamaya.',
+    'Please choose a time for your order.': 'Pakipili ang oras ng order mo.',
+    'Please come back later!': 'Bumalik ka na lang mamaya!',
+    'Please come back another day!': 'Bumalik ka na lang sa ibang araw!',
+    'Ordering opens again when the counter does. Please come back later!': 'Bukas ulit ang order pagbukas ng counter. Bumalik ka na lang mamaya!',
+    'The shop is closed today.': 'Sarado ang shop ngayong araw.',
+    'The shop is closed on that day. Please choose another day.': 'Sarado ang shop sa araw na iyon. Pumili ng ibang araw.',
+    'The shop is closed at that time. Please choose a time when it is open.': 'Sarado ang shop sa oras na iyon. Pumili ng oras na bukas ito.',
+    'The shop has not opened your order yet': 'Hindi pa nabubuksan ng shop ang order mo',
+    'Nobody at the shop has seen it for 10 minutes. Please call the shop, or cancel it.':
+      'Wala pang nakakita nito sa shop sa loob ng 10 minuto. Pakitawagan ang shop, o kanselahin ito.',
+    'Nobody at the shop has seen it for 10 minutes. Please call the shop.':
+      'Wala pang nakakita nito sa shop sa loob ng 10 minuto. Pakitawagan ang shop.',
+    'Nobody at the shop has seen it for 10 minutes. Please ask a staff member.':
+      'Wala pang nakakita nito sa shop sa loob ng 10 minuto. Magtanong sa staff.',
     'Your mobile number': 'Mobile number mo',
     'Mobile number': 'Mobile number',
     'Your location': 'Lokasyon mo',
@@ -198,9 +216,81 @@
     // buttons everywhere
     'Close': 'Isara', 'Done': 'Tapos na', 'Back': 'Bumalik', 'Remove': 'Alisin', 'Skip': 'Laktawan',
     'Send': 'Ipadala', 'Try again': 'Subukan ulit', 'Cancel': 'Kanselahin', 'Check': 'I-check',
+    // 22 Oct 2026: the tracker and paying, where Tagalog used to drop out
+    'PAID online, show this screen if asked': 'BAYAD NA online, ipakita ang screen na ito kung tanungin',
+    'Got it, stop ringing': 'Sige, itigil ang tunog',
+    'Could not cancel. Please call the shop.': 'Hindi ma-cancel. Pakitawagan ang shop.',
+    'No connection. Try again, or call the shop.': 'Walang connection. Subukan ulit, o tawagan ang shop.',
+    'Could not reach the shop. Please tell the counter you are here.': 'Hindi maabot ang shop. Pakisabi sa counter na nandito ka na.',
+    'No connection. Please tell the counter you are here.': 'Walang connection. Pakisabi sa counter na nandito ka na.',
+    'The shop has already started on this order. Please call them to change it.': 'Sinimulan na ng shop ang order na ito. Pakitawagan sila para baguhin.',
+    'A payment is on its way for this order. Please call the shop to cancel.': 'May bayad nang papasok para sa order na ito. Pakitawagan ang shop para i-cancel.',
+    'The rider is on the way soon.': 'Papunta na ang rider maya-maya.',
+    'Please collect it at the counter.': 'Pakikuha sa counter.',
+    'Have the cash ready for the rider.': 'Ihanda ang cash para sa rider.',
+    'This code has expired.': 'Expired na ang code na ito.',
+    'Get a new code': 'Kumuha ng bagong code',
+    'The shop cancelled this order. If you already paid, the shop will refund you.': 'Kinansela ng shop ang order na ito. Kung nakabayad ka na, ibabalik ng shop ang bayad mo.',
+    'Paid. The shop cancelled this order and will refund you.': 'Bayad na. Kinansela ng shop ang order na ito at ibabalik ang bayad mo.',
+    'This order is too old to pay online now. Please pay at the shop.': 'Masyado nang luma ang order para magbayad online. Pakibayaran sa shop.',
+    'Your payment needs the shop to check it, please show this screen at the counter.': 'Kailangang i-check ng shop ang bayad mo, pakipakita ang screen na ito sa counter.',
+    'Your order is saved, tap Pay now under Your orders to try again in a moment.': 'Naka-save ang order mo, pindutin ang Magbayad ngayon sa Mga order mo para subukan ulit maya-maya.',
+    'This order was paid at the counter.': 'Nabayaran na sa counter ang order na ito.',
+    'That payment code is no longer open. Tap Pay now to start again.': 'Sarado na ang payment code na iyon. Pindutin ang Magbayad ngayon para magsimula ulit.',
+    // why an order was cancelled (0615), a sold-out meal side (0605), a line the shop cannot take (0604)
+    'You cancelled this order': 'Kinansela mo ang order na ito',
+    'The shop did not confirm it in time, please contact the shop': 'Hindi ito nakumpirma ng shop sa oras, kontakin ang shop',
+    'Not available right now': 'Wala muna ngayon',
+    'None left right now.': 'Ubos na muna ngayon.',
+    'Not available right now, please remove it.': 'Wala muna ngayon, pakialis ito.',
+    'The shop starts this order once it is paid. Please call the shop to pay.': 'Sisimulan ng shop ang order na ito kapag bayad na. Pakitawagan ang shop para magbayad.',
+    'Pickup times are over for today. Your order will be made as soon as possible.': 'Tapos na ang mga oras ng pickup ngayong araw. Gagawin ang order mo sa lalong madaling panahon.',
+    'Save a link to this order': 'I-save ang link ng order na ito',
+    'Ordering for another day? Save this link to follow it from any phone.': 'Para sa ibang araw ang order? I-save ang link na ito para masundan mo ito sa kahit anong phone.',
+    'Link copied. Open it on any phone to follow this order.': 'Nakopya ang link. Buksan ito sa kahit anong phone para masundan ang order.',
+    'That order could not be found. It may be more than a day old.': 'Hindi makita ang order na iyon. Baka lampas na ito ng isang araw.',
+    'Your basket is back.': 'Bumalik na ang basket mo.',
+    'Your basket is back. Some items are no longer available and were taken out.': 'Bumalik na ang basket mo. May mga item na wala na at inalis na.',
+    'Some items are no longer available and were taken out.': 'May mga item na wala na at inalis na.',
+    // the order note and paying with (cash on delivery)
+    'Order note (optional)': 'Bilin sa order (kung meron)',
+    'Order note': 'Bilin sa order',
+    'For the shop or rider: call at the gate, the doorbell is broken': 'Para sa shop o rider: tumawag pagdating sa gate, sira ang doorbell',
+    'For the shop: anything they should know': 'Para sa shop: anumang dapat nilang malaman',
+    'Paying with': 'Pambayad mo',
+    'Exact amount': 'Eksaktong halaga',
+    'The bill you will pay with': 'Ang perang ipambabayad mo',
+    'Type the bill you will pay with, or choose Exact amount.': 'Ilagay ang perang ipambabayad mo, o piliin ang Eksaktong halaga.',
+    'That is less than the total. Choose a bigger bill, or Exact amount.': 'Kulang iyan sa kabuuan. Pumili ng mas malaking pera, o Eksaktong halaga.',
+    // the rider pin at an area or flat-fee shop
+    'Your location (optional)': 'Lokasyon mo (kung gusto)',
+    'Share my location for the rider': 'Ibahagi ang lokasyon ko sa rider',
+    'Your location is shared with the rider.': 'Naibahagi na ang lokasyon mo sa rider.',
+    'Helps the rider find you. The delivery fee does not change.': 'Para madali kang mahanap ng rider. Hindi magbabago ang bayad sa delivery.',
+    'This phone cannot share its location. The address and a landmark will do.': 'Hindi maibahagi ng phone na ito ang lokasyon. Puwede na ang address at isang landmark.',
   };
+  // "at 8:00 AM", "tomorrow at 8:00 AM", "on Monday at 8:00 AM" (0642), in Tagalog.
+  var DAYS_TL = { Sunday: 'Linggo', Monday: 'Lunes', Tuesday: 'Martes', Wednesday: 'Miyerkoles',
+    Thursday: 'Huwebes', Friday: 'Biyernes', Saturday: 'Sabado' };
+  function whenTl(w) {
+    var m;
+    if (w === 'soon') return 'maya-maya';
+    if ((m = /^tomorrow at (.+)$/.exec(w))) return 'bukas nang ' + m[1];
+    if ((m = /^on (\S+) at (.+)$/.exec(w))) return 'sa ' + (DAYS_TL[m[1]] || m[1]) + ' nang ' + m[2];
+    if ((m = /^at (.+)$/.exec(w))) return 'nang ' + m[1];
+    return w;
+  }
   // Phrases with a number or a price inside.
   var RX = [
+    // 0642: when the online store takes orders again.
+    [/^(.+) has paused online orders$/, 'Naka-pause muna ang online order ng $1'],
+    [/^(.+) is closed today$/, 'Sarado ngayong araw ang $1'],
+    [/^The shop is closed right now\. Online orders open (.+)\.$/, function (_, w) { return 'Sarado ang shop ngayon. Bukas ang online order ' + whenTl(w) + '.'; }],
+    [/^The shop is closed today\. Online orders open again (.+)\.$/, function (_, w) { return 'Sarado ang shop ngayong araw. Bukas ulit ang online order ' + whenTl(w) + '.'; }],
+    [/^The shop has paused online orders for a short while\. Please try again (.+)\.$/, function (_, w) { return 'Naka-pause muna ang online order ng shop. Subukan ulit ' + whenTl(w) + '.'; }],
+    [/^The shop has paused online orders until (.+)\. Please choose a later time\.$/, 'Naka-pause ang online order ng shop hanggang $1. Pumili ng mas huling oras.'],
+    [/^Online orders open again (.+)\.$/, function (_, w) { return 'Bukas ulit ang online order ' + whenTl(w) + '.'; }],
+    [/^Online orders open (.+)\.$/, function (_, w) { return 'Bukas ang online order ' + whenTl(w) + '.'; }],
     [/^(\d+) items?$/, '$1 item'],
     [/^(.+) each$/, '$1 bawat isa'],
     [/^Add (\S+[0-9].*)$/, 'Idagdag $1'],
@@ -230,6 +320,15 @@
     [/^(.*)· paid online$/, '$1· bayad na online'],
     [/^(.*)· paid$/, '$1· bayad na'],
     [/^(.*)· waiting for payment$/, '$1· hinihintay ang bayad'],
+    // 22 Oct 2026: the tracker's lines with a price, an address or a number in them
+    [/^Have (.+) ready for the rider\.$/, 'Ihanda ang $1 para sa rider.'],
+    [/^Pick up at: (.+)$/, 'Kunin sa: $1'],
+    [/^Order (.+) is packed, the rider is on the way soon!$/, 'Naka-pack na ang order $1, papunta na ang rider maya-maya!'],
+    [/^Order (.+) is ready, please collect it at the counter!$/, 'Handa na ang order $1, pakikuha sa counter!'],
+    [/^Order (.+) is packed$/, 'Naka-pack na ang order $1'],
+    [/^Order (.+) is ready$/, 'Handa na ang order $1'],
+    [/^Added to ticket (.+)$/, 'Idinagdag sa ticket $1'],
+    [/^That pickup time has passed\. The next one is (.+), check it and place your order again\.$/, 'Lumipas na ang oras ng pickup na iyon. Ang susunod ay $1, i-check ito at i-order ulit.'],
   ];
 
   function tr(s) {

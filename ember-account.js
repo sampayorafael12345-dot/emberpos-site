@@ -221,12 +221,28 @@
      and on the account page - they used to disagree about the same order. */
   function statusWord(o) {
     o = o || {};
+    // 0617: where the order really is, worked out as the order tracker does.
+    // The raw status read "Paid" while a paid order was still being made, and
+    // never Ready or Collected. Older servers send no state: the old reading.
+    if (o.state === 'cancelled') return 'Cancelled';
+    if (o.state === 'collected') return 'Collected';
+    if (o.state === 'ready') return 'Ready';
+    if (o.state === 'making') return 'Being made';
+    if (o.state === 'waiting') return 'Received';
     if (o.status === 'cancelled') return 'Cancelled';
     if (o.status === 'collected') return 'Collected';
     if (o.status === 'ready') return 'Ready';
     if (o.status === 'paid' || o.paid === true) return 'Paid';
     if (o.status === 'sent') return 'Being made';
     return 'Received';
+  }
+
+  /* 0617: the number the counter calls (not the long order code), and the day
+     it is booked for when there is one. Plain text: the caller escapes it. */
+  function orderLabel(o) {
+    o = o || {};
+    var n = String(o.pickup_label || o.order_number || '');
+    return o.pickup_at_local ? (n ? n + ' · ' : '') + 'For ' + o.pickup_at_local : n;
   }
 
   /* The till scans this (lib/loyalty-card.ts). */
@@ -242,7 +258,7 @@
 
   window.EmberAccount = {
     esc: esc, rpc: rpc, sendCode: sendCode, getSession: getSession, setSession: setSession,
-    signIn: signIn, cardQrSvg: cardQrSvg, deviceLabel: deviceLabel, validEmail: validEmail, statusWord: statusWord,
+    signIn: signIn, cardQrSvg: cardQrSvg, deviceLabel: deviceLabel, validEmail: validEmail, statusWord: statusWord, orderLabel: orderLabel,
     TERMS_VERSION: TERMS_VERSION,
     signOut: async function (all) {
       var s = getSession();

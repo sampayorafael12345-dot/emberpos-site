@@ -385,13 +385,15 @@
     font-size: 10.5px; font-weight: 700; letter-spacing: .02em; text-transform: none;
     background: var(--line); color: var(--muted); vertical-align: 1px;
   }
-  .req-on { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent-text); }
+  /* Old kiosk tablets (Chrome 83) have no color-mix(): each mix below has a
+     plain line before it, and the inset ring marks the choice on any browser. */
+  .req-on { background: var(--bg-sub); box-shadow: inset 0 0 0 1px var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent-text); }
   .opt {
     display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
     border: 1px solid var(--line); background: var(--card); border-radius: var(--r-sm);
     padding: 13px; margin-bottom: 8px; font-size: 15px;
   }
-  .opt[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); font-weight: 600; }
+  .opt[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--bg-sub); background: color-mix(in srgb, var(--accent) 12%, transparent); font-weight: 600; }
   .opt .delta { margin-left: auto; color: var(--muted); font-size: 14px; }
   .opt[aria-pressed="true"] .delta { color: var(--accent-text); }
   .note-in { width: 100%; padding: 12px; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--bg-sub);
@@ -474,7 +476,8 @@
     border: 1px solid var(--line); background: var(--card); font-size: 14.5px; font-weight: 600;
   }
   .when[aria-pressed="true"] {
-    border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent);
+    border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent);
+    background: var(--bg-sub); background: color-mix(in srgb, var(--accent) 12%, transparent);
     color: var(--accent-text);
   }
   .when-sel { width: 100%; padding: 12px; border-radius: var(--r-sm);
@@ -509,8 +512,8 @@
      deciding - not as an error after they have tapped Place order. */
   .prepay-note {
     margin: 10px 0 0; padding: 10px 12px; border-radius: var(--r-sm);
-    background: color-mix(in srgb, var(--accent) 10%, transparent);
-    border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
+    background: var(--bg-sub); background: color-mix(in srgb, var(--accent) 10%, transparent);
+    border: 1px solid var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
     color: var(--text); font-size: 13.5px; line-height: 1.45;
   }
 
@@ -564,6 +567,14 @@
     font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
   }
   .hero .powered b { color: #0b0c0d; font-weight: 800; }
+  /* The shop's own note for its ordering page (kiosk_note): how far it
+     delivers, how long it takes, a holiday. Its words, in the header's ink. */
+  .hero .snote { position: relative; margin: 12px 0 0; font-size: 14px; line-height: 1.45; color: #0b0c0d; overflow-wrap: anywhere; }
+  .sheet .snote, .center .snote { margin: 0 0 12px; font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
+  .center .snote { margin: 12px auto 0; max-width: 320px; color: var(--text); }
+  /* 22 Oct: "Paying with" for cash on delivery, one row of equal buttons. */
+  .paywith { display: grid; gap: 6px; }
+  .paywith .when { min-width: 0; padding: 10px 4px; font-size: 13.5px; }
 
   /* Search + tabs: the app's input and its selected-tab orange. */
   .stick { background: var(--bg); }
@@ -593,7 +604,10 @@
   }
   .list > .item:first-child { border-top: 1px solid var(--f, #9ca3af); border-top: 1px solid color-mix(in srgb, var(--f, #9ca3af) 34%, transparent); }
   .item:active { transform: scale(.97); background: color-mix(in srgb, var(--f, #9ca3af) 26%, var(--card)); }
-  .item .pic { display: block; width: calc(100% + 24px); max-width: none; margin: -12px -12px 10px; aspect-ratio: 4 / 3; object-fit: cover; background: var(--bg-sub); }
+  /* A fixed height first, for tablets too old for aspect-ratio (Chrome 83):
+     a cover crop there, the 4:3 photo everywhere else. */
+  .item .pic { display: block; width: calc(100% + 24px); max-width: none; margin: -12px -12px 10px; height: 120px; aspect-ratio: 4 / 3; object-fit: cover; background: var(--bg-sub); }
+  @supports (aspect-ratio: 1) { .item .pic { height: auto; } }
   .item .mid { flex: 1; display: flex; flex-direction: column; padding: 0; }
   .item .nm { font-weight: 700; font-size: 15px; line-height: 1.25; }
   .item .ds { font-size: 12.5px; margin-top: 3px; }
@@ -674,17 +688,24 @@
 
   /* Category tabs wear their category's colour too, as on the till: the
      same mix, and the one you are in carries more of it. */
-  .cats { gap: 8px; padding-bottom: 10px; }
+  /* A margin, not flex gap, between tabs: gap on a flex row is Chrome 84+. */
+  .cats { gap: 0; padding-bottom: 10px; }
   .cat {
-    margin: 0; padding: 8px 14px; border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--text);
+    margin: 0 8px 0 0; padding: 8px 14px; border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--text);
     background: var(--bg-sub);
     background: color-mix(in srgb, var(--f, #9ca3af) 16%, var(--card));
     border: 1px solid var(--f, #9ca3af);
     border: 1px solid color-mix(in srgb, var(--f, #9ca3af) 34%, transparent);
   }
+  /* Without color-mix the unselected tab already wears the plain colour, so
+     the one you are in gets a card face and an underline of its own. */
   .cat[aria-current="true"] {
     color: var(--text); border-color: var(--f, #9ca3af);
+    background: var(--card);
     background: color-mix(in srgb, var(--f, #9ca3af) 48%, var(--card));
+  }
+  @supports not (background: color-mix(in srgb, red 50%, blue)) {
+    .cat[aria-current="true"] { box-shadow: inset 0 -3px 0 var(--f, #9ca3af); }
   }
   .opt .delta { font-family: var(--money); font-weight: 700; font-size: 13px; }
 
@@ -810,21 +831,43 @@
 <script src="order-tl.js"></script>
 <script src="ember-map.js" defer></script>
 <script>
-const TOKEN = new URLSearchParams(location.search).get('t') || '';
+const QS = new URLSearchParams(location.search);
+const TOKEN = QS.get('t') || '';
+/* A SAVED LINK TO ONE ORDER (22 Oct 2026). order.html?t=..&o=<number>&r=<ref>
+   brings an order back onto this phone's "Your orders": an order placed in
+   Facebook's in-app browser, or on a laptop days ahead, was only ever kept in
+   the browser that placed it. The ref is the same proof the placing phone
+   holds (cancel, "I'm here", the rider map); the customer chose to save it. */
+const LINK_ORDER = String(QS.get('o') || '').slice(0, 40);
+const LINK_REF = String(QS.get('r') || '').slice(0, 64);
 const URLB = 'https://qqmkgafyfxrcnwdkkyxc.supabase.co';
 const ANON = 'sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX';
 
 const el = (id) => document.getElementById(id);
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 
-async function rpc(fn, args) {
-  const r = await fetch(URLB + '/rest/v1/rpc/' + fn, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON },
-    body: JSON.stringify(args),
-  });
-  if (!r.ok) throw new Error('network');
-  return await r.json();
+/* READS THAT GIVE UP (22 Oct 2026). A request that hangs instead of failing
+   never answers, and the menu waited on one for good behind its grey
+   skeleton. These read-only calls are abandoned after a while; the abort lands
+   in the caller's own catch, which already knows what "no answer" means.
+   NEVER A WRITE: kiosk_place_order, the pay calls and every other write have
+   no entry here, because giving up on an order the server had already taken
+   would have the customer send it again. */
+const RPC_WAIT = { kiosk_menu: 12000, kiosk_upsells: 8000, kiosk_asks_csat: 8000, kiosk_review_url: 8000, cust_status: 8000, kiosk_shop_info: 8000 };
+async function rpc(fn, args, ms) {
+  const wait = ms || RPC_WAIT[fn] || 0;
+  const ctl = wait && typeof AbortController === 'function' ? new AbortController() : null;
+  const timer = ctl ? setTimeout(() => ctl.abort(), wait) : null;
+  try {
+    const r = await fetch(URLB + '/rest/v1/rpc/' + fn, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON },
+      body: JSON.stringify(args),
+      signal: ctl ? ctl.signal : undefined,
+    });
+    if (!r.ok) throw new Error('network');
+    return await r.json();
+  } finally { if (timer) clearTimeout(timer); }
 }
 
 /* shop-pay's kiosk actions: fenced by this page's own link token + the order
@@ -843,7 +886,78 @@ async function payFn(args) {
 function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode */ } }
 
+/* THE BASKET SURVIVES A RELOAD (22 Oct 2026). It lived only in memory, so the
+   back button, a reload, or a cheap phone killing the tab while the customer
+   copied their address from Messenger threw five items away. It is kept per
+   link in sessionStorage (this tab only, gone when the tab is closed) with
+   the name, number and address typed but not sent yet, and comes back checked
+   against the menu as it is now. Never on a shared kiosk tablet: the basket
+   there belongs to whoever walked away. */
+const CART_KEY = 'ember.cart.' + TOKEN;
+const CART_KEEP_MS = 6 * 3600 * 1000;
+let DRAFT = {};               // { who, oph, oaddr } typed at checkout, not sent yet
+function saveCart() {
+  if (SHARED) return;
+  try {
+    const typed = DRAFT.who || DRAFT.oph || DRAFT.oaddr;
+    if (!CART.length && !typed) { sessionStorage.removeItem(CART_KEY); return; }
+    sessionStorage.setItem(CART_KEY, JSON.stringify({ at: Date.now(), lines: CART, zone: ZONE, when: WHEN, whenday: WHENDAY, draft: DRAFT }));
+  } catch (e) { /* private mode or full: the basket still works, it just will not survive a reload */ }
+}
+/** A basket line checked against the menu as it is NOW: the dish still there
+ *  and not sold out, the same size, meal choices and add-ons still on it, and
+ *  priced from today's menu the way the add sheet prices it. Null when it can
+ *  no longer be ordered exactly as it was. The server prices every line again
+ *  when the order is placed; this keeps what the page shows true. */
+function freshLine(l) {
+  if (!l || !MENU) return null;
+  const it = MENU.items.find((x) => x.id === l.item_id);
+  if (!it || soldOut(it)) return null;
+  const sizes = it.sizes || [];
+  const size = l.variant_id != null ? sizes.find((z) => z.id === l.variant_id) : null;
+  if ((l.variant_id != null && !size) || (l.variant_id == null && sizes.length)) return null;
+  let price = it.price_cents + (size ? size.delta : 0);
+  const opts = Array.isArray(l.options) ? l.options : [];
+  for (const sl of (it.slots || [])) {
+    if (!sl.options || !sl.options.length) continue;
+    const o = sl.options.find((x) => opts.indexOf(x.id) >= 0);
+    if (!o) return null;
+    price += o.delta;
+  }
+  const ids = Array.isArray(l.addons) ? l.addons : [];
+  if (ids.length && it.no_addons) return null;
+  const allow = (it.addon_ids && it.addon_ids.length) ? it.addon_ids : null;
+  for (const id of ids) {
+    const a = (MENU.addons || []).find((x) => x.id === id);
+    if (!a || (allow && allow.indexOf(id) < 0)) return null;
+    price += Math.max(0, a.price_cents || 0);
+  }
+  const taxFree = !!(it.tax_exempt || it.zero_rated);
+  return Object.assign({}, l, { name: it.name, price: Math.round(price), taxExempt: taxFree });
+}
+/** Once the menu is in: the basket this tab had, minus what can no longer be ordered. */
+function restoreCart() {
+  if (SHARED) return;
+  let saved = null;
+  try { saved = JSON.parse(sessionStorage.getItem(CART_KEY) || 'null'); } catch (e) { saved = null; }
+  if (!saved || !(Date.now() - Number(saved.at) < CART_KEEP_MS)) {
+    try { sessionStorage.removeItem(CART_KEY); } catch (e) { /* nothing kept */ }
+    return;
+  }
+  DRAFT = (saved.draft && typeof saved.draft === 'object') ? saved.draft : {};
+  if (STORE && typeof saved.zone === 'string') ZONE = saved.zone;
+  if (STORE && typeof saved.when === 'string') { WHEN = saved.when; WHENDAY = typeof saved.whenday === 'string' ? saved.whenday : ''; }
+  const lines = Array.isArray(saved.lines) ? saved.lines : [];
+  if (!lines.length) return;
+  CART = lines.map(freshLine).filter(Boolean);
+  toast(CART.length === lines.length ? 'Your basket is back.'
+    : CART.length ? 'Your basket is back. Some items are no longer available and were taken out.'
+    : 'Some items are no longer available and were taken out.');
+}
+
 let MENU = null, CART = [], CUR = '₱', TAXPCT = 0, Q = '';
+// The open basket sheet's redraw that keeps what was typed, for send() to use.
+let CART_REDRAW = null;
 // 1.5.2 motion: the first paint gets the entrance; later redraws do not.
 let FIRST_PAINT = true, BUMP = false, HAD_CART = false, LAST_TOTAL = null, TICK = -1;
 // 1.5.0: what goes with what (the till's upsell pairs, 0217), and which
@@ -947,25 +1061,39 @@ const deliveryFee = () => (STORE && OMODE === 'delivery'
 var SVCPCT = 0, SVCTO = [];
 const orderKind = () => (STORE ? OMODE : (SHARED ? (KMODE || 'takeout') : 'dine_in'));
 const vatable = () => CART.reduce((s, l) => s + (l.taxExempt ? 0 : l.price * l.qty), 0) + deliveryFee();
+/* 22 Oct 2026: on the bill AFTER the shop's automatic offer, as
+   kiosk_place_order works it. The service charge and the tax were worked on
+   the full bill, so with an offer on, the page agreed one amount and the
+   server charged another. disc() is the previewed offer (0 until one is known). */
+const disc = () => Math.max(0, promoCents());
 const svcOf = () => (SVCPCT > 0 && SVCTO.indexOf(orderKind()) >= 0
-  ? Math.round((subtotal() + deliveryFee()) * SVCPCT / 100) : 0);
+  ? Math.round(Math.max(0, subtotal() + deliveryFee() - disc()) * SVCPCT / 100) : 0);
 const taxOf = () => {
   const base = subtotal() + deliveryFee();
   const svc = svcOf();
-  return Math.round((vatable() + (base > 0 ? svc * (vatable() / base) : svc)) * TAXPCT / 100);
+  const vat = vatable();
+  if (!(base > 0)) return Math.round((vat + svc) * TAXPCT / 100);
+  return Math.round((Math.max(0, vat - disc() * vat / base) + svc * (vat / base)) * TAXPCT / 100);
 };
+/* Before the offer's own amount: payTotal() below takes that off, so what is
+   charged is (bill - offer) + service charge + tax, the server's figure. */
 const total = () => subtotal() + deliveryFee() + svcOf() + taxOf();
 /* THE SHOP'S AUTOMATIC OFFER, PREVIEWED. The server takes the offer off when the order is placed; this asks it
    (kiosk_promo_preview) how much, so the cart can show it and the pay-online minimum is judged on what will
    really be charged. A preview that cannot be had (offline, an older server) is simply zero: the server's
    figure at checkout is the one that counts. */
 let PROMO_PREVIEW = { cents: 0, name: '', key: '' };
+/* Does the shop have an automatic offer marked "online"? Read for EVERY kind
+   of link (22 Oct 2026): kiosk_place_order applies it on a table QR and a
+   kiosk tablet too, and the page only knew about it on the storefront, so a
+   table was shown, and asked to agree to, the full price. */
+let HASPROMO = false;
 const cartKey = () => JSON.stringify(CART.map((l) => [l.item_id, l.price, l.qty]));
-const promoCents = () => (STORE && STORE.has_promo && (!COUPONS_ON || COUPON.trim() === '') && PROMO_PREVIEW.key === cartKey())
+const promoCents = () => (HASPROMO && (!COUPONS_ON || COUPON.trim() === '') && PROMO_PREVIEW.key === cartKey())
   ? Math.min(PROMO_PREVIEW.cents, subtotal()) : 0;
 const payTotal = () => Math.max(0, total() - promoCents());
 async function refreshPromo(after) {
-  if (!(STORE && STORE.has_promo) || !CART.length) return;
+  if (!HASPROMO || !CART.length) return;
   const key = cartKey();
   if (PROMO_PREVIEW.key === key) return;
   let next = { cents: 0, name: '', key };
@@ -1057,6 +1185,7 @@ var ICON_CASH  = ico('<rect x="2" y="6" width="20" height="12" rx="2"/><circle c
 var ICON_CARD  = ico('<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>');
 var ICON_WARN  = ico('<path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>');
 var ICON_PHONE = ico('<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/>');
+var ICON_LINK  = ico('<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>');
 var ICON_STAR_ON  = '<svg class="mi" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/></svg>';
 var ICON_STAR_OFF = '<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/></svg>';
 var ICON_THUMB_UP   = ico('<path d="M7 10v11"/><path d="M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.6l-2.3 7A2 2 0 0 1 17.5 21H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1h2.8a2 2 0 0 0 1.8-1.1L12 2a3.1 3.1 0 0 1 3 3.9z"/>');
@@ -1084,7 +1213,12 @@ function visibleItems() {
 }
 
 function render() {
-  idleOff();                      // the menu is not the screen this watches
+  idleOff();
+  // 22 Oct 2026: the menu counts down too, whenever the last customer left
+  // something behind (a basket, a remembered order). It only ever watched the
+  // orders screen, so "Order more", two items, and walking off left both for
+  // the next person. A touch restarts the clock (the pointerdown below).
+  if (SHARED && FORGET && kioskHasSomething()) idleArm();
   const shop = MENU.shop, link = MENU.link || {};
   const items = visibleItems();
   const mine = loadOrders();
@@ -1128,7 +1262,7 @@ function render() {
     (st.pickup ? '<span class="chip">' + ICON_BAG + 'Pickup</span>' : '') +
     (st.delivery ? '<span class="chip">' + ICON_MOTO + 'Delivery</span>' : '') +
     (st.pickup_times ? '<span class="chip">' + ICON_CLOCK + 'Order ahead</span>' : '') +
-    (shop.closed ? '<span class="chip solid">Closed right now</span>' : '') +
+    (shop.closed ? '<span class="chip solid">' + (shop.closed_why === 'paused' ? 'Paused right now' : 'Closed right now') + '</span>' : '') +
     (window.EmberLang && EmberLang.allowed()
       ? '<button class="chip chipbtn" id="lang" type="button" data-notl>' + (EmberLang.isTagalog() ? 'English' : 'Tagalog') + '</button>' : '') +
     (link.label && !STORE ? '<span class="chip">' + esc(link.label) + '</span>' : '') +
@@ -1142,6 +1276,7 @@ function render() {
       // corner the app has (1.5.2).
       heroId(shop.logo, shop.name) +
       (chips ? '<div class="meta">' + chips + '</div>' : '') +
+      shopNoteHtml() +
       acctButtonHtml() +
       (mine.length ? '<button class="mine" id="mine">Your orders (' + mine.length + ')</button>' : '') +
       (again && !CART.length ? '<button class="mine" id="again">Order again: ' +
@@ -1173,7 +1308,7 @@ function render() {
     // items" was 90px of a phone screen spent on an empty state.
     (CART.length
       ? '<div class="bar' + (!HAD_CART ? ' enter' : '') + (BUMP ? ' bump' : '') + '">' +
-          '<div class="sum"><span class="n">' + count() + '</span>' + money(total()) + '</div>' +
+          '<div class="sum"><span class="n">' + count() + '</span>' + money(payTotal()) + '</div>' +
           '<button class="primary" id="review">View basket</button>' +
         '</div>'
       : '');
@@ -1224,7 +1359,20 @@ function render() {
   if (el('filt')) el('filt').onclick = openFilters;
   if (el('fclear2')) el('fclear2').onclick = function () { DIETF = []; AVOID = []; render(); };
   if (el('lang')) el('lang').onclick = function () { EmberLang.set(!EmberLang.isTagalog()); render(); };
+  // Every change to the basket ends here, so this is where it is kept.
+  saveCart();
 }
+
+/* THE SHOP'S NOTE ON ITS ORDERING PAGE (kiosk_note, sent by kiosk_menu since
+   0045 and never shown): delivery reach, waiting time, "Closed on Sundays".
+   The shop's own words, escaped and kept short; not marked data-notl, so the
+   Tagalog layer may still match a phrase of ours, never alter theirs. */
+function shopNote(m) {
+  const src = m || MENU;
+  const n = String((src && src.shop && src.shop.note) || '').trim();
+  return n.length > 200 ? n.slice(0, 199) + '…' : n;
+}
+function shopNoteHtml() { const n = shopNote(); return n ? '<p class="snote">' + esc(n) + '</p>' : ''; }
 
 // ---- Ember account (0515) -------------------------------------------------
 const ICON_USER = ico('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>');
@@ -1237,7 +1385,11 @@ function isFav(id) { return !!(ACCT && ACCT.card && (ACCT.card.favorites || []).
 async function loadAcct() {
   if (!ACC_ON || !window.EmberAccount || !EmberAccount.getSession()) { ACCT = null; return; }
   try {
-    const r = await EmberAccount.rpc('cust_shop', { p_session: EmberAccount.getSession(), p_token: TOKEN });
+    // Gives up after 8 seconds like the page's other reads (RPC_WAIT): a stalled answer keeps what we had.
+    const r = await Promise.race([
+      EmberAccount.rpc('cust_shop', { p_session: EmberAccount.getSession(), p_token: TOKEN }),
+      new Promise((_, no) => setTimeout(() => no(new Error('slow')), 8000)),
+    ]);
     ACCT = r && r.ok ? r : null;
   } catch (e) { /* offline: keep what we had */ }
 }
@@ -1280,18 +1432,26 @@ function openSignIn(then, startAt) {
 function linesFromServerOrder(o) {
   const lines = []; let skipped = 0;
   (o.items || []).forEach(function (l) {
-    const it = l.menu_item_id && MENU.items.find((x) => x.id === l.menu_item_id);
+    // The delivery fee is a line with no dish behind it: not an item, so not "skipped".
+    if (!l.menu_item_id) return;
+    const it = MENU.items.find((x) => x.id === l.menu_item_id);
     if (!it || soldOut(it) || (it.slots && it.slots.length)) { skipped++; return; }
     const size = l.variant_id ? (it.sizes || []).find((z) => z.id === l.variant_id) : null;
     if (l.variant_id && !size) { skipped++; return; }
-    const ids = Array.isArray(l.modifier_ids) ? l.modifier_ids : [];
-    const ads = ids.map((id) => MENU.addons.find((a) => a.id === id)).filter(Boolean);
+    // 0606: sizes added since, so this line has none: the server would refuse it.
+    if (!l.variant_id && (it.sizes || []).length) { skipped++; return; }
+    // 22 Oct 2026: the server keeps each add-on as {id, text, price_cents}
+    // (kiosk_place_order), never a bare id, so every line with an add-on was
+    // dropped. One entry per unit taken, kept as it is: a double add-on is two.
+    const ids = (Array.isArray(l.modifier_ids) ? l.modifier_ids : [])
+      .map((e) => (e && typeof e === 'object') ? e.id : e).filter((x) => x != null);
+    const ads = ids.map((id) => MENU.addons.find((a) => String(a.id) === String(id))).filter(Boolean);
     if (ads.length !== ids.length) { skipped++; return; }
     const unitPrice = it.price_cents + (size ? size.delta : 0) + ads.reduce((t, a) => t + Math.max(0, a.price_cents || 0), 0);
     lines.push({
       item_id: it.id, name: it.name, qty: Math.max(1, Math.round(Number(l.qty) || 1)), price: Math.round(unitPrice),
       taxExempt: !!(it.tax_exempt || it.zero_rated), variant_id: size ? size.id : null, variant_label: size ? size.label : null,
-      options: [], option_labels: [], addons: ids, addon_labels: ads.map((a) => a.text), note: l.note || '',
+      options: [], option_labels: [], addons: ads.map((a) => a.id), addon_labels: ads.map((a) => a.text), note: l.note || '',
     });
   });
   return { lines: lines, skipped: skipped };
@@ -1341,7 +1501,9 @@ function openAccount() {
           '<div class="row ord"><div style="flex:1;min-width:0"><div style="font-weight:600">' +
             esc(new Date(o.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })) + ' &middot; ' + money(o.total_cents) + '</div>' +
             '<div class="lede" style="font-size:13px" data-notl>' + esc((o.items || []).map((l) => (Number(l.qty) || 1) + '× ' + l.name).join(', ')) + '</div>' +
-            '<div class="lede" style="font-size:12px">' + esc(EmberAccount.statusWord(o)) + '</div></div>' +
+            // 0617: the number the counter calls, and the day it is booked for.
+            '<div class="lede" style="font-size:12px"><span>' + esc(EmberAccount.statusWord(o)) + '</span>' +
+              (EmberAccount.orderLabel && EmberAccount.orderLabel(o) ? ' &middot; <span data-notl>' + esc(EmberAccount.orderLabel(o)) + '</span>' : '') + '</div></div>' +
             '<button class="ghost" data-again="' + n + '">Order again</button></div>').join('')
       : '') +
     '<label class="ea-tick" style="margin-top:16px"><input type="checkbox" id="acmkt"' + (c.marketing ? ' checked' : '') + '> ' +
@@ -1431,6 +1593,7 @@ async function openShopInfo() {
   const map = i.address ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(i.address) : '';
   openSheet('<div class="shead"><div style="flex:1;min-width:0"><h2>' + esc(i.name || shopName()) + '</h2></div>' +
       '<button class="x" id="sinx" aria-label="Close">' + ICON_X + '</button></div>' +
+    shopNoteHtml() +
     ((i.open && i.close) ? '<div class="row"><span style="display:flex">' + ICON_CLOCK + '</span><div style="flex:1">Open ' + esc(hhmm12(i.open)) + ' to ' + esc(hhmm12(i.close)) + '</div></div>' : '') +
     (i.address ? '<div class="row"><span style="display:flex">' + ICON_PIN + '</span><div style="flex:1">' + esc(i.address) + '</div></div>' : '') +
     (deliveryMinCents() ? '<div class="row"><span style="display:flex">' + ICON_MOTO + '</span><div style="flex:1">Delivery orders start at ' + money(deliveryMinCents()) + '</div></div>' : '') +
@@ -1446,7 +1609,8 @@ async function openShopInfo() {
 async function claimRecent() {
   if (!ACCT || !EmberAccount.getSession() || (ACCT.profile && ACCT.profile.needs_profile)) return;
   const cut = Date.now() - 29 * 60 * 1000;
-  const mine = loadOrders().filter((o) => o.ref && o.at > cut && !o.claimed);
+  // 0619: never a cancelled one, which would send a "thanks for your order" email.
+  const mine = loadOrders().filter((o) => o.ref && o.at > cut && !o.claimed && o.state !== 'cancelled');
   for (const o of mine) {
     try {
       const r = await EmberAccount.rpc('cust_claim_order', { p_session: EmberAccount.getSession(), p_token: TOKEN, p_order_number: o.num, p_client_ref: o.ref });
@@ -1463,7 +1627,7 @@ async function cancelOrder(num) {
   try {
     const r = await rpc('kiosk_cancel_order', { p_token: TOKEN, p_order_number: num, p_client_ref: o.ref });
     if (!r || !r.ok) { toast((r && r.error) || 'Could not cancel. Please call the shop.'); return; }
-    markOrder(num, 'cancelled'); STEP_MOVED[num] = 1;
+    markOrder(num, 'cancelled'); patchOrder(num, { cancelReason: 'customer' }); STEP_MOVED[num] = 1;
     toast('Your order is cancelled.');
     showOrders();
   } catch (e) { toast('No connection. Try again, or call the shop.'); }
@@ -1515,6 +1679,9 @@ function fillAddress(a) {
   if (a.lat != null && a.lng != null && kmCfg()) {
     const r = kmFee(kmCfg(), a.lat, a.lng);
     GEO = { lat: a.lat, lng: a.lng, km: r.km, fee: r.fee, saved: true };
+  } else if (a.lat != null && a.lng != null) {
+    // A shop priced by area or one flat fee: the pin only shows the rider the way.
+    GEO = { lat: Number(a.lat), lng: Number(a.lng), km: null, fee: 0, saved: true, pinOnly: true };
   } else if (GEO && GEO.saved) {
     GEO = null;
   }
@@ -1542,11 +1709,13 @@ async function afterAccountOrder(num, ref, addrTyped, keepAddr, mkt) {
 // number that already belongs to one of its customers. See migration 0063 for
 // the rate caps and for why the response is deliberately this small.
 function openStamps() {
+  // A KIOSK TABLET NEVER REMEMBERS A NUMBER (22 Oct 2026): it pre-filled the
+  // last customer's, and one tap on Check showed their first name and stamps.
   var saved = '';
-  try { saved = localStorage.getItem('ember.phone') || ''; } catch (_) {}
+  if (!SHARED) { try { saved = localStorage.getItem('ember.phone') || ''; } catch (_) {} }
   openSheet(
     '<h2>My stamps</h2><p class="lede">Type the mobile number you give at the counter.</p>' +
-    '<input class="note-in" id="ph" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" value="' + esc(saved) + '" ' +
+    '<input class="note-in" id="ph" type="tel" inputmode="tel" autocomplete="' + (SHARED ? 'off' : 'tel') + '" maxlength="20" value="' + esc(saved) + '" ' +
       'placeholder="' + (CUR === '₱' ? '0917 123 4567' : 'Mobile number') + '" style="font-size:17px">' +
     '<div id="stout" style="padding:14px 0;min-height:26px;text-align:center"></div>' +
     '<div style="display:flex;gap:10px;margin-top:4px">' +
@@ -1570,7 +1739,12 @@ function openStamps() {
       } else if (!r.found) {
         el('stout').innerHTML = '<span style="color:var(--muted)">We could not find that number. Ask the counter to add you.</span>';
       } else {
-        try { localStorage.setItem('ember.phone', phone); } catch (_) {}
+        if (!SHARED) { try { localStorage.setItem('ember.phone', phone); } catch (_) {} }
+        else {
+          // Nobody else reads it: the number and the answer go after 20 seconds.
+          var phBox = el('ph'), outBox = el('stout');
+          setTimeout(function () { if (document.contains(phBox)) { outBox.innerHTML = ''; phBox.value = ''; } }, 20000);
+        }
         var have = r.stamps || 0, need = r.required || 10;
         var dots = '';
         // One span per stamp, so they can land one after another.
@@ -1852,7 +2026,7 @@ function sheetOpen() {
 }
 /* The control just tapped inside a sheet, so its redraw can answer that one. */
 let JUST = null;
-const JUST_ATTRS = ['data-adp', 'data-adm', 'data-sz', 'data-op', 'data-ad', 'data-fd', 'data-fa', 'data-tip', 'data-when', 'data-omode', 'data-paych', 'data-kmode'];
+const JUST_ATTRS = ['data-adp', 'data-adm', 'data-sz', 'data-op', 'data-ad', 'data-fd', 'data-fa', 'data-tip', 'data-when', 'data-omode', 'data-paych', 'data-paywith', 'data-kmode'];
 const JUST_SEL = JUST_ATTRS.map((a) => '[' + a + ']').join(',');
 el('sheet').addEventListener('click', (e) => {
   JUST = null;
@@ -1865,7 +2039,7 @@ el('sheet').addEventListener('click', (e) => {
 /* Buttons whose words carry a price or a count, and fields that appear when a
    choice is made (a time box after "At a time", the address after Delivery). */
 const NUDGE_IDS = ['add', 'fgo', 'send'];
-const APPEAR_IDS = ['whensel', 'daysel', 'otip', 'oaddrsel', 'oaddr', 'ozone', 'ogeo', 'oph'];
+const APPEAR_IDS = ['whensel', 'daysel', 'otip', 'opaywith', 'oaddrsel', 'oaddr', 'ozone', 'ogeo', 'oph'];
 const STAGGER = '.row, .opt, .acard, .adet, .fchips .when, .tips .when, .modes button';
 function sheetSnapshot() {
   const ids = {}, txt = {};
@@ -1932,6 +2106,7 @@ function openSheet(html, full) {
   }
   JUST = null;
   if (fresh) {
+    sheetHistoryPush();
     // Rises again even when the last sheet had not finished leaving.
     sheet.classList.remove('swap');
     sheet.style.animation = 'none'; void sheet.offsetWidth; sheet.style.animation = '';
@@ -1959,6 +2134,7 @@ function closeSheet() {
   const scrim = el('scrim'), sheet = el('sheet');
   if (!scrim.classList.contains('on') || scrim.classList.contains('closing')) return;
   const back = SHEET_RETURN; SHEET_RETURN = null;
+  sheetHistoryDrop();
   const done = () => {
     SHEET_CLOSE_T = null;
     scrim.classList.remove('on', 'closing');
@@ -1970,6 +2146,38 @@ function closeSheet() {
   if (back && back !== document.body && document.contains(back)) { try { back.focus({ preventScroll: true }); } catch (e) { /* gone */ } }
 }
 el('scrim').onclick = (e) => { if (e.target.id === 'scrim') dismissSheet(); };
+
+/* BACK CLOSES THE SHEET (22 Oct 2026). Sheets were drawn into a div, not the
+   history, so Android's back button left the page, basket and all, when the
+   customer only meant to close the dish they were looking at. An open sheet
+   now holds one history entry: Back closes the sheet and the page stays.
+   Closed any other way, it gives the entry back a moment later, unless
+   another sheet has opened in its place (one sheet becoming the next shares
+   the entry). HIST_BACKING marks our own step back, so it never closes a
+   sheet that opened while it was on its way. */
+let HIST_BACKING = false;
+function sheetHistoryPush() {
+  try { if (!(history.state && history.state.emberSheet)) history.pushState({ emberSheet: 1 }, ''); } catch (e) { /* old WebView */ }
+}
+function sheetHistoryDrop() {
+  setTimeout(function () {
+    try {
+      if (sheetOpen() || !(history.state && history.state.emberSheet)) return;
+      HIST_BACKING = true;
+      history.back();
+    } catch (e) { HIST_BACKING = false; }
+  }, 0);
+}
+window.addEventListener('popstate', function () {
+  if (HIST_BACKING) {
+    HIST_BACKING = false;
+    if (sheetOpen()) sheetHistoryPush();
+    return;
+  }
+  if (sheetOpen()) dismissSheet();
+});
+// A reload with a sheet's entry current: there is no sheet any more.
+try { if (history.state && history.state.emberSheet) history.replaceState(null, ''); } catch (e) { /* old WebView */ }
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') dismissSheet(); });
 
 /**
@@ -2099,7 +2307,9 @@ function openItem(id, opts) {
   // "Make it a meal" opens the meal for the SAME number the diner already had, and only swaps the lines when the meal is added.
   let qty = Math.max(1, Math.min(20, Number(opts && opts.qty) || 1));
   const picks = {};
-  (it.slots || []).forEach((s) => { if (s.options.length) picks[s.id] = s.options[0].id; });
+  (it.slots || []).forEach((s) => { if (s.options && s.options.length) picks[s.id] = s.options[0].id; });
+  // 0605: a meal slot whose every choice is sold out. The server refuses the meal, so Add says so here.
+  const emptySlot = (it.slots || []).find((s) => !s.options || !s.options.length) || null;
 
   // Paid add-ons and free kitchen instructions, same chips the register shows.
   // An item can be narrowed to its own short list; an empty list means the shop
@@ -2195,7 +2405,7 @@ function openItem(id, opts) {
   const unit = () => {
     let p = it.price_cents;
     if (size) { const v = it.sizes.find((s) => s.id === size); if (v) p += v.delta; }
-    (it.slots || []).forEach((s) => { const o = s.options.find((x) => x.id === picks[s.id]); if (o) p += o.delta; });
+    (it.slots || []).forEach((s) => { const o = (s.options || []).find((x) => x.id === picks[s.id]); if (o) p += o.delta; });
     addons.forEach((a) => { p += Math.max(0, a.price_cents || 0) * qtyOf(a.id); });
     return p;
   };
@@ -2216,7 +2426,8 @@ function openItem(id, opts) {
       ((it.sizes && it.sizes.length) ? '<div class="label">Size</div>' + it.sizes.map((s) =>
         '<button class="opt" data-sz="' + s.id + '" aria-pressed="' + (size === s.id) + '"><span data-notl>' + esc(s.label) + '</span>' +
         '<span class="delta">' + (s.delta ? (s.delta > 0 ? '+' : '') + money(s.delta) : 'Included') + '</span></button>').join('') : '') +
-      (it.slots || []).map((s) => '<div class="label" data-notl>' + esc(s.label) + '</div>' + s.options.map((o) =>
+      (it.slots || []).map((s) => '<div class="label" data-notl>' + esc(s.label) + '</div>' +
+        (emptySlot === s ? '<p class="lede" style="font-size:13px;margin:0 0 8px">None left right now.</p>' : '') + (s.options || []).map((o) =>
         '<button class="opt" data-sl="' + s.id + '" data-op="' + o.id + '" aria-pressed="' + (picks[s.id] === o.id) + '"><span data-notl>' + esc(o.label) + '</span>' +
         '<span class="delta">' + (o.delta ? '+' + money(o.delta) : 'Included') + '</span></button>').join('')).join('') +
       addonGroups.map((g) => {
@@ -2252,7 +2463,10 @@ function openItem(id, opts) {
       '<button id="plus" aria-label="One more">+</button></div>' +
       '<div class="foot">' +
         '<button class="ghost" id="cancel">Back</button>' +
-        (missingCats().length
+        // 0605: every meal slot needs one pick; one with nothing left cannot be ordered.
+        (emptySlot
+          ? '<button class="primary" id="add" disabled>Not available right now</button>'
+          : missingCats().length
           ? '<button class="primary" id="add" disabled>Choose ' +
               esc(missingCats().map((c) => (ADDON_LABELS[c] || c).toLowerCase()).join(' and ')) + '</button>'
           : '<button class="primary" id="add">Add ' + money(unit() * qty) + '</button>') +
@@ -2331,7 +2545,7 @@ function openItem(id, opts) {
         taxExempt: !!(it.tax_exempt || it.zero_rated),
         variant_id: size, variant_label: v ? v.label : null,
         options: Object.values(picks),
-        option_labels: (it.slots || []).map((s) => { const o = s.options.find((x) => x.id === picks[s.id]); return o ? o.label : null; }).filter(Boolean),
+        option_labels: (it.slots || []).map((s) => { const o = (s.options || []).find((x) => x.id === picks[s.id]); return o ? o.label : null; }).filter(Boolean),
         // One entry PER unit - the server prices each entry, so two of an
         // add-on charge twice. It also re-checks the group cap against the
         // same count, so a tampered page cannot smuggle in a third flavour.
@@ -2390,6 +2604,8 @@ function lastOrderAgain() {
     if (!it || soldOut(it) || (l.options && l.options.length)) return;
     const size = l.variant_id ? (it.sizes || []).find((z) => z.id === l.variant_id) : null;
     if (l.variant_id && !size) return;
+    // 0606: the server refuses a sized dish without its size; leave it for the add sheet.
+    if (!l.variant_id && (it.sizes || []).length) return;
     const ads = (l.addons || []).map((id) => MENU.addons.find((a) => a.id === id)).filter(Boolean);
     if (ads.length !== (l.addons || []).length) return;
     // One add-on entry per unit of that add-on on ONE item, as the add sheet
@@ -2434,6 +2650,7 @@ function openCart() {
         (l.option_labels.length ? '<div class="lede" style="font-size:13px" data-notl>' + esc(l.option_labels.join(', ')) + '</div>' : '') +
         ((l.addon_labels || []).length ? '<div class="lede" style="font-size:13px" data-notl>' + esc(l.addon_labels.map((a) => '+ ' + a).join(', ')) + '</div>' : '') +
         (l.note ? '<div class="lede" style="font-size:13px" data-notl>' + esc(l.note) + '</div>' : '') +
+        (l.unavailable ? '<div style="font-size:13px;font-weight:700;color:var(--accent-text)">Not available right now, please remove it.</div>' : '') +
         '<div class="lede" style="font-size:13px">' + money(l.price) + ' each</div>' +
         '<div class="ltot">' + money(l.price * l.qty) + '</div></div>' +
         '<div class="stepper"><button data-m="' + idx + '" aria-label="One less">&minus;</button>' +
@@ -2445,8 +2662,8 @@ function openCart() {
         (tax > 0 ? '<div><span>Tax</span><span>' + money(tax) + '</span></div>' : '') +
         (promoCents() > 0 ? '<div><span>' + esc(PROMO_PREVIEW.name || 'Offer') + '</span><span>&minus;' + money(promoCents()) + '</span></div>' : '') +
         (tipCents() > 0 ? '<div><span>Tip</span><span>' + money(tipCents()) + '</span></div>' : '') +
-        '<div class="grand"><span>' + (STORE && STORE.has_promo && promoCents() === 0 ? 'Total before offers' : 'Total') + '</span><span>' + money(payTotal() + tipCents()) + '</span></div>' +
-        (STORE && STORE.has_promo && promoCents() === 0 ? '<div class="lede" style="font-size:12.5px;margin-top:4px">The shop&rsquo;s offer is taken off when you place the order.</div>' : '') +
+        '<div class="grand"><span>' + (HASPROMO && promoCents() === 0 ? 'Total before offers' : 'Total') + '</span><span>' + money(payTotal() + tipCents()) + '</span></div>' +
+        (HASPROMO && promoCents() === 0 ? '<div class="lede" style="font-size:12.5px;margin-top:4px">The shop&rsquo;s offer is taken off when you place the order.</div>' : '') +
       '</div>' +
       storeFields() +
       (underDeliveryMin()
@@ -2460,6 +2677,7 @@ function openCart() {
       couponFieldHtml() +
       tipHtml() +
       payChoiceHtml() +
+      payWithHtml() +
       alsoLikeHtml() +
       '<div class="foot">' +
         '<button class="ghost" id="back">Add more</button>' +
@@ -2486,12 +2704,22 @@ function openCart() {
       const i = Number(b.dataset.p); if (CART[i].qty < 20) { CART[i].qty++; TICK = i; } redrawKeeping(); render();
     });
     if (el('ogeo')) el('ogeo').onclick = function () {
-      if (!navigator.geolocation) { GEO = { err: 'This phone cannot share its location. Please order by phone instead.' }; redrawKeeping(); return; }
+      if (!navigator.geolocation) {
+        // Only a distance shop needs the pin to take the order; elsewhere the address is enough.
+        GEO = { err: kmCfg() ? 'This phone cannot share its location. Please order by phone instead.'
+          : 'This phone cannot share its location. The address and a landmark will do.' };
+        redrawKeeping(); return;
+      }
       el('ogeo').disabled = true; el('ogeoout').textContent = 'Finding you…';
       navigator.geolocation.getCurrentPosition(function (pos) {
         const lat = Math.round(pos.coords.latitude * 1e5) / 1e5, lng = Math.round(pos.coords.longitude * 1e5) / 1e5;
-        const r = kmFee(kmCfg(), lat, lng);
-        GEO = { lat: lat, lng: lng, km: r.km, fee: r.fee };
+        if (kmCfg()) {
+          const r = kmFee(kmCfg(), lat, lng);
+          GEO = { lat: lat, lng: lng, km: r.km, fee: r.fee };
+        } else {
+          // An area or flat-fee shop: a pin for the rider, never a price (fee 0, and deliveryFee() never reads it).
+          GEO = { lat: lat, lng: lng, km: null, fee: 0, pinOnly: true };
+        }
         if (sheetOpen() && el('send')) redrawKeeping();   // never reopen a basket they closed
       }, function () {
         GEO = { err: 'Could not get your location. Allow location for this page, then tap again.' };
@@ -2500,6 +2728,13 @@ function openCart() {
     };
     document.querySelectorAll('[data-kmode]').forEach(function (b) {
       b.onclick = function () { KMODE = b.getAttribute('data-kmode'); redrawKeeping(); };
+    });
+    // What they typed before a reload or a killed tab comes back first (see saveCart).
+    ['who', 'oph', 'oaddr'].forEach(function (id) {
+      const box = el(id);
+      if (!box) return;
+      if (!box.value && DRAFT[id] && !(id === 'oaddr' && ADDR_NEW)) box.value = DRAFT[id];
+      box.oninput = function () { DRAFT[id] = box.value; saveCart(); };
     });
     if (STORE) {
       // Remembered from the last order on this phone - typing an address twice
@@ -2519,7 +2754,7 @@ function openCart() {
           // A new address starts clean: no saved pin, so no saved address's fee.
           ADDR_NEW = true;
           if (GEO && GEO.saved) GEO = null;
-          el('oaddr').value = '';
+          el('oaddr').value = ''; DRAFT.oaddr = '';
           redrawKeeping();
           if (el('osaveaddr')) el('osaveaddr').checked = true;
           if (el('oaddr')) el('oaddr').focus();
@@ -2573,6 +2808,23 @@ function openCart() {
     document.querySelectorAll('[data-paych]').forEach(function (b) {
       b.onclick = function () { PAYCHOICE = b.getAttribute('data-paych'); redrawKeeping(); };
     });
+    document.querySelectorAll('[data-paywith]').forEach(function (b) {
+      b.onclick = function () {
+        var v = Number(b.getAttribute('data-paywith'));
+        PAYWITH_OTHER = v === -1;
+        PAYWITH = v > 0 ? v : null;
+        redrawKeeping();
+        if (PAYWITH_OTHER && el('opaywith')) el('opaywith').focus();
+      };
+    });
+    if (el('opaywith')) {
+      // Typing only changes the number; the row catches up when they leave the box.
+      el('opaywith').oninput = function () {
+        var v = Number(String(el('opaywith').value).replace(/[^0-9.]/g, ''));
+        PAYWITH = isFinite(v) && v > 0 ? Math.round(v * 100) : null;
+      };
+      el('opaywith').onchange = function () { redrawKeeping(); };
+    }
     if (el('ocpn')) {
       el('ocpn').oninput = function () {
         var had = COUPON.trim() !== '';
@@ -2598,6 +2850,7 @@ function openCart() {
     var ad = el('oaddr') ? el('oaddr').value : '';
     var sa = el('osaveaddr') ? el('osaveaddr').checked : null;
     var mk = el('omkt') ? el('omkt').checked : null;
+    var nt = el('onote') ? el('onote').value : '';
     // 0175: through the module variable, because the send label reads it too.
     if (el('ocpn')) COUPON = el('ocpn').value;
     SHEET_SAME = true;
@@ -2607,12 +2860,14 @@ function openCart() {
     if (el('oaddr') && ad) el('oaddr').value = ad;
     if (el('osaveaddr') && sa !== null) el('osaveaddr').checked = sa;
     if (el('omkt') && mk !== null) el('omkt').checked = mk;
+    if (el('onote') && nt) el('onote').value = nt;
   }
   // The lines slide in when the sheet opens, not on every + and -.
   LAST_TOTAL = null;
   ADDR_NEW = false;
   el('sheet').classList.add('intro');
   setTimeout(() => el('sheet').classList.remove('intro'), 900);
+  CART_REDRAW = redrawKeeping;
   PAYCHOICE = defaultPayChoice();
   draw();
 }
@@ -2655,6 +2910,18 @@ function storeFields() {
           : 'The delivery fee is worked out from how far you are.') +
       '</div>';
   }
+  // 22 Oct 2026: a shop priced by area or by one flat fee asked for no pin at
+  // all, so its rider navigated by the typed words and the customer's map had
+  // no home on it. Optional here, and never a price: see GEO.pinOnly.
+  if (OMODE === 'delivery' && !kmCfg()) {
+    h += '<div class="label">Your location (optional)</div>' +
+      '<button class="ghost" id="ogeo" style="width:100%">' + (GEO && GEO.lat != null ? 'Update my location' : 'Share my location for the rider') + '</button>' +
+      '<div class="lede" id="ogeoout" style="font-size:13px;margin-top:6px">' +
+        (GEO && GEO.err ? esc(GEO.err)
+          : GEO && GEO.lat != null ? 'Your location is shared with the rider.'
+          : 'Helps the rider find you. The delivery fee does not change.') +
+      '</div>';
+  }
   if (OMODE === 'delivery') {
     if (zones().length) {
       if (ZONE && !zones().some((r) => r.name === ZONE)) ZONE = null;
@@ -2668,7 +2935,24 @@ function storeFields() {
     h += savedAddressPicker() + '<div class="label">Delivery address</div>' +
       '<textarea class="note-in" id="oaddr" rows="2" maxlength="300" placeholder="' + (CUR === '₱' ? 'House no., street, barangay, city' : 'House no., street, city') + ', a landmark helps" aria-label="Delivery address"></textarea>';
   }
+  // 22 Oct 2026: a note for the order itself. p_note was always sent empty,
+  // though the server keeps it and the rider page, the slip and the record
+  // all show it. Per order: never remembered on the phone.
+  h += '<div class="label">Order note (optional)</div>' +
+    '<textarea class="note-in" id="onote" rows="2" maxlength="300" aria-label="Order note" placeholder="' +
+      (OMODE === 'delivery' ? 'For the shop or rider: call at the gate, the doorbell is broken' : 'For the shop: anything they should know') + '"></textarea>';
   return h;
+}
+
+/* What goes in p_address for a delivery. The area first, because the server
+   prices an area order by the name at the start; then the customer's pin when
+   there is one, as 'GPS lat,lng'; then the words they typed. A distance shop
+   always sends the pin (its fee is worked out from it); a pin shared at an area
+   or flat-fee shop only shows the rider the way and never changes the price. */
+function deliveryAddressLine(addr) {
+  const pin = (GEO && GEO.lat != null && GEO.fee >= 0) ? 'GPS ' + GEO.lat.toFixed(5) + ',' + GEO.lng.toFixed(5) + ' · ' : '';
+  if (zones().length && ZONE) return ZONE + ' · ' + pin + addr;
+  return pin + addr;
 }
 
 /* ---- WHEN THEY ARE COMING FOR IT (0162) --------------------------------
@@ -2694,14 +2978,21 @@ var WHEN = null;              // null = as soon as possible; else 'HH:MM'
    page can take is one for a later day - no "as soon as possible", no today. */
 var WHENDAY = '';
 var AHEAD_ONLY = false;
+/* 0642: closed by the opening hours or paused, the shop still takes an order
+   for LATER TODAY (from opening time, or once the pause is over). Closed for the
+   day, or with the counter shut, only a later day. */
+var TODAY_LATER = false;
 function aheadDays() { return (STORE && SHOPINFO && Number(SHOPINFO.days_ahead)) || 0; }
 function availDays() {
   var t = SHOPINFO && /^\d{4}-\d{2}-\d{2}$/.test(SHOPINFO.today || '') ? SHOPINFO.today : null;
   if (!t || !aheadDays()) return [];
   var base = Date.parse(t + 'T00:00:00Z'), out = [];
+  var off = (SHOPINFO && Array.isArray(SHOPINFO.days_off)) ? SHOPINFO.days_off : [];
   for (var i = 0; i <= aheadDays(); i++) {
-    if (i === 0 && (AHEAD_ONLY || !whenSlots().length)) continue;
+    if (i === 0 && ((AHEAD_ONLY && !TODAY_LATER) || !whenSlots().length)) continue;
     var d = new Date(base + i * 86400000);
+    // 0642: never a day the shop is shut (a weekday off or a holiday).
+    if (off.indexOf(d.toISOString().slice(0, 10)) >= 0) continue;
     out.push({ v: i === 0 ? '' : d.toISOString().slice(0, 10),
       label: i === 0 ? 'Today' : i === 1 ? 'Tomorrow'
         : d.toLocaleDateString(window.EmberLang && EmberLang.isTagalog() ? 'fil-PH' : 'en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' }) });
@@ -2721,6 +3012,13 @@ function daySlots() {
   return out;
 }
 function slotsFor(day) { return day ? daySlots() : whenSlots(); }
+/* What the time picker says while only a later order can be taken. */
+function aheadLede() {
+  var why = MENU && MENU.shop && MENU.shop.closed_why;
+  if (why === 'paused') return 'The shop has paused online orders for a short while. You can order for later.';
+  if (TODAY_LATER) return 'The shop is closed right now. You can order for later.';
+  return 'The shop is closed right now. You can order for a later day.';
+}
 /* What goes to the server: 'HH:MM' for today, 'YYYY-MM-DD HH:MM' for a later day. */
 function wantedValue() {
   if (WHEN === null) return null;
@@ -2812,7 +3110,11 @@ function shopNowMinutes() {
   var t = (STORE && STORE.now) || '';
   var m = /^(\d{2}):(\d{2})$/.exec(t);
   if (!m) { var d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
-  return Number(m[1]) * 60 + Number(m[2]);
+  // 0603: the clock read at load, plus the minutes since. A customer who
+  // browsed for ten minutes was offered a first slot that was already too soon.
+  var at = Number(STORE.now_read_at) || 0;
+  var since = at ? Math.max(0, Math.floor((Date.now() - at) / 60000)) : 0;
+  return (Number(m[1]) * 60 + Number(m[2]) + since) % (24 * 60);
 }
 function pad2(n) { return (n < 10 ? '0' : '') + n; }
 function hhmmLabel(hhmm) {
@@ -2825,7 +3127,9 @@ function hhmmLabel(hhmm) {
 function whenSlots() {
   var lead = Math.max(0, Number((STORE && STORE.lead_minutes) || 20));
   var nowM = shopNowMinutes();
-  var start = nowM + lead;
+  // One minute of headroom (0603): a slot exactly on the lead time is gone
+  // by the time the order reaches the shop, and the server refuses it.
+  var start = nowM + lead + 1;
   start = Math.ceil(start / 15) * 15;
   var close = null, cm = /^(\d{1,2}):(\d{2})$/.exec((STORE && STORE.close) || '');
   if (cm) close = Number(cm[1]) * 60 + Number(cm[2]);
@@ -2835,6 +3139,13 @@ function whenSlots() {
   // "now plus the lead" - a 6am visitor was offered 6:30 at a shop opening at 8.
   var overnightDay = close !== null && (open !== null ? close < open : close < 6 * 60);
   if (!overnightDay && open !== null && start < open) start = Math.ceil(open / 15) * 15;
+  // 0642: while online orders are paused, the first slot is after the pause (see storeOf).
+  var pz = /^(\d{2}):(\d{2})$/.exec((STORE && STORE.pause_until) || '');
+  if (pz) {
+    // Minutes until it ends, across midnight too; a pause never runs past an hour.
+    var wait = (Number(pz[1]) * 60 + Number(pz[2]) - nowM + 24 * 60) % (24 * 60);
+    if (wait <= 65 && start < nowM + wait) start = Math.ceil((nowM + wait) / 15) * 15;
+  }
   if (close !== null) {
     // Where the shop's clock sits decides whether the closing time is today's or tomorrow's.
     // With the opening time known: a shop that closes before it opens is overnight; in the
@@ -2864,8 +3175,19 @@ function whenHtml() {
     WHENDAY = '';
     var slots = whenSlots();
     // Past closing, or a shop with a lead time that runs out the clock: say so
-    // rather than offering an empty menu. The order still goes through as ASAP.
-    if (!slots.length) return '';
+    // rather than offering an empty menu. The order still goes through as ASAP,
+    // so a time picked earlier cannot ride along unseen (0603).
+    if (!slots.length) { WHEN = null; return ''; }
+    // 0642: closed or paused right now, open later today: a time is a must.
+    if (AHEAD_ONLY) {
+      if (WHEN === null || slots.indexOf(WHEN) < 0) WHEN = slots[0];
+      return '<div class="label">' + ICON_CLOCK + ' When do you want it?</div>' +
+        '<p class="lede" style="font-size:13.5px;margin:0 0 2px">' + aheadLede() + '</p>' +
+        '<select class="when-sel" id="whensel" aria-label="Pickup time">' +
+        slots.map(function (t) {
+          return '<option value="' + t + '"' + (t === WHEN ? ' selected' : '') + '>' + hhmmLabel(t) + '</option>';
+        }).join('') + '</select>';
+    }
     var h = '<div class="label">' + ICON_CLOCK + ' When do you want it?</div><div class="whens">' +
       '<button class="when" data-when="asap" aria-pressed="' + (WHEN === null) + '">As soon as possible</button>' +
       '<button class="when" data-when="time" aria-pressed="' + (WHEN !== null) + '">At a time</button></div>';
@@ -2885,7 +3207,7 @@ function whenHtml() {
   if (WHEN !== null && ds.indexOf(WHEN) < 0) WHEN = ds[0] || null;
   var h2 = '<div class="label">' + ICON_CLOCK + ' When do you want it?</div>';
   if (AHEAD_ONLY) {
-    h2 += '<p class="lede" style="font-size:13.5px;margin:0 0 2px">The shop is closed right now. You can order for a later day.</p>';
+    h2 += '<p class="lede" style="font-size:13.5px;margin:0 0 2px">' + aheadLede() + '</p>';
   } else {
     h2 += '<div class="whens">' +
       '<button class="when" data-when="asap" aria-pressed="' + (WHEN === null) + '">As soon as possible</button>' +
@@ -2943,6 +3265,16 @@ function prepayRequired(type) {
   if (!STORE) return false;
   return type === 'pickup' ? !!STORE.pickup_prepay : type === 'delivery' ? STORE.cod === false : false;
 }
+/* A PLACED ORDER WAITING FOR ITS PAYMENT (0645). The order keeps its own mark
+   (orders.pay_first): a shop switching the setting later changes nothing about
+   an order already sent, and an order kept before the mark existed falls back
+   to today's setting. Once the shop takes it anyway (the POS asks the cashier,
+   who may collect at the counter), it is no longer waiting: the card then says
+   how to pay, as for any other order. */
+function waitsForPayment(o) {
+  const first = typeof o.payFirst === 'boolean' ? o.payFirst : prepayRequired(o.type);
+  return first && (o.state || 'waiting') === 'waiting';
+}
 
 /* THE CODE FROM THE FLYER (0175).
 
@@ -2993,12 +3325,51 @@ function payChoiceHtml() {
       (OMODE === 'delivery' ? 'Cash on delivery' : 'Pay at the counter') + '</button></div>';
 }
 
+/* PAYING WITH (22 Oct 2026). Cash on delivery asked nothing more, so a
+   customer with only a 1,000 bill had a rider arrive with no change. The
+   chosen bill goes to the shop and rider in the order note; the change is not
+   worked out here, because the server can still move the total (a code, the
+   shop's offer, the area fee) and the rider page already shows the amount to
+   collect. Bills are offered for a peso shop only; elsewhere it is exact or a
+   typed amount. */
+var PAYWITH = null;           // cents of the bill they will hand over; null = the exact amount
+var PAYWITH_OTHER = false;    // "Other": a bill they type
+function payWithOn() { return !!(STORE && OMODE === 'delivery' && PAYCHOICE === 'later' && counterPayAllowed('delivery')); }
+function payDue() { return payTotal() + tipCents(); }
+function payBills() {
+  if (CUR !== '₱') return [];
+  var due = payDue();
+  var above = function (step) { return (Math.floor(due / step) + 1) * step; };
+  var a = above(50000), b = above(100000);
+  return [a, b === a ? b + 100000 : b];
+}
+function payWithHtml() {
+  if (!payWithOn()) return '';
+  var bills = payBills();
+  // A bill that no longer covers the basket goes back to the exact amount.
+  if (!PAYWITH_OTHER && PAYWITH != null && bills.indexOf(PAYWITH) < 0) PAYWITH = null;
+  var opts = [[0, 'Exact amount']].concat(bills.map(function (c) { return [c, CUR + (c / 100).toLocaleString('en-US')]; }), [[-1, 'Other']]);
+  var on = function (v) { return v === -1 ? PAYWITH_OTHER : !PAYWITH_OTHER && (v === 0 ? PAYWITH == null : PAYWITH === v); };
+  var h = '<div class="label">Paying with</div><div class="paywith" style="grid-template-columns:repeat(' + opts.length + ', minmax(0, 1fr))">' +
+    opts.map(function (o) { return '<button class="when" data-paywith="' + o[0] + '" aria-pressed="' + on(o[0]) + '">' + esc(o[1]) + '</button>'; }).join('') + '</div>';
+  if (PAYWITH_OTHER) {
+    h += '<input class="note-in" id="opaywith" type="text" inputmode="decimal" maxlength="9" placeholder="The bill you will pay with" aria-label="The bill you will pay with" style="margin-top:8px" value="' +
+      (PAYWITH ? esc(String(PAYWITH / 100)) : '') + '">';
+  }
+  return h;
+}
+/** The line the rider reads, or '' for the exact amount. */
+function payWithNote() {
+  if (!payWithOn() || PAYWITH == null) return '';
+  return 'Cash: customer pays with ' + money(PAYWITH) + ', bring change';
+}
+
 function sendLabel() {
   // WITH A CODE TYPED, THE AMOUNT IS NOT OURS TO STATE. The server works out
   // what the code is worth; a button that said "pay 280" and then charged 230
   // would be wrong twice over - once about the money, once about who decided.
   // Same for the shop's own automatic offer (0306): the server takes it off, so the button names no amount.
-  var withCode = (COUPONS_ON && COUPON.trim() !== '') || !!(STORE && STORE.has_promo);
+  var withCode = (COUPONS_ON && COUPON.trim() !== '') || HASPROMO;
   if (PAYON && PAYCHOICE === 'now' && payTotal() >= minPay()) {
     return withCode ? 'Place order & pay' : 'Place order & pay ' + money(total() + tipCents());
   }
@@ -3035,8 +3406,24 @@ async function send() {
       return;
     }
     if (OMODE === 'delivery' && !addr) { toast('Please give the delivery address.'); return; }
-    if (AHEAD_ONLY && !(WHEN && WHENDAY)) { toast('Please choose a day for your order.'); return; }
+    if (AHEAD_ONLY && !(WHEN && (WHENDAY || TODAY_LATER))) { toast(TODAY_LATER ? 'Please choose a time for your order.' : 'Please choose a day for your order.'); return; }
+    // 0603: a time for TODAY, picked a while ago, may have gone by. The server
+    // refuses a slot that is too soon; the customer hears it here first, with
+    // the next time already chosen for them to check.
+    if (OMODE === 'pickup' && STORE.pickup_times && WHEN !== null && !WHENDAY) {
+      const fresh = whenSlots();
+      if (fresh.indexOf(WHEN) < 0) {
+        WHEN = fresh[0] || null;
+        saveCart();
+        if (CART_REDRAW) CART_REDRAW();
+        toast(WHEN ? 'That pickup time has passed. The next one is ' + hhmmLabel(WHEN) + ', check it and place your order again.'
+          : 'Pickup times are over for today. Your order will be made as soon as possible.');
+        return;
+      }
+    }
     if (underDeliveryMin()) { toast('Delivery orders start at ' + money(deliveryMinCents()) + '. Add a little more, or choose pickup.'); return; }
+    if (payWithOn() && PAYWITH_OTHER && !(PAYWITH > 0)) { toast('Type the bill you will pay with, or choose Exact amount.'); return; }
+    if (payWithOn() && PAYWITH != null && PAYWITH < payDue()) { toast('That is less than the total. Choose a bigger bill, or Exact amount.'); return; }
     // prepayRequired(OMODE), not a delivery-only test (21 Sep 2026). A shop
     // with "pickup orders must be paid first" on, and PayMongo not connected
     // (or a basket under the online minimum), used to let the order through -
@@ -3056,9 +3443,9 @@ async function send() {
   const sendArgs = {
       p_token: TOKEN,
       p_items: CART.map((l) => ({ item_id: l.item_id, qty: l.qty, variant_id: l.variant_id, options: l.options, addons: l.addons || [], note: l.note })),
-      p_name: who || null, p_note: null, p_order_type: STORE ? OMODE : (SHARED ? (KMODE || 'takeout') : null),
-      p_phone: STORE ? phone : null, p_address: (STORE && OMODE === 'delivery') ? ((zones().length && ZONE) ? ZONE + ' · ' + addr
-        : (kmCfg() && GEO && GEO.fee >= 0) ? 'GPS ' + GEO.lat.toFixed(5) + ',' + GEO.lng.toFixed(5) + ' · ' + addr : addr) : null,
+      // The customer's own note, after the bill they pay with (cash on delivery).
+      p_name: who || null, p_note: [payWithNote(), (el('onote') && el('onote').value.trim()) || ''].filter(Boolean).join(' | ') || null, p_order_type: STORE ? OMODE : (SHARED ? (KMODE || 'takeout') : null),
+      p_phone: STORE ? phone : null, p_address: (STORE && OMODE === 'delivery') ? deliveryAddressLine(addr) : null,
       // Pickup only, and only where the shop asked for times. The server
       // resolves it in the SHOP's timezone and ignores anything it cannot
       // read - a bad time must never cost somebody their order.
@@ -3079,7 +3466,14 @@ async function send() {
     const res = await rpc('kiosk_place_order', Object.assign({}, sendArgs, { p_client_ref: acctRef }));
     if (!res || !res.ok) {
       toast((res && res.error) || 'Could not send. Please ask a staff member.');
-      btn.disabled = false; btn.textContent = sendLabel(); return;
+      btn.disabled = false; btn.textContent = sendLabel();
+      // 0604: the lines the shop cannot take right now are marked in the basket.
+      const bad = (res && Array.isArray(res.unavailable_item_ids)) ? res.unavailable_item_ids.map(String) : [];
+      CART.forEach((l) => { if (bad.indexOf(String(l.item_id)) >= 0) l.unavailable = true; else delete l.unavailable; });
+      if (bad.length && CART_REDRAW && el('send')) CART_REDRAW();
+      // The next try sees the menu as it is now (sold out, a time menu that ended).
+      refreshMenu();
+      return;
     }
     // 0517: the tip goes on the order the moment it exists, before any payment
     // is made for it - the pay sheet then asks for food and tip together.
@@ -3097,8 +3491,11 @@ async function send() {
     rememberOrder({
       num: res.order_number, at: Date.now(), total: (res.total_cents || 0) + tipped, tip: tipped,
       // 0516: the proof this phone sent it - for Cancel, "I'm here" and signing in afterwards.
-      ref: STORE ? acctRef : null, claimed: !!ACCT,
+      // 22 Oct 2026: kept for a table order too, since paying online asks for it (refOf).
+      ref: acctRef, claimed: !!ACCT,
       type: STORE ? (res.order_type || OMODE) : null, prepaid: false,
+      // 0645: this order had to be paid first (the server's word, kept with it).
+      payFirst: res.must_prepay === true,
       // v1.1.62: the pickup label is STAMPED on the order server-side; keeping
       // it here means this phone shows the exact same number as the board even
       // if the shop re-words its numbers later in the day.
@@ -3120,7 +3517,9 @@ async function send() {
     var saved = Number(res.discount_cents || 0);
     COUPON = '';
     var payNow = PAYON && PAYCHOICE === 'now' && (res.total_cents || 0) + tipped >= minPay() && !res.duplicate;
-    CART = []; SEND_REF = null; KMODE = null; WHEN = null; WHENDAY = ''; closeSheet(); showOrders(res.order_number);
+    CART = []; SEND_REF = null; KMODE = null; WHEN = null; WHENDAY = ''; PAYWITH = null; PAYWITH_OTHER = false;
+    DRAFT = {}; saveCart();      // sent: nothing of this basket comes back on a reload
+    closeSheet(); showOrders(res.order_number);
     if (ACCT && !res.duplicate) afterAccountOrder(res.order_number, acctRef, addr, acctKeep, acctMkt);
     else if (ACCT && res.duplicate) afterAccountOrder(res.order_number, acctRef, null, false, false);
     // The unmistakable confirmation the shop asked for - the screen also
@@ -3150,6 +3549,13 @@ function markPrepaid(num) {
   const i = a.findIndex(function (x) { return x.num === num; });
   if (i >= 0) { a[i].prepaid = true; writeOrders(a); }
 }
+/** The order's own secret, sent with every pay call (22 Oct 2026): shop-pay
+ *  answers "not found" to an order with a ref when it is missing, so a stranger
+ *  holding the link and an order number cannot open or cancel its QR. */
+function refOf(num) {
+  const o = loadOrders().find(function (x) { return x.num === num; });
+  return (o && o.ref) || undefined;
+}
 async function openPaySheet(num, type) {
   // The ORDER's own type, never the basket's - see counterPayAllowed.
   var otype = type || ((loadOrders().find(function (x) { return x.num === num; }) || {}).type) || OMODE;
@@ -3157,18 +3563,28 @@ async function openPaySheet(num, type) {
     '<div style="display:flex;gap:10px"><button class="ghost" id="payabort" style="flex:1">Not now</button></div>');
   el('payabort').onclick = function () { closeSheet(); showOrders(num); };
   var r;
-  try { r = await payFn({ action: 'kiosk_create', token: TOKEN, orderNumber: num }); }
+  try { r = await payFn({ action: 'kiosk_create', token: TOKEN, orderNumber: num, clientRef: refOf(num) }); }
   catch (e) { r = null; }
   if (r && (r.alreadyPaid || r.paid)) { markPrepaid(num); BANNER_NEW[num] = 1; closeSheet(); showOrders(num); toast('Already paid!'); return; }
   if (!r || !r.ok) {
     closeSheet(); showOrders(num);
-    toast(((r && r.error) || 'Could not start the payment.') + ' You can pay ' +
-      (otype === 'delivery' ? 'the rider in cash.' : 'at the counter.'));
+    // Only promise cash or the counter where the shop takes it (counterPayAllowed,
+    // the same rule as the QR sheet below): a pay-first shop starts nothing unpaid.
+    toast(((r && r.error) || 'Could not start the payment.') + ' ' +
+      (counterPayAllowed(otype)
+        ? 'You can pay ' + (otype === 'delivery' ? 'the rider in cash.' : 'at the counter.')
+        : 'Your order is saved, tap Pay now under Your orders to try again in a moment.'));
     return;
   }
   var intent = r.intentId, stopped = false;
+  // 22 Oct 2026: when the code stops working. PayMongo gives unix seconds;
+  // milliseconds or a date string are read too. Unknown: about 30 minutes.
+  var ex = r.expiresAt, opened = Date.now();
+  var expiresAt = typeof ex === 'number' ? (ex < 1e12 ? ex * 1000 : ex)
+    : (typeof ex === 'string' && /^\d+$/.test(ex)) ? Number(ex) * (Number(ex) < 1e12 ? 1000 : 1)
+    : (typeof ex === 'string' && !isNaN(Date.parse(ex))) ? Date.parse(ex) : opened + 30 * 60 * 1000;
   openSheet('<h2>Scan to pay</h2>' +
-    '<div style="text-align:center"><img src="' + r.qrImage + '" alt="QR Ph payment code" ' +
+    '<div id="payqr" style="text-align:center"><img src="' + r.qrImage + '" alt="QR Ph payment code" ' +
       'style="width:230px;max-width:78vw;border-radius:12px;background:#fff;padding:8px"></div>' +
     '<div style="text-align:center;font-weight:900;font-size:24px;margin:8px 0">' + money(r.amountCents) + '</div>' +
     '<p class="lede" style="text-align:center;font-size:13px">Open GCash, Maya or your bank app and scan this QR Ph code' +
@@ -3202,7 +3618,7 @@ async function openPaySheet(num, type) {
       closeSheet();
       if (toMenu) render(); else showOrders(num);
     };
-    payFn({ action: 'kiosk_cancel', token: TOKEN, orderNumber: num, intentId: intent })
+    payFn({ action: 'kiosk_cancel', token: TOKEN, orderNumber: num, intentId: intent, clientRef: refOf(num) })
       .then(done).catch(function () { done(null); });
   };
   el('paylater').onclick = function () { giveUp(false); };
@@ -3215,19 +3631,66 @@ async function openPaySheet(num, type) {
   // longer than opening GCash and scanning takes, and the cancel above honors
   // a payment that lands in the same breath, so nothing can be lost by it.
   if (SHARED) giveUpTimer = setTimeout(function () { giveUpTimer = null; giveUp(true); }, 5 * 60 * 1000);
+  /* THE PAY SCREEN ENDS (22 Oct 2026). It only ever acted on "paid": an
+     expired code, an order the shop voided, or an answer the server refused
+     kept "Waiting for the payment" up for good, and a customer paid into a
+     dead code. Every final answer now ends the wait and says what happened. */
+  var stopWith = function (msg) { stopped = true; closeSheet(); showOrders(num); toast(msg); };
+  var expired = function () {
+    stopped = true;
+    var qr = el('payqr'), stEl = el('paystate');
+    if (qr) qr.innerHTML = '<p class="lede" style="text-align:center;padding:18px 0;font-size:15px"><b>This code has expired.</b></p>' +
+      '<div style="text-align:center"><button class="primary" id="paynew">Get a new code</button></div>';
+    if (stEl) stEl.textContent = '';
+    if (el('paynew')) el('paynew').onclick = function () { openPaySheet(num, otype); };
+    // Nothing left to cancel: backing out just goes back to the order.
+    var back = function () { closeSheet(); showOrders(num); };
+    SHEET_DISMISS = back;
+    if (el('paylater')) el('paylater').onclick = back;
+  };
   var tickPay = function () {
     if (stopped || !el('paystate')) return;   // sheet was replaced or closed
-    payFn({ action: 'kiosk_status', token: TOKEN, orderNumber: num, intentId: intent }).then(function (st) {
+    // A tab left open: stop asking once the code is long gone.
+    if (Date.now() > expiresAt + 60 * 1000 || Date.now() - opened > 35 * 60 * 1000) { expired(); return; }
+    payFn({ action: 'kiosk_status', token: TOKEN, orderNumber: num, intentId: intent, clientRef: refOf(num) }).then(function (st) {
       if (stopped) return;
-      if (st && st.paid) {
+      st = st || {};
+      // Paid at the counter while this QR was up: the server closed the code
+      // and says stop. Before the "cancelled" check below, which would offer a
+      // new code for an order that is already paid.
+      if (!st.paid && (st.stop || st.code === 'paid_at_counter')) { stopWith('This order was paid at the counter.'); return; }
+      if (st.paid && st.shopCancelled) {
+        // Money in for an order the shop had voided: the shop's sweep records it and owes a refund.
+        stopWith('Paid. The shop cancelled this order and will refund you.');
+        return;
+      }
+      if (st.paid) {
         stopped = true; markPrepaid(num); BANNER_NEW[num] = 1; closeSheet(); showOrders(num);
         toast('Paid, the shop sees it instantly!');
         return;
       }
-      setTimeout(tickPay, 3000);
+      if (st.code === 'voided') { stopWith('The shop cancelled this order. If you already paid, the shop will refund you.'); return; }
+      if (st.code === 'too_old') { stopWith('This order is too old to pay online now. Please pay at the shop.'); return; }
+      if (st.code === 'bad_link' || st.code === 'no_order' || st.code === 'not_connected') { stopWith(st.error || 'This order cannot be paid online now. Please pay at the shop.'); return; }
+      if (st.code === 'wrong_intent' || st.code === 'ref_reused') { stopWith('Your payment needs the shop to check it, please show this screen at the counter.'); return; }
+      // This QR is not the order's open one any more (a newer code replaced it).
+      if (st.code === 'bad_id') { stopWith('That payment code is no longer open. Tap Pay now to start again.'); return; }
+      if (st.ok && (st.status === 'cancelled' || st.status === 'expired' || st.status === 'awaiting_payment_method')) { expired(); return; }
+      // Every 3 seconds at first, then every 6: a forgotten tab costs less.
+      setTimeout(tickPay, Date.now() - opened > 5 * 60 * 1000 ? 6000 : 3000);
     }).catch(function () { setTimeout(tickPay, 4000); });
   };
   setTimeout(tickPay, 3000);
+}
+
+/** Is the Pay now button drawn on this order's card? The card's own test, in
+ *  one place, so its words never point at a button that is not there (0611).
+ *  ON A SHARED KIOSK TABLET, ONLY FOR AN ORDER THIS CUSTOMER PLACED: the
+ *  tablet remembers the last person's orders, and a button that pays a
+ *  stranger's bill is not a feature. An order brought back by a saved link has
+ *  no amount here: the pay sheet shows the shop's. */
+function payNowShown(o) {
+  return !!(PAYON && o.total >= minPay() && (!SHARED || MINE[o.num]) || (PAYON && o.linked && o.total == null));
 }
 
 /* ---- My orders -------------------------------------------------------------
@@ -3257,6 +3720,17 @@ function writeOrders(list) {
   try { localStorage.setItem(LS_KEY, JSON.stringify(list.slice(0, 20))); } catch (e) { /* private mode */ }
 }
 function rememberOrder(o) { const a = loadOrders(); a.unshift(o); writeOrders(a); }
+/** 0615 / 0616: the server's live figures on a kept order (total, why it was
+ *  cancelled, the ticket it was merged into). True when anything changed. */
+function patchOrder(num, patch) {
+  const a = loadOrders();
+  const i = a.findIndex((x) => x.num === num);
+  if (i < 0) return false;
+  let changed = false;
+  for (const k in patch) { if (a[i][k] !== patch[k]) { a[i][k] = patch[k]; changed = true; } }
+  if (changed) writeOrders(a);
+  return changed;
+}
 /* Returns what changed so the tracker knows when to ring the phone. */
 function markOrder(num, state, paid) {
   const a = loadOrders();
@@ -3291,9 +3765,23 @@ function forgetAll() {
   // A handed-over tablet asks the next customer how it was.
   if (SHARED) { try { localStorage.removeItem(CSAT_KEY); } catch (e) { /* private mode */ } }
   for (var k in MINE) { if (Object.prototype.hasOwnProperty.call(MINE, k)) delete MINE[k]; }
+  // A tablet must not offer the next customer the last one's number (My
+  // stamps) or name and address; this also clears what a tablet saved before.
+  if (SHARED) {
+    ['ember.phone', 'ember.who', 'ember.addr'].forEach(function (k2) {
+      try { localStorage.removeItem(k2); } catch (e) { /* private mode */ }
+    });
+  }
   CART = []; KMODE = null;
+  COUPON = ''; WHEN = null; WHENDAY = '';
   Q = '';
   render();
+  refreshMenu();                  // the next customer sees today's stock, not this morning's
+}
+
+/** Is anything of the last customer still on this tablet? */
+function kioskHasSomething() {
+  return !!(CART.length || KMODE || COUPON.trim() || WHEN || Object.keys(MINE).length || loadOrders().length);
 }
 
 /* The idle half of it. Ninety seconds is long enough to read your own order
@@ -3306,10 +3794,11 @@ function idleArm() {
   if (!(SHARED && FORGET)) return;
   IDLE_T = setTimeout(function () {
     IDLE_T = null;
-    // Only ever from the orders screen. And never over an open sheet: somebody
-    // is plainly still using the tablet, so wait for them instead.
-    if (!document.querySelector('[data-track]')) return;
+    // Never over an open sheet: somebody is plainly still using the tablet,
+    // so wait for them instead. Anywhere else (the orders screen, or the menu
+    // with a basket left on it) the tablet goes back to the next customer.
     if (el('scrim').classList.contains('on')) { idleArm(); return; }
+    if (!document.querySelector('[data-track]') && !kioskHasSomething()) return;
     forgetAll();
   }, 90 * 1000);
 }
@@ -3442,12 +3931,15 @@ function notifyReady(num, stamped) {
     if (document.visibilityState === 'visible') return;    // the in-page ring already has them
     // A delivery is not collected at the counter - the same words alertReady uses.
     var ord = loadOrders().find(function (x) { return x.num === num; }) || {};
-    new Notification(ord.type === 'delivery' ? 'Order ' + pickupNum(num, stamped) + ' is packed' : 'Order ' + pickupNum(num, stamped) + ' is ready',
-      { body: ord.type === 'delivery' ? 'The rider is on the way soon.' : 'Please collect it at the counter.', tag: 'ember-ready' });
+    // A system notification never passes the Tagalog layer's watcher: asked directly.
+    var t = function (x) { return window.EmberLang ? EmberLang.t(x) : x; };
+    new Notification(t(ord.type === 'delivery' ? 'Order ' + pickupNum(num, stamped) + ' is packed' : 'Order ' + pickupNum(num, stamped) + ' is ready'),
+      { body: t(ord.type === 'delivery' ? 'The rider is on the way soon.' : 'Please collect it at the counter.'), tag: 'ember-ready' });
   } catch (e) { /* the title flash + ring remain */ }
 }
 document.addEventListener('visibilitychange', function () {
-  if (document.visibilityState === 'visible') { holdWake(); resumeRinging(); }
+  // Back to the front: at most once every 2 minutes, the menu as it is now (see refreshMenu).
+  if (document.visibilityState === 'visible') { holdWake(); resumeRinging(); refreshMenu(2 * 60 * 1000); }
 });
 
 const STATE_TEXT = {
@@ -3504,14 +3996,41 @@ function clearMoved() {
   for (const k in BANNER_NEW) delete BANNER_NEW[k];
   HERE_JUST = null;
 }
-function stepsHtml(state, type, wanted, arrive) {
+/* NOBODY AT THE SHOP HAS OPENED IT (0642). The server says 'unopened' when an
+   order is ten minutes old, nobody has accepted or started it, and no register
+   of the shop has been on since it came in. The customer is told, with the two
+   things they can do about it: call the shop, or cancel (online orders not yet
+   paid). At a table, a staff member is right there. */
+function unopenedHtml(o) {
+  if (!o.unopened || FINAL[o.state] || o.state === 'cancelled' || o.state === 'ready') return '';
+  const tel = SHOPINFO && SHOPINFO.phone ? String(SHOPINFO.phone).replace(/[^0-9+]/g, '') : '';
+  const cancel = !!(STORE && o.ref && !o.paid && !o.prepaid);
+  return '<div style="display:flex;gap:8px;align-items:flex-start;background:rgba(255,92,0,.12);' +
+      'border:1px solid rgba(255,92,0,.45);border-radius:var(--r-md);padding:10px 12px;margin-bottom:12px">' +
+      '<span style="color:var(--muted);display:flex">' + ICON_CLOCK + '</span>' +
+      '<span><b style="display:block;font-size:14.5px">The shop has not opened your order yet</b>' +
+      '<span class="lede" style="font-size:12.5px">' + (STORE
+        ? (cancel ? 'Nobody at the shop has seen it for 10 minutes. Please call the shop, or cancel it.' : 'Nobody at the shop has seen it for 10 minutes. Please call the shop.')
+        : 'Nobody at the shop has seen it for 10 minutes. Please ask a staff member.') + '</span></span></div>' +
+    (STORE && (tel || cancel)
+      ? '<div style="display:flex;gap:10px;margin-bottom:12px">' +
+          (tel ? '<a class="ghost btnlink" href="tel:' + esc(tel) + '" style="flex:1">' + ICON_PHONE + ' Call the shop</a>' : '') +
+          (cancel ? '<button class="ghost" data-cancel="' + esc(o.num) + '" style="flex:1">Cancel this order</button>' : '') +
+        '</div>'
+      : '');
+}
+function stepsHtml(state, type, wanted, arrive, why) {
   let texts = (type && STATE_TEXT_BY_TYPE[type]) || STATE_TEXT;
   // An order booked for later sits on its first step until the shop starts
   // it near the time. "Confirming" for forty minutes reads as "lost" (2 Oct
   // 2026): say what is actually happening.
   if (wanted && state === 'waiting') texts = Object.assign({}, texts, { waiting: 'Booked for ' + esc(wanted) + ', the shop starts it nearer the time' });
   if (state === 'cancelled') {
-    return '<div class="step on' + (arrive ? ' arrive' : '') + '"><span class="dot"></span><span>' + texts.cancelled + '</span></div>';
+    // 0615: who called it off, as a class the server sends, never the staff's own words.
+    const said = why === 'customer' ? 'You cancelled this order'
+      : why === 'expired' ? 'The shop did not confirm it in time, please contact the shop'
+      : texts.cancelled;
+    return '<div class="step on' + (arrive ? ' arrive' : '') + '"><span class="dot"></span><span>' + said + '</span></div>';
   }
   const seq = ['waiting', 'making', 'ready', 'collected'];
   const at = seq.indexOf(state);
@@ -3672,7 +4191,7 @@ function showOrders(highlight) {
             (pickupNum(o.num, o.pickup) !== o.num
               ? '<div class="lede" style="font-size:11.5px;letter-spacing:.4px">' + esc(o.num) + '</div>' : '') +
           '</div>' +
-          '<div style="margin-left:auto;font-weight:700">' + money(o.total) + '</div></div>' +
+          '<div style="margin-left:auto;font-weight:700">' + (o.total != null ? money(o.total) : '') + '</div></div>' +
         '<div class="lede" style="font-size:12px;margin-top:2px">Watch for this number</div>' +
         (o.wanted
           ? '<div style="display:flex;align-items:center;gap:6px;margin-top:8px;padding:8px 10px;border-radius:var(--r-sm);' +
@@ -3682,12 +4201,12 @@ function showOrders(highlight) {
         '<div class="lede" style="font-size:12.5px;margin:2px 0 10px">' +
           new Date(o.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) +
           (o.paid ? ' · paid' : o.prepaid ? ' · paid online' :
-            prepayRequired(o.type) ? ' \u00b7 waiting for payment' :
+            waitsForPayment(o) ? ' \u00b7 waiting for payment' :
             o.type === 'delivery' ? ' · cash on delivery' :
             o.type === 'pickup' ? ' \u00b7 pay at pickup'
                                 : ' \u00b7 pay at the counter') + '</div>' +
         // What they actually ordered, which is the bit that was missing.
-        '<div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:12px">' +
+        ((o.items || []).length ? '<div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:12px">' +
           o.items.map((l) => '<div style="display:flex;gap:10px;padding:3px 0;font-size:14px">' +
             '<span style="color:var(--muted);min-width:22px">' + l.qty + 'x</span>' +
             '<span style="flex:1;min-width:0" data-notl>' + esc(l.name) +
@@ -3697,7 +4216,7 @@ function showOrders(highlight) {
               (l.note ? '<span class="lede" style="display:block;font-size:12.5px">' + esc(l.note) + '</span>' : '') +
             '</span>' +
             '<span style="color:var(--muted)">' + money(l.price * l.qty) + '</span></div>').join('') +
-        '</div>' +
+        '</div>' : '') +
         // The phone is ringing for this one - the button that stops it has to
         // be the biggest thing on the card, not a line of small print.
         (o.state === 'ready' && !o.acked
@@ -3734,41 +4253,51 @@ function showOrders(highlight) {
             '<span style="color:var(--muted);display:flex">' + (o.type === 'delivery' ? ICON_CASH : ICON_CARD) + '</span>' +
             // A pay-first order is not on its way and nobody is bringing
             // change: it is waiting, and the Pay now button below is the way on.
-            (prepayRequired(o.type)
+            // 0611: "tap Pay now below" only when that button is really there.
+            (waitsForPayment(o)
               ? '<span><b style="display:block;font-size:14.5px">Waiting for your payment</b>' +
-                '<span class="lede" style="font-size:12.5px">The shop starts this order once it is paid, tap Pay now below.</span></span>'
+                '<span class="lede" style="font-size:12.5px">' + (payNowShown(o)
+                  ? 'The shop starts this order once it is paid, tap Pay now below.'
+                  : 'The shop starts this order once it is paid. Please call the shop to pay.') + '</span></span>'
               : o.type === 'delivery'
               ? '<span><b style="display:block;font-size:14.5px">Cash on delivery</b>' +
-                '<span class="lede" style="font-size:12.5px">Have ' + money(o.total) + ' ready for the rider.</span></span>'
+                '<span class="lede" style="font-size:12.5px">' + (o.total != null ? 'Have ' + money(o.total) + ' ready for the rider.' : 'Have the cash ready for the rider.') + '</span></span>'
               : o.type === 'pickup'
                 ? '<span><b style="display:block;font-size:14.5px">Pay when you pick it up</b>' +
                   '<span class="lede" style="font-size:12.5px">Show this number: <b>' + esc(pickupNum(o.num, o.pickup)) + '</b>.</span></span>'
                 : '<span><b style="display:block;font-size:14.5px">Please pay at the counter</b>' +
                   '<span class="lede" style="font-size:12.5px">Show this number at the counter: <b>' + esc(pickupNum(o.num, o.pickup)) + '</b>.</span></span>') +
           '</div>' +
-          // A payment that was backed out of, on any kind of link (0165).
-          // ON A SHARED KIOSK TABLET, ONLY FOR AN ORDER THIS CUSTOMER PLACED:
-          // the tablet remembers the last person's orders, and a button that
-          // pays a stranger's bill is not a feature.
-          (PAYON && o.total >= minPay() && (!SHARED || MINE[o.num])
-            ? '<button class="primary" data-paynow="' + esc(o.num) + '" data-paytype="' + esc(o.type || '') + '" style="width:100%;margin-bottom:12px">Pay now, ' + money(o.total) + '</button>'
+          // A payment that was backed out of, on any kind of link (0165). Who sees it: payNowShown.
+          (payNowShown(o)
+            ? '<button class="primary" data-paynow="' + esc(o.num) + '" data-paytype="' + esc(o.type || '') + '" style="width:100%;margin-bottom:12px">' + (o.total != null ? 'Pay now, ' + money(o.total) : 'Pay now') + '</button>'
             : '')) +
-        '<div class="steps" data-track="' + esc(o.num) + '">' + stepsHtml(o.state || 'waiting', o.type, o.wanted) + '</div>' +
+        unopenedHtml(o) +
+        '<div class="steps" data-track="' + esc(o.num) + '">' + stepsHtml(o.state || 'waiting', o.type, o.wanted, false, o.cancelReason) + '</div>' +
+        // 0616: the staff joined this order to another ticket for one bill.
+        (o.mergedInto && o.state !== 'cancelled'
+          ? '<div class="lede" style="font-size:13px;margin-top:8px">Added to ticket ' + esc(o.mergedInto) + '</div>'
+          : '') +
         // 0516: the two things a customer can do about an order from here.
         (STORE && o.ref && o.type === 'pickup' && !FINAL[o.state] && o.state !== 'cancelled'
           ? (o.arrived
               ? '<div class="lede' + (HERE_JUST === o.num ? ' swapin' : '') + '" style="font-size:13px;margin-top:10px;display:flex;gap:6px;align-items:center">' + ICON_CHECK + ' The shop knows you are here.</div>'
               : '<button class="ghost" data-here="' + esc(o.num) + '" style="width:100%;margin-top:10px">' + ICON_PIN + ' I’m here</button>')
           : '') +
-        (STORE && o.ref && (o.state || 'waiting') === 'waiting' && !o.paid && !o.prepaid
+        (STORE && o.ref && (o.state || 'waiting') === 'waiting' && !o.paid && !o.prepaid && !o.unopened
           ? '<button class="ghost" data-cancel="' + esc(o.num) + '" style="width:100%;margin-top:10px">Cancel this order</button>'
+          : '') +
+        // 22 Oct 2026: a link to this order, to follow it from another phone or browser (see LINK_ORDER).
+        (STORE && !SHARED && o.ref && !FINAL[o.state]
+          ? (o.wantedDay ? '<p class="lede" style="font-size:12.5px;margin:10px 0 0">Ordering for another day? Save this link to follow it from any phone.</p>' : '') +
+            '<button class="ghost" data-savelink="' + esc(o.num) + '" style="width:100%;margin-top:10px">' + ICON_LINK + ' Save a link to this order</button>'
           : '') +
       '</div>';
     }).join('') +
     // 0516: THE BEST MOMENT TO OFFER AN ACCOUNT is right after the order (the
     // research: guests asked after checkout sign up far more than guests asked
     // before it). Never on a shared tablet.
-    (ACC_ON && !ACCT && STORE && !SHARED && list.some((o) => o.ref && !o.claimed && Date.now() - o.at < 29 * 60 * 1000)
+    (ACC_ON && !ACCT && STORE && !SHARED && list.some((o) => o.ref && !o.claimed && o.state !== 'cancelled' && Date.now() - o.at < 29 * 60 * 1000)
       ? '<div class="acard card"><b style="font-size:15px">Save your details for next time</b>' +
         '<p class="lede" style="font-size:13.5px;margin:6px 0 10px">Make a free Ember account with your email. Your name, number and addresses fill in for you, ' +
         'this order is kept with your stamps, and you can order again in one tap - at any shop that uses Ember.</p>' +
@@ -3785,7 +4314,7 @@ function showOrders(highlight) {
   // so the last step of the tracker has to clear it the same way (2 Oct 2026:
   // a customer saw "Ready" and "Collected" hidden under the bar).
   document.body.classList.add('has-cart');
-  el('tomenu').onclick = () => { render(); };
+  el('tomenu').onclick = () => { render(); refreshMenu(30 * 1000); };
   // The step an order has just moved to arrives; nothing else on the card moves.
   for (const num in STEP_MOVED) {
     const on = [...document.querySelectorAll('[data-track] .step.on')].find((x) => x.parentElement.getAttribute('data-track') === num);
@@ -3812,6 +4341,7 @@ function showOrders(highlight) {
   });
   document.querySelectorAll('[data-cancel]').forEach((b) => { b.onclick = () => cancelOrder(b.getAttribute('data-cancel')); });
   document.querySelectorAll('[data-here]').forEach((b) => { b.onclick = () => imHere(b.getAttribute('data-here')); });
+  document.querySelectorAll('[data-savelink]').forEach((b) => { b.onclick = () => saveOrderLink(b.getAttribute('data-savelink')); });
   if (el('saveme')) el('saveme').onclick = () => openSignIn(() => showOrders());
   mountTripMaps();
   startTripTracking();
@@ -3850,9 +4380,24 @@ function trackAll() {
           // card says "Collected" instead of still asking them to come over.
           if (ch.becameCollected) { stopRinging(); redraw = true; BANNER_NEW[o.num] = 1; }
           if (ch.paidChanged) redraw = true; // the paid badge + banner live outside the steps box
+          // 0615: the order as it stands now. A drink taken off a cash-on-delivery
+          // order changes what to have ready for the rider.
+          const patch = {};
+          if (r.total_cents != null && isFinite(Number(r.total_cents))) patch.total = Number(r.total_cents) + (Number(r.tip_cents) || 0);
+          if (r.state === 'cancelled' && r.cancel_reason) patch.cancelReason = String(r.cancel_reason);
+          // 0616: merged into another ticket at the table, still tracked.
+          if ('merged_into' in r) patch.mergedInto = r.merged_into ? String(r.merged_into) : null;
+          // 0645: the order's own pay-first mark, once the server sends it.
+          if ('pay_first' in r) patch.payFirst = r.pay_first === true;
+          // 0642: no register has opened it. The shop's number is fetched once, for the Call button.
+          if ('unopened' in r) patch.unopened = r.unopened === true;
+          if (patch.unopened && STORE && !SHOPINFO) {
+            try { const si = await rpc('kiosk_shop_info', { p_token: TOKEN }); SHOPINFO = si && si.ok ? si : null; } catch (e) { /* no Call button */ }
+          }
+          if (patchOrder(o.num, patch)) redraw = true;
           if (moved) STEP_MOVED[o.num] = 1;
           const box = document.querySelector('[data-track="' + o.num + '"]');
-          if (box) box.innerHTML = stepsHtml(r.state, o.type, o.wanted, moved);
+          if (box) box.innerHTML = stepsHtml(r.state, o.type, o.wanted, moved, patch.cancelReason || o.cancelReason);
         }
       } catch (e) { /* keep the last known state and try again next tick */ }
     }
@@ -3868,6 +4413,234 @@ function fatal(title, msg) {
   el('app').innerHTML = '<div class="center fatal"><h2>' + esc(title) + '</h2><p>' + esc(msg) + '</p>' +
     '<div style="margin-top:22px"><button class="ghost" id="retry">Try again</button></div></div>';
   el('retry').onclick = () => location.reload();
+}
+/** When the store takes orders again (0642), in words: "at 8:00 AM",
+ *  "tomorrow at 8:00 AM", "on Monday at 8:00 AM". '' when the shop has no hours. */
+function reopenWords(sh) {
+  if (!sh || !/^\d{2}:\d{2}$/.test(sh.reopen_at || '')) return '';
+  var at = hhmm12(sh.reopen_at);
+  if (!sh.reopen_day || !sh.today || sh.reopen_day === sh.today) return 'at ' + at;
+  var d0 = Date.parse(sh.today + 'T00:00:00Z'), d1 = Date.parse(sh.reopen_day + 'T00:00:00Z');
+  if (d1 - d0 === 86400000) return 'tomorrow at ' + at;
+  return 'on ' + new Date(d1).toLocaleDateString(window.EmberLang && EmberLang.isTagalog() ? 'fil-PH' : 'en-US', { timeZone: 'UTC', weekday: 'long' }) + ' at ' + at;
+}
+/** The closed screen, with the shop's own note under it ("Closed on Sundays").
+ *  0642: it says why (outside the hours, a day off, a pause) and when it opens. */
+function closedScreen(m) {
+  const sh = (m && m.shop) || {};
+  const name = sh.name || 'This shop', when = reopenWords(sh);
+  if (sh.closed_why === 'paused') fatal(name + ' has paused online orders', 'Online orders open again ' + (when || 'soon') + '.');
+  else if (sh.closed_why === 'day_off' || sh.closed_why === 'holiday') fatal(name + ' is closed today', when ? 'Online orders open again ' + when + '.' : 'Please come back another day!');
+  else if (sh.closed_why === 'hours') fatal(name + ' is closed right now', when ? 'Online orders open ' + when + '.' : 'Please come back later!');
+  else fatal(name + ' is closed right now', 'Ordering opens again when the counter does. Please come back later!');
+  const n = shopNote(m), box = document.querySelector('#app .center');
+  if (n && box) box.insertAdjacentHTML('beforeend', '<p class="snote">' + esc(n) + '</p>');
+}
+
+/** What the page takes from a kiosk_menu answer, at startup and at every refresh. */
+function applyMenu(m) {
+  MENU = m;
+  CUR = (m.shop && m.shop.currency) || '₱';
+  TAXPCT = Number((m.shop && m.shop.tax_percent) || 0);
+  SVCPCT = Number((m.shop && m.shop.service_charge_pct) || 0);
+  SVCTO = (m.shop && Array.isArray(m.shop.service_charge_to)) ? m.shop.service_charge_to : [];
+  // kiosk_menu sends the storefront rules to every kind of link; see HASPROMO.
+  HASPROMO = !!(m.shop && m.shop.ordering && m.shop.ordering.has_promo === true);
+}
+
+/* THE MENU KEEPS UP (22 Oct 2026). A kiosk tablet, or a phone at a table for
+   a long sitting, loaded the menu once: croissants marked back in stock at 9
+   stayed greyed out, a breakfast menu that ended at 11 stayed up and was then
+   refused, a happy hour that ended kept its price. It is asked again when the
+   tablet is handed over, on "Order more", when the page comes back to the
+   front, after a refusal, and on a kiosk or table link every 10 minutes while
+   the menu is idle (not more often: every call is data the shop pays for).
+   Offline or refused, the menu it has stays. Two never run at once. */
+/** The storefront rules this page keeps from a menu answer: the shop's clock
+ *  with when it was read (0603), and the end of a pause ('HH:MM', 0642). */
+function storeOf(m) {
+  var sh = (m && m.shop) || {};
+  return Object.assign({}, sh.ordering || {}, { now_read_at: Date.now() },
+    { pause_until: sh.closed_why === 'paused' ? (sh.reopen_at || null) : null });
+}
+/* CLOSED, BUT ORDER AHEAD (0517, 0642). A store link that is shut right now
+   still takes PICKUP orders for later where the shop takes pickup times: later
+   today when it is only outside its hours or paused, a later day (never a day
+   off) when it takes days ahead. True when this page can take one, with
+   AHEAD_ONLY and TODAY_LATER set; the server checks every order again. */
+async function canOrderAhead(m) {
+  var ord = (m && m.link && m.link.kind === 'store' && m.shop && m.shop.ordering) || null;
+  if (!ord || !ord.pickup || !ord.pickup_times) return false;
+  if (!SHOPINFO) {
+    try { const si = await rpc('kiosk_shop_info', { p_token: TOKEN }); SHOPINFO = si && si.ok ? si : null; }
+    catch (e) { /* offline: no later order */ }
+  }
+  // The slots are worked out from this menu's clock, hours and pause.
+  var keep = { s: STORE, m: MENU };
+  STORE = storeOf(m);
+  MENU = m;
+  AHEAD_ONLY = true;
+  TODAY_LATER = (m.shop.closed_why === 'hours' || m.shop.closed_why === 'paused') && whenSlots().length > 0;
+  if (TODAY_LATER || availDays().length > 0) return true;
+  STORE = keep.s; MENU = keep.m; AHEAD_ONLY = false; TODAY_LATER = false;
+  return false;
+}
+
+let MENU_BUSY = false, MENU_AT = 0;
+async function refreshMenu(gapMs) {
+  if (MENU_BUSY || !MENU || !TOKEN) return;
+  if (gapMs && Date.now() - MENU_AT < gapMs) return;
+  MENU_BUSY = true;
+  try {
+    let m = null;
+    try { m = await rpc('kiosk_menu', { p_token: TOKEN }); } catch (e) { return; }
+    if (!m || !m.ok) return;
+    MENU_AT = Date.now();
+    // Only the menu screen is ever redrawn, and never under a sheet or a search being typed.
+    const q = el('q');
+    const onMenu = !document.querySelector('[data-track]') && !sheetOpen() && !(q && document.activeElement === q);
+    // 0642: shut since the page opened (the hours ran out, a pause): a later
+    // order where the shop takes them, else the closed screen.
+    let moved = false;
+    if (m.shop && m.shop.closed && !AHEAD_ONLY) {
+      if (!(m.link && m.link.kind === 'store' && await canOrderAhead(m))) {
+        if (onMenu && !CART.length) closedScreen(m);
+        return;
+      }
+      moved = true;
+      WHEN = null; WHENDAY = '';
+      toast(aheadLede());
+    } else if (!(m.shop && m.shop.closed) && AHEAD_ONLY) {
+      // Open again (or the pause is over): "as soon as possible" is back, on a fresh clock.
+      AHEAD_ONLY = false; TODAY_LATER = false; WHEN = null; WHENDAY = '';
+      if (STORE) STORE = storeOf(m);
+      moved = true;
+    }
+    if (!Array.isArray(m.items) || !m.items.length) return;
+    // Nothing moved: nothing is redrawn (photos and scroll stay put). The closed screen always gives way.
+    if (!moved && JSON.stringify(m) === JSON.stringify(MENU) && !el('retry')) return;
+    applyMenu(m);
+    // The basket against the new menu: gone or sold out leaves, the rest at today's price.
+    const was = JSON.stringify(CART);
+    const n = CART.length;
+    CART = CART.map(freshLine).filter(Boolean);
+    if (CART.length < n) toast('Some items are no longer available and were taken out.');
+    if (JSON.stringify(CART) !== was || moved) {
+      saveCart();
+      // The basket sheet itself (a refused send): drawn again from the basket as it is now.
+      if (sheetOpen() && el('send')) { if (CART.length) openCart(); else { closeSheet(); render(); } return; }
+    }
+    if (onMenu) render();
+  } finally { MENU_BUSY = false; }
+}
+
+/* THE MENU SHOWS FIRST (22 Oct 2026). Everything kiosk_menu does not carry,
+   the upsell pairs, the "how was it" switch and the account, used to be
+   waited for one after another before the menu was drawn: five more round
+   trips on 3G, and one that stalled left the skeleton up for good. Now each is
+   asked for at once, after the menu is up, and fills its own variable when it
+   lands. Only the account changes the first screen. */
+function loadExtras() {
+  // What goes with what (0217). A failure just means no suggestions.
+  (async () => {
+    try {
+      const pairs = await rpc('kiosk_upsells', { p_token: TOKEN });
+      if (Array.isArray(pairs)) pairs.forEach((p) => { (UPSELLS[p.t] = UPSELLS[p.t] || []).push(p.s); });
+    } catch (e) { UPSELLS = {}; }
+  })();
+  // Does this shop want to be asked about? A failure here simply means the
+  // question is not asked, which is the same as the shop not switching it on.
+  (async () => {
+    try {
+      ASK_CSAT = (await rpc('kiosk_asks_csat', { p_token: TOKEN })) === true;
+    } catch (e) { ASK_CSAT = false; }
+    if (ASK_CSAT) {
+      try {
+        const u = await rpc('kiosk_review_url', { p_token: TOKEN });
+        REVIEW_URL = typeof u === 'string' && /^https:\/\//i.test(u) ? u : '';
+      } catch (e) { REVIEW_URL = ''; }
+    }
+  })();
+  // 0515: only a storefront link on a personal phone offers an Ember account.
+  if (STORE && window.EmberAccount) {
+    (async () => {
+      try {
+        const st = await rpc('cust_status', { p_token: TOKEN });
+        ACC_ON = !!(st && st.accounts);
+      } catch (e) { ACC_ON = false; }
+      if (!ACC_ON) return;
+      // The card's QR maker, fetched only for a shop that offers accounts.
+      if (typeof qrcode !== 'function') {
+        const sc = document.createElement('script');
+        sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+        sc.async = true;
+        // Open on the account sheet already? Draw it again with the QR in.
+        sc.onload = function () { if (el('acx') && sheetOpen()) { SHEET_SAME = true; openAccount(); } };
+        document.head.appendChild(sc);
+      }
+      await loadAcct();
+      showAcct();
+    })();
+  }
+}
+/** The account answer landed after the menu was drawn: its button goes in
+ *  where render() puts it, without redrawing anything under the customer. */
+function showAcct() {
+  const hero = document.querySelector('#app .hero');
+  if (!hero || el('tomenu')) return;          // not the menu: the next render() draws it
+  const html = acctButtonHtml();
+  const old = el('acct');
+  if (old) { old.insertAdjacentHTML('afterend', html); old.remove(); }
+  else if (html) {
+    const ref = el('mine') || el('again');
+    if (ref) ref.insertAdjacentHTML('beforebegin', html); else hero.insertAdjacentHTML('beforeend', html);
+  }
+  if (el('acct')) el('acct').onclick = openAccount;
+  // Favourites sit at the top of the menu: drawn now unless somebody is mid-search or in a sheet.
+  if (ACCT && ACCT.card && (ACCT.card.favorites || []).length && !sheetOpen() && document.activeElement !== el('q')) render();
+}
+
+/* See LINK_ORDER. Only a storefront link on a personal phone takes one; the
+   order number and ref leave the address bar at once, so a screenshot or a
+   reshared menu link does not carry them. */
+async function openLinkedOrder() {
+  if (!LINK_ORDER && !LINK_REF) return;
+  try {
+    const u = new URL(location.href);
+    u.searchParams.delete('o'); u.searchParams.delete('r');
+    history.replaceState(history.state, '', u.pathname + u.search + u.hash);
+  } catch (e) { /* old browser: the link stays in the bar */ }
+  if (!STORE || SHARED || !LINK_ORDER || !LINK_REF) return;
+  if (loadOrders().some((o) => o.num === LINK_ORDER)) { if (!sheetOpen()) showOrders(LINK_ORDER); return; }
+  let r = null;
+  try { r = await rpc('kiosk_order_status', { p_token: TOKEN, p_order_number: LINK_ORDER }); } catch (e) { r = null; }
+  if (!r || !r.ok) { toast('That order could not be found. It may be more than a day old.'); return; }
+  const linked = {
+    num: LINK_ORDER, ref: LINK_REF, at: Date.now(),
+    // Not this phone's to hand to an account: it may be a link somebody forwarded.
+    claimed: true, linked: true,
+    type: r.order_type || null, state: r.state || 'waiting', paid: r.paid === true, prepaid: r.prepaid === true,
+    pickup: r.pickup || null, total: null, tip: 0, items: [],
+  };
+  // 0645: the order's own pay-first mark, when the server sends it.
+  if ('pay_first' in r) linked.payFirst = r.pay_first === true;
+  rememberOrder(linked);
+  if (!sheetOpen()) showOrders(LINK_ORDER);
+}
+
+/** "Save a link to this order": share it where the phone can, copy it where it cannot. */
+async function saveOrderLink(num) {
+  const o = loadOrders().find((x) => x.num === num);
+  if (!o || !o.ref) return;
+  const url = location.origin + location.pathname + '?t=' + encodeURIComponent(TOKEN) +
+    '&o=' + encodeURIComponent(o.num) + '&r=' + encodeURIComponent(o.ref);
+  if (navigator.share) {
+    try { await navigator.share({ title: 'Order ' + pickupNum(o.num, o.pickup) + ', ' + shopName(), url: url }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  try { await navigator.clipboard.writeText(url); toast('Link copied. Open it on any phone to follow this order.'); return; }
+  catch (e) { /* no clipboard here */ }
+  window.prompt('Copy this link to follow your order:', url);
 }
 
 (async () => {
@@ -3890,16 +4663,9 @@ function fatal(title, msg) {
     if (m.shop && m.shop.closed) {
       // 0517: a shop that takes orders for later days still takes them while
       // the counter is closed - for a later day only (the server checks).
-      var ord = (m.link && m.link.kind === 'store' && m.shop.ordering) || null;
-      if (ord && ord.pickup && ord.pickup_times) {
-        try {
-          const si = await rpc('kiosk_shop_info', { p_token: TOKEN });
-          if (si && si.ok && Number(si.days_ahead) > 0) { SHOPINFO = si; AHEAD_ONLY = true; }
-        } catch (e) { /* offline: the closed screen below */ }
-      }
-      if (!AHEAD_ONLY) {
-        fatal((m.shop.name || 'This shop') + ' is closed right now',
-          'Ordering opens again when the counter does. Please come back later!');
+      // 0642: outside its hours or paused, for later today as well.
+      if (!(await canOrderAhead(m))) {
+        closedScreen(m);
         return;
       }
     }
@@ -3907,30 +4673,12 @@ function fatal(title, msg) {
       fatal('Not serving right now', 'The kitchen has nothing on the menu at the moment. Please ask a staff member.');
       return;
     }
-    MENU = m;
-    // What goes with what (0217). A failure just means no suggestions.
-    try {
-      const pairs = await rpc('kiosk_upsells', { p_token: TOKEN });
-      if (Array.isArray(pairs)) pairs.forEach((p) => { (UPSELLS[p.t] = UPSELLS[p.t] || []).push(p.s); });
-    } catch (e) { UPSELLS = {}; }
-    // Does this shop want to be asked about? One extra call, fired and
-    // forgotten: a failure here simply means the question is not asked, which
-    // is the same as the shop not having switched it on.
-    try {
-      ASK_CSAT = (await rpc('kiosk_asks_csat', { p_token: TOKEN })) === true;
-    } catch (e) { ASK_CSAT = false; }
-    if (ASK_CSAT) {
-      try {
-        const u = await rpc('kiosk_review_url', { p_token: TOKEN });
-        REVIEW_URL = typeof u === 'string' && /^https:\/\//i.test(u) ? u : '';
-      } catch (e) { REVIEW_URL = ''; }
-    }
-    CUR = (m.shop && m.shop.currency) || '₱';
-    TAXPCT = Number((m.shop && m.shop.tax_percent) || 0);
-    SVCPCT = Number((m.shop && m.shop.service_charge_pct) || 0);
-    SVCTO = (m.shop && Array.isArray(m.shop.service_charge_to)) ? m.shop.service_charge_to : [];
+    applyMenu(m);
+    MENU_AT = Date.now();
     if (m.link && m.link.kind === 'store') {
-      STORE = (m.shop && m.shop.ordering) || {};
+      // 0603: with when STORE.now (the shop's clock) was read, so the pickup
+      // slots move on with it. A copy: the menu itself is compared on refresh.
+      STORE = storeOf(m);
       if (!STORE.pickup && !STORE.delivery) {
         fatal('Online ordering is off',
           ((m.shop && m.shop.name) || 'This shop') + ' is not taking online orders right now. Please message the shop directly.');
@@ -3951,27 +4699,17 @@ function fatal(title, msg) {
     // 0175: the same switch reaches both blocks, because a customer holding
     // a flyer can be at a table just as easily as on the storefront.
     COUPONS_ON = (STORE ? STORE.coupons : instore.coupons) === true;
-    // 0515: only a storefront link on a personal phone offers an Ember account.
     if (STORE && !SHOPINFO) { rpc('kiosk_shop_info', { p_token: TOKEN }).then((i) => { SHOPINFO = i && i.ok ? i : null; }).catch(() => {}); }
-    if (STORE && window.EmberAccount) {
-      try {
-        const st = await rpc('cust_status', { p_token: TOKEN });
-        ACC_ON = !!(st && st.accounts);
-      } catch (e) { ACC_ON = false; }
-      if (ACC_ON) {
-        // The card's QR maker, fetched only for a shop that offers accounts.
-        if (typeof qrcode !== 'function') {
-          const sc = document.createElement('script');
-          sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
-          sc.async = true;
-          // Open on the account sheet already? Draw it again with the QR in.
-          sc.onload = function () { if (el('acx') && sheetOpen()) { SHEET_SAME = true; openAccount(); } };
-          document.head.appendChild(sc);
-        }
-        await loadAcct();
-      }
-    }
+    restoreCart();
     render();
+    loadExtras();
+    openLinkedOrder();
+    // An idle kiosk or table menu picks up restocks and the end of a time menu.
+    if (!STORE) {
+      setInterval(function () {
+        if (!CART.length && !sheetOpen() && document.visibilityState !== 'hidden' && !document.querySelector('[data-track]')) refreshMenu();
+      }, 10 * 60 * 1000);
+    }
   } catch (e) {
     fatal('No connection', 'Check your signal and try again.');
   }

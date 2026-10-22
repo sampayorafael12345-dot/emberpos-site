@@ -78,6 +78,7 @@
   .items { margin: 0; padding: 0; list-style: none; }
   .items li { display: flex; gap: 10px; padding: 4px 0; font-size: 15px; }
   .items .q { color: var(--muted); min-width: 28px; font-family: var(--money); }
+  .items .xtra { display: block; margin-top: 2px; color: var(--muted); font-size: 13px; line-height: 1.35; overflow-wrap: anywhere; }
   .cash { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; padding: 12px 14px;
           border-radius: var(--r-sm); border: 1px solid rgba(255, 92, 0, .45); background: rgba(255, 92, 0, .12); }
   .cash.paid { border-color: rgba(4, 120, 87, .45); background: rgba(4, 120, 87, .12); }
@@ -196,6 +197,21 @@
     if (box) box.innerHTML = cashHtml(due, T.order.currency);
   }
 
+  /* 22 Oct 2026: the add-ons, meal choices and note on a line, so the rider
+     can check the bag ("no ice", "extra rice"). Text, a list of words, or a
+     list of {name} from the server; missing on an older server, so nothing. */
+  function extraText(v) {
+    if (v == null || v === '') return '';
+    if (typeof v === 'string' || typeof v === 'number') return String(v).trim();
+    if (Array.isArray(v)) {
+      return v.map(function (x) {
+        return x && typeof x === 'object' ? String(x.name || x.label || x.option || '') : String(x == null ? '' : x);
+      }).map(function (t) { return t.trim(); }).filter(Boolean).join(', ');
+    }
+    if (typeof v === 'object') return String(v.name || v.label || '').trim();
+    return '';
+  }
+
   function draw() {
     var o = T.order, s = T.shop;
     var due = Number(o.to_collect_cents) || 0;
@@ -216,7 +232,9 @@
         '</section>' +
         '<section class="card"><h2>In the bag</h2><ul class="items">' +
           (o.items || []).map(function (i) {
-            return '<li><span class="q">' + esc(Number(i.qty)) + '&times;</span><span>' + esc(i.name) + (i.variant ? ', ' + esc(i.variant) : '') + '</span></li>';
+            var more = [extraText(i.meal), extraText(i.addons), extraText(i.note)].filter(Boolean).join(' · ');
+            return '<li><span class="q">' + esc(Number(i.qty)) + '&times;</span><span>' + esc(i.name) + (i.variant ? ', ' + esc(i.variant) : '') +
+              (more ? '<span class="xtra">' + esc(more) + '</span>' : '') + '</span></li>';
           }).join('') + '</ul>' +
           '<div id="cashbox">' + cashHtml(due, o.currency) + '</div>' +
         '</section>' +
