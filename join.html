@@ -70,6 +70,12 @@
   .loyal .who { font-size: 22px; font-weight: 800; margin-top: 4px; }
   .qr { background: #fff; border-radius: 14px; padding: 14px; width: 250px; height: 250px; margin: 16px auto 10px; }
   .qr svg { width: 100%; height: 100%; display: block; }
+  /* The stamps on the card (22 Oct 2026): filled ones in the flame, a plain line under them. */
+  .stamps { display: grid; grid-template-columns: repeat(5, 34px); justify-content: center; column-gap: 12px; row-gap: 10px; margin: 16px 0 6px; }
+  .stamps i { display: block; width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--line); }
+  .stamps i.on { background: var(--accent); border-color: var(--accent); }
+  .stampline { font-size: 15px; font-weight: 700; }
+  .stampline.ready { color: var(--accent-text); }
   .code { font-family: ui-monospace, "Courier New", monospace; font-size: 19px; letter-spacing: 2px; font-weight: 700; }
   .made { text-align: center; font-size: 12px; color: var(--muted); margin-top: 22px; }
   .made a { color: var(--muted); font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--line); }
@@ -135,6 +141,7 @@ function cardHtml(c) {
     '<div class="who">' + esc(c.name) + '</div>' +
     (svg ? '<div class="qr">' + svg + '</div>' : '') +
     '<div class="code">' + esc(shown) + '</div>' +
+    '<div id="stampbox"></div>' +
     '<div class="note">Show this at the counter every time you order. Take a screenshot to keep it handy, ' +
     'or open this link again, your card stays on this phone.</div></div>';
 }
@@ -143,6 +150,29 @@ function showCard(c) {
   el('title').textContent = c.shop ? c.shop : 'Loyalty card';
   el('sub').textContent = 'Your loyalty card';
   el('main').innerHTML = cardHtml(c);
+  loadStamps(c);
+}
+
+/* Their stamps, read fresh every time the card opens (22 Oct 2026). Needs the shop's link and this
+   card's own code; a phone with no signal simply shows the card without the count. */
+async function loadStamps(c) {
+  try {
+    const r = await rpc('loyalty_card_status', { p_token: TOKEN, p_code: c.code });
+    if (!r || !r.ok) return;
+    const req = Math.max(1, Math.min(50, Number(r.required) || 10));
+    const have = Math.max(0, Number(r.stamps) || 0);
+    const shownDots = Math.min(have, req);
+    let dots = '';
+    if (req <= 20) for (let i = 0; i < req; i++) dots += '<i class="' + (i < shownDots ? 'on' : '') + '"></i>';
+    const left = req - have;
+    const line = r.free_ready ? 'You have a free one ready. Ask at the counter!'
+      : (left === 1 ? '1 more stamp for a free one.' : left + ' more stamps for a free one.');
+    const box = el('stampbox');
+    if (!box) return;
+    box.innerHTML = (dots ? '<div class="stamps" aria-hidden="true">' + dots + '</div>' : '') +
+      '<div class="stampline' + (r.free_ready ? ' ready' : '') + '">' + have + ' of ' + req + ' stamps</div>' +
+      '<div class="note" style="margin-top:4px">' + esc(line) + '</div>';
+  } catch (e) { /* no signal: the card still works at the counter */ }
 }
 
 function showForm(shop) {
