@@ -78,6 +78,7 @@
    * handle.set(kind, {lat,lng} | null)   kind: 'rider' | 'shop' | 'home' | 'me'
    * handle.fit()                          frame every pin
    * handle.stale(bool)                    fade the rider when the position is old
+   * handle.movable(kind, onMove)          let the viewer drag a pin, or tap where it goes
    * handle.remove()
    */
   function create(el, opts) {
@@ -148,6 +149,18 @@
         set: place,
         fit: fit,
         stale: function (on) { if (pins.rider) pins.rider.getElement().classList.toggle('em-stale', !!on); },
+        /* 0648: the viewer moves a pin by dragging it, or by tapping the map where
+           it should go. onMove({lat,lng}) once each move ends. */
+        movable: function (kind, onMove) {
+          if (!pins[kind]) return;
+          pins[kind].setDraggable(true);
+          pins[kind].on('dragend', function () { var p = pins[kind].getLngLat(); onMove({ lat: p.lat, lng: p.lng }); });
+          map.on('click', function (e) {
+            if (!pins[kind]) return;
+            pins[kind].setLngLat(e.lngLat);
+            onMove({ lat: e.lngLat.lat, lng: e.lngLat.lng });
+          });
+        },
         resize: function () { try { map.resize(); } catch (e) { /* detached */ } },
         remove: function () { try { map.remove(); } catch (e) { /* already gone */ } },
       };

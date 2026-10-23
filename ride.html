@@ -222,6 +222,8 @@
       '<main>' +
         '<section class="card"><h2>Deliver to</h2>' +
           '<div class="big">' + esc(o.address || 'No address was given. Call the customer.') + '</div>' +
+          // 0648: the customer put the map pin there by hand, so the pin and the words may disagree.
+          (o.pin_moved && o.dest ? '<div class="lede" style="margin-top:6px;color:var(--warn);font-weight:600">The customer moved the map pin by hand. Check it matches the address, or call them.</div>' : '') +
           (o.note ? '<div class="lede" style="margin-top:6px">' + esc(o.note) + '</div>' : '') +
           '<div id="map" hidden></div>' +
           '<div class="row one"><a class="btn primary" target="_blank" rel="noopener" href="' + esc(navUrl(o)) + '">' + I.nav + 'Navigate</a></div>' +

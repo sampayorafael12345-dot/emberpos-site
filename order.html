@@ -491,6 +491,10 @@
   .trip .ti { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
   .trip .tripmap { height: 210px; margin-top: 10px; border-radius: var(--r-sm); overflow: hidden; background: var(--card); }
   .trip .tripmap > div { width: 100%; height: 100%; }
+  /* 0648: the delivery pin the customer moves - the same box as the rider map. */
+  .pinmap { height: 220px; margin-top: 8px; border-radius: var(--r-sm); overflow: hidden; border: 1px solid var(--line); background: var(--card); }
+  .pinmap > div { width: 100%; height: 100%; }
+  .pinmap .em-pin.em-home { cursor: grab; }
   @media (prefers-reduced-motion: no-preference) {
     .trip.swapin { animation: tripIn .32s cubic-bezier(.2, .8, .2, 1) both; }
     @keyframes tripIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -987,6 +991,12 @@ let PAYCHOICE = 'later';    // 'now' | 'later'
    their seats. Both halves are decided by the server in kiosk_menu; this is
    the answer, not the rule. */
 let PAYON = false;
+/* "ADD A TIP?" AT THE TABLE (0649). The server's answer for this link: a table
+   QR, at a shop with online tips on and paying from the phone on. The page then
+   asks only while "Pay now" is chosen, since the tip rides in that payment; a
+   diner paying at the counter tips at the POS, and a shared kiosk tablet is
+   never told yes. */
+let TABLETIPS = false;
 /* 0175: does this shop take a coupon code from this page? Opt-in, default
    off - see the migration for why a public page onto a shop's codes is the
    shop's decision. COUPON is what the customer typed, kept across redraws. */
@@ -1052,6 +1062,27 @@ function kmFee(cfg, lat, lng) {
   if (km > Number(cfg.max_km)) return { km: km, fee: -1 };
   return { km: km, fee: Number(cfg.base_cents) + Math.max(0, Math.ceil(km - Number(cfg.free_km))) * Number(cfg.rate_cents) };
 }
+/* 0648: THE PIN THE CUSTOMER MOVES. "Use my location" put the pin where the
+   phone stood, never where the food was going, and a phone with location off
+   could not order delivery at a distance shop at all. Where the server says so
+   (STORE.pin_move), a map shows the pin: it starts where the phone is, or at
+   the shop with "Set it on the map", and the customer drags it (or taps the
+   map) to the door. GEO.moved: put there by hand, and the order says so
+   (orders.delivery_pin_moved) for the counter and the rider to check against
+   the typed address. GEO.fromShop: still where it started, at the shop, so the
+   order waits for a move. The server works the fee out from the final pin. */
+var PINMAP = null;         // { el, h, pin } - one map, kept across redraws of the basket
+var PINMAP_BROKEN = false; // this phone could not draw it: the words alone, as before
+const pinMapOn = () => !!(STORE && STORE.pin_move && !PINMAP_BROKEN && window.EmberMap && EmberMap.canDraw());
+function pinAt(lat, lng, moved, fromShop) {
+  lat = Math.round(lat * 1e5) / 1e5; lng = Math.round(lng * 1e5) / 1e5;
+  if (kmCfg()) {
+    const r = kmFee(kmCfg(), lat, lng);
+    return { lat: lat, lng: lng, km: r.km, fee: r.fee, moved: !!moved, fromShop: !!fromShop };
+  }
+  // An area or flat-fee shop: a pin for the rider, never a price (fee 0, and deliveryFee() never reads it).
+  return { lat: lat, lng: lng, km: null, fee: 0, pinOnly: true, moved: !!moved, fromShop: !!fromShop };
+}
 const deliveryFee = () => (STORE && OMODE === 'delivery'
   ? (zones().length ? zoneFee() : kmCfg() ? (GEO && GEO.fee >= 0 ? GEO.fee : 0) : (STORE.delivery_fee_cents || 0)) : 0);
 // 0231: a shop's service charge (for example 10% on dine-in), by the till's
@@ -1089,7 +1120,11 @@ let PROMO_PREVIEW = { cents: 0, name: '', key: '' };
    table was shown, and asked to agree to, the full price. */
 let HASPROMO = false;
 const cartKey = () => JSON.stringify(CART.map((l) => [l.item_id, l.price, l.qty]));
-const promoCents = () => (HASPROMO && (!COUPONS_ON || COUPON.trim() === '') && PROMO_PREVIEW.key === cartKey())
+/* 0646: A TYPED CODE NO LONGER CANCELS THE OFFER. The server takes off whichever
+   saves more, the code or the offer, so the offer stays on the bill here: the
+   total shown is the most this order can cost, and a better code only lowers it. */
+const codeTyped = () => COUPONS_ON && COUPON.trim() !== '';
+const promoCents = () => (HASPROMO && PROMO_PREVIEW.key === cartKey())
   ? Math.min(PROMO_PREVIEW.cents, subtotal()) : 0;
 const payTotal = () => Math.max(0, total() - promoCents());
 async function refreshPromo(after) {
@@ -1261,7 +1296,7 @@ function render() {
   const chips =
     (st.pickup ? '<span class="chip">' + ICON_BAG + 'Pickup</span>' : '') +
     (st.delivery ? '<span class="chip">' + ICON_MOTO + 'Delivery</span>' : '') +
-    (st.pickup_times ? '<span class="chip">' + ICON_CLOCK + 'Order ahead</span>' : '') +
+    (timesFor('pickup') || timesFor('delivery') ? '<span class="chip">' + ICON_CLOCK + 'Order ahead</span>' : '') +
     (shop.closed ? '<span class="chip solid">' + (shop.closed_why === 'paused' ? 'Paused right now' : 'Closed right now') + '</span>' : '') +
     (window.EmberLang && EmberLang.allowed()
       ? '<button class="chip chipbtn" id="lang" type="button" data-notl>' + (EmberLang.isTagalog() ? 'English' : 'Tagalog') + '</button>' : '') +
@@ -1269,6 +1304,8 @@ function render() {
     (st.address ? '<span class="chip addr" data-notl>' + ICON_PIN + esc(st.address) + '</span>' : '') +
     (STORE ? '<button class="chip chipbtn" id="shopinfo" type="button">' + ICON_PHONE + 'Shop info</button>' : '');
 
+  // The tab says which shop this is (23 Oct 2026), not just "Order".
+  if (shop.name) { window.__shopTitle = shop.name + ': order online'; if (!document.title.startsWith('●')) document.title = window.__shopTitle; }
   el('app').innerHTML =
     '<header class="hero">' +
       // The shop's own logo (receipts, cup stickers) or, when it has none,
@@ -2663,7 +2700,9 @@ function openCart() {
         (promoCents() > 0 ? '<div><span>' + esc(PROMO_PREVIEW.name || 'Offer') + '</span><span>&minus;' + money(promoCents()) + '</span></div>' : '') +
         (tipCents() > 0 ? '<div><span>Tip</span><span>' + money(tipCents()) + '</span></div>' : '') +
         '<div class="grand"><span>' + (HASPROMO && promoCents() === 0 ? 'Total before offers' : 'Total') + '</span><span>' + money(payTotal() + tipCents()) + '</span></div>' +
-        (HASPROMO && promoCents() === 0 ? '<div class="lede" style="font-size:12.5px;margin-top:4px">The shop&rsquo;s offer is taken off when you place the order.</div>' : '') +
+        (HASPROMO && codeTyped()
+          ? '<div class="lede" style="font-size:12.5px;margin-top:4px">Your code or the shop&rsquo;s offer comes off, whichever saves you more. If the offer wins, your code is not used up.</div>'
+          : HASPROMO && promoCents() === 0 ? '<div class="lede" style="font-size:12.5px;margin-top:4px">The shop&rsquo;s offer is taken off when you place the order.</div>' : '') +
       '</div>' +
       storeFields() +
       (underDeliveryMin()
@@ -2675,9 +2714,12 @@ function openCart() {
       '<div class="label">Your name</div>' +
       '<input class="note-in" id="who" type="text" maxlength="40" placeholder="' + (STORE ? 'Who is this order for?' : 'So the staff can call you') + '" aria-label="Your name">' +
       couponFieldHtml() +
-      tipHtml() +
+      // 0649: at a table the tip follows the payment choice it depends on
+      // (Paying with is a store delivery's only, so nothing sits between them).
+      (STORE ? tipHtml() : '') +
       payChoiceHtml() +
       payWithHtml() +
+      (STORE ? '' : tipHtml()) +
       alsoLikeHtml() +
       '<div class="foot">' +
         '<button class="ghost" id="back">Add more</button>' +
@@ -2704,28 +2746,34 @@ function openCart() {
       const i = Number(b.dataset.p); if (CART[i].qty < 20) { CART[i].qty++; TICK = i; } redrawKeeping(); render();
     });
     if (el('ogeo')) el('ogeo').onclick = function () {
+      // 0648: a distance shop with the map can still take the order with the pin set by hand.
+      const byMap = pinMapOn() && !!kmCfg();
       if (!navigator.geolocation) {
         // Only a distance shop needs the pin to take the order; elsewhere the address is enough.
-        GEO = { err: kmCfg() ? 'This phone cannot share its location. Please order by phone instead.'
+        GEO = { err: byMap ? 'This phone cannot share its location. Set the pin on the map instead.'
+          : kmCfg() ? 'This phone cannot share its location. Please order by phone instead.'
           : 'This phone cannot share its location. The address and a landmark will do.' };
         redrawKeeping(); return;
       }
       el('ogeo').disabled = true; el('ogeoout').textContent = 'Finding you…';
       navigator.geolocation.getCurrentPosition(function (pos) {
-        const lat = Math.round(pos.coords.latitude * 1e5) / 1e5, lng = Math.round(pos.coords.longitude * 1e5) / 1e5;
-        if (kmCfg()) {
-          const r = kmFee(kmCfg(), lat, lng);
-          GEO = { lat: lat, lng: lng, km: r.km, fee: r.fee };
-        } else {
-          // An area or flat-fee shop: a pin for the rider, never a price (fee 0, and deliveryFee() never reads it).
-          GEO = { lat: lat, lng: lng, km: null, fee: 0, pinOnly: true };
-        }
+        // Where the phone is: a fresh pin, not moved by hand.
+        GEO = pinAt(pos.coords.latitude, pos.coords.longitude, false, false);
         if (sheetOpen() && el('send')) redrawKeeping();   // never reopen a basket they closed
       }, function () {
-        GEO = { err: 'Could not get your location. Allow location for this page, then tap again.' };
+        GEO = { err: byMap ? 'Could not get your location. Allow location for this page, or set the pin on the map.'
+          : 'Could not get your location. Allow location for this page, then tap again.' };
         if (sheetOpen() && el('send')) redrawKeeping();
       }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
     };
+    // 0648: location off, or not wanted: the pin starts at the shop and the customer moves it.
+    if (el('opinset')) el('opinset').onclick = function () {
+      const c = kmCfg();
+      if (!c) return;
+      GEO = pinAt(Number(c.lat), Number(c.lng), false, true);
+      redrawKeeping();
+    };
+    mountPinMap();
     document.querySelectorAll('[data-kmode]').forEach(function (b) {
       b.onclick = function () { KMODE = b.getAttribute('data-kmode'); redrawKeeping(); };
     });
@@ -2787,21 +2835,25 @@ function openCart() {
       if (el('ozone')) el('ozone').onchange = function () { ZONE = el('ozone').value || null; if (ZONE) lsSet('ember.zone', ZONE); redrawKeeping(); };
       if (el('whensel')) el('whensel').onchange = function () { WHEN = el('whensel').value; };
       if (el('daysel')) el('daysel').onchange = function () { WHENDAY = el('daysel').value; redrawKeeping(); };
-      document.querySelectorAll('[data-tip]').forEach(function (b) {
-        b.onclick = function () {
-          TIPPCT = Number(b.getAttribute('data-tip'));
-          redrawKeeping();
-          if (TIPPCT === -1 && el('otip')) el('otip').focus();
-        };
-      });
-      if (el('otip')) {
-        // Typing only changes the number; the totals catch up when they leave the box.
-        el('otip').oninput = function () {
-          var v = Number(String(el('otip').value).replace(/[^0-9.]/g, ''));
-          TIPOTHER = isFinite(v) && v > 0 ? Math.round(v * 100) : 0;
-        };
-        el('otip').onchange = function () { redrawKeeping(); };
-      }
+    }
+    // THE TIP, OUTSIDE THE STORE BLOCK (23 Oct 2026): a diner paying from the
+    // table gets the tip row too (0649), and with these bound only for a store
+    // link the buttons showed and did nothing. No tip row drawn (tipHtml ''),
+    // nothing is found here.
+    document.querySelectorAll('[data-tip]').forEach(function (b) {
+      b.onclick = function () {
+        TIPPCT = Number(b.getAttribute('data-tip'));
+        redrawKeeping();
+        if (TIPPCT === -1 && el('otip')) el('otip').focus();
+      };
+    });
+    if (el('otip')) {
+      // Typing only changes the number; the totals catch up when they leave the box.
+      el('otip').oninput = function () {
+        var v = Number(String(el('otip').value).replace(/[^0-9.]/g, ''));
+        TIPOTHER = isFinite(v) && v > 0 ? Math.round(v * 100) : 0;
+      };
+      el('otip').onchange = function () { redrawKeeping(); };
     }
     // Outside the block above on purpose: a table QR and a kiosk tablet get
     // this choice too (0165).
@@ -2885,7 +2937,10 @@ function kioskModeHtml() {
 function storeFields() {
   if (!STORE) return '';
   var h = '';
-  if (STORE.pickup && STORE.delivery && !AHEAD_ONLY) {
+  // 0648: while only a later order can be taken, a mode with no time to choose is not offered.
+  var otherMode = OMODE === 'pickup' ? 'delivery' : 'pickup';
+  if (!modeOpen(OMODE) && modeOpen(otherMode)) OMODE = otherMode;
+  if (modeOpen('pickup') && modeOpen('delivery')) {
     h += '<div class="label">How do you want it?</div>' +
       '<div class="modes">' +
       '<button class="' + (OMODE === 'pickup' ? 'primary' : 'ghost') + '" data-omode="pickup">' + ICON_BAG + 'Pickup</button>' +
@@ -2895,32 +2950,37 @@ function storeFields() {
   } else {
     h += '<div class="label">' + ICON_MOTO + ' Delivery order</div>';
   }
-  // WHEN THEY ARE COMING FOR IT. Pickup only, and only where the shop asked
-  // for it: a shop that makes everything to order does not want to be asked.
-  if (OMODE === 'pickup' && STORE.pickup_times) h += whenHtml();
+  // WHEN THEY ARE COMING FOR IT. Only where the shop asked for it: a shop that
+  // makes everything to order does not want to be asked. 0648: a delivery has
+  // its own switch (timesFor).
+  if (timesFor(OMODE)) h += whenHtml();
   h += '<div class="label">Your mobile number</div>' +
-    '<input class="note-in" id="oph" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="' + (CUR === '₱' ? '0917 123 4567' : 'Mobile number') + '" aria-label="Your mobile number">';
+    '<input class="note-in" id="oph" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="' + (CUR === '₱' ? '0917 123 4567' : 'Mobile number') + '" aria-label="Your mobile number">' +
+    // 0647: the shop puts the order on the customer it already has with this
+    // number. Said plainly, and the page is never told whether it matched.
+    '<div class="lede" style="font-size:13px;margin-top:6px">Give the number you use at the counter, so this order counts as your visit.</div>';
   if (OMODE === 'delivery' && kmCfg()) {
     h += '<div class="label">Your location</div>' +
-      '<button class="ghost" id="ogeo" style="width:100%">' + (GEO && GEO.fee >= 0 ? 'Update my location' : 'Use my location') + '</button>' +
+      geoButtons(GEO && GEO.lat != null && !GEO.fromShop ? 'Update my location' : 'Use my location', true) + pinMapSlot() +
       '<div class="lede" id="ogeoout" style="font-size:13px;margin-top:6px">' +
         (GEO && GEO.err ? esc(GEO.err)
+          : GEO && GEO.fromShop && !GEO.moved ? 'The pin starts at the shop. Drag it to your door, or tap the map where it should go.'
           : GEO && GEO.fee < 0 ? 'Sorry, you are outside our delivery range (' + Number(kmCfg().max_km) + ' km).'
-          : GEO ? 'About ' + GEO.km.toFixed(1) + ' km away. Delivery fee ' + money(GEO.fee) + '.'
+          : GEO && GEO.lat != null ? 'About ' + GEO.km.toFixed(1) + ' km away. Delivery fee ' + money(GEO.fee) + '.'
           : 'The delivery fee is worked out from how far you are.') +
-      '</div>';
+      '</div>' + pinHint();
   }
   // 22 Oct 2026: a shop priced by area or by one flat fee asked for no pin at
   // all, so its rider navigated by the typed words and the customer's map had
   // no home on it. Optional here, and never a price: see GEO.pinOnly.
   if (OMODE === 'delivery' && !kmCfg()) {
     h += '<div class="label">Your location (optional)</div>' +
-      '<button class="ghost" id="ogeo" style="width:100%">' + (GEO && GEO.lat != null ? 'Update my location' : 'Share my location for the rider') + '</button>' +
+      geoButtons(GEO && GEO.lat != null ? 'Update my location' : 'Share my location for the rider', false) + pinMapSlot() +
       '<div class="lede" id="ogeoout" style="font-size:13px;margin-top:6px">' +
         (GEO && GEO.err ? esc(GEO.err)
           : GEO && GEO.lat != null ? 'Your location is shared with the rider.'
           : 'Helps the rider find you. The delivery fee does not change.') +
-      '</div>';
+      '</div>' + pinHint();
   }
   if (OMODE === 'delivery') {
     if (zones().length) {
@@ -2944,13 +3004,81 @@ function storeFields() {
   return h;
 }
 
+/* 0648: the location buttons. With the map, a distance shop also offers to set
+   the pin by hand, starting at the shop: two equal buttons on one row. Once a
+   pin is down the map is the way to move it, and the one button fetches the
+   phone's own spot again. */
+function geoButtons(label, km) {
+  if (km && pinMapOn() && !(GEO && GEO.lat != null)) {
+    return '<div class="modes"><button class="ghost" id="ogeo">' + label + '</button>' +
+      '<button class="ghost" id="opinset">Set it on the map</button></div>';
+  }
+  return '<button class="ghost" id="ogeo" style="width:100%">' + label + '</button>';
+}
+function pinMapSlot() {
+  return pinMapOn() && GEO && GEO.lat != null ? '<div class="pinmap" id="opinmap"></div>' : '';
+}
+/* The line under the map: how to move the pin, or that it was moved by hand. */
+function pinHint() {
+  if (!pinMapOn() || !GEO || GEO.lat == null || (GEO.fromShop && !GEO.moved)) return '';
+  return '<div class="lede" style="font-size:13px;margin-top:4px">' +
+    (GEO.moved ? (kmCfg() ? 'You moved the pin. The shop checks it against your address.'
+                          : 'You moved the pin. The rider checks it against your address.')
+               : 'Not right? Drag the pin to your door.') + '</div>';
+}
+/* The map lives outside the basket's own markup, like the rider maps on the
+   order cards: each redraw moves the same map into the new slot, so a + or -
+   on a line never reloads it. */
+function mountPinMap() {
+  const slot = el('opinmap');
+  if (!slot || !GEO || GEO.lat == null) return;
+  const c = kmCfg();
+  const key = GEO.lat + ',' + GEO.lng;
+  if (PINMAP) {
+    slot.appendChild(PINMAP.el);
+    if (PINMAP.h) {
+      PINMAP.h.resize();
+      // A new pin from the phone (or the shop) is framed; one the customer just placed stays put.
+      if (PINMAP.pin !== key) { PINMAP.h.set('home', { lat: GEO.lat, lng: GEO.lng }); PINMAP.pin = key; PINMAP.h.fit(); }
+    }
+    return;
+  }
+  const box = document.createElement('div');
+  slot.appendChild(box);
+  const rec = PINMAP = { el: box, h: null, pin: key };
+  EmberMap.create(box, { center: { lat: GEO.lat, lng: GEO.lng }, zoom: 16 }).then(function (h) {
+    if (PINMAP !== rec) { if (h) h.remove(); return; }
+    if (!h) {
+      // No map on this phone: the words and "Use my location", as before.
+      PINMAP = null; PINMAP_BROKEN = true;
+      if (GEO && GEO.fromShop && !GEO.moved) GEO = { err: 'The map could not load. Tap "Use my location", or order by phone.' };
+      if (sheetOpen() && el('send') && CART_REDRAW) CART_REDRAW();
+      return;
+    }
+    rec.h = h;
+    if (c) h.set('shop', { lat: Number(c.lat), lng: Number(c.lng) });
+    const g = GEO && GEO.lat != null ? GEO : null;
+    if (g) { h.set('home', { lat: g.lat, lng: g.lng }); rec.pin = g.lat + ',' + g.lng; }
+    h.movable('home', function (p) {
+      GEO = pinAt(p.lat, p.lng, true, false);
+      rec.pin = GEO.lat + ',' + GEO.lng;
+      // The fee and the totals follow the pin.
+      if (sheetOpen() && el('send') && CART_REDRAW) CART_REDRAW();
+    });
+    h.map.once('load', function () { h.fit(); });
+  });
+}
+
 /* What goes in p_address for a delivery. The area first, because the server
    prices an area order by the name at the start; then the customer's pin when
    there is one, as 'GPS lat,lng'; then the words they typed. A distance shop
    always sends the pin (its fee is worked out from it); a pin shared at an area
-   or flat-fee shop only shows the rider the way and never changes the price. */
+   or flat-fee shop only shows the rider the way and never changes the price.
+   0648: a pin moved by hand is 'GPS lat,lng moved'; the server takes the word
+   off and keeps it on the order (only sent to a server that asked for it). */
 function deliveryAddressLine(addr) {
-  const pin = (GEO && GEO.lat != null && GEO.fee >= 0) ? 'GPS ' + GEO.lat.toFixed(5) + ',' + GEO.lng.toFixed(5) + ' · ' : '';
+  const moved = (GEO && GEO.moved && STORE && STORE.pin_move) ? ' moved' : '';
+  const pin = (GEO && GEO.lat != null && GEO.fee >= 0) ? 'GPS ' + GEO.lat.toFixed(5) + ',' + GEO.lng.toFixed(5) + moved + ' · ' : '';
   if (zones().length && ZONE) return ZONE + ' · ' + pin + addr;
   return pin + addr;
 }
@@ -2971,7 +3099,8 @@ function deliveryAddressLine(addr) {
    in service of the minority. */
 var WHEN = null;              // null = as soon as possible; else 'HH:MM'
 /* ORDER AHEAD FOR ANOTHER DAY (0517). The shop says how many days ahead it
-   takes (online_order_days_ahead, pickup only, only with pickup times on).
+   takes (online_order_days_ahead, only with pickup times on; 0648: or delivery
+   times, see timesFor).
    WHENDAY is '' for today or the SHOP's calendar date 'YYYY-MM-DD'; the server
    gets 'YYYY-MM-DD HH:MM' and refuses a day too far or a time too soon out
    loud. AHEAD_ONLY: the counter is closed right now, so the only order this
@@ -2982,6 +3111,16 @@ var AHEAD_ONLY = false;
    for LATER TODAY (from opening time, or once the pause is over). Closed for the
    day, or with the counter shut, only a later day. */
 var TODAY_LATER = false;
+/* 0648: A DELIVERY TIME. Its own switch at the shop (delivery_times, off by
+   default), with the same soonest time, days ahead, hours and days off as a
+   pickup time; the server reads both the same way. */
+function timesFor(mode) {
+  if (!STORE) return false;
+  return mode === 'delivery' ? !!(STORE.delivery && STORE.delivery_times) : !!(STORE.pickup && STORE.pickup_times);
+}
+/* A mode this page can take right now: while only a later order can be taken
+   (AHEAD_ONLY), only one the customer can choose a time for. */
+function modeOpen(mode) { return !!(STORE && STORE[mode] && (!AHEAD_ONLY || timesFor(mode))); }
 function aheadDays() { return (STORE && SHOPINFO && Number(SHOPINFO.days_ahead)) || 0; }
 function availDays() {
   var t = SHOPINFO && /^\d{4}-\d{2}-\d{2}$/.test(SHOPINFO.today || '') ? SHOPINFO.today : null;
@@ -3006,12 +3145,18 @@ function daySlots() {
   var start = om ? Number(om[1]) * 60 + Number(om[2]) : 8 * 60;
   var end = cm ? Number(cm[1]) * 60 + Number(cm[2]) : 20 * 60;
   if (end <= start) end = 24 * 60 - 15;          // closes after midnight: up to the end of that day
+  else end -= 1;                                 // the closing minute itself is shut (23 Oct 2026)
   start = Math.ceil(start / 15) * 15;
   var out = [];
   for (var t = start; t <= end && out.length < 96; t += 15) out.push(pad2(Math.floor(t / 60)) + ':' + pad2(t % 60));
   return out;
 }
 function slotsFor(day) { return day ? daySlots() : whenSlots(); }
+/* 0648: the picker names what the time is for. */
+function whenWord() { return OMODE === 'delivery' ? 'Delivery' : 'Pickup'; }
+/* And so does its heading (23 Oct 2026): in Tagalog "When do you want it?" reads
+   as "when will you pick it up?", which a delivery customer was asked. */
+function whenHeading() { return OMODE === 'delivery' ? 'When should it arrive?' : 'When do you want it?'; }
 /* What the time picker says while only a later order can be taken. */
 function aheadLede() {
   var why = MENU && MENU.shop && MENU.shop.closed_why;
@@ -3030,7 +3175,11 @@ function wantedValue() {
    Never more than the order - the server refuses that too. */
 var TIPPCT = 0;               // 0 none, 5 / 10 / 15, -1 = their own amount
 var TIPOTHER = 0;             // cents, for -1
-function tipsOn() { return !!(STORE && SHOPINFO && SHOPINFO.tips); }
+function tipsOn() {
+  if (STORE) return !!(SHOPINFO && SHOPINFO.tips);
+  // 0649: a table QR, only for a diner paying from this phone (see TABLETIPS).
+  return TABLETIPS && !SHARED && PAYON && PAYCHOICE === 'now' && payTotal() >= minPay();
+}
 function tipFor(pct) { return Math.round(subtotal() * pct / 100 / 100) * 100; }
 function tipCents() {
   if (!tipsOn()) return 0;
@@ -3144,7 +3293,9 @@ function whenSlots() {
   if (pz) {
     // Minutes until it ends, across midnight too; a pause never runs past an hour.
     var wait = (Number(pz[1]) * 60 + Number(pz[2]) - nowM + 24 * 60) % (24 * 60);
-    if (wait <= 65 && start < nowM + wait) start = Math.ceil((nowM + wait) / 15) * 15;
+    // Plus a minute (23 Oct 2026): the server's pause ends at 10:45:30, the page
+    // only hears 10:45, and a 10:45 slot was refused as still paused.
+    if (wait <= 65 && start < nowM + wait + 1) start = Math.ceil((nowM + wait + 1) / 15) * 15;
   }
   if (close !== null) {
     // Where the shop's clock sits decides whether the closing time is today's or tomorrow's.
@@ -3156,12 +3307,21 @@ function whenSlots() {
     if (overnight) {
       if (nowM < close) { /* small hours, still open: closes today */ }
       else if (open !== null ? nowM >= open : nowM >= 6 * 60) close += 24 * 60;
-      else return [];                  // shut between closing and opening
+      else if (open !== null) {
+        // Shut between closing and opening (23 Oct 2026): tonight, from opening
+        // time, as an ordinary shop offers later today. Up to midnight only: a
+        // time after it is read as tomorrow's, which a today-only shop refuses.
+        if (start < open) start = Math.ceil(open / 15) * 15;
+        close = 24 * 60;
+      }
+      else return [];                  // shut between closing and opening, opening time unknown
     }
     // The clock plus the soonest promise may already be past closing.
-    if (close < start) return [];
+    if (close <= start) return [];
   }
-  var end = close !== null ? close : 24 * 60 - 15;
+  // The closing minute itself is shut (shop_open_at: before closing), so the
+  // last slot is the one before it (23 Oct 2026: 10:00 PM was offered and refused).
+  var end = close !== null ? close - 1 : 24 * 60 - 15;
   var out = [];
   for (var t = start; t <= end && out.length < 48; t += 15) {
     var m = t % (24 * 60);
@@ -3181,19 +3341,19 @@ function whenHtml() {
     // 0642: closed or paused right now, open later today: a time is a must.
     if (AHEAD_ONLY) {
       if (WHEN === null || slots.indexOf(WHEN) < 0) WHEN = slots[0];
-      return '<div class="label">' + ICON_CLOCK + ' When do you want it?</div>' +
+      return '<div class="label">' + ICON_CLOCK + ' ' + whenHeading() + '</div>' +
         '<p class="lede" style="font-size:13.5px;margin:0 0 2px">' + aheadLede() + '</p>' +
-        '<select class="when-sel" id="whensel" aria-label="Pickup time">' +
+        '<select class="when-sel" id="whensel" aria-label="' + whenWord() + ' time">' +
         slots.map(function (t) {
           return '<option value="' + t + '"' + (t === WHEN ? ' selected' : '') + '>' + hhmmLabel(t) + '</option>';
         }).join('') + '</select>';
     }
-    var h = '<div class="label">' + ICON_CLOCK + ' When do you want it?</div><div class="whens">' +
+    var h = '<div class="label">' + ICON_CLOCK + ' ' + whenHeading() + '</div><div class="whens">' +
       '<button class="when" data-when="asap" aria-pressed="' + (WHEN === null) + '">As soon as possible</button>' +
       '<button class="when" data-when="time" aria-pressed="' + (WHEN !== null) + '">At a time</button></div>';
     if (WHEN !== null) {
       if (slots.indexOf(WHEN) < 0) WHEN = slots[0];
-      h += '<select class="when-sel" id="whensel" aria-label="Pickup time">' +
+      h += '<select class="when-sel" id="whensel" aria-label="' + whenWord() + ' time">' +
         slots.map(function (t) {
           return '<option value="' + t + '"' + (t === WHEN ? ' selected' : '') + '>' + hhmmLabel(t) + '</option>';
         }).join('') + '</select>';
@@ -3205,7 +3365,7 @@ function whenHtml() {
   if (AHEAD_ONLY && WHEN === null) WHEN = slotsFor(WHENDAY)[0] || null;
   var ds = slotsFor(WHENDAY);
   if (WHEN !== null && ds.indexOf(WHEN) < 0) WHEN = ds[0] || null;
-  var h2 = '<div class="label">' + ICON_CLOCK + ' When do you want it?</div>';
+  var h2 = '<div class="label">' + ICON_CLOCK + ' ' + whenHeading() + '</div>';
   if (AHEAD_ONLY) {
     h2 += '<p class="lede" style="font-size:13.5px;margin:0 0 2px">' + aheadLede() + '</p>';
   } else {
@@ -3215,10 +3375,10 @@ function whenHtml() {
   }
   if (WHEN !== null) {
     h2 += '<div class="when-pair">' +
-      '<select class="when-sel" id="daysel" aria-label="Pickup day">' + days.map(function (d) {
+      '<select class="when-sel" id="daysel" aria-label="' + whenWord() + ' day">' + days.map(function (d) {
         return '<option value="' + d.v + '"' + (d.v === WHENDAY ? ' selected' : '') + '>' + esc(d.label) + '</option>';
       }).join('') + '</select>' +
-      '<select class="when-sel" id="whensel" aria-label="Pickup time">' + ds.map(function (t) {
+      '<select class="when-sel" id="whensel" aria-label="' + whenWord() + ' time">' + ds.map(function (t) {
         return '<option value="' + t + '"' + (t === WHEN ? ' selected' : '') + '>' + hhmmLabel(t) + '</option>';
       }).join('') + '</select></div>';
   }
@@ -3297,7 +3457,7 @@ function couponFieldHtml() {
 function noOnlinePayWords() {
   var mode = OMODE === 'delivery' ? 'delivery' : 'pickup';
   var other = mode === 'delivery' ? 'pickup' : 'delivery';
-  var otherOk = !!(STORE && STORE.pickup && STORE.delivery && !AHEAD_ONLY && !prepayRequired(other));
+  var otherOk = !!(STORE && modeOpen(mode) && modeOpen(other) && !prepayRequired(other));
   return 'This shop is not taking ' + mode + ' orders online right now.' +
     (mode === 'pickup' ? ' Please order at the counter.' : ' Please message the shop.') +
     (otherOk ? ' Try ' + other + ' instead.' : '');
@@ -3401,8 +3561,12 @@ async function send() {
     if (!who) { toast('Please give your name.'); return; }
     if (phone.replace(/[^0-9]/g, '').length < 7) { toast('Please give a mobile number the shop can reach you on.'); return; }
     if (OMODE === 'delivery' && zones().length && !ZONE) { toast('Please choose your delivery area.'); return; }
+    // 0648: a pin set on the map from the shop must be moved to where the order is going.
+    if (OMODE === 'delivery' && GEO && GEO.fromShop && !GEO.moved) { toast('Drag the pin to where your order is going.'); return; }
     if (OMODE === 'delivery' && kmCfg() && !(GEO && GEO.fee >= 0)) {
-      toast(GEO && GEO.fee < 0 ? 'Sorry, you are outside our delivery range.' : 'Please tap "Use my location" so we can work out the delivery fee.');
+      toast(GEO && GEO.fee < 0 ? 'Sorry, you are outside our delivery range.'
+        : pinMapOn() ? 'Please tap "Use my location" or set the pin on the map, so we can work out the delivery fee.'
+        : 'Please tap "Use my location" so we can work out the delivery fee.');
       return;
     }
     if (OMODE === 'delivery' && !addr) { toast('Please give the delivery address.'); return; }
@@ -3410,13 +3574,15 @@ async function send() {
     // 0603: a time for TODAY, picked a while ago, may have gone by. The server
     // refuses a slot that is too soon; the customer hears it here first, with
     // the next time already chosen for them to check.
-    if (OMODE === 'pickup' && STORE.pickup_times && WHEN !== null && !WHENDAY) {
+    if (timesFor(OMODE) && WHEN !== null && !WHENDAY) {
       const fresh = whenSlots();
       if (fresh.indexOf(WHEN) < 0) {
         WHEN = fresh[0] || null;
         saveCart();
         if (CART_REDRAW) CART_REDRAW();
-        toast(WHEN ? 'That pickup time has passed. The next one is ' + hhmmLabel(WHEN) + ', check it and place your order again.'
+        toast(WHEN ? (OMODE === 'delivery' ? 'That delivery time has passed. The next one is ' : 'That pickup time has passed. The next one is ')
+            + hhmmLabel(WHEN) + ', check it and place your order again.'
+          : OMODE === 'delivery' ? 'Delivery times are over for today. Your order will be delivered as soon as possible.'
           : 'Pickup times are over for today. Your order will be made as soon as possible.');
         return;
       }
@@ -3446,10 +3612,10 @@ async function send() {
       // The customer's own note, after the bill they pay with (cash on delivery).
       p_name: who || null, p_note: [payWithNote(), (el('onote') && el('onote').value.trim()) || ''].filter(Boolean).join(' | ') || null, p_order_type: STORE ? OMODE : (SHARED ? (KMODE || 'takeout') : null),
       p_phone: STORE ? phone : null, p_address: (STORE && OMODE === 'delivery') ? deliveryAddressLine(addr) : null,
-      // Pickup only, and only where the shop asked for times. The server
-      // resolves it in the SHOP's timezone and ignores anything it cannot
-      // read - a bad time must never cost somebody their order.
-      p_wanted_hhmm: (STORE && OMODE === 'pickup' && STORE.pickup_times) ? wantedValue() : null,
+      // Only where the shop asked for times (0648: a delivery has its own
+      // switch). The server resolves it in the SHOP's timezone and ignores
+      // anything it cannot read - a bad time must never cost somebody their order.
+      p_wanted_hhmm: (STORE && timesFor(OMODE)) ? wantedValue() : null,
       // 0175. Always sent so the argument binds by name; the server treats an
       // empty code as no code at all.
       p_coupon: (COUPONS_ON && COUPON.trim()) ? COUPON.trim().toUpperCase() : null,
@@ -3502,7 +3668,7 @@ async function send() {
       pickup: res.pickup || null,
       wanted: res.wanted_label || null,
       // 0517: the shop's date it is wanted on, when that is a later day.
-      wantedDay: (STORE && OMODE === 'pickup' && STORE.pickup_times && WHEN !== null && WHENDAY) || null,
+      wantedDay: (STORE && timesFor(OMODE) && WHEN !== null && WHENDAY) || null,
       state: res.accepted ? 'making' : 'waiting',
       items: CART.map((l) => ({
         name: l.name, qty: l.qty, price: l.price, variant_label: l.variant_label,
@@ -3526,6 +3692,9 @@ async function send() {
     // switches to "Your orders" with this order on top.
     toast(res.duplicate
       ? (STORE ? 'This order was already sent to the shop, here it is.' : 'This order was already sent to the cashier, here it is.')
+      : saved > 0 && res.promo_name && res.code_kept
+        // 0646: the offer saved more than the typed code, which was not used up.
+        ? res.promo_name + ' saved you more: ' + money(saved) + ' off. Your code was not used. ' + (STORE ? 'Order sent to the shop!' : 'Order sent to the cashier!')
       : saved > 0 && res.promo_name
         // 0268: the shop's own promo applied itself.
         ? res.promo_name + ', ' + money(saved) + ' off. ' + (STORE ? 'Order sent to the shop!' : 'Order sent to the cashier!')
@@ -3857,7 +4026,7 @@ function flashTitle(num) {
   if (titleTimer) return;
   let n = 0;
   titleTimer = setInterval(() => {
-    document.title = (n++ % 2 === 0) ? '● Order ' + num + ' is READY' : ORIG_TITLE;
+    document.title = (n++ % 2 === 0) ? '● Order ' + num + ' is READY' : (window.__shopTitle || ORIG_TITLE);
   }, 900);
 }
 function buzz(num) {
@@ -3872,7 +4041,7 @@ function unackedReady() {
 function stopRinging() {
   if (ringTimer) { clearInterval(ringTimer); ringTimer = null; }
   if (titleTimer) { clearInterval(titleTimer); titleTimer = null; }
-  document.title = ORIG_TITLE;
+  document.title = window.__shopTitle || ORIG_TITLE;
 }
 function alertReady(num) {
   var ord = loadOrders().find(function (x) { return x.num === num; }) || {};
@@ -4196,7 +4365,7 @@ function showOrders(highlight) {
         (o.wanted
           ? '<div style="display:flex;align-items:center;gap:6px;margin-top:8px;padding:8px 10px;border-radius:var(--r-sm);' +
             'background:var(--bg-sub);background:color-mix(in srgb, var(--accent) 12%, transparent);color:var(--accent-text);font-weight:700;font-size:13.5px">' +
-            ICON_CLOCK + 'Collect at ' + esc(o.wanted) + '</div>'
+            ICON_CLOCK + (o.type === 'delivery' ? 'Deliver at ' : 'Collect at ') + esc(o.wanted) + '</div>'
           : '') +
         '<div class="lede" style="font-size:12.5px;margin:2px 0 10px">' +
           new Date(o.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) +
@@ -4464,13 +4633,14 @@ function storeOf(m) {
     { pause_until: sh.closed_why === 'paused' ? (sh.reopen_at || null) : null });
 }
 /* CLOSED, BUT ORDER AHEAD (0517, 0642). A store link that is shut right now
-   still takes PICKUP orders for later where the shop takes pickup times: later
-   today when it is only outside its hours or paused, a later day (never a day
-   off) when it takes days ahead. True when this page can take one, with
-   AHEAD_ONLY and TODAY_LATER set; the server checks every order again. */
+   still takes PICKUP orders for later where the shop takes pickup times, and
+   (0648) DELIVERY orders for later where it takes delivery times: later today
+   when it is only outside its hours or paused, a later day (never a day off)
+   when it takes days ahead. True when this page can take one, with AHEAD_ONLY
+   and TODAY_LATER set; the server checks every order again. */
 async function canOrderAhead(m) {
   var ord = (m && m.link && m.link.kind === 'store' && m.shop && m.shop.ordering) || null;
-  if (!ord || !ord.pickup || !ord.pickup_times) return false;
+  if (!ord || !((ord.pickup && ord.pickup_times) || (ord.delivery && ord.delivery_times))) return false;
   if (!SHOPINFO) {
     try { const si = await rpc('kiosk_shop_info', { p_token: TOKEN }); SHOPINFO = si && si.ok ? si : null; }
     catch (e) { /* offline: no later order */ }
@@ -4684,7 +4854,8 @@ async function saveOrderLink(num) {
           ((m.shop && m.shop.name) || 'This shop') + ' is not taking online orders right now. Please message the shop directly.');
         return;
       }
-      OMODE = STORE.pickup ? 'pickup' : 'delivery';
+      // 0648: closed right now, only a mode that takes a later time (modeOpen).
+      OMODE = modeOpen('pickup') ? 'pickup' : 'delivery';
     }
     // Tagalog is offered on a Philippine shop's storefront only.
     if (window.EmberLang) EmberLang.allow(CUR === '₱' && !!STORE);
@@ -4696,6 +4867,7 @@ async function saveOrderLink(num) {
     PAYON = STORE ? STORE.prepay === true : instore.pay_now === true;
     PAYMIN = Number(STORE ? STORE.min_prepay_cents : instore.min_prepay_cents) || 2000;
     FORGET = SHARED && instore.forget_between === true;
+    TABLETIPS = !STORE && !SHARED && instore.tips === true;
     // 0175: the same switch reaches both blocks, because a customer holding
     // a flyer can be at a table just as easily as on the storefront.
     COUPONS_ON = (STORE ? STORE.coupons : instore.coupons) === true;

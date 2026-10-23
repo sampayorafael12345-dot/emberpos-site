@@ -70,8 +70,11 @@
     'Total': 'Kabuuan',
     'Total before offers': 'Kabuuan bago ang alok',
     'The shop’s offer is taken off when you place the order.': 'Ibabawas ang alok ng shop pag-order mo.',
+    'Your code or the shop’s offer comes off, whichever saves you more. If the offer wins, your code is not used up.':
+      'Ibabawas ang code mo o ang alok ng shop, kung alin ang mas makakatipid sa iyo. Kung ang alok ang mas malaki, hindi mababawasan ang code mo at magagamit mo pa ito.',
     'How do you want it?': 'Paano mo gustong kunin?',
     'When do you want it?': 'Kailan mo kukunin?',
+    'When should it arrive?': 'Kailan ito dapat dumating?',
     'As soon as possible': 'Ngayon na',
     'At a time': 'Pumili ng oras',
     'Pickup time': 'Oras ng pickup',
@@ -99,6 +102,8 @@
     'Nobody at the shop has seen it for 10 minutes. Please ask a staff member.':
       'Wala pang nakakita nito sa shop sa loob ng 10 minuto. Magtanong sa staff.',
     'Your mobile number': 'Mobile number mo',
+    'Give the number you use at the counter, so this order counts as your visit.':
+      'Ibigay ang number na gamit mo sa counter, para mabilang ang order na ito bilang visit mo.',
     'Mobile number': 'Mobile number',
     'Your location': 'Lokasyon mo',
     'Use my location': 'Gamitin ang lokasyon ko',
@@ -268,6 +273,20 @@
     'Your location is shared with the rider.': 'Naibahagi na ang lokasyon mo sa rider.',
     'Helps the rider find you. The delivery fee does not change.': 'Para madali kang mahanap ng rider. Hindi magbabago ang bayad sa delivery.',
     'This phone cannot share its location. The address and a landmark will do.': 'Hindi maibahagi ng phone na ito ang lokasyon. Puwede na ang address at isang landmark.',
+    // 0648: the delivery pin the customer moves on the map, and a delivery time
+    'Set it on the map': 'Itakda sa mapa',
+    'Not right? Drag the pin to your door.': 'Mali? I-drag ang pin papunta sa pinto mo.',
+    'You moved the pin. The shop checks it against your address.': 'Inilipat mo ang pin. Titingnan ito ng shop kasama ang address mo.',
+    'You moved the pin. The rider checks it against your address.': 'Inilipat mo ang pin. Titingnan ito ng rider kasama ang address mo.',
+    'The pin starts at the shop. Drag it to your door, or tap the map where it should go.': 'Nasa shop muna ang pin. I-drag ito papunta sa pinto mo, o i-tap ang mapa kung saan ito dapat.',
+    'Drag the pin to where your order is going.': 'I-drag ang pin kung saan dadalhin ang order mo.',
+    'Please tap "Use my location" or set the pin on the map, so we can work out the delivery fee.': 'Pindutin ang "Gamitin ang lokasyon ko" o itakda ang pin sa mapa, para makuwenta ang bayad sa delivery.',
+    'Could not get your location. Allow location for this page, or set the pin on the map.': 'Hindi makuha ang lokasyon mo. Payagan ang lokasyon para sa page na ito, o itakda ang pin sa mapa.',
+    'This phone cannot share its location. Set the pin on the map instead.': 'Hindi maibahagi ng phone na ito ang lokasyon. Itakda na lang ang pin sa mapa.',
+    'The map could not load. Tap "Use my location", or order by phone.': 'Hindi lumabas ang mapa. Pindutin ang "Gamitin ang lokasyon ko", o umorder sa telepono.',
+    'Delivery time': 'Oras ng delivery',
+    'Delivery day': 'Araw ng delivery',
+    'Delivery times are over for today. Your order will be delivered as soon as possible.': 'Tapos na ang mga oras ng delivery ngayong araw. Ide-deliver ang order mo sa lalong madaling panahon.',
   };
   // "at 8:00 AM", "tomorrow at 8:00 AM", "on Monday at 8:00 AM" (0642), in Tagalog.
   var DAYS_TL = { Sunday: 'Linggo', Monday: 'Lunes', Tuesday: 'Martes', Wednesday: 'Miyerkoles',
@@ -308,6 +327,8 @@
     [/^Show (\d+) items?$/, 'Ipakita ang $1 item'],
     [/^(\d+ )?(.+) added$/, '$1$2, naidagdag'],
     [/^Collect at (.+)$/, 'Kunin sa $1'],
+    // 0648: a delivery booked for a time
+    [/^Deliver at (.+)$/, 'Ihahatid sa $1'],
     [/^(.+) is bringing your order$/, 'Dinadala ni $1 ang order mo'],
     [/^Delivered at (.+), enjoy!$/, 'Na-deliver na ($1), enjoy!'],
     [/^On the way · about (.+) km from you · updated (.+)$/, 'Papunta na · mga $1 km mula sa iyo · $2'],
@@ -329,6 +350,10 @@
     [/^Order (.+) is ready$/, 'Handa na ang order $1'],
     [/^Added to ticket (.+)$/, 'Idinagdag sa ticket $1'],
     [/^That pickup time has passed\. The next one is (.+), check it and place your order again\.$/, 'Lumipas na ang oras ng pickup na iyon. Ang susunod ay $1, i-check ito at i-order ulit.'],
+    [/^That delivery time has passed\. The next one is (.+), check it and place your order again\.$/, 'Lumipas na ang oras ng delivery na iyon. Ang susunod ay $1, i-check ito at i-order ulit.'],
+    // 0646: the shop's offer saved more than the typed code
+    [/^(.+) saved you more: (.+) off\. Your code was not used\. Order sent to the shop!$/, 'Mas nakatipid ka sa $1: $2 off. Hindi nagamit ang code mo. Naipadala na ang order sa shop!'],
+    [/^(.+) saved you more: (.+) off\. Your code was not used\. Order sent to the cashier!$/, 'Mas nakatipid ka sa $1: $2 off. Hindi nagamit ang code mo. Naipadala na ang order sa cashier!'],
   ];
 
   function tr(s) {
