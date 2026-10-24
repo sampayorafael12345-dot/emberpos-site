@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>Ember POS: order online</title>
+<meta property="og:title" content="Order online">
+<meta property="og:site_name" content="Ember POS">
+<meta name="robots" content="noindex" />
+<meta name="theme-color" content="#ff5c00" />
+<link rel="icon" href="/favicon.png" type="image/png" />
+<style>
+
+  @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; }
+  @font-face { font-family: 'Poster'; src: url('/fonts/big-shoulders-display-latin-wght.woff2') format('woff2-variations'); font-weight: 100 900; font-display: swap; }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 48px 20px;
+    background: radial-gradient(rgba(11,12,13,.14) 1.4px, transparent 1.7px) 0 0 / 22px 22px, #ff5c00;
+    color: #0b0c0d; font: 17px/1.6 'Space Grotesk', system-ui, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .box { position: relative; width: 460px; max-width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center;
+    background: #fbfaf7; border-radius: 8px; padding: 0 28px 30px; box-shadow: 0 1px 0 rgba(0,0,0,.08), 0 26px 40px -26px rgba(0,0,0,.5); }
+  .box::before { content: ""; position: absolute; left: 50%; top: -14px; width: 54px; height: 22px; margin-left: -27px; border-radius: 4px 4px 2px 2px; background: #3a3f45; box-shadow: inset 0 -3px 0 rgba(0,0,0,.35); }
+  .code { order: -1; align-self: stretch; margin: 0 -28px 26px; padding: 12px 18px; border-radius: 8px 8px 0 0; background: #b91c1c; color: #fff;
+    font: 700 13px ui-monospace, 'Cascadia Mono', Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; text-align: left; }
+  .box img { height: 46px; width: auto; display: block; margin: 0 auto 8px; }
+  h1 { font: 900 clamp(52px, 13vw, 76px)/.88 'Poster', 'Space Grotesk', sans-serif; text-transform: uppercase; margin-top: 10px; }
+  p { color: #3d444c; margin-top: 14px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 26px; align-self: stretch; }
+  .row a {
+    flex: 1 1 160px; display: inline-flex; justify-content: center; align-items: center; min-height: 52px; padding: 0 18px;
+    border-radius: 10px; border: 2.5px solid #0b0c0d; text-decoration: none; font-weight: 700; font-size: 16px;
+    transition: transform 120ms ease, box-shadow 140ms ease;
+  }
+  .row a:active { transform: translateY(1px); }
+  .flame { background: #0b0c0d; color: #fff; }
+  .ghost { background: #fff; color: #0b0c0d; }
+  @media (hover: hover) { .row a:hover { transform: translateY(-2px); box-shadow: 0 5px 0 #ff5c00; } }
+  a:focus-visible { outline: 3px solid #0b0c0d; outline-offset: 3px; }
+
+  .looking .box > :not(.opening) { display: none; }
+  .opening { display: none; color: #3d444c; }
+  .looking .opening { display: block; padding-top: 24px; }
+
+  @keyframes drop { from { opacity: 0; transform: translateY(-26px) rotate(-1.5deg); } }
+  @keyframes up { from { opacity: 0; transform: translateY(10px); } }
+  @keyframes breathe { 50% { opacity: .45; } }
+  @media (prefers-reduced-motion: no-preference) {
+    .box { transform-origin: 50% 0; animation: drop .7s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+    .box > h1, .box > p:not(.opening), .box > .row { animation: up .45s cubic-bezier(0.16, 1, 0.3, 1) 200ms backwards; }
+    .box > p:not(.opening) { animation-delay: 250ms; }
+    .box > .row { animation-delay: 300ms; }
+    .looking .opening { animation: breathe 1.4s ease-in-out infinite; }
+  }
+</style>
+<script>
+(function() {
+  var slug = location.pathname.replace(/^\/+|\/+$/g, "");
+  if (/^[A-Za-z0-9-]{3,30}$/.test(slug)) document.documentElement.className = "looking"; else document.title = "Page not found: Ember POS";
+})();
+</script>
+</head>
+<body>
+<main class="box">
+  <img src="/logo.png" alt="Ember POS" />
+  <p class="opening">Opening the shop&hellip;</p>
+  <span class="code">#404 &middot; Page not found</span>
+  <h1>This page does not exist.</h1>
+  <p>The link may have a typo, or the page was moved. You can go back to the home page or open the app.</p>
+  <div class="row">
+    <a class="flame" href="/">Home page</a>
+    <a class="ghost" href="/app/">Open the app</a>
+  </div>
+</main>
+<script>
+(function() {
+  if (document.documentElement.className !== "looking") return;
+  var slug = location.pathname.replace(/^\/+|\/+$/g, "");
+  var URLB = "https://qqmkgafyfxrcnwdkkyxc.supabase.co";
+  var ANON = "sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX";
+  var done = function() {
+    document.documentElement.className = "";
+    document.title = "Page not found: Ember POS";
+  };
+  fetch(URLB + "/rest/v1/rpc/shop_link_token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: ANON,
+      Authorization: "Bearer " + ANON
+    },
+    body: JSON.stringify({
+      p_slug: slug
+    })
+  }).then(function(r) {
+    return r.ok ? r.json() : null;
+  }).then(function(token) {
+    if (typeof token === "string" && token) location.replace("/order.html?t=" + encodeURIComponent(token)); else done();
+  }).catch(done);
+})();
+</script>
+</body>
+</html>

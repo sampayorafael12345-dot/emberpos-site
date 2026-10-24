@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#111214" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<title>Book a table</title>
+<link rel="icon" href="favicon.png">
+
+<style>
+
+  :root {
+    color-scheme: light dark;
+    --bg: #f2f2f4;          --bg-sub: #ffffff;
+    --card: #ffffff;        --line: #e8e8ec;
+    --text: #18181b;        --muted: #5f5f6b;
+    --accent: #ff5c00;      --accent-ink: #1a0e05;   --accent-text: #b84000;
+    --ok: #047857;          --warn: #b45309;
+    --shadow: 0 1px 2px rgb(0 0 0 / .06), 0 8px 24px rgb(0 0 0 / .06);
+    --r-sm: 10px; --r-md: 14px; --r-lg: 20px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e0f11;        --bg-sub: #1b1c20;
+      --card: #17181b;      --line: #292b31;
+      --text: #f4f4f5;      --muted: #a5a5ae;
+      --accent: #ff5c00;    --accent-ink: #1a0e05;   --accent-text: #ff8340;
+      --ok: #34d399;        --warn: #fbbf24;
+      --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 10px 30px rgb(0 0 0 / .35);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { overscroll-behavior-y: none; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px; line-height: 1.45;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; border: 0; background: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+  .hero {
+    position: relative; overflow: hidden; color: #fff;
+    background: linear-gradient(145deg, #ff7a2e 0%, var(--accent) 48%, #d94e00 100%);
+    padding: calc(20px + env(safe-area-inset-top)) 16px 18px;
+  }
+  .hero::after {
+    content: ''; position: absolute; right: -60px; top: -90px; width: 260px; height: 260px;
+    border-radius: 50%; background: rgb(255 255 255 / .13); pointer-events: none;
+  }
+  .hero h1 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -.01em; position: relative; }
+  .hero p { margin: 4px 0 0; font-size: 13.5px; opacity: .92; position: relative; }
+
+  .wrap { max-width: 560px; margin: 0 auto; padding: 16px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md);
+    padding: 14px; box-shadow: var(--shadow); margin-bottom: 14px;
+  }
+  .card h2 { margin: 0 0 4px; font-size: 14px; font-weight: 650; }
+  .lede { color: var(--muted); font-size: 12.5px; }
+
+  label.f { display: block; margin-bottom: 12px; }
+  label.f > span { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+  input[type=text], input[type=tel], input[type=email], select, textarea {
+    width: 100%; padding: 11px 12px; border-radius: var(--r-sm);
+    border: 1px solid var(--line); background: var(--bg-sub);
+  }
+  textarea { min-height: 62px; resize: vertical; }
+
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    padding: 9px 12px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--bg-sub); font-size: 13.5px; font-weight: 600;
+  }
+  .chip[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: transparent; }
+  .chip[disabled] { opacity: .38; cursor: not-allowed; }
+  .chip small { display: block; font-size: 10.5px; font-weight: 500; opacity: .8; }
+
+  .primary {
+    width: 100%; padding: 14px; border-radius: var(--r-md);
+    background: var(--accent); color: #fff; font-weight: 700; font-size: 16px;
+  }
+  .primary[disabled] { opacity: .45; }
+  .ghost { padding: 11px 14px; border-radius: var(--r-sm); border: 1px solid var(--line); font-weight: 600; }
+
+  .note { font-size: 12.5px; padding: 10px 12px; border-radius: var(--r-sm); }
+  .note.warn { background: rgb(255 176 32 / .13); color: var(--warn); }
+  .note.ok   { background: rgb(4 120 87 / .12);   color: var(--ok); }
+  .code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 700; letter-spacing: .04em; }
+  .big { font-size: 26px; font-weight: 800; letter-spacing: -.01em; }
+
+  @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; }
+  @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-ext-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20C0; }
+  @font-face { font-family: 'JetBrains Mono'; src: url('/fonts/jetbrains-mono-latin-700-normal.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+  :root {
+    --bg: #f1ece1;  --bg-sub: #f4f0e6;  --card: #ffffff;
+    --line: rgba(58, 50, 40, 0.14);
+    --text: #14120f;  --muted: #5d5446;  --accent-text: #b03e00;
+    --r-sm: 12px; --r-md: 16px;
+    --money: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121415;  --bg-sub: #21252a;  --card: #191c1e;
+      --line: rgba(255, 255, 255, 0.08);
+      --text: #ece7df;  --muted: rgba(236, 231, 223, 0.74);  --accent-text: #ff8340;
+    }
+  }
+  body { font-family: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+  .hero { background: var(--card); color: var(--text); border-bottom: 1px solid var(--line); }
+  .hero::after { display: none; }
+  .hero h1 { font-weight: 700; }
+  .hero p { color: var(--muted); opacity: 1; }
+  .card { box-shadow: none; margin-bottom: 12px; padding: 16px 16px 20px; }
+  .chip { border-radius: var(--r-sm); }
+  .chip[aria-pressed="true"] { color: var(--accent-ink); }
+  .code, .big { font-family: var(--money); }
+
+  .hero { background: var(--accent); color: #0b0c0d; border-bottom: 0; padding-bottom: 20px; }
+  .hero .id { display: flex; align-items: center; gap: 13px; position: relative; }
+  .hero .mark { flex: 0 0 auto; width: 58px; height: 58px; border-radius: 14px; background: #0b0c0d; display: grid; place-items: center; }
+  .hero .mark img { width: 28px; height: 40px; display: block; }
+  .hero .nm { min-width: 0; }
+  .hero h1 { font-size: 25px; font-weight: 700; letter-spacing: -.015em; color: #0b0c0d; }
+  .hero .powered { display: inline-block; margin-top: 3px; color: rgb(11 12 13 / .72); text-decoration: none; font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+  .hero .powered b { color: #0b0c0d; font-weight: 800; }
+  .hero p { display: inline-block; margin-top: 12px; padding: 5px 11px; border-radius: 999px; background: rgb(11 12 13 / .12); color: #0b0c0d; font-weight: 600; font-size: 12.5px; }
+  .hero p:empty { display: none; }
+
+  h2.step { display: flex; align-items: center; gap: 10px; font-size: 16px; }
+  h2.step .num { flex: 0 0 auto; width: 26px; height: 26px; border-radius: 999px; display: grid; place-items: center;
+    background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 800; font-family: var(--money); }
+  h2.step.done .num { background: #16a34a; color: #fff; animation: stepDone .35s cubic-bezier(.2,.9,.3,1.4); }
+
+  @keyframes cardIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @keyframes markIn { 0% { opacity: 0; transform: scale(.6) rotate(-8deg); } 70% { transform: scale(1.06) rotate(2deg); } 100% { opacity: 1; transform: none; } }
+  @keyframes chosen { 0% { transform: scale(.88); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
+  @keyframes stepDone { 0% { transform: scale(.4) rotate(-30deg); } 100% { transform: none; } }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  body.intro .hero .mark { animation: markIn .6s cubic-bezier(.2,.9,.3,1.2) both; }
+  body.intro .hero .nm { animation: cardIn .45s .1s cubic-bezier(.2,.8,.2,1) both; }
+  body.intro .card, body.intro #go { animation: cardIn .5s cubic-bezier(.2,.8,.2,1) both; }
+  body.intro .card:nth-of-type(2) { animation-delay: .08s; }
+  body.intro .card:nth-of-type(3) { animation-delay: .16s; }
+  body.intro #go { animation-delay: .24s; }
+  .cal-day[aria-pressed="true"], #slots .chip[aria-pressed="true"] { animation: chosen .32s cubic-bezier(.2,.9,.3,1.3); }
+  .cal-day, #slots .chip, .cal-nav, .primary, .ghost { transition: transform .1s ease, background-color .15s ease, border-color .15s ease; }
+  .cal-day:not([disabled]):active, #slots .chip:not([disabled]):active, .cal-nav:not([disabled]):active, .primary:not([disabled]):active, .ghost:active { transform: scale(.94); }
+  .done-tick { display: block; width: 64px; height: 64px; margin: 4px auto 12px; }
+  .done-tick circle { fill: #16a34a; }
+  .done-tick path { fill: none; stroke: #fff; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 60; stroke-dashoffset: 60; animation: draw .5s .15s ease-out forwards; }
+
+  @keyframes swapIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes breathe { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+  #slots.fresh .chip { animation: swapIn .3s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 25ms); }
+  .swapin { animation: swapIn .3s cubic-bezier(.2,.8,.2,1) both; }
+  .booked .card, .booked > .ghost, .booked > .lede { animation: cardIn .45s cubic-bezier(.2,.8,.2,1) both; }
+  .booked > .ghost { animation-delay: .08s; }
+  .booked > .lede { animation-delay: .12s; }
+  .waitdot { display: inline-block; width: 8px; height: 8px; border-radius: 99px; background: var(--accent); margin-right: 8px; vertical-align: 1px; animation: breathe 1.2s ease-in-out infinite; }
+  .formmsg { text-align: center; margin: 10px 0 0; font-size: 13.5px; color: var(--warn); }
+  .formmsg:empty { display: none; }
+  @media (prefers-reduced-motion: reduce) {
+    body.intro .hero .mark, body.intro .hero .nm, body.intro .card, body.intro #go, h2.step.done .num,
+    .cal-day[aria-pressed="true"], #slots .chip[aria-pressed="true"],
+    #slots.fresh .chip, .swapin, .booked .card, .booked > .ghost, .booked > .lede, .waitdot { animation: none !important; }
+    .done-tick path { animation: none; stroke-dashoffset: 0; }
+    .cal-day, #slots .chip, .cal-nav, .primary, .ghost { transition: none; }
+  }
+
+  .cal { margin-top: 10px; }
+  .cal-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .cal-title { flex: 1; text-align: center; font-weight: 700; font-size: 15px; }
+  .cal-nav { width: 40px; height: 40px; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--bg-sub); font-size: 22px; line-height: 1; }
+  .cal-nav[disabled] { opacity: .3; cursor: default; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+  .cal-wd { text-align: center; font-size: 11.5px; font-weight: 600; color: var(--muted); padding: 2px 0 4px; }
+  .cal-day { aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-sub); font-weight: 600; font-size: 14.5px; font-family: var(--money); }
+  .cal-day[disabled] { background: transparent; border-color: transparent; color: var(--muted); opacity: .45; cursor: default; }
+  .cal-day.other[disabled] { opacity: .2; }
+  .cal-day.today { border-color: var(--accent); }
+  .cal-day[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .cal-picked { margin-top: 10px; text-align: center; font-size: 13.5px; font-weight: 600; color: var(--accent-text); }
+
+  #slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+
+  #slots .chip:last-child:nth-child(3n+1) { grid-column: 1 / -1; }
+  #slots .chip:last-child:nth-child(3n+2) { grid-column: span 2; }
+  #slots .chip { width: 100%; min-height: 44px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 6px; padding-right: 6px; }
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="id">
+    <span class="mark" aria-hidden="true"><img src="/logo.png" alt=""></span>
+    <div class="nm">
+      <h1 id="shopname">Book a table</h1>
+      <a class="powered" href="https://emberpos.net" target="_blank" rel="noopener">Powered by <b>Ember POS</b></a>
+    </div>
+  </div>
+  <p id="herosub">Loading&hellip;</p>
+</div>
+<div class="wrap" id="app"></div>
+<p class="wrap lede" style="text-align:center;padding-top:0"><a href="/privacy-policy.html" target="_blank" rel="noopener" style="color:inherit">Privacy</a></p>
+
+<script>
+const URLB = "https://qqmkgafyfxrcnwdkkyxc.supabase.co";
+
+const ANON = "sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX";
+
+const el = id => document.getElementById(id);
+
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;"
+}[c]));
+
+let CUR = "P";
+
+const money = c => CUR + (/\p{L}{2}$/u.test(CUR) ? " " : "") + (Math.round(c) / 100).toLocaleString("en-US", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+});
+
+async function rpc(fn, args) {
+  const r = await fetch(URLB + "/rest/v1/rpc/" + fn, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: ANON,
+      Authorization: "Bearer " + ANON
+    },
+    body: JSON.stringify(args)
+  });
+  if (!r.ok) throw new Error("network");
+  return await r.json();
+}
+
+const params = new URLSearchParams(location.search);
+
+const TOKEN = params.get("t") || "";
+
+const RESTOK = params.get("r") || "";
+
+let INFO = null;
+
+let SHOPDAY = "";
+
+function takeInfo(r) {
+  INFO = r;
+  if (r && typeof r.currency === "string" && r.currency) CUR = r.currency;
+  if (r && typeof r.today === "string" && /^\d{4}-\d{2}-\d{2}$/.test(r.today)) SHOPDAY = r.today;
+}
+
+function shopDayPlus(i) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(SHOPDAY);
+  if (!m) {
+    const t = new Date;
+    return new Date(Date.UTC(t.getFullYear(), t.getMonth(), t.getDate() + i));
+  }
+  return new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]) + i));
+}
+
+const ymdUtc = d => d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, "0") + "-" + String(d.getUTCDate()).padStart(2, "0");
+
+let DAY = null;
+
+let LOADING = false, FRESH = false;
+
+let FORMMSG = "";
+
+let TIME = null;
+
+let PARTY = 2;
+
+let BUSY = false;
+
+const FORM = {
+  name: "",
+  phone: "",
+  email: "",
+  note: ""
+};
+
+function grabForm() {
+  for (const k in FORM) {
+    const n = el(k);
+    if (n) FORM[k] = n.value;
+  }
+}
+
+function fillForm() {
+  for (const k in FORM) {
+    const n = el(k);
+    if (n && FORM[k]) n.value = FORM[k];
+  }
+}
+
+function dayOptions(policy) {
+  const out = [];
+  const open = String(policy.days ?? "0,1,2,3,4,5,6").split(",").map(s => s.trim()).filter(Boolean);
+  const horizon = Number(policy.horizon_days || 30);
+  for (let i = 0; i <= Math.min(horizon, 90); i++) {
+    const d = shopDayPlus(i);
+    if (open.indexOf(String(d.getUTCDay())) === -1) continue;
+    const ymd = ymdUtc(d);
+    out.push({
+      ymd: ymd,
+      label: i === 0 ? "Today" : i === 1 ? "Tomorrow" : new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()).toLocaleDateString(undefined, {
+        weekday: "short",
+        day: "numeric",
+        month: "short"
+      })
+    });
+  }
+  return out;
+}
+
+let CAL_SHIFT = 0;
+
+function ymdOf(d) {
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+
+function calendarHtml(days) {
+  const ok = new Set(days.map(d => d.ymd));
+  const todayYmd = SHOPDAY || ymdOf(new Date);
+  const base = DAY ? new Date(DAY + "T00:00:00") : new Date;
+  const first = new Date(base.getFullYear(), base.getMonth() + CAL_SHIFT, 1);
+  const monthKey = d => d.getFullYear() * 12 + d.getMonth();
+  const minM = days.length ? monthKey(new Date(days[0].ymd + "T00:00:00")) : monthKey(new Date);
+  const maxM = days.length ? monthKey(new Date(days[days.length - 1].ymd + "T00:00:00")) : minM;
+  const cur = monthKey(first);
+  const start = new Date(first);
+  start.setDate(1 - first.getDay());
+  const last = new Date(first.getFullYear(), first.getMonth() + 1, 0);
+  const cells = Math.ceil((first.getDay() + last.getDate()) / 7) * 7;
+  let h = '<div class="cal" id="days">' + '<div class="cal-head">' + '<button class="cal-nav" data-month="-1" aria-label="Previous month"' + (cur <= minM ? " disabled" : "") + ">&#8249;</button>" + '<div class="cal-title">' + esc(first.toLocaleDateString(undefined, {
+    month: "long",
+    year: "numeric"
+  })) + "</div>" + '<button class="cal-nav" data-month="1" aria-label="Next month"' + (cur >= maxM ? " disabled" : "") + ">&#8250;</button>" + '</div><div class="cal-grid">' + [ "S", "M", "T", "W", "T", "F", "S" ].map(w => '<div class="cal-wd">' + w + "</div>").join("");
+  for (let i = 0; i < cells; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    const y = ymdOf(d);
+    const inMonth = d.getMonth() === first.getMonth();
+    const can = inMonth && ok.has(y);
+    h += '<button class="cal-day' + (inMonth ? "" : " other") + (y === todayYmd ? " today" : "") + '"' + (can ? ' data-day="' + y + '"' : " disabled") + ' aria-pressed="' + (y === DAY) + '"' + ' aria-label="' + esc(d.toLocaleDateString(undefined, {
+      weekday: "long",
+      day: "numeric",
+      month: "long"
+    })) + '">' + d.getDate() + "</button>";
+  }
+  h += "</div>";
+  if (DAY) {
+    h += '<div class="cal-picked">' + esc(new Date(DAY + "T00:00:00").toLocaleDateString(undefined, {
+      weekday: "long",
+      day: "numeric",
+      month: "long"
+    })) + "</div>";
+  }
+  return h + "</div>";
+}
+
+async function loadDay(ymd) {
+  CAL_SHIFT = 0;
+  DAY = ymd;
+  TIME = null;
+  LOADING = true;
+  render();
+  try {
+    takeInfo(await rpc("kiosk_reserve_info", {
+      p_token: TOKEN,
+      p_date: ymd
+    }));
+  } catch (e) {
+    INFO = {
+      ok: false,
+      error: "network"
+    };
+  }
+  LOADING = false;
+  FRESH = true;
+  render();
+}
+
+function partyOptions(max) {
+  let s = "";
+  for (let i = 1; i <= max; i++) s += '<option value="' + i + '"' + (i === PARTY ? " selected" : "") + ">" + i + (i === 1 ? " person" : " people") + "</option>";
+  return s;
+}
+
+function depositLine(policy) {
+  if (!policy || policy.deposit_mode === "none" || !Number(policy.deposit_cents)) return "";
+  const each = Number(policy.deposit_cents);
+  const total = policy.deposit_mode === "per_head" ? each * PARTY : each;
+  return '<div class="note warn" style="margin-top:10px">' + "This shop asks for a <b>" + money(total) + "</b> deposit to hold the table" + (policy.deposit_mode === "per_head" ? " (" + money(each) + " a head)" : "") + ". They will message you how to send it, and your table is confirmed once it is received." + "</div>";
+}
+
+function stepH(n, text, done) {
+  return '<h2 class="step' + (done ? " done" : "") + '"><span class="num">' + (done ? "&#10003;" : n) + "</span>" + esc(text) + "</h2>";
+}
+
+function bookingLabel() {
+  const d = DAY ? new Date(DAY + "T00:00:00").toLocaleDateString(undefined, {
+    weekday: "short",
+    day: "numeric",
+    month: "short"
+  }) : "";
+  const hit = (INFO && INFO.slots || []).filter(x => x.time === TIME)[0];
+  return d + ", " + (hit ? hit.label : TIME) + " for " + PARTY;
+}
+
+let FIRST_PAINT = true;
+
+function render() {
+  if (RESTOK) return;
+  grabForm();
+  const app = el("app");
+  if (!TOKEN) {
+    app.innerHTML = '<div class="card"><h2>This link is incomplete</h2>' + '<p class="lede">Ask the shop for their booking link again.</p></div>';
+    return;
+  }
+  if (!INFO) {
+    app.innerHTML = '<div class="card"><p class="lede">Loading&hellip;</p></div>';
+    return;
+  }
+  if (INFO.ok === false) {
+    const msg = INFO.error === "off" ? "This shop is not taking online bookings at the moment. Please message or call them." : INFO.error === "unknown_link" ? "That booking link is not recognised. Ask the shop for a fresh one." : "Could not reach the shop just now. Please try again in a moment.";
+    app.innerHTML = '<div class="card"><h2>Not available</h2><p class="lede">' + esc(msg) + "</p></div>";
+    el("herosub").textContent = "";
+    return;
+  }
+  const policy = INFO.policy || {};
+  el("shopname").textContent = INFO.shop || "Book a table";
+  el("herosub").textContent = "Reserve a table in a few taps.";
+  const days = dayOptions(policy);
+  const slots = INFO.slots || [];
+  if (!days.length) {
+    app.innerHTML = '<div class="card"><h2>No bookings right now</h2>' + '<p class="lede">This shop is not taking bookings on any day right now. Please message them.</p></div>';
+    return;
+  }
+  app.innerHTML = '<div class="card">' + stepH(1, "Which day?", !!DAY) + calendarHtml(days) + "</div>" + '<div class="card">' + stepH(2, "What time?", !!TIME) + (LOADING ? '<p class="lede" style="margin-top:6px"><span class="waitdot"></span>Finding the times&hellip;</p>' : slots.length === 0 ? '<p class="lede" style="margin-top:6px">No times left on this day. Try another.</p>' : '<div class="row" style="margin-top:8px" id="slots">' + slots.map((s, n) => {
+    const left = Number(s.seats_left);
+    const full = left <= 0 || left < PARTY;
+    return '<button class="chip" style="--i:' + Math.min(n, 12) + '" data-time="' + esc(s.time) + '" aria-pressed="' + (s.time === TIME) + '"' + (full ? " disabled" : "") + ">" + esc(s.label) + "<small>" + (left <= 0 ? "full" : left < PARTY ? "only " + left + " left" : left + " seats left") + "</small></button>";
+  }).join("") + "</div>") + "</div>" + '<div class="card">' + stepH(3, "Your details", false) + '<label class="f" style="margin-top:8px"><span>How many people?</span>' + '<select id="party">' + partyOptions(Number(policy.max_party || 12)) + "</select></label>" + '<label class="f"><span>Name</span><input type="text" id="name" autocomplete="name" placeholder="Who is the table for?"></label>' + '<label class="f"><span>Mobile number</span><input type="tel" id="phone" autocomplete="tel" inputmode="tel" placeholder="' + (CUR === "₱" || CUR === "P" ? "09XX XXX XXXX" : "For the shop to reach you") + '"></label>' + '<label class="f"><span>Email <span class="lede">(optional)</span></span><input type="email" id="email" autocomplete="email" placeholder="For your confirmation"></label>' + '<label class="f"><span>Anything they should know? <span class="lede">(optional)</span></span>' + '<textarea id="note" placeholder="Birthday, high chair, wheelchair access, allergies&hellip;"></textarea></label>' + (policy.note ? '<div class="note warn">' + esc(policy.note) + "</div>" : "") + depositLine(policy) + "</div>" + '<button class="primary" id="go"' + (TIME && DAY ? "" : " disabled") + ">" + (TIME ? "Book " + esc(bookingLabel()) : "Pick a time first") + "</button>" + '<p class="formmsg" id="formmsg" role="status">' + esc(FORMMSG) + "</p>" + '<p class="lede" style="text-align:center;margin-top:10px">' + "You can cancel up to " + esc(String(policy.cancel_hours || 12)) + " hours before.</p>";
+  if (FIRST_PAINT) {
+    FIRST_PAINT = false;
+    document.body.classList.add("intro");
+    setTimeout(() => document.body.classList.remove("intro"), 1100);
+  }
+  if (FRESH) {
+    FRESH = false;
+    const sw = el("slots");
+    if (sw) sw.classList.add("fresh");
+  }
+  const dayWrap = el("days");
+  if (dayWrap) dayWrap.onclick = e => {
+    const m = e.target.closest("[data-month]");
+    if (m && !m.disabled) {
+      CAL_SHIFT += Number(m.getAttribute("data-month"));
+      render();
+      return;
+    }
+    const b = e.target.closest("[data-day]");
+    if (b && !b.disabled) {
+      FORMMSG = "";
+      loadDay(b.getAttribute("data-day"));
+    }
+  };
+  const slotWrap = el("slots");
+  if (slotWrap) slotWrap.onclick = e => {
+    const b = e.target.closest("[data-time]");
+    if (b && !b.disabled) {
+      TIME = b.getAttribute("data-time");
+      FORMMSG = "";
+      render();
+    }
+  };
+  const partySel = el("party");
+  if (partySel) partySel.onchange = e => {
+    PARTY = Number(e.target.value) || 1;
+    if (TIME) {
+      const hit = (INFO.slots || []).filter(s => s.time === TIME)[0];
+      if (!hit || Number(hit.seats_left) < PARTY) TIME = null;
+    }
+    render();
+  };
+  const go = el("go");
+  if (go) go.onclick = submit;
+  fillForm();
+}
+
+function formSay(text) {
+  FORMMSG = text;
+  const m = el("formmsg");
+  if (!m) return;
+  m.textContent = text;
+  m.classList.remove("swapin");
+  void m.offsetWidth;
+  if (text) m.classList.add("swapin");
+}
+
+async function submit() {
+  if (BUSY) return;
+  const name = (el("name").value || "").trim();
+  const phone = (el("phone").value || "").trim();
+  if (!name || !phone) {
+    formSay("Please put your name and mobile number so the shop can reach you.");
+    return;
+  }
+  formSay("");
+  BUSY = true;
+  el("go").disabled = true;
+  el("go").textContent = "Booking…";
+  let res;
+  try {
+    res = await rpc("kiosk_reserve", {
+      p_token: TOKEN,
+      p_date: DAY,
+      p_time: TIME,
+      p_party: PARTY,
+      p_name: name,
+      p_phone: phone,
+      p_email: (el("email").value || "").trim() || null,
+      p_note: (el("note").value || "").trim() || null
+    });
+  } catch (e) {
+    res = {
+      ok: false,
+      error: "network"
+    };
+  }
+  BUSY = false;
+  if (!res || res.ok !== true) {
+    const m = {
+      full: "Somebody just took the last seats in that slot. Please pick another time.",
+      too_soon: "That is too close to now for this shop. Please pick a later time.",
+      too_far: "That is further ahead than this shop takes bookings.",
+      closed_that_day: "The shop does not open that day.",
+      closed_then: "The shop is not taking bookings at that time. Please pick one of the times shown.",
+      party_too_big: "That is a bigger party than they take online, please message the shop directly.",
+      need_name_and_phone: "Please put your name and mobile number.",
+      too_many: "There are already several bookings from this number today.",
+      busy: "The shop is taking a lot of bookings right now. Please try again in a little while.",
+      too_long: "That is a bit long for the form. Please shorten your name or note.",
+      bad_date: "That day could not be read. Please pick it again.",
+      bad_time: "That time could not be read. Please pick it again.",
+      off: "This shop has stopped taking online bookings.",
+      network: "Could not reach the shop. Please try again."
+    }[res && res.error] || "That booking could not be made. Please try another time.";
+    FORMMSG = m;
+    loadDay(DAY);
+    return;
+  }
+  history.replaceState(null, "", location.pathname + "?r=" + encodeURIComponent(res.token));
+  showBooking(res.token);
+}
+
+async function showBooking(tok) {
+  const app = el("app");
+  app.classList.remove("booked");
+  app.innerHTML = '<div class="card"><p class="lede"><span class="waitdot"></span>Loading your booking&hellip;</p></div>';
+  let r;
+  try {
+    r = await rpc("kiosk_reservation", {
+      p_res_token: tok
+    });
+  } catch (e) {
+    r = {
+      ok: false,
+      error: "network"
+    };
+  }
+  if (!r || r.ok !== true) {
+    app.innerHTML = '<div class="card"><h2>Booking not found</h2>' + '<p class="lede">Check the link, or message the shop.</p></div>';
+    el("herosub").textContent = "";
+    return;
+  }
+  if (typeof r.currency === "string" && r.currency) CUR = r.currency;
+  el("shopname").textContent = r.shop || "Your booking";
+  el("herosub").textContent = "Your table";
+  const when = new Date(r.date + "T" + (r.time || "00:00"));
+  const whenLabel = when.toLocaleDateString(undefined, {
+    weekday: "long",
+    day: "numeric",
+    month: "long"
+  }) + " at " + when.toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+  const owing = Math.max(0, Number(r.deposit_cents || 0) - Number(r.deposit_paid_cents || 0));
+  const statusNote = r.status === "cancelled" ? '<div class="note warn">This booking is cancelled.</div>' : r.status === "no_show" ? '<div class="note warn">This was marked as a no-show.</div>' : r.status === "pending" && owing > 0 ? '<div class="note warn">Your table is held. The shop will message you how to send the ' + money(owing) + " deposit, and it is confirmed once that arrives.</div>" : '<div class="note ok">Confirmed. See you then!</div>';
+  app.innerHTML = '<div class="card" style="text-align:center">' + (r.status !== "cancelled" && r.status !== "no_show" ? '<svg class="done-tick" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30"/><path d="M19 33 l9 9 l17 -19"/></svg>' : "") + '<div class="big">' + esc(whenLabel) + "</div>" + '<p class="lede" style="margin:6px 0 0">' + esc(r.name) + " · " + esc(String(r.party_size)) + (Number(r.party_size) === 1 ? " person" : " people") + (r.table_label ? " · table " + esc(r.table_label) : "") + "</p>" + '<div style="margin-top:12px">' + statusNote + "</div>" + '<p class="lede" style="margin-top:12px">Your booking code</p>' + '<div class="code">' + esc(String(tok).slice(0, 8).toUpperCase()) + "</div>" + "</div>" + (r.can_cancel ? '<button class="ghost" id="cancel" style="width:100%">Cancel this booking</button>' : '<p class="lede" style="text-align:center">To change this booking, please message the shop.</p>') + '<p class="formmsg" id="cancelmsg" role="status"></p>' + '<p class="lede" style="text-align:center;margin-top:14px">Keep this page, the link is your booking.</p>';
+  app.classList.add("booked");
+  const c = el("cancel");
+  if (c) c.onclick = async () => {
+    if (!confirm("Cancel this booking?")) return;
+    c.disabled = true;
+    c.textContent = "Cancelling…";
+    let out;
+    try {
+      out = await rpc("kiosk_reservation_cancel", {
+        p_res_token: tok
+      });
+    } catch (e) {
+      out = {
+        ok: false,
+        error: "network"
+      };
+    }
+    if (out && out.ok === true) {
+      showBooking(tok);
+      return;
+    }
+    const m = el("cancelmsg");
+    m.textContent = out && out.error === "too_late" ? "It is too close to the time to cancel here, please message the shop." : "That could not be cancelled. Please message the shop.";
+    m.classList.remove("swapin");
+    void m.offsetWidth;
+    m.classList.add("swapin");
+    c.disabled = false;
+    c.textContent = "Cancel this booking";
+  };
+}
+
+if (RESTOK) {
+  showBooking(RESTOK);
+} else if (TOKEN) {
+  (async () => {
+    takeInfo(await rpc("kiosk_reserve_info", {
+      p_token: TOKEN,
+      p_date: null
+    }).catch(() => ({
+      ok: false,
+      error: "network"
+    })));
+    const days = INFO && INFO.policy ? dayOptions(INFO.policy) : [];
+    if (INFO && INFO.ok !== false && days.length) {
+      await loadDay(days[0].ymd);
+    } else {
+      render();
+    }
+  })();
+} else {
+  render();
+}
+</script>
+</body>
+</html>

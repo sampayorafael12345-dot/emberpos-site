@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ember POS: Questions and Answers</title>
+  <link rel="canonical" href="https://emberpos.net/faq.html">
+<meta name="description" content="Every question shops actually ask about Ember POS: selling, stock, staff, money and billing, answered plainly. Try anything live in the demo shop." />
+<meta property="og:title" content="Ember POS FAQ" />
+<meta property="og:description" content="Answers about pricing, setup, the free trial, payments and BIR for Ember POS." />
+<meta property="og:image" content="https://emberpos.net/shots/og.png" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="favicon.png" type="image/png" />
+<link rel="stylesheet" href="style.css" />
+<style>
+
+  .wrap { max-width: 860px; }
+  .page-head p { max-width: 58ch; margin-left: auto; margin-right: auto; }
+  .try {
+    display: inline-flex; align-items: center; gap: 8px; text-decoration: none; min-height: 50px;
+    background: var(--flame); color: var(--night); padding: 0 20px; border-radius: 12px; box-shadow: var(--bevel);
+    font-family: var(--sans); font-weight: 600; font-size: 16px; letter-spacing: -0.01em;
+    transition: background 160ms var(--ease-out), transform 120ms var(--ease-out);
+  }
+  .try:hover { background: var(--flame-hi); }
+  .try:active { transform: scale(.97); }
+  .try.ghost { background: var(--sheet); color: var(--text); border: 1px solid var(--ll2); box-shadow: none; }
+  .try.ghost:hover { background: #f4f5f7; }
+  .ctas { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 20px 0 4px; }
+  .search { margin: 26px 0 4px; }
+  h2.sec {
+    font-family: var(--sans); font-weight: 700; font-size: 18px; line-height: 1.3; letter-spacing: -0.01em; text-transform: none;
+    color: var(--paper-ink); margin: 44px 0 4px; padding-bottom: 12px; border-bottom: 1px solid var(--paper-rule);
+  }
+  details { border-bottom: 1px solid var(--paper-rule); }
+  summary {
+    cursor: pointer; list-style: none; padding: 18px 48px 18px 0; font-weight: 600; letter-spacing: -0.015em;
+    position: relative; font-size: 17px; color: var(--paper-ink);
+  }
+  summary:hover { color: var(--flame-ink); }
+  summary::-webkit-details-marker { display: none; }
+  summary::before, summary::after { content: ""; position: absolute; right: 10px; top: 50%; background: var(--paper-ink); border-radius: 2px; }
+  summary::before { width: 12px; height: 2px; margin-top: -1px; }
+  summary::after { width: 2px; height: 12px; margin-top: -6px; right: 15px; transition: transform 260ms var(--ease-out), opacity 200ms linear; }
+  details[open] summary::before { background: var(--flame); }
+  details[open] summary::after { transform: scaleY(0); opacity: 0; }
+  details .a { padding: 0 0 18px; font-size: 15.5px; }
+  details .a p { max-width: 70ch; }
+  details .a b { color: var(--paper-ink); }
+  .demo-link { font-size: 14.5px; margin-top: 8px; font-weight: 500; }
+  .hidden { display: none; }
+  .noresults { color: var(--paper-faint); text-align: center; padding: 30px 0 8px; display: none; }
+  @keyframes ans-in { from { opacity: 0; transform: translateY(-6px); } }
+  @media (prefers-reduced-motion: no-preference) {
+
+    details[open] .a { animation: ans-in .32s var(--ease-out); }
+
+    details.back, h2.sec.back { animation: k-up .24s var(--ease-out); }
+    .noresults { animation: k-pop .24s var(--ease-out); }
+    details::details-content { block-size: 0; overflow: hidden; transition: block-size 320ms var(--ease-out), content-visibility 320ms allow-discrete; }
+    details[open]::details-content { block-size: auto; }
+  }
+</style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much does it cost?", "acceptedAnswer": {"@type": "Answer", "text": "₱599 a month for each branch , or ₱5,990 a year if you prefer to pay once a year, after a free 30-day trial. You don't need a card to start. That price includes everything: the register, kitchen screen, stock, recipes, reports, payroll and the Back Office. No fee per device and no cut of your sales. If it is not worth it after a month, you can simply stop."}}, {"@type": "Question", "name": "What do I need to use it?", "acceptedAnswer": {"@type": "Answer", "text": "Any normal Android phone or tablet (download the app from Google Play), or any computer, iPhone or iPad through the web browser at emberpos.net/app . There is nothing special to buy. Many shops start with one used tablet at the counter."}}, {"@type": "Question", "name": "Can I try it without signing up?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The live demo is the full app , running on a sample café that already has sales, staff, deliveries and stock. Make sales, count stock, run payroll, press anything. It all stays in your own browser, so you can't break anything, and the Reset button gives you a fresh café. → You start signed in as the owner, Maria Santos, with short lessons one tap away. If you sign out, her PIN is 1234 ."}}, {"@type": "Question", "name": "Do I have to type in my whole menu myself?", "acceptedAnswer": {"@type": "Answer", "text": "No. Send us what you already have, like a spreadsheet, a Word file or even a photo of your menu board, to hello@emberpos.net . We will add your items, prices, ingredients and starting stock for you, for free. You can also import a spreadsheet (CSV) yourself in Settings → Data & Backup, or load the sample menu to look around first."}}, {"@type": "Question", "name": "Is there an iPhone app?", "acceptedAnswer": {"@type": "Answer", "text": "Not in the App Store yet. iPhone and iPad can use the full app in Safari: open the app , tap Share, then Add to Home Screen . You get an icon that opens full screen like a normal app, register included."}}, {"@type": "Question", "name": "Does it work without internet?", "acceptedAnswer": {"@type": "Answer", "text": "The Android app does. Selling, receipts and even signing in keep working during a brownout, and everything is saved online when the internet comes back. The browser version needs internet to open the first time, then it can handle short drops. If your signal is often weak, use the Android app."}}, {"@type": "Question", "name": "Can one drink have sizes and add-ons with different prices?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, and each one can use different ingredients too. A Large costs more and uses more milk. An extra shot adds ₱25 and uses 8 g more coffee. Because of this, your stock and your food cost reports are always correct. → Try it: Make a sale in the demo."}}, {"@type": "Question", "name": "How do discounts work? What about senior and PWD?", "acceptedAnswer": {"@type": "Answer", "text": "Tap Discount on the order and choose a percent or an amount, with a reason. Senior and PWD discounts take 20% off and save the customer's ID number with the sale. You decide which staff can give discounts. Every discount shows in the activity log and the sales reports, with the staff member's name."}}, {"@type": "Question", "name": "Can a customer pay half in cash and half by GCash?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. On the payment screen, choose two payment types and enter the amount for each. You can type the GCash reference number too. Later, the app can compare your GCash history with what the POS recorded, so you can find any missing money."}}, {"@type": "Question", "name": "Can I record utang like in our notebook?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Add the customer to the order and choose Utang when paying. The amount goes on their tab instead of into the drawer. You can see everyone who owes you and for how long, record payments as they pay, and set a limit for each person. The app can also write a polite reminder you can send on Messenger."}}, {"@type": "Question", "name": "A customer paid, then changed their mind. Refund or cancel?", "acceptedAnswer": {"@type": "Answer", "text": "Void (cancel) is for mistakes, like an order entered twice. The order stays in your records as cancelled, with who did it and why. Refund gives money back for a real sale, all of it or one item, and can put the ingredients back into stock if the food was never made. You choose who is allowed to do each one, and nothing is ever deleted quietly."}}, {"@type": "Question", "name": "Can I hold an order for customers who order more later?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Tap Hold and the order is saved under Held Tickets. Open it again when they want to add more or pay. Dine-in tables work the same way: the table's order stays open until it is paid."}}, {"@type": "Question", "name": "How does the kitchen know what to cook?", "acceptedAnswer": {"@type": "Answer", "text": "When the cashier sends or pays an order, it appears on the Kitchen screen right away. Put a tablet in the kitchen and it rings when a new order arrives. Each item shows its size and add-ons exactly as ordered. You can also connect a kitchen printer so a paper ticket prints too. → Try it: The kitchen screen ."}}, {"@type": "Question", "name": "What is the Now Serving screen?", "acceptedAnswer": {"@type": "Answer", "text": "A screen for your customers that shows order numbers: preparing on one side and ready on the other. It updates by itself from the register and the kitchen, so nobody has to type anything. Any spare screen or tablet facing the customers will work."}}, {"@type": "Question", "name": "Can customers order by scanning a QR code?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Print the QR code on each table. Customers see your menu on their own phone and order, and the order goes to your kitchen screen. You approve it first, so you never cook for someone who already left."}}, {"@type": "Question", "name": "Can my customer see where the rider is, like on Grab?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, with your own riders. When a delivery leaves, Ember makes a link for your rider. Send it by Viber, Messenger or text. The rider opens it on their phone, taps Start delivery, and your customer sees them coming on a map until they tap Delivered. The rider installs nothing, and it costs you nothing extra. The rider’s location is shared only during that delivery."}}, {"@type": "Question", "name": "How do new customers find my shop online?", "acceptedAnswer": {"@type": "Answer", "text": "Switch on List my shop on Ember’s shop finder in Settings, Online Orders. People near you find your shop at emberpos.net/shops and order from your own store page, for pickup or delivery. Only your shop name, street address, hours and pickup or delivery show. It is free, and you can switch it off any time."}}, {"@type": "Question", "name": "Can customers order for tomorrow, or leave a tip?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. You choose how many days ahead your store page takes orders, up to two weeks, even while you are closed. Customers can also add a tip when they order; a tip paid online comes with the payment."}}, {"@type": "Question", "name": "Does selling really take ingredients out of my stock by itself?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, that is the main idea of the app. Each menu item has a recipe. When an order is paid, every ingredient in it comes out of your stock, including the size, the add-ons, and takeout cups or boxes. No counting at the end of the day."}}, {"@type": "Question", "name": "How do deliveries work? Sometimes my supplier sends less.", "acceptedAnswer": {"@type": "Answer", "text": "When a delivery arrives, your staff count what actually came, item by item. Your stock, costs and the bill follow what they counted , and the report shows where it is different from what you ordered, for example \"received 2 of 3\". If you paid the driver from the drawer, that shows in the shift count too. You can print the report for the driver to sign. → Try it: Receive a delivery ."}}, {"@type": "Question", "name": "Do we have to stop selling while we count stock?", "acceptedAnswer": {"@type": "Answer", "text": "It's your choice. You can pause selling while your staff count, or keep selling and let the app adjust. You can count in kilos and grams, liters and milliliters, or packs. The app also stops obvious mistakes, like 644 kg of matcha, before they are saved."}}, {"@type": "Question", "name": "We make some things ourselves, like sauces or cold brew. Can it track those?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Give the item its own recipe. When you make a batch, the raw ingredients come out of stock and the finished item goes in. The real cost of the batch is then used for every menu item that uses it. → Try it: The prep station ."}}, {"@type": "Question", "name": "How do I know what to buy before we run out?", "acceptedAnswer": {"@type": "Answer", "text": "The Shopping List looks at how fast each ingredient is used and tells you what to buy for the next few days, in packs, grouped by supplier. Tick what you want and it becomes a purchase order. Items that are running low also show a warning on your dashboard."}}, {"@type": "Question", "name": "How do I record food that was wasted?", "acceptedAnswer": {"@type": "Answer", "text": "Use Waste & Spoilage when it happens, for an ingredient (the milk went bad) or a whole item (a wrong latte). It takes the right amounts out of stock. The report shows the total loss in pesos, and you can print a slip for the person who saw it to sign."}}, {"@type": "Question", "name": "Can it tell me if I am really making money?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The Profit & Loss report takes your sales, subtracts the cost of ingredients, staff wages from the time clock, and the expenses you record, and shows your real profit. Nobody has to type anything in between. You can also see your cash flow, your break-even point, and which items earn the most. → Try it: See your profit in the demo."}}, {"@type": "Question", "name": "What do Receive, To vault, Deposited and Picked up mean on the cash screen?", "acceptedAnswer": {"@type": "Answer", "text": "They show where your cash is after a drawer is closed, so no money goes missing on the way to the bank. Receive : the manager has the cash. To vault : it is locked in the shop's safe. Deposited : it is in the bank, with the deposit slip number. Picked up : the owner or someone you allowed took it. Each step saves the amount, the time and the person's name."}}, {"@type": "Question", "name": "My accountant wants the numbers. What can I download?", "acceptedAnswer": {"@type": "Answer", "text": "Everything, as spreadsheets (CSV): sales books, orders, expenses, payroll, stock and recipes with costs. You'll find them all under Export Reports. Your data is yours, and you can download a full backup any time in Settings → Data & Backup."}}, {"@type": "Question", "name": "Is Ember POS BIR-accredited?", "acceptedAnswer": {"@type": "Answer", "text": "No. Ember POS is not a BIR-accredited cash register or POS provider. Receipts show your registered business name, address and TIN, and include the \"not valid for claiming input taxes\" line where the law requires it. Many small shops use Ember POS to run the shop and keep using their BIR-registered receipt booklet. If you need accreditation, ask your accountant about your shop's registration first."}}, {"@type": "Question", "name": "Can my cashier see my profits?", "acceptedAnswer": {"@type": "Answer", "text": "Only if you allow it. You choose what each person can see and do: for example, a cashier can use only the register and the kitchen screen, while reports, settings, discounts, cancellations and payroll each have their own switch. Everyone signs in as themselves, so every action has a name on it. → Try it: Staff and permissions ."}}, {"@type": "Question", "name": "How do time in, time out and payroll work?", "acceptedAnswer": {"@type": "Answer", "text": "Staff clock in and out on the app, even from the sign-in screen. Payroll uses those hours: regular hours, overtime after 8 hours at 1.25×, each person's rate, minus the SSS, PhilHealth and Pag-IBIG amounts you set for each employee. Each payroll is saved and ready to print as payslips."}}, {"@type": "Question", "name": "Someone forgot to clock out. How do I fix it?", "acceptedAnswer": {"@type": "Answer", "text": "Open the Back Office at emberpos.net/office, then Staff → Hours worked. A shift that is still open says so. Press Correct , enter the real time they left, and save. Payroll will use the corrected hours."}}, {"@type": "Question", "name": "Two cashiers use one register. Who is responsible if the drawer is short?", "acceptedAnswer": {"@type": "Answer", "text": "Only one of them. Each drawer belongs to the person who opened it. When someone takes a break, they hand over the drawer with a count , and the person covering them is responsible for their own cash. So a shortage always belongs to one person, which protects the honest ones."}}, {"@type": "Question", "name": "I have two branches. Can I see both?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Each branch has its own staff, stock and subscription (₱599 a month each). You can switch between them in the app, and the Back Office shows all your branches on one page: total sales, stock transfers between branches, and the same reports for each."}}, {"@type": "Question", "name": "Can I check on the shop from home?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Open the app or the Back Office on any phone or computer and everything is up to date: the cash drawer, who is clocked in, today's sales and the kitchen orders."}}, {"@type": "Question", "name": "Which printers work?", "acceptedAnswer": {"@type": "Answer", "text": "Normal thermal receipt printers, the common and inexpensive kind sold in most computer shops, connected by Bluetooth or over Wi-Fi. A cash drawer can open by itself if it is connected to the printer. You set up the receipt printer and the kitchen printer separately in Settings → Printers."}}, {"@type": "Question", "name": "Is my data safe? What if my tablet breaks?", "acceptedAnswer": {"@type": "Answer", "text": "Your shop is saved online all the time. Sign in on any other device and everything is there. Each shop's data is kept separate from every other shop. You can download a full backup of your shop any time, and you can ask us to delete your account and all its data: here is how ."}}, {"@type": "Question", "name": "The app says there is an update. Do I have to install it?", "acceptedAnswer": {"@type": "Answer", "text": "Updates come through Google Play like any other app, and they never touch your data. We only remind you when an update really matters. Most updates come from requests sent by shops like yours."}}, {"@type": "Question", "name": "I found a problem, or I want a new feature. Who do I tell?", "acceptedAnswer": {"@type": "Answer", "text": "Use Message us inside the app (Help & Support). It comes straight to us, and most messages get a reply the same day. You can also email hello@emberpos.net ."}}]}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="k-head" id="k-head">
+  <div class="bar">
+    <a class="mark" href="index.html"><img src="logo.png" alt="" /><b>Ember POS</b></a>
+    <nav class="links" id="k-links" aria-label="Main">
+      <a class="lnk" href="index.html#how">How it works</a>
+      <a class="lnk" href="index.html#features">Features</a>
+      <a class="lnk" href="index.html#pricing">Pricing</a>
+      <a class="lnk" href="demo/">Live demo</a>
+      <a class="lnk" href="faq.html" aria-current="page">FAQ</a>
+      <a class="lnk" href="office/">Back Office</a>
+      <a class="cta" href="app/">Open the app</a>
+    </nav>
+    <button class="menu" id="k-menu" type="button" aria-expanded="false" aria-controls="k-links" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  </div>
+</header>
+<main id="main">
+
+<section class="k-band">
+  <div class="k-band-in">
+    <p class="order"><b>#101</b>Questions</p>
+    <h1>Questions &amp; answers</h1>
+    <p>Simple answers to what shop owners ask us most. You can also try almost everything yourself in the free live demo, a sample café with a year of sales already in it.</p>
+    <div class="ctas">
+      <a class="try" href="demo/">Open the live demo</a>
+      <a class="try ghost" href="index.html#pricing">See the price</a>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="k-tix-h g"><span>#101 &middot; Questions</span><span>Ember POS</span></div>
+
+  <input class="search" id="q" type="search" aria-label="Search the questions"
+         placeholder="Search, for example: utang, printer, payroll" />
+  <div class="noresults" id="nores">Nothing found. Try a shorter word, or email <a href="mailto:hello@emberpos.net">hello@emberpos.net</a>.</div>
+
+  <h2 class="sec">Getting started</h2>
+
+  <details><summary>How much does it cost?</summary><div class="a">
+    <p><b>₱599 a month for each branch</b>, or <b>₱5,990 a year</b> if you prefer to pay once a year, after a free 30-day trial. You don't need a card to start. That price includes everything: the register, kitchen screen, stock, recipes, reports, payroll and the Back Office. No fee per device and no cut of your sales. If it is not worth it after a month, you can simply stop.</p>
+  </div></details>
+
+  <details><summary>What do I need to use it?</summary><div class="a">
+    <p>Any normal Android phone or tablet (download the app from Google Play), or any computer, iPhone or iPad through the web browser at <a href="app/">emberpos.net/app</a>. There is nothing special to buy. Many shops start with one used tablet at the counter.</p>
+  </div></details>
+
+  <details><summary>Can I try it without signing up?</summary><div class="a">
+    <p>Yes. The <a href="demo/">live demo</a> is the <b>full app</b>, running on a sample café that already has sales, staff, deliveries and stock. Make sales, count stock, run payroll, press anything. It all stays in your own browser, so you can't break anything, and the Reset button gives you a fresh café.</p>
+    <p class="demo-link">→ You start signed in as the owner, Maria Santos, with short lessons one tap away. If you sign out, her PIN is <b>1234</b>.</p>
+  </div></details>
+
+  <details><summary>Do I have to type in my whole menu myself?</summary><div class="a">
+    <p>No. Send us what you already have, like a spreadsheet, a Word file or even a photo of your menu board, to <a href="mailto:hello@emberpos.net">hello@emberpos.net</a>. We will add your items, prices, ingredients and starting stock for you, for free. You can also import a spreadsheet (CSV) yourself in Settings → Data &amp; Backup, or load the sample menu to look around first.</p>
+  </div></details>
+
+  <details><summary>Is there an iPhone app?</summary><div class="a">
+    <p>Not in the App Store yet. iPhone and iPad can use the full app in Safari: open <a href="app/">the app</a>, tap Share, then <b>Add to Home Screen</b>. You get an icon that opens full screen like a normal app, register included.</p>
+  </div></details>
+
+  <details><summary>Does it work without internet?</summary><div class="a">
+    <p>The Android app does. Selling, receipts and even signing in keep working during a brownout, and everything is saved online when the internet comes back. The browser version needs internet to open the first time, then it can handle short drops. If your signal is often weak, use the Android app.</p>
+  </div></details>
+
+  <h2 class="sec">Selling</h2>
+
+  <details><summary>Can one drink have sizes and add-ons with different prices?</summary><div class="a">
+    <p>Yes, and each one can use different ingredients too. A Large costs more <i>and</i> uses more milk. An extra shot adds ₱25 <i>and</i> uses 8 g more coffee. Because of this, your stock and your food cost reports are always correct.</p>
+    <p class="demo-link">→ Try it: <a href="demo/?lesson=sell">Make a sale</a> in the demo.</p>
+  </div></details>
+
+  <details><summary>How do discounts work? What about senior and PWD?</summary><div class="a">
+    <p>Tap Discount on the order and choose a percent or an amount, with a reason. Senior and PWD discounts take 20% off and save the customer's ID number with the sale. You decide which staff can give discounts. Every discount shows in the activity log and the sales reports, with the staff member's name.</p>
+  </div></details>
+
+  <details><summary>Can a customer pay half in cash and half by GCash?</summary><div class="a">
+    <p>Yes. On the payment screen, choose two payment types and enter the amount for each. You can type the GCash reference number too. Later, the app can compare your GCash history with what the POS recorded, so you can find any missing money.</p>
+  </div></details>
+
+  <details><summary>Can I record utang like in our notebook?</summary><div class="a">
+    <p>Yes. Add the customer to the order and choose <b>Utang</b> when paying. The amount goes on their tab instead of into the drawer. You can see everyone who owes you and for how long, record payments as they pay, and set a limit for each person. The app can also write a polite reminder you can send on Messenger.</p>
+  </div></details>
+
+  <details><summary>A customer paid, then changed their mind. Refund or cancel?</summary><div class="a">
+    <p><b>Void</b> (cancel) is for mistakes, like an order entered twice. The order stays in your records as cancelled, with who did it and why. <b>Refund</b> gives money back for a real sale, all of it or one item, and can put the ingredients back into stock if the food was never made. You choose who is allowed to do each one, and nothing is ever deleted quietly.</p>
+  </div></details>
+
+  <details><summary>Can I hold an order for customers who order more later?</summary><div class="a">
+    <p>Yes. Tap Hold and the order is saved under Held Tickets. Open it again when they want to add more or pay. Dine-in tables work the same way: the table's order stays open until it is paid.</p>
+  </div></details>
+
+  <h2 class="sec">Kitchen</h2>
+
+  <details><summary>How does the kitchen know what to cook?</summary><div class="a">
+    <p>When the cashier sends or pays an order, it appears on the Kitchen screen right away. Put a tablet in the kitchen and it rings when a new order arrives. Each item shows its size and add-ons exactly as ordered. You can also connect a kitchen printer so a paper ticket prints too.</p>
+    <p class="demo-link">→ Try it: <a href="demo/?lesson=kitchen">The kitchen screen</a>.</p>
+  </div></details>
+
+  <details><summary>What is the Now Serving screen?</summary><div class="a">
+    <p>A screen for your customers that shows order numbers: <i>preparing</i> on one side and <i>ready</i> on the other. It updates by itself from the register and the kitchen, so nobody has to type anything. Any spare screen or tablet facing the customers will work.</p>
+  </div></details>
+
+  <details><summary>Can customers order by scanning a QR code?</summary><div class="a">
+    <p>Yes. Print the QR code on each table. Customers see your menu on their own phone and order, and the order goes to your kitchen screen. You approve it first, so you never cook for someone who already left.</p>
+  </div></details>
+
+  <details id="rider"><summary>Can my customer see where the rider is, like on Grab?</summary><div class="a">
+    <p>Yes, with your own riders. When a delivery leaves, Ember makes a link for your rider. Send it by Viber, Messenger or text. The rider opens it on their phone, taps Start delivery, and your customer sees them coming on a map until they tap Delivered. The rider installs nothing, and it costs you nothing extra. The rider&rsquo;s location is shared only during that delivery.</p>
+  </div></details>
+
+  <details id="finder"><summary>How do new customers find my shop online?</summary><div class="a">
+    <p>Switch on <b>List my shop on Ember&rsquo;s shop finder</b> in Settings, Online Orders. People near you find your shop at <a href="shops.html">emberpos.net/shops</a> and order from your own store page, for pickup or delivery. Only your shop name, street address, hours and pickup or delivery show. It is free, and you can switch it off any time.</p>
+  </div></details>
+
+  <details id="order-ahead"><summary>Can customers order for tomorrow, or leave a tip?</summary><div class="a">
+    <p>Yes. You choose how many days ahead your store page takes orders, up to two weeks, even while you are closed. Customers can also add a tip when they order; a tip paid online comes with the payment.</p>
+  </div></details>
+
+  <h2 class="sec">Stock &amp; recipes</h2>
+
+  <details><summary>Does selling really take ingredients out of my stock by itself?</summary><div class="a">
+    <p>Yes, that is the main idea of the app. Each menu item has a recipe. When an order is paid, every ingredient in it comes out of your stock, including the size, the add-ons, and takeout cups or boxes. No counting at the end of the day.</p>
+  </div></details>
+
+  <details><summary>How do deliveries work? Sometimes my supplier sends less.</summary><div class="a">
+    <p>When a delivery arrives, your staff count what actually came, item by item. Your stock, costs and the bill follow what they <i>counted</i>, and the report shows where it is different from what you ordered, for example "received 2 of 3". If you paid the driver from the drawer, that shows in the shift count too. You can print the report for the driver to sign.</p>
+    <p class="demo-link">→ Try it: <a href="demo/?lesson=receive">Receive a delivery</a>.</p>
+  </div></details>
+
+  <details><summary>Do we have to stop selling while we count stock?</summary><div class="a">
+    <p>It's your choice. You can <b>pause selling</b> while your staff count, or keep selling and let the app adjust. You can count in kilos and grams, liters and milliliters, or packs. The app also stops obvious mistakes, like 644 kg of matcha, before they are saved.</p>
+  </div></details>
+
+  <details><summary>We make some things ourselves, like sauces or cold brew. Can it track those?</summary><div class="a">
+    <p>Yes. Give the item its own recipe. When you make a batch, the raw ingredients come out of stock and the finished item goes in. The real cost of the batch is then used for every menu item that uses it.</p>
+    <p class="demo-link">→ Try it: <a href="demo/?lesson=production">The prep station</a>.</p>
+  </div></details>
+
+  <details><summary>How do I know what to buy before we run out?</summary><div class="a">
+    <p>The Shopping List looks at how fast each ingredient is used and tells you what to buy for the next few days, in packs, grouped by supplier. Tick what you want and it becomes a purchase order. Items that are running low also show a warning on your dashboard.</p>
+  </div></details>
+
+  <details><summary>How do I record food that was wasted?</summary><div class="a">
+    <p>Use Waste &amp; Spoilage when it happens, for an ingredient (the milk went bad) or a whole item (a wrong latte). It takes the right amounts out of stock. The report shows the total loss in pesos, and you can print a slip for the person who saw it to sign.</p>
+  </div></details>
+
+  <h2 class="sec">Money &amp; reports</h2>
+
+  <details><summary>Can it tell me if I am really making money?</summary><div class="a">
+    <p>Yes. The Profit &amp; Loss report takes your sales, subtracts the cost of ingredients, staff wages from the time clock, and the expenses you record, and shows your real profit. Nobody has to type anything in between. You can also see your cash flow, your break-even point, and which items earn the most.</p>
+    <p class="demo-link">→ Try it: <a href="demo/?lesson=pnl">See your profit</a> in the demo.</p>
+  </div></details>
+
+  <details><summary>What do Receive, To vault, Deposited and Picked up mean on the cash screen?</summary><div class="a">
+    <p>They show where your cash is after a drawer is closed, so no money goes missing on the way to the bank. <b>Receive</b>: the manager has the cash. <b>To vault</b>: it is locked in the shop's safe. <b>Deposited</b>: it is in the bank, with the deposit slip number. <b>Picked up</b>: the owner or someone you allowed took it. Each step saves the amount, the time and the person's name.</p>
+  </div></details>
+
+  <details><summary>My accountant wants the numbers. What can I download?</summary><div class="a">
+    <p>Everything, as spreadsheets (CSV): sales books, orders, expenses, payroll, stock and recipes with costs. You'll find them all under Export Reports. Your data is yours, and you can download a full backup any time in Settings → Data &amp; Backup.</p>
+  </div></details>
+
+  <details id="bir"><summary>Is Ember POS BIR-accredited?</summary><div class="a">
+    <p>No. Ember POS is not a BIR-accredited cash register or POS provider. Receipts show your registered business name, address and TIN, and include the "not valid for claiming input taxes" line where the law requires it. Many small shops use Ember POS to run the shop and keep using their BIR-registered receipt booklet. If you need accreditation, ask your accountant about your shop's registration first.</p>
+  </div></details>
+
+  <h2 class="sec">Staff</h2>
+
+  <details><summary>Can my cashier see my profits?</summary><div class="a">
+    <p>Only if you allow it. You choose what each person can see and do: for example, a cashier can use only the register and the kitchen screen, while reports, settings, discounts, cancellations and payroll each have their own switch. Everyone signs in as themselves, so every action has a name on it.</p>
+    <p class="demo-link">→ Try it: <a href="demo/?lesson=staff">Staff and permissions</a>.</p>
+  </div></details>
+
+  <details><summary>How do time in, time out and payroll work?</summary><div class="a">
+    <p>Staff clock in and out on the app, even from the sign-in screen. Payroll uses those hours: regular hours, overtime after 8 hours at 1.25×, each person's rate, minus the SSS, PhilHealth and Pag-IBIG amounts you set for each employee. Each payroll is saved and ready to print as payslips.</p>
+  </div></details>
+
+  <details><summary>Someone forgot to clock out. How do I fix it?</summary><div class="a">
+    <p>Open the <a href="office/">Back Office</a> at emberpos.net/office, then Staff → Hours worked. A shift that is still open says so. Press <b>Correct</b>, enter the real time they left, and save. Payroll will use the corrected hours.</p>
+  </div></details>
+
+  <details><summary>Two cashiers use one register. Who is responsible if the drawer is short?</summary><div class="a">
+    <p>Only one of them. Each drawer belongs to the person who opened it. When someone takes a break, they hand over the drawer <i>with a count</i>, and the person covering them is responsible for their own cash. So a shortage always belongs to one person, which protects the honest ones.</p>
+  </div></details>
+
+  <h2 class="sec">More than one branch</h2>
+
+  <details><summary>I have two branches. Can I see both?</summary><div class="a">
+    <p>Yes. Each branch has its own staff, stock and subscription (₱599 a month each). You can switch between them in the app, and the <a href="office/">Back Office</a> shows all your branches on one page: total sales, stock transfers between branches, and the same reports for each.</p>
+  </div></details>
+
+  <details><summary>Can I check on the shop from home?</summary><div class="a">
+    <p>Yes. Open the app or the Back Office on any phone or computer and everything is up to date: the cash drawer, who is clocked in, today's sales and the kitchen orders.</p>
+  </div></details>
+
+  <h2 class="sec">Other questions</h2>
+
+  <details><summary>Which printers work?</summary><div class="a">
+    <p>Normal thermal receipt printers, the common and inexpensive kind sold in most computer shops, connected by Bluetooth or over Wi-Fi. A cash drawer can open by itself if it is connected to the printer. You set up the receipt printer and the kitchen printer separately in Settings → Printers.</p>
+  </div></details>
+
+  <details><summary>Is my data safe? What if my tablet breaks?</summary><div class="a">
+    <p>Your shop is saved online all the time. Sign in on any other device and everything is there. Each shop's data is kept separate from every other shop. You can download a full backup of your shop any time, and you can ask us to delete your account and all its data: <a href="account-deletion.html">here is how</a>.</p>
+  </div></details>
+
+  <details><summary>The app says there is an update. Do I have to install it?</summary><div class="a">
+    <p>Updates come through Google Play like any other app, and they never touch your data. We only remind you when an update really matters. Most updates come from requests sent by shops like yours.</p>
+  </div></details>
+
+  <details><summary>I found a problem, or I want a new feature. Who do I tell?</summary><div class="a">
+    <p>Use <b>Message us</b> inside the app (Help &amp; Support). It comes straight to us, and most messages get a reply the same day. You can also email <a href="mailto:hello@emberpos.net">hello@emberpos.net</a>.</p>
+  </div></details>
+
+</div>
+
+</main>
+<footer class="k-foot">
+  <div class="bar">
+    <div class="cols">
+      <div>
+        <a class="brand-row" href="index.html"><img src="logo.png" height="30" alt="" /><b>Ember POS</b></a>
+        <p>The all-in-one POS app for cafés and food shops in the Philippines.</p>
+        
+        <address class="foot-addr" style="font-style:normal;margin-top:10px;line-height:1.55;font-size:13px;opacity:.85"><strong>EMBER POS COMPUTER SOFTWARE STORE</strong><br>A1-5CD Anaheim, Domingo M. Guevara St., Highway Hills,<br>Mandaluyong City 1550, Metro Manila, Philippines<br>Email: <a href="mailto:hello@emberpos.net">hello@emberpos.net</a> &middot; <a href="contact.html">Contact us</a></address>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <nav aria-label="Product">
+          <a href="demo/">Live demo</a>
+          <a href="app/">Open the app</a>
+          <a href="office/">Back Office</a>
+          <a href="https://play.google.com/store/apps/details?id=com.emberpos.app">Google Play</a>
+          <a href="https://www.facebook.com/profile.php?id=61590988585668" rel="me noopener" target="_blank">Facebook</a>
+        </nav>
+      </div>
+      <div>
+        <h4>Help</h4>
+        <nav aria-label="Help">
+          <a href="faq.html">FAQ</a>
+          <a href="guides.html">Guides</a>
+          <a href="help.html">Help &amp; Legal</a>
+          <a href="contact.html">Contact</a>
+          <a href="reset-password.html">Reset password</a>
+          <a href="account-deletion.html">Delete account</a>
+        </nav>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <nav aria-label="Legal">
+          <a href="terms.html">Terms</a>
+          <a href="privacy-policy.html">Privacy</a>
+          <a href="refund-policy.html">Refunds</a>
+          <a href="disputes.html">Disputes</a>
+        </nav>
+      </div>
+    </div>
+    <div class="bir-seal">
+      <img src="bir-seal-badge.webp" width="1141" height="389" loading="lazy" decoding="async"
+           alt="BIR Registration Seal Badge 2026 for Ember POS Computer Software Store, RSN 041RC20260000008789">
+      <div>
+        <p>Ember POS Computer Software Store is registered with the Bureau of Internal Revenue,
+           RDO 041 Mandaluyong. This seal confirms the business is BIR-registered. It is not a POS
+           accreditation. See the <a href="faq.html#bir">FAQ</a>.</p>
+        <p class="ver">Ember POS &middot; Philippines</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  var q = document.getElementById("q");
+  var nores = document.getElementById("nores");
+  var items = Array.prototype.slice.call(document.querySelectorAll("details"));
+  var heads = Array.prototype.slice.call(document.querySelectorAll("h2.sec"));
+  q.addEventListener("input", function() {
+    var t = q.value.trim().toLowerCase();
+    var any = false;
+    items.forEach(function(d) {
+      var hit = !t || d.textContent.toLowerCase().indexOf(t) !== -1;
+      if (hit && d.classList.contains("hidden")) d.classList.add("back");
+      d.classList.toggle("hidden", !hit);
+      if (hit) any = true;
+      if (t && hit) d.open = true;
+      if (!t) d.open = false;
+    });
+    heads.forEach(function(h) {
+      var el = h.nextElementSibling, live = false;
+      while (el && el.tagName === "DETAILS") {
+        if (!el.classList.contains("hidden")) {
+          live = true;
+          break;
+        }
+        el = el.nextElementSibling;
+      }
+      if (live && h.classList.contains("hidden")) h.classList.add("back");
+      h.classList.toggle("hidden", !live);
+    });
+    nores.style.display = any ? "none" : "block";
+  });
+  function openHash() {
+    var id;
+    try {
+      id = location.hash && decodeURIComponent(location.hash.slice(1));
+    } catch (e) {
+      return;
+    }
+    var d = id && document.getElementById(id);
+    if (d && d.tagName === "DETAILS") {
+      d.open = true;
+      d.scrollIntoView({
+        block: "start"
+      });
+    }
+  }
+  openHash();
+  addEventListener("hashchange", openHash);
+})();
+</script>
+<script src="beacon.js" defer></script>
+<script>
+if (location.hash) document.documentElement.classList.add("k-hash");
+
+(function() {
+  var h = document.getElementById("k-head"), b = document.getElementById("k-menu");
+  if (!h || !b) return;
+  b.addEventListener("click", function() {
+    var o = !h.classList.contains("open");
+    h.classList.toggle("open", o);
+    b.setAttribute("aria-expanded", o ? "true" : "false");
+  });
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") {
+      h.classList.remove("open");
+      b.setAttribute("aria-expanded", "false");
+    }
+  });
+})();
+</script>
+</body>
+</html>

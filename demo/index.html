@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <meta name="color-scheme" content="dark light" />
+    
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'wasm-unsafe-eval';
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: blob:;
+      font-src 'self' data:;
+      connect-src 'self' https://qqmkgafyfxrcnwdkkyxc.supabase.co/functions/v1/demo-ping;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'none';
+    " />
+    <meta name="robots" content="noindex" />
+    <title>Ember POS, Live Demo</title>
+    <style>
+html,body{background:#151210;height:100%;margin:0}#demo-boot{color:#a89c90;z-index:9999;background:#151210;flex-direction:column;justify-content:center;align-items:center;gap:14px;font:15px/1.5 ui-sans-serif,system-ui,sans-serif;transition:opacity .3s;display:flex;position:fixed;top:0;bottom:0;left:0;right:0}#demo-boot .logo{height:84px}</style>
+    <script type="module" crossorigin src="/demo/assets/index.demo-CtS0VJrq.js"></script>
+  </head>
+  <body class="bg-ember-coal text-white">
+    <div id="demo-boot">
+      <div class="logo" data-ember-logo></div>
+      <div id="demo-boot-msg">Opening your demo shop&hellip;</div>
+    </div>
+    <div id="root"></div>
+    <script src="brand/logo-loader.js"></script>
+  </body>
+</html>

@@ -1,0 +1,1 @@
+(function(){System.register([],function(e,t){var n,r;function i(e){var t,i=String((t=e==null?void 0:e.pos_category_style)==null?``:t).trim();return n.includes(i)?i:r}function a(e){return e===`tiles`?`Buttons on screen (one tap to switch)`:`Dropdown list`}return e({n:i,r:a}),{setters:[],execute:function(){e(`t`,n=[`dropdown`,`tiles`]),r=`dropdown`}}})})();

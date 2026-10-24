@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex" />
+<title>Ember POS share card</title>
+<style>
+
+  @font-face { font-family: 'Space Grotesk'; src: url('../fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; }
+  @font-face { font-family: 'Space Grotesk'; src: url('../fonts/space-grotesk-latin-ext-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; unicode-range: U+20A0-20C0; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body { position: relative; font-family: 'Space Grotesk', system-ui, sans-serif; color: #f2f3f4; -webkit-font-smoothing: antialiased;
+    background: #0b0c0d; }
+  .copy { position: absolute; left: 72px; top: 70px; width: 590px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand img { height: 52px; width: auto; }
+  .brand b { font-size: 30px; font-weight: 700; letter-spacing: -0.03em; }
+  h1 { margin-top: 56px; font-size: 60px; line-height: 1.04; letter-spacing: -0.05em; font-weight: 700; }
+  p { margin-top: 26px; font-size: 25px; line-height: 1.4; color: #b3bac1; letter-spacing: -0.01em; }
+  .price { position: absolute; left: 72px; bottom: 62px; display: flex; gap: 12px; }
+  .price span { padding: 12px 18px; border-radius: 14px; font-size: 21px; font-weight: 600; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04); }
+  .price span.f { background: #ff5c00; border-color: #ff5c00; color: #0b0c0d; }
+  .dev { position: absolute; right: -230px; top: 96px; width: 700px; padding: 10px; border-radius: 20px; background: #23272b; box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 0 1px #000; }
+  .dev img { display: block; width: 100%; border-radius: 13px; }
+</style>
+</head>
+<body>
+  <div class="dev"><img src="app-pos.webp" alt="" /></div>
+  <div class="copy">
+    <div class="brand"><img src="../logo.png" alt="" /><b>Ember POS</b></div>
+    <h1>Run your whole shop from one app</h1>
+    <p>Orders, kitchen, stock, utang, payroll and your daily profit. For food shops in the Philippines.</p>
+  </div>
+  <div class="price"><span class="f">Free for 30 days</span><span>₱599 a month per branch</span></div>
+</body>
+</html>

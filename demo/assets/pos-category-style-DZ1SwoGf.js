@@ -1,0 +1,1 @@
+var e=[`dropdown`,`tiles`],t=`dropdown`;function n(n){let r=String(n?.pos_category_style??``).trim();return e.includes(r)?r:t}function r(e){return e===`tiles`?`Buttons on screen (one tap to switch)`:`Dropdown list`}export{n,r,e as t};

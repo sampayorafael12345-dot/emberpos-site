@@ -1,0 +1,10 @@
+User-agent: *
+Content-Signal: search=yes, ai-input=yes
+Disallow: /app/
+Disallow: /order.html
+Disallow: /office/
+Disallow: /ops/
+Disallow: /reset-password.html
+Disallow: /reserve.html
+
+Sitemap: https://emberpos.net/sitemap.xml

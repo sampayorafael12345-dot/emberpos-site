@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#111214" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<title>Your Ember account</title>
+<link rel="icon" href="favicon.png">
+
+<style>
+
+  @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; }
+  @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-ext-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20C0; }
+  :root {
+    color-scheme: light dark;
+    --bg: #f1ece1; --card: #ffffff; --line: rgba(58, 50, 40, 0.14);
+    --text: #14120f; --muted: #5d5446;
+    --accent: #ff5c00; --accent-ink: #1a0e05; --accent-text: #b03e00; --bad: #b91c1c;
+    --r: 16px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121415; --card: #191c1e; --line: rgba(255, 255, 255, 0.08);
+      --text: #ece7df; --muted: rgba(236, 231, 223, 0.74); --accent-text: #ff8340; --bad: #f87171;
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: 'Space Grotesk', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px; line-height: 1.45;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  .top { background: var(--accent); color: var(--accent-ink); padding: calc(22px + env(safe-area-inset-top)) 16px 20px; }
+  .top .in { max-width: 560px; margin: 0 auto; }
+  .top h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; }
+  .top p { margin: 6px 0 0; font-size: 14.5px; }
+  main { max-width: 560px; margin: 0 auto; padding: 16px 16px 40px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 16px; margin-bottom: 12px; }
+  h2 { margin: 0 0 6px; font-size: 19px; font-weight: 800; letter-spacing: -.01em; }
+  h3 { margin: 0; font-size: 16px; font-weight: 750; }
+  .lede { margin: 0 0 4px; color: var(--muted); font-size: 14.5px; }
+  .label { font-size: 14px; font-weight: 650; margin: 14px 0 6px; }
+  .note-in, .card select {
+    width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--bg); font-size: 16px;
+  }
+  .primary, .ghost, .danger {
+    padding: 12px 14px; border-radius: 12px; font-weight: 750; font-size: 15px; cursor: pointer; border: 1px solid transparent;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;
+  }
+  .primary { background: var(--accent); color: var(--accent-ink); }
+  .ghost { background: transparent; border-color: var(--line); color: var(--text); }
+  .danger { background: transparent; border-color: var(--bad); color: var(--bad); }
+  button:disabled { opacity: .5; cursor: default; }
+  .row2 { display: flex; gap: 10px; margin-top: 14px; }
+  .row2 > * { flex: 1; }
+  .ea-tick { display: flex; align-items: flex-start; gap: 10px; margin: 12px 0 0; font-size: 14px; line-height: 1.4; cursor: pointer; }
+  .ea-tick input { width: 18px; height: 18px; margin: 1px 0 0; flex: none; accent-color: var(--accent); }
+  .ea-tick a { color: var(--accent-text); }
+  .item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .item:first-of-type { border-top: 0; }
+  .item .grow { flex: 1; min-width: 0; }
+  .muted { color: var(--muted); font-size: 13.5px; }
+  .pill { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); }
+  .shop .qr { background: #fff; border-radius: 12px; padding: 12px; width: 190px; height: 190px; margin: 12px auto 6px; }
+  .shop .qr svg { width: 100%; height: 100%; display: block; }
+  .shop .code { text-align: center; font-weight: 700; letter-spacing: 3px; font-size: 17px; }
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
+
+  .stats > .stat:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .stat { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+  .stat b { display: block; font-size: 17px; }
+  .stat span { font-size: 12.5px; color: var(--muted); }
+  details.more { margin-top: 10px; }
+  details.more summary { cursor: pointer; font-weight: 650; font-size: 14px; color: var(--accent-text); }
+  .toast {
+    position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+    background: #18181b; color: #fff; padding: 11px 16px; border-radius: 12px; font-size: 14.5px; max-width: calc(100% - 32px);
+    box-shadow: 0 8px 24px rgb(0 0 0 / .25); opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 50;
+  }
+  .toast.on { opacity: 1; }
+  @media (prefers-reduced-motion: no-preference) {
+    .toast { transform: translate(-50%, 10px); transition: opacity .2s, transform .24s cubic-bezier(.16,1,.3,1); }
+    .toast.on { transform: translate(-50%, 0); }
+  }
+  .made { text-align: center; font-size: 12px; color: var(--muted); margin: 6px 0 22px; }
+  .made a { color: var(--muted); font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--line); }
+  .tabs { display: flex; gap: 6px; overflow-x: auto; margin: 0 0 12px; scrollbar-width: none; }
+  .tabs button { flex: none; padding: 9px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); font-weight: 650; font-size: 14px; cursor: pointer; }
+  .tabs button[aria-current="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+  @keyframes cardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @keyframes swapIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes shake { 0%, 100% { transform: none; } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+  @media (prefers-reduced-motion: no-preference) {
+    main.enter > .card, main.enter > .row2 { animation: cardIn .4s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 40ms); }
+    .swapin { animation: swapIn .26s cubic-bezier(.2,.8,.2,1) both; }
+    .item.fresh { animation: swapIn .3s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 30ms); }
+    .ea-in > * { animation: swapIn .24s cubic-bezier(.2,.8,.2,1) both; }
+    .ea-shake { animation: shake .36s ease-out; }
+    .tabs button, .primary, .ghost, .danger { transition: transform .1s ease, background-color .18s ease, border-color .18s ease, color .18s ease; }
+    .tabs button:active, .primary:not(:disabled):active, .ghost:not(:disabled):active, .danger:not(:disabled):active { transform: scale(.96); }
+  }
+</style>
+</head>
+<body>
+<div class="top"><div class="in"><h1 id="title">Your Ember account</h1><p id="sub">One account for every shop that uses Ember.</p></div></div>
+<main id="main"><div class="card"><p class="lede">Loading…</p></div></main>
+<div class="made">Powered by <a href="https://emberpos.net" target="_blank" rel="noopener">Ember POS</a> &middot;
+  <a href="customer-terms.html">Terms and privacy</a></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="ember-account.js"></script>
+<script>
+(function() {
+  var A = window.EmberAccount, esc = A.esc;
+  var main = document.getElementById("main");
+  var ME = null, TAB = "shops", MORE_ORDERS = [], ORDERS_DONE = false;
+  var SHOWN_BEFORE = Infinity;
+  try {
+    TAB = sessionStorage.getItem("ember.account.tab") || "shops";
+  } catch (e) {}
+  var toastT = null;
+  function toast(m) {
+    var t = document.getElementById("toast");
+    t.textContent = m;
+    t.classList.add("on");
+    clearTimeout(toastT);
+    toastT = setTimeout(function() {
+      t.classList.remove("on");
+    }, 3200);
+  }
+  function money(c, cur) {
+    var n = Math.abs(Number(c || 0)) / 100;
+    var sign = cur || "₱";
+    return sign + (/\p{L}{2}$/u.test(sign) ? " " : "") + n.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+  function enter() {
+    main.querySelectorAll(":scope > .card, :scope > .row2").forEach(function(c, n) {
+      c.style.setProperty("--i", String(Math.min(n, 8)));
+    });
+    main.classList.remove("enter");
+    void main.offsetWidth;
+    main.classList.add("enter");
+    clearTimeout(enter.t);
+    enter.t = setTimeout(function() {
+      main.classList.remove("enter");
+    }, 900);
+  }
+  function swapIn(node) {
+    if (!node) return;
+    node.classList.remove("swapin");
+    void node.offsetWidth;
+    node.classList.add("swapin");
+  }
+  function when(iso) {
+    try {
+      return new Date(iso).toLocaleString(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    } catch (e) {
+      return "";
+    }
+  }
+  function day(iso) {
+    try {
+      return new Date(iso).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+      });
+    } catch (e) {
+      return "";
+    }
+  }
+  function shopLink(token) {
+    return token ? "order.html?t=" + encodeURIComponent(token) : "";
+  }
+  function followLink(o) {
+    if (!o || !o.store_token || !o.client_ref || o.order_number == null || o.order_number === "") return "";
+    return "order.html?t=" + encodeURIComponent(o.store_token) + "&o=" + encodeURIComponent(String(o.order_number)) + "&r=" + encodeURIComponent(String(o.client_ref));
+  }
+  async function call(fn, args) {
+    var r;
+    try {
+      r = await A.rpc(fn, Object.assign({
+        p_session: A.getSession()
+      }, args || {}));
+    } catch (e) {
+      toast("No connection. Try again in a moment.");
+      return null;
+    }
+    if (r && r.signed_out) {
+      ME = null;
+      drawSignIn();
+      return null;
+    }
+    return r;
+  }
+  function drawSignIn() {
+    document.getElementById("title").textContent = "Your Ember account";
+    document.getElementById("sub").textContent = "One account for every shop that uses Ember.";
+    main.innerHTML = '<div class="card" id="ea-box"></div>';
+    A.signIn(document.getElementById("ea-box"), {
+      toast: toast,
+      onCancel: function() {
+        location.href = "https://emberpos.net";
+      },
+      onDone: function() {
+        load(true);
+      }
+    });
+  }
+  async function load(anim) {
+    if (!A.getSession()) {
+      drawSignIn();
+      return;
+    }
+    var r = await call("cust_me");
+    if (!r && !A.getSession()) return;
+    if (!r || !r.ok) {
+      main.innerHTML = '<div class="card"><h2>Could not load your account</h2><p class="lede">' + esc(r && r.error || "Check your signal and try again.") + "</p>" + '<div class="row2"><button class="primary" id="retry">Try again</button></div></div>';
+      swapIn(main.firstChild);
+      document.getElementById("retry").onclick = function() {
+        this.disabled = true;
+        load(true);
+      };
+      return;
+    }
+    ME = r;
+    MORE_ORDERS = [];
+    ORDERS_DONE = (r.orders || []).length < 30;
+    if (!ME.profile.name || !ME.profile.phone || !ME.profile.terms_at) {
+      main.innerHTML = '<div class="card" id="ea-box"></div>';
+      A.signIn(document.getElementById("ea-box"), {
+        toast: toast,
+        startAt: "profile",
+        onDone: function() {
+          load(true);
+        }
+      });
+      return;
+    }
+    draw(anim !== false);
+  }
+  function tabsHtml() {
+    var t = [ [ "shops", "Shops" ], [ "orders", "Orders" ], [ "details", "Details" ], [ "addresses", "Addresses" ], [ "security", "Sign-ins" ], [ "privacy", "Privacy" ] ];
+    return '<div class="tabs" role="tablist">' + t.map(function(x) {
+      return '<button role="tab" data-tab="' + x[0] + '" aria-current="' + (TAB === x[0]) + '">' + x[1] + "</button>";
+    }).join("") + "</div>";
+  }
+  function draw(anim) {
+    var p = ME.profile;
+    document.getElementById("title").textContent = "Hi, " + (p.name || "").split(" ")[0];
+    document.getElementById("sub").textContent = p.email;
+    var body = TAB === "orders" ? ordersHtml() : TAB === "details" ? detailsHtml() : TAB === "addresses" ? addressesHtml() : TAB === "security" ? securityHtml() : TAB === "privacy" ? privacyHtml() : shopsHtml();
+    var strip = main.querySelector(".tabs"), sx = strip ? strip.scrollLeft : 0;
+    main.innerHTML = tabsHtml() + body + '<div class="row2"><button class="ghost" id="signout">Sign out on this device</button></div>';
+    if (sx) main.querySelector(".tabs").scrollLeft = sx;
+    if (anim) enter();
+    main.querySelectorAll("[data-tab]").forEach(function(b) {
+      b.onclick = function() {
+        if (TAB === b.dataset.tab) return;
+        TAB = b.dataset.tab;
+        try {
+          sessionStorage.setItem("ember.account.tab", TAB);
+        } catch (e) {}
+        draw(true);
+      };
+    });
+    document.getElementById("signout").onclick = async function() {
+      await A.signOut(false);
+      ME = null;
+      toast("Signed out.");
+      drawSignIn();
+    };
+    bind();
+  }
+  function statsBox(inner) {
+    return inner ? '<div class="stats">' + inner + "</div>" : "";
+  }
+  function shopsHtml() {
+    var shops = ME.shops || [];
+    if (!shops.length) {
+      return '<div class="card"><h2>No shops yet</h2><p class="lede">Order from any shop that uses Ember while signed in, and it will show here with your stamps, card and orders.</p>' + '<div class="row2"><a class="primary" href="shops.html">Find Ember shops near you</a></div></div>';
+    }
+    return shops.map(function(s, n) {
+      var qr = s.card_code ? A.cardQrSvg(s.card_code) : "";
+      var code = s.card_code ? s.card_code.length === 10 ? s.card_code.slice(0, 5) + " " + s.card_code.slice(5) : s.card_code : "";
+      var bal = Number(s.balance_cents || 0);
+      return '<div class="card shop">' + '<div style="display:flex;align-items:center;gap:10px"><h3 style="flex:1">' + esc(s.shop) + "</h3>" + (s.store_token && s.accounts_on ? '<a class="primary" href="' + esc(shopLink(s.store_token)) + '">Order</a>' : "") + "</div>" + statsBox((s.loyalty_on ? '<div class="stat"><b>' + Number(s.stamps || 0) + " / " + Number(s.stamps_required || 10) + "</b><span>" + (s.free_ready ? "A free one is ready" : "Stamps") + "</span></div>" : "") + (bal !== 0 ? '<div class="stat"><b>' + money(bal, s.currency) + "</b><span>" + (bal > 0 ? "Your tab" : "Your credit") + "</span></div>" : "") + (s.gift_cards || []).map(function(g) {
+        return '<div class="stat"><b>' + money(g.balance_cents, s.currency) + "</b><span>Gift card " + esc(g.code_end) + (g.active ? "" : " (not active)") + "</span></div>";
+      }).join("")) + (qr ? '<details class="more"><summary>Show my card for the counter</summary><div class="qr">' + qr + '</div><div class="code">' + esc(code) + "</div>" + '<p class="muted" style="text-align:center">The cashier scans this so your visit and stamps count.</p></details>' : "") + '<label class="ea-tick"><input type="checkbox" data-mkt="' + s.business_id + '"' + (s.marketing ? " checked" : "") + "> <span>" + esc(s.shop) + " may send me offers and news</span></label>" + "</div>";
+    }).join("") + '<div class="card"><h2>More Ember shops</h2><p class="lede">Cafes and food shops near you that take orders with Ember.</p>' + '<div class="row2"><a class="ghost" href="shops.html">Find shops near you</a></div></div>';
+  }
+  function orderItem(o, n) {
+    var fresh = n >= SHOWN_BEFORE;
+    return '<div class="item' + (fresh ? ' fresh" style="--i:' + Math.min(n - SHOWN_BEFORE, 10) : "") + '"><div class="grow"><div><b>' + esc(o.shop) + "</b> &middot; " + money(o.total_cents, o.currency) + "</div>" + '<div class="muted">' + esc((o.items || []).map(function(l) {
+      return (Number(l.qty) || 1) + "× " + l.name;
+    }).join(", ")) + "</div>" + '<div class="muted">' + esc(when(o.created_at)) + " &middot; " + esc(A.orderLabel ? A.orderLabel(o) : o.order_number || "") + "</div></div>" + '<span class="pill">' + esc(A.statusWord(o)) + "</span>" + (followLink(o) ? '<a class="ghost" href="' + esc(followLink(o)) + '">Open</a>' : o.store_token ? '<a class="ghost" href="' + esc(shopLink(o.store_token)) + '">Shop</a>' : "") + "</div>";
+  }
+  function ordersHtml() {
+    var all = (ME.orders || []).concat(MORE_ORDERS);
+    if (!all.length) return '<div class="card"><h2>No orders yet</h2><p class="lede">Orders you place while signed in show here, at every shop.</p></div>';
+    return '<div class="card">' + all.map(function(o, n) {
+      return orderItem(o, n);
+    }).join("") + (ORDERS_DONE ? "" : '<div class="row2"><button class="ghost" id="moreorders">Show older orders</button></div>') + "</div>";
+  }
+  function detailsHtml() {
+    var p = ME.profile;
+    return '<div class="card"><h2>Your details</h2><p class="lede">Shops see your name and number on your orders. They never see your email.</p>' + '<div class="label">Name</div><input class="note-in" id="d-name" maxlength="60" autocomplete="name" value="' + esc(p.name || "") + '">' + '<div class="label">Mobile number</div><input class="note-in" id="d-phone" type="tel" maxlength="20" autocomplete="tel" value="' + esc(p.phone || "") + '">' + '<div class="label">Birthday <span class="muted">(optional)</span></div><input class="note-in" id="d-bday" type="date" value="' + esc(p.birthday || "") + '">' + '<label class="ea-tick"><input type="checkbox" id="d-oemail"' + (p.order_emails !== false ? " checked" : "") + "> <span>Email me when a shop gets my order and when it is ready</span></label>" + '<label class="ea-tick"><input type="checkbox" id="d-news"' + (p.ember_news ? " checked" : "") + "> <span>Ember may email me about new shops and features</span></label>" + '<div class="row2"><button class="primary" id="d-save">Save</button></div></div>' + '<div class="card"><h2>Email</h2><p class="lede">You sign in with <b>' + esc(p.email) + "</b>.</p>" + '<details class="more"><summary>Change my email</summary>' + '<div class="label">New email</div><input class="note-in" id="e-new" type="email" maxlength="254" autocomplete="email">' + '<div class="row2"><button class="ghost" id="e-send">Send a code to the new email</button></div>' + '<div id="e-step2" hidden><div class="label">Code from the new email</div>' + '<input class="note-in" id="e-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code">' + '<div class="row2"><button class="primary" id="e-go">Change email</button></div></div>' + "</details></div>";
+  }
+  function addressesHtml() {
+    var a = ME.addresses || [];
+    return '<div class="card"><h2>Saved addresses</h2><p class="lede">Pick one at checkout instead of typing it. A shop only sees the address you order a delivery to.</p>' + (a.length ? a.map(function(x) {
+      return '<div class="item"><div class="grow"><div><b>' + esc(x.label || "Address") + "</b>" + (x.is_default ? ' <span class="pill">Default</span>' : "") + "</div>" + '<div class="muted">' + esc(x.address) + (x.landmark ? " (" + esc(x.landmark) + ")" : "") + (x.lat != null ? " &middot; pinned" : "") + "</div></div>" + '<button class="ghost" data-aedit="' + x.id + '">Edit</button></div>';
+    }).join("") : '<p class="muted">No saved addresses yet.</p>') + (a.length < 10 ? '<div class="row2"><button class="primary" id="a-add">Add an address</button></div>' : "") + "</div>" + '<div class="card" id="a-form" hidden></div>';
+  }
+  function addressForm(x) {
+    x = x || {};
+    var f = document.getElementById("a-form");
+    f.hidden = false;
+    f.innerHTML = "<h2>" + (x.id ? "Edit address" : "New address") + "</h2>" + '<div class="label">Name it <span class="muted">(Home, Work...)</span></div><input class="note-in" id="a-label" maxlength="30" value="' + esc(x.label || "") + '">' + '<div class="label">Address</div><textarea class="note-in" id="a-addr" rows="2" maxlength="300">' + esc(x.address || "") + "</textarea>" + '<div class="label">Landmark <span class="muted">(optional)</span></div><input class="note-in" id="a-land" maxlength="120" value="' + esc(x.landmark || "") + '">' + '<div class="label">Note for the rider <span class="muted">(optional)</span></div><input class="note-in" id="a-note" maxlength="200" value="' + esc(x.note || "") + '">' + '<div class="row2"><button class="ghost" id="a-pin">' + (x.lat != null ? "Update the pin to where I am" : "Pin where I am now") + "</button></div>" + '<p class="muted" id="a-pinout">' + (x.lat != null ? "Pinned." : "A pin lets shops that charge by distance work out the fee without asking.") + "</p>" + '<label class="ea-tick"><input type="checkbox" id="a-def"' + (x.is_default ? " checked" : "") + "> <span>Use this one first</span></label>" + '<div class="row2"><button class="ghost" id="a-cancel">Cancel</button>' + (x.id ? '<button class="danger" id="a-del">Remove</button>' : "") + '<button class="primary" id="a-save">Save address</button></div>';
+    var add = document.getElementById("a-add");
+    if (add) add.hidden = true;
+    swapIn(f);
+    document.getElementById("a-cancel").onclick = function() {
+      f.hidden = true;
+      f.innerHTML = "";
+      if (add) add.hidden = false;
+    };
+    var pin = {
+      lat: x.lat == null ? null : x.lat,
+      lng: x.lng == null ? null : x.lng
+    };
+    document.getElementById("a-pin").onclick = function() {
+      if (!navigator.geolocation) {
+        toast("This phone cannot share its location.");
+        return;
+      }
+      document.getElementById("a-pinout").textContent = "Finding you…";
+      navigator.geolocation.getCurrentPosition(function(pos) {
+        pin.lat = Math.round(pos.coords.latitude * 1e5) / 1e5;
+        pin.lng = Math.round(pos.coords.longitude * 1e5) / 1e5;
+        document.getElementById("a-pinout").textContent = "Pinned. Save to keep it.";
+      }, function() {
+        document.getElementById("a-pinout").textContent = "Could not get your location. Allow location for this page, then try again.";
+      }, {
+        enableHighAccuracy: true,
+        timeout: 15e3
+      });
+    };
+    document.getElementById("a-save").onclick = async function() {
+      var b = this;
+      b.disabled = true;
+      var r = await call("cust_address_save", {
+        p_id: x.id || null,
+        p_label: document.getElementById("a-label").value,
+        p_address: document.getElementById("a-addr").value,
+        p_landmark: document.getElementById("a-land").value,
+        p_note: document.getElementById("a-note").value,
+        p_lat: pin.lat,
+        p_lng: pin.lng,
+        p_default: document.getElementById("a-def").checked
+      });
+      if (!r) {
+        b.disabled = false;
+        return;
+      }
+      if (!r.ok) {
+        toast(r.error || "Could not save.");
+        b.disabled = false;
+        return;
+      }
+      toast("Address saved.");
+      load(false);
+    };
+    if (x.id) document.getElementById("a-del").onclick = async function() {
+      if (!confirm("Remove this address?")) return;
+      var r = await call("cust_address_delete", {
+        p_id: x.id
+      });
+      if (r && r.ok) {
+        toast("Address removed.");
+        load(false);
+      }
+    };
+    f.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+  function securityHtml() {
+    var ss = ME.sessions || [];
+    var words = {
+      signin: "Signed in",
+      signout_all: "Signed out everywhere",
+      profile: "Details changed",
+      email_changed: "Email changed",
+      card_linked: "Stamp card linked",
+      messages_on: "Offers turned on",
+      messages_off: "Offers turned off",
+      export: "Data downloaded",
+      card_wrong: "A wrong card code was typed",
+      gift_wrong: "A wrong gift-card code was typed"
+    };
+    return '<div class="card"><h2>Where you are signed in</h2>' + ss.map(function(s) {
+      return '<div class="item"><div class="grow"><div><b>' + esc(s.device || "A device") + "</b>" + (s.this_device ? ' <span class="pill">This one</span>' : "") + "</div>" + '<div class="muted">Signed in ' + esc(day(s.created_at)) + " &middot; last used " + esc(when(s.last_used_at)) + "</div></div>" + (s.this_device ? "" : '<button class="ghost" data-sout="' + s.id + '">Sign out</button>') + "</div>";
+    }).join("") + '<div class="row2"><button class="danger" id="s-all">Sign out everywhere</button></div></div>' + '<div class="card"><h2>Recent activity</h2>' + ((ME.activity || []).length ? ME.activity.map(function(e) {
+      return '<div class="item"><div class="grow"><div>' + esc(words[e.action] || e.action) + (e.detail ? " &middot; " + esc(e.detail) : "") + "</div>" + '<div class="muted">' + esc(when(e.at)) + "</div></div></div>";
+    }).join("") : '<p class="muted">Nothing yet.</p>') + '<p class="muted" style="margin-top:10px">Something here was not you? Sign out everywhere, then sign in again - nobody can get back in without a code sent to your email.</p></div>';
+  }
+  function privacyHtml() {
+    return '<div class="card"><h2>Your data</h2><p class="lede">Ember keeps your account (email, name, number, birthday, addresses) so it works at every shop. ' + "Each shop you order from gets your name and number for its own records, like any order. You can take everything we hold, or delete the account.</p>" + '<div class="row2"><button class="ghost" id="p-export">Download my data</button></div>' + '<p class="muted" style="margin-top:10px">Read the <a href="customer-terms.html">terms and privacy for Ember accounts</a>. Questions: <a href="mailto:hello@emberpos.net">hello@emberpos.net</a>.</p></div>' + '<div class="card"><h2>Delete my account</h2><p class="lede">Your email, addresses, sign-ins and saved cards are deleted, and every shop stops sending you offers. ' + "Shops keep their own records of what they sold you (their receipts and books), as the law asks of them. This cannot be undone.</p>" + '<div class="label">Type DELETE to confirm</div><input class="note-in" id="p-confirm" maxlength="10" autocomplete="off">' + '<div class="row2"><button class="danger" id="p-delete">Delete my account</button></div></div>';
+  }
+  function bind() {
+    var oe = document.getElementById("d-oemail");
+    if (oe) oe.onchange = async function() {
+      var r = await call("cust_order_emails", {
+        p_on: oe.checked
+      });
+      if (!r || !r.ok) {
+        oe.checked = !oe.checked;
+        if (r) toast(r.error || "Could not save.");
+        return;
+      }
+      ME.profile.order_emails = oe.checked;
+      toast(oe.checked ? "Order emails are on." : "No more order emails.");
+    };
+    main.querySelectorAll("[data-mkt]").forEach(function(c) {
+      c.onchange = async function() {
+        var r = await call("cust_shop_marketing", {
+          p_business: Number(c.dataset.mkt),
+          p_on: c.checked
+        });
+        if (!r || !r.ok) {
+          c.checked = !c.checked;
+          if (r) toast(r.error || "Could not save.");
+          return;
+        }
+        toast(c.checked ? "Offers turned on for this shop." : "No more offers from this shop.");
+      };
+    });
+    var more = document.getElementById("moreorders");
+    if (more) more.onclick = async function() {
+      var all = (ME.orders || []).concat(MORE_ORDERS);
+      var last = all[all.length - 1];
+      more.disabled = true;
+      var r = await call("cust_orders_page", {
+        p_before: last ? last.created_at : null
+      });
+      if (!r || !r.ok) {
+        more.disabled = false;
+        return;
+      }
+      MORE_ORDERS = MORE_ORDERS.concat(r.orders || []);
+      ORDERS_DONE = (r.orders || []).length < 30;
+      SHOWN_BEFORE = all.length;
+      draw();
+      SHOWN_BEFORE = Infinity;
+    };
+    var ds = document.getElementById("d-save");
+    if (ds) ds.onclick = async function() {
+      var b = this;
+      b.disabled = true;
+      var r = await call("cust_profile_save", {
+        p_name: document.getElementById("d-name").value,
+        p_phone: document.getElementById("d-phone").value,
+        p_birthday: document.getElementById("d-bday").value || null,
+        p_ember_news: document.getElementById("d-news").checked,
+        p_terms_version: null
+      });
+      b.disabled = false;
+      if (!r) return;
+      if (!r.ok) {
+        toast(r.error || "Could not save.");
+        return;
+      }
+      toast("Saved.");
+      load(false);
+    };
+    var es = document.getElementById("e-send");
+    if (es) es.onclick = async function() {
+      var em = (document.getElementById("e-new").value || "").trim().toLowerCase();
+      if (!A.validEmail(em)) {
+        toast("Type the new email address.");
+        return;
+      }
+      es.disabled = true;
+      var r = await A.sendCode(em, "email_change", null);
+      es.disabled = false;
+      if (!r.ok) {
+        toast(r.error || "Could not send a code.");
+        return;
+      }
+      document.getElementById("e-step2").hidden = false;
+      toast("Code sent to " + em + ".");
+    };
+    var eg = document.getElementById("e-go");
+    if (eg) eg.onclick = async function() {
+      var r = await call("cust_email_change", {
+        p_new_email: document.getElementById("e-new").value,
+        p_code: document.getElementById("e-code").value
+      });
+      if (!r) return;
+      if (!r.ok) {
+        toast(r.error || "Could not change the email.");
+        return;
+      }
+      toast("Your email is now " + r.email + ".");
+      load(false);
+    };
+    var aa = document.getElementById("a-add");
+    if (aa) aa.onclick = function() {
+      addressForm(null);
+    };
+    main.querySelectorAll("[data-aedit]").forEach(function(b) {
+      b.onclick = function() {
+        addressForm((ME.addresses || []).find(function(x) {
+          return String(x.id) === b.dataset.aedit;
+        }));
+      };
+    });
+    main.querySelectorAll("[data-sout]").forEach(function(b) {
+      b.onclick = async function() {
+        var r = await call("cust_session_revoke", {
+          p_id: Number(b.dataset.sout)
+        });
+        if (r && r.ok) {
+          toast("That device is signed out.");
+          load(false);
+        }
+      };
+    });
+    var sa = document.getElementById("s-all");
+    if (sa) sa.onclick = async function() {
+      if (!confirm("Sign out on every device, including this one?")) return;
+      await A.signOut(true);
+      ME = null;
+      toast("Signed out everywhere.");
+      drawSignIn();
+    };
+    var pe = document.getElementById("p-export");
+    if (pe) pe.onclick = async function() {
+      var r = await call("cust_export");
+      if (!r || !r.ok) return;
+      var blob = new Blob([ JSON.stringify(r, null, 2) ], {
+        type: "application/json"
+      });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "my-ember-account.json";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function() {
+        URL.revokeObjectURL(a.href);
+        a.remove();
+      }, 1e3);
+      toast("Your data is downloading.");
+    };
+    var pd = document.getElementById("p-delete");
+    if (pd) pd.onclick = async function() {
+      var v = (document.getElementById("p-confirm").value || "").trim();
+      if (v !== "DELETE") {
+        toast("Type DELETE to confirm.");
+        return;
+      }
+      if (!confirm("Delete your Ember account for good?")) return;
+      var r = await call("cust_delete", {
+        p_confirm: "DELETE"
+      });
+      if (!r) return;
+      if (!r.ok) {
+        toast(r.error || "Could not delete.");
+        return;
+      }
+      A.setSession("");
+      ME = null;
+      try {
+        localStorage.removeItem("ember.account.email");
+      } catch (e) {}
+      main.innerHTML = '<div class="card"><h2>Your account is deleted</h2><p class="lede">Thank you for using Ember. You can make a new account any time.</p></div>';
+      swapIn(main.firstChild);
+    };
+  }
+  load(true);
+})();
+</script>
+</body>
+</html>

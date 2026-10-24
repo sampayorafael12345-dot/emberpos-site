@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>k8s Coffee: order online</title>
+<meta name="description" content="Order from k8s Coffee online. See the menu, order ahead and pay from your phone.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="k8s Coffee: order online">
+<meta property="og:description" content="See the menu, order ahead and pay from your phone.">
+<meta property="og:url" content="https://emberpos.net/k8s-coffee">
+<meta property="og:image" content="https://emberpos.net/k8s-coffee/logo.jpg">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/favicon.png">
+<style>
+html,body{margin:0;height:100%;background:#0b0c0d;color:#f4f1ec;font:16px system-ui,sans-serif}main{min-height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}a{color:#ff6a1a}</style>
+</head><body>
+<main><p>Opening k8s Coffee&hellip;<br><a href="/order.html" id="go" hidden>Open the menu</a></p></main>
+<script>
+(function() {
+  var go = function(t) {
+    location.replace("/order.html?t=" + encodeURIComponent(t));
+  };
+  var fail = function() {
+    document.getElementById("go").hidden = false;
+  };
+  fetch("https://qqmkgafyfxrcnwdkkyxc.supabase.co/rest/v1/rpc/shop_link_token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: "sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX",
+      Authorization: "Bearer sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX"
+    },
+    body: JSON.stringify({
+      p_slug: "k8s-coffee"
+    })
+  }).then(function(r) {
+    return r.ok ? r.json() : null;
+  }).then(function(t) {
+    if (typeof t === "string" && t) go(t); else fail();
+  }).catch(fail);
+})();
+</script>
+</body></html>
