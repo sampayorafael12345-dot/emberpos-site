@@ -3,11 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    
+
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#151210" />
-    
-    
+
+
     <meta http-equiv="Content-Security-Policy" content="
       default-src 'self';
       script-src 'self' 'unsafe-inline';
@@ -23,85 +23,83 @@
       frame-ancestors 'none';
     " />
     <title>Ember POS</title>
-    
-    
+
+
     <link rel="icon" href="/app/brand/favicon.png" type="image/png" />
     <meta name="robots" content="noindex" />
-    
+
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" href="icons/icon-180.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
-    
+
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="Ember POS" />
-    <style>
-html,body{color:#ece7df;background:#151210;height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif}#boot{text-align:center;z-index:9999;background:#151210;justify-content:center;align-items:center;padding:24px;display:flex;position:fixed;top:0;bottom:0;left:0;right:0}#boot .msg{max-width:560px;font-size:15px;line-height:1.5}#boot .err{white-space:pre-wrap;word-break:break-word;color:#fca5a5;text-align:left;background:rgba(0,0,0,.3);border-radius:8px;max-height:50vh;margin-top:14px;padding:10px;font-size:12px;overflow:auto}#boot strong{color:#fbbf24}#boot .logo{height:84px}</style>
+    <style>html,body{color:#ece7df;background:#151210;height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif}#boot{text-align:center;z-index:9999;background:#151210;justify-content:center;align-items:center;padding:24px;display:flex;position:fixed;top:0;bottom:0;left:0;right:0}#boot .msg{max-width:560px;font-size:15px;line-height:1.5}#boot .err{white-space:pre-wrap;word-break:break-word;color:#fca5a5;text-align:left;background:rgba(0,0,0,.3);border-radius:8px;max-height:50vh;margin-top:14px;padding:10px;font-size:12px;overflow:auto}#boot strong{color:#fbbf24}#boot .logo{height:84px}</style>
 
   </head>
   <body>
     <div id="root"></div>
-    
+
     <div id="boot" role="status" aria-label="Ember POS is starting"><div class="logo" data-ember-logo></div></div>
     <script>
-(function() {
-  function show(title, detail) {
-    var b = document.getElementById("boot");
-    if (!b) return;
-    b.style.display = "flex";
-    var html = '<div class="msg"><strong>' + title + "</strong>";
-    if (detail) {
-      html += '<div class="err">' + String(detail).replace(/</g, "&lt;") + "</div>";
-    }
-    html += "</div>";
-    b.innerHTML = html;
-  }
-  var bootSent = false;
-  function report(msg, stack, always) {
-    if (bootSent || window.__emberReportsReady && !always) return;
-    var url = "https://qqmkgafyfxrcnwdkkyxc.supabase.co", key = "sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX";
-    if (!/^https?:\/\//.test(url)) return;
-    bootSent = true;
-    try {
-      var platform = "web";
-      try {
-        if (window.Capacitor && window.Capacitor.getPlatform) platform = window.Capacitor.getPlatform();
-      } catch (e1) {}
-      if (/[?&]display(=|&|$)/.test(location.search)) platform += "+cds-paired";
-      var x = new XMLHttpRequest;
-      x.open("POST", url + "/rest/v1/rpc/log_client_error", true);
-      x.setRequestHeader("Content-Type", "application/json");
-      x.setRequestHeader("apikey", key);
-      x.send(JSON.stringify({
-        p_message: "[boot] " + String(msg).slice(0, 500),
-        p_stack: String(stack || "") + "\nUA: " + navigator.userAgent,
-        p_platform: platform,
-        p_app_version: null,
-        p_url: location.href
-      }));
-    } catch (e2) {}
-  }
-  window.__emberHideBoot = function() {
-    var b = document.getElementById("boot");
-    if (b) b.parentNode.removeChild(b);
-  };
-  window.addEventListener("error", function(e) {
-    report(e && e.message ? e.message : "Script error", e && e.filename ? e.filename + ":" + e.lineno : "");
-    show("Ember POS could not start on this device.", (e && e.message ? e.message : "Script error") + (e && e.filename ? "\n" + e.filename + ":" + e.lineno : ""));
-  });
-  window.addEventListener("unhandledrejection", function(e) {
-    var r = e && e.reason;
-    report(r && r.message ? r.message : String(r), r && r.stack ? r.stack : "");
-    show("Ember POS hit an error while starting.", r && r.message ? r.message : String(r));
-  });
-  setTimeout(function() {
-    var root = document.getElementById("root");
-    if (root && root.childNodes.length === 0) {
-      report("boot timeout: nothing rendered after 12s", "", true);
-      show("Ember POS did not finish loading.", 'The page loaded but the app did not render. This usually means the device\'s "Android System WebView" is out of date and cannot run the app. Update Android System WebView / Chrome, or check the internet connection, then reopen.');
-    }
-  }, 12e3);
-})();
+      (function () {
+        function show(title, detail) {
+          var b = document.getElementById('boot');
+          if (!b) return;
+          b.style.display = 'flex';
+          var html = '<div class="msg"><strong>' + title + '</strong>';
+          if (detail) { html += '<div class="err">' + String(detail).replace(/</g, '&lt;') + '</div>'; }
+          html += '</div>';
+          b.innerHTML = html;
+        }
+
+        var bootSent = false;
+
+        function report(msg, stack, always) {
+          if (bootSent || (window.__emberReportsReady && !always)) return;
+          var url = 'https://qqmkgafyfxrcnwdkkyxc.supabase.co', key = 'sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX';
+          if (!/^https?:\/\//.test(url)) return;
+          bootSent = true;
+          try {
+            var platform = 'web';
+            try { if (window.Capacitor && window.Capacitor.getPlatform) platform = window.Capacitor.getPlatform(); } catch (e1) {}
+            if (/[?&]display(=|&|$)/.test(location.search)) platform += '+cds-paired';
+            var x = new XMLHttpRequest();
+            x.open('POST', url + '/rest/v1/rpc/log_client_error', true);
+            x.setRequestHeader('Content-Type', 'application/json');
+            x.setRequestHeader('apikey', key);
+            x.send(JSON.stringify({
+              p_message: '[boot] ' + String(msg).slice(0, 500),
+              p_stack: String(stack || '') + '\nUA: ' + navigator.userAgent,
+              p_platform: platform,
+              p_app_version: null,
+              p_url: location.href
+            }));
+          } catch (e2) {}
+        }
+
+        window.__emberHideBoot = function () { var b = document.getElementById('boot'); if (b) b.parentNode.removeChild(b); };
+        window.addEventListener('error', function (e) {
+          report(e && e.message ? e.message : 'Script error', e && e.filename ? e.filename + ':' + e.lineno : '');
+          show('Ember POS could not start on this device.',
+            (e && e.message ? e.message : 'Script error') + (e && e.filename ? '\n' + e.filename + ':' + e.lineno : ''));
+        });
+        window.addEventListener('unhandledrejection', function (e) {
+          var r = e && e.reason;
+          report(r && r.message ? r.message : String(r), r && r.stack ? r.stack : '');
+          show('Ember POS hit an error while starting.', r && r.message ? r.message : String(r));
+        });
+
+        setTimeout(function () {
+          var root = document.getElementById('root');
+          if (root && root.childNodes.length === 0) {
+            report('boot timeout: nothing rendered after 12s', '', true);
+            show('Ember POS did not finish loading.',
+              'The page loaded but the app did not render. This usually means the device\'s "Android System WebView" is out of date and cannot run the app. Update Android System WebView / Chrome, or check the internet connection, then reopen.');
+          }
+        }, 12000);
+      })();
 </script>
     <script src="/app/brand/logo-loader.js"></script>
     <script crossorigin id="vite-legacy-polyfill" src="/app/assets/polyfills-legacy-Dxb8lkbn.js"></script>

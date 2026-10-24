@@ -14,7 +14,6 @@
 <link rel="icon" href="favicon.png" type="image/png" />
 <link rel="stylesheet" href="style.css" />
 <style>
-
   .wrap { max-width: 860px; }
   .page-head p { max-width: 58ch; margin-left: auto; margin-right: auto; }
   .try {
@@ -286,7 +285,7 @@
       <div>
         <a class="brand-row" href="index.html"><img src="logo.png" height="30" alt="" /><b>Ember POS</b></a>
         <p>The all-in-one POS app for cafés and food shops in the Philippines.</p>
-        
+
         <address class="foot-addr" style="font-style:normal;margin-top:10px;line-height:1.55;font-size:13px;opacity:.85"><strong>EMBER POS COMPUTER SOFTWARE STORE</strong><br>A1-5CD Anaheim, Domingo M. Guevara St., Highway Hills,<br>Mandaluyong City 1550, Metro Manila, Philippines<br>Email: <a href="mailto:hello@emberpos.net">hello@emberpos.net</a> &middot; <a href="contact.html">Contact us</a></address>
       </div>
       <div>
@@ -334,74 +333,55 @@
 </footer>
 
 <script>
-(function() {
-  var q = document.getElementById("q");
-  var nores = document.getElementById("nores");
-  var items = Array.prototype.slice.call(document.querySelectorAll("details"));
-  var heads = Array.prototype.slice.call(document.querySelectorAll("h2.sec"));
-  q.addEventListener("input", function() {
-    var t = q.value.trim().toLowerCase();
-    var any = false;
-    items.forEach(function(d) {
-      var hit = !t || d.textContent.toLowerCase().indexOf(t) !== -1;
-      if (hit && d.classList.contains("hidden")) d.classList.add("back");
-      d.classList.toggle("hidden", !hit);
-      if (hit) any = true;
-      if (t && hit) d.open = true;
-      if (!t) d.open = false;
-    });
-    heads.forEach(function(h) {
-      var el = h.nextElementSibling, live = false;
-      while (el && el.tagName === "DETAILS") {
-        if (!el.classList.contains("hidden")) {
-          live = true;
-          break;
-        }
-        el = el.nextElementSibling;
-      }
-      if (live && h.classList.contains("hidden")) h.classList.add("back");
-      h.classList.toggle("hidden", !live);
-    });
-    nores.style.display = any ? "none" : "block";
-  });
-  function openHash() {
-    var id;
-    try {
-      id = location.hash && decodeURIComponent(location.hash.slice(1));
-    } catch (e) {
-      return;
-    }
-    var d = id && document.getElementById(id);
-    if (d && d.tagName === "DETAILS") {
-      d.open = true;
-      d.scrollIntoView({
-        block: "start"
+
+  (function () {
+    var q = document.getElementById('q');
+    var nores = document.getElementById('nores');
+    var items = Array.prototype.slice.call(document.querySelectorAll('details'));
+    var heads = Array.prototype.slice.call(document.querySelectorAll('h2.sec'));
+    q.addEventListener('input', function () {
+      var t = q.value.trim().toLowerCase();
+      var any = false;
+      items.forEach(function (d) {
+        var hit = !t || d.textContent.toLowerCase().indexOf(t) !== -1;
+        if (hit && d.classList.contains('hidden')) d.classList.add('back');
+        d.classList.toggle('hidden', !hit);
+        if (hit) any = true;
+        if (t && hit) d.open = true;
+        if (!t) d.open = false;
       });
+      heads.forEach(function (h) {
+        var el = h.nextElementSibling, live = false;
+        while (el && el.tagName === 'DETAILS') {
+          if (!el.classList.contains('hidden')) { live = true; break; }
+          el = el.nextElementSibling;
+        }
+        if (live && h.classList.contains('hidden')) h.classList.add('back');
+        h.classList.toggle('hidden', !live);
+      });
+      nores.style.display = any ? 'none' : 'block';
+    });
+
+    function openHash() {
+      var id; try { id = location.hash && decodeURIComponent(location.hash.slice(1)); } catch (e) { return; }
+      var d = id && document.getElementById(id);
+      if (d && d.tagName === 'DETAILS') { d.open = true; d.scrollIntoView({ block: 'start' }); }
     }
-  }
-  openHash();
-  addEventListener("hashchange", openHash);
-})();
+    openHash();
+    addEventListener('hashchange', openHash);
+  })();
 </script>
 <script src="beacon.js" defer></script>
 <script>
-if (location.hash) document.documentElement.classList.add("k-hash");
 
-(function() {
-  var h = document.getElementById("k-head"), b = document.getElementById("k-menu");
-  if (!h || !b) return;
-  b.addEventListener("click", function() {
-    var o = !h.classList.contains("open");
-    h.classList.toggle("open", o);
-    b.setAttribute("aria-expanded", o ? "true" : "false");
-  });
-  document.addEventListener("keydown", function(e) {
-    if (e.key === "Escape") {
-      h.classList.remove("open");
-      b.setAttribute("aria-expanded", "false");
-    }
-  });
-})();
+  if (location.hash) document.documentElement.classList.add('k-hash');
+
+  (function () {
+    var h = document.getElementById('k-head'), b = document.getElementById('k-menu');
+    if (!h || !b) return;
+    b.addEventListener('click', function () { var o = !h.classList.contains('open'); h.classList.toggle('open', o); b.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { h.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); } });
+  })();
 </script>
 </body>
 </html>

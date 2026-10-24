@@ -57,10 +57,12 @@
   }
 </style>
 <script>
-(function() {
-  var slug = location.pathname.replace(/^\/+|\/+$/g, "");
-  if (/^[A-Za-z0-9-]{3,30}$/.test(slug)) document.documentElement.className = "looking"; else document.title = "Page not found: Ember POS";
-})();
+
+  (function () {
+    var slug = location.pathname.replace(/^\/+|\/+$/g, '');
+    if (/^[A-Za-z0-9-]{3,30}$/.test(slug)) document.documentElement.className = 'looking';
+    else document.title = 'Page not found: Ember POS';
+  })();
 </script>
 </head>
 <body>
@@ -76,31 +78,24 @@
   </div>
 </main>
 <script>
-(function() {
-  if (document.documentElement.className !== "looking") return;
-  var slug = location.pathname.replace(/^\/+|\/+$/g, "");
-  var URLB = "https://qqmkgafyfxrcnwdkkyxc.supabase.co";
-  var ANON = "sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX";
-  var done = function() {
-    document.documentElement.className = "";
-    document.title = "Page not found: Ember POS";
-  };
-  fetch(URLB + "/rest/v1/rpc/shop_link_token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: ANON,
-      Authorization: "Bearer " + ANON
-    },
-    body: JSON.stringify({
-      p_slug: slug
-    })
-  }).then(function(r) {
-    return r.ok ? r.json() : null;
-  }).then(function(token) {
-    if (typeof token === "string" && token) location.replace("/order.html?t=" + encodeURIComponent(token)); else done();
-  }).catch(done);
-})();
+
+  (function () {
+    if (document.documentElement.className !== 'looking') return;
+    var slug = location.pathname.replace(/^\/+|\/+$/g, '');
+    var URLB = 'https://qqmkgafyfxrcnwdkkyxc.supabase.co';
+    var ANON = 'sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX';
+    var done = function () { document.documentElement.className = ''; document.title = 'Page not found: Ember POS'; };
+    fetch(URLB + '/rest/v1/rpc/shop_link_token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON },
+      body: JSON.stringify({ p_slug: slug }),
+    }).then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (token) {
+        if (typeof token === 'string' && token) location.replace('/order.html?t=' + encodeURIComponent(token));
+        else done();
+      })
+      .catch(done);
+  })();
 </script>
 </body>
 </html>

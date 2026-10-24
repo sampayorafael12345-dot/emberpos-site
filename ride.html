@@ -10,7 +10,6 @@
 <link rel="icon" href="favicon.png">
 
 <style>
-
   @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; }
   @font-face { font-family: 'JetBrains Mono'; src: url('/fonts/jetbrains-mono-latin-700-normal.woff2') format('woff2'); font-weight: 700; font-display: swap; }
   :root {
@@ -95,371 +94,291 @@
 <div id="app"><div class="center"><p class="lede">Opening the delivery&hellip;</p></div></div>
 <script src="ember-map.js"></script>
 <script>
-(function() {
-  "use strict";
-  var URLB = "https://qqmkgafyfxrcnwdkkyxc.supabase.co";
-  var ANON = "sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX";
-  var TOKEN = (new URLSearchParams(location.search).get("t") || "").trim();
-  var PING_MS = 15e3;
-  var FIX_MAX_MS = 6e4;
-  var app = document.getElementById("app");
+(function () {
+  'use strict';
+  var URLB = 'https://qqmkgafyfxrcnwdkkyxc.supabase.co';
+  var ANON = 'sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX';
+  var TOKEN = (new URLSearchParams(location.search).get('t') || '').trim();
+  var PING_MS = 15000;
+  var FIX_MAX_MS = 60000;
+  var app = document.getElementById('app');
   var T = null;
   var watch = null, beat = null, lock = null;
-  var last = null, lastSent = 0, sentOk = 0, gpsErr = "";
+  var last = null, lastSent = 0, sentOk = 0, gpsErr = '';
   var lost = false, asking = false, askedAt = 0;
   var mapH = null;
+
   function esc(s) {
-    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c) {
-      return {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;"
-      }[c];
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
   async function rpc(fn, args) {
-    var r = await fetch(URLB + "/rest/v1/rpc/" + fn, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: ANON,
-        Authorization: "Bearer " + ANON
-      },
-      body: JSON.stringify(args || {})
+    var r = await fetch(URLB + '/rest/v1/rpc/' + fn, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON },
+      body: JSON.stringify(args || {}),
     });
-    if (!r.ok) throw new Error("http " + r.status);
+    if (!r.ok) throw new Error('http ' + r.status);
     return r.json();
   }
   function money(c, cur) {
     var n = Math.abs(Number(c || 0)) / 100;
-    var s = n.toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-    cur = cur || "";
-    return cur + (/\p{L}{2}$/u.test(cur) ? " " : "") + s;
+    var s = n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    cur = cur || '';
+    return cur + (/\p{L}{2}$/u.test(cur) ? ' ' : '') + s;
   }
-  function digits(p) {
-    return String(p || "").replace(/[^0-9+]/g, "");
-  }
+  function digits(p) { return String(p || '').replace(/[^0-9+]/g, ''); }
   var I = {
     nav: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 19-9-9 19-2-8z"/></svg>',
     call: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>',
     text: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
     go: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="17" r="3"/><circle cx="19" cy="17" r="3"/><path d="M8 17h8"/><path d="m5 17 4-8h5l2 4"/><path d="M13 9h4l2 5"/></svg>',
-    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
   };
+
   function fatal(title, msg) {
     stopSharing();
-    app.innerHTML = '<div class="center swap"><h2>' + esc(title) + '</h2><p class="lede">' + esc(msg) + "</p></div>";
+    app.innerHTML = '<div class="center swap"><h2>' + esc(title) + '</h2><p class="lede">' + esc(msg) + '</p></div>';
   }
+
   function navUrl(o) {
-    var to = o.dest ? o.dest.lat + "," + o.dest.lng : o.address || "";
-    return "https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=" + encodeURIComponent(to);
+    var to = o.dest ? (o.dest.lat + ',' + o.dest.lng) : (o.address || '');
+    return 'https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=' + encodeURIComponent(to);
   }
+
   function statusHtml() {
     if (T.delivered_at) {
-      return '<div class="status"><span class="dot"></span><span>Delivered at ' + esc(new Date(T.delivered_at).toLocaleTimeString([], {
-        hour: "numeric",
-        minute: "2-digit"
-      })) + ". Sharing stopped.</span></div>";
+      return '<div class="status"><span class="dot"></span><span>Delivered at ' +
+        esc(new Date(T.delivered_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })) + '. Sharing stopped.</span></div>';
     }
     if (!watch) {
-      if (gpsErr) return '<div class="status"><span class="dot warn"></span><span>' + esc(gpsErr) + "</span></div>";
+
+      if (gpsErr) return '<div class="status"><span class="dot warn"></span><span>' + esc(gpsErr) + '</span></div>';
       if (T.capped) return '<div class="status"><span class="dot"></span><span>Sharing ended 4 hours after Start. Tap Delivered when you hand the order over.</span></div>';
-      return '<div class="status"><span class="dot"></span><span>' + (T.started_at ? "Your location is not being shared right now." : "Not started yet.") + "</span></div>";
+      return '<div class="status"><span class="dot"></span><span>' +
+        (T.started_at ? 'Your location is not being shared right now.' : 'Not started yet.') + '</span></div>';
     }
-    if (gpsErr) return '<div class="status"><span class="dot warn"></span><span>' + esc(gpsErr) + "</span></div>";
+    if (gpsErr) return '<div class="status"><span class="dot warn"></span><span>' + esc(gpsErr) + '</span></div>';
     if (last && lost) return '<div class="status"><span class="dot warn"></span><span>Waiting for GPS. Step outside or turn on Location.</span></div>';
     if (!sentOk) return '<div class="status"><span class="dot warn"></span><span>Finding you&hellip;</span></div>';
-    var ago = Math.max(0, Math.round((Date.now() - sentOk) / 1e3));
-    return '<div class="status"><span class="dot live"></span><span>Sharing your location with the customer &middot; sent ' + (ago < 5 ? "just now" : ago + " s ago") + "</span></div>";
+    var ago = Math.max(0, Math.round((Date.now() - sentOk) / 1000));
+    return '<div class="status"><span class="dot live"></span><span>Sharing your location with the customer &middot; sent ' +
+      (ago < 5 ? 'just now' : ago + ' s ago') + '</span></div>';
   }
+
   function cashHtml(due, cur) {
-    return due > 0 ? '<div class="cash"><span>Collect in cash</span><b>' + esc(money(due, cur)) + "</b></div>" : '<div class="cash paid"><span>Paid already. Collect nothing.</span>' + I.check + "</div>";
+    return due > 0
+      ? '<div class="cash"><span>Collect in cash</span><b>' + esc(money(due, cur)) + '</b></div>'
+      : '<div class="cash paid"><span>Paid already. Collect nothing.</span>' + I.check + '</div>';
   }
+
   function showDue(due) {
     due = Number(due);
     if (!isFinite(due) || due < 0 || !T || !T.order || due === Number(T.order.to_collect_cents)) return;
     T.order.to_collect_cents = due;
-    var box = document.getElementById("cashbox");
+    var box = document.getElementById('cashbox');
     if (box) box.innerHTML = cashHtml(due, T.order.currency);
   }
+
   function extraText(v) {
-    if (v == null || v === "") return "";
-    if (typeof v === "string" || typeof v === "number") return String(v).trim();
+    if (v == null || v === '') return '';
+    if (typeof v === 'string' || typeof v === 'number') return String(v).trim();
     if (Array.isArray(v)) {
-      return v.map(function(x) {
-        return x && typeof x === "object" ? String(x.name || x.label || x.option || "") : String(x == null ? "" : x);
-      }).map(function(t) {
-        return t.trim();
-      }).filter(Boolean).join(", ");
+      return v.map(function (x) {
+        return x && typeof x === 'object' ? String(x.name || x.label || x.option || '') : String(x == null ? '' : x);
+      }).map(function (t) { return t.trim(); }).filter(Boolean).join(', ');
     }
-    if (typeof v === "object") return String(v.name || v.label || "").trim();
-    return "";
+    if (typeof v === 'object') return String(v.name || v.label || '').trim();
+    return '';
   }
+
   function draw() {
     var o = T.order, s = T.shop;
     var due = Number(o.to_collect_cents) || 0;
-    app.innerHTML = '<header class="hero"><div class="shop">' + esc(s.name || "Delivery") + "</div>" + "<h1>Delivery for " + esc(o.customer || "the customer") + "</h1>" + '<span class="num">' + esc(o.pickup_label || o.number) + "</span></header>" + "<main>" + '<section class="card"><h2>Deliver to</h2>' + '<div class="big">' + esc(o.address || "No address was given. Call the customer.") + "</div>" + (o.pin_moved && o.dest ? '<div class="lede" style="margin-top:6px;color:var(--warn);font-weight:600">The customer moved the map pin by hand. Check it matches the address, or call them.</div>' : "") + (o.note ? '<div class="lede" style="margin-top:6px">' + esc(o.note) + "</div>" : "") + '<div id="map" hidden></div>' + '<div class="row one"><a class="btn primary" target="_blank" rel="noopener" href="' + esc(navUrl(o)) + '">' + I.nav + "Navigate</a></div>" + (o.phone ? '<div class="row"><a class="btn ghost" href="tel:' + esc(digits(o.phone)) + '">' + I.call + "Call " + esc((o.customer || "").split(" ")[0] || "customer") + "</a>" + '<a class="btn ghost" href="sms:' + esc(digits(o.phone)) + '">' + I.text + "Text</a></div>" : "") + "</section>" + '<section class="card"><h2>In the bag</h2><ul class="items">' + (o.items || []).map(function(i) {
-      var more = [ extraText(i.meal), extraText(i.addons), extraText(i.note) ].filter(Boolean).join(" · ");
-      return '<li><span class="q">' + esc(Number(i.qty)) + "&times;</span><span>" + esc(i.name) + (i.variant ? ", " + esc(i.variant) : "") + (more ? '<span class="xtra">' + esc(more) + "</span>" : "") + "</span></li>";
-    }).join("") + "</ul>" + '<div id="cashbox">' + cashHtml(due, o.currency) + "</div>" + "</section>" + '<section class="card" id="share"><h2>Your trip</h2>' + '<div id="st">' + statusHtml() + "</div>" + (T.delivered_at ? "" : (!watch && !T.capped ? '<div class="row one"><button class="btn primary huge" id="start">' + I.go + (T.started_at ? "Share my location again" : "Start delivery") + "</button></div>" + '<p class="note">While you deliver, your location is shared with this customer and the shop. It stops when you tap Delivered. Keep this page open on the way.</p>' : "") + (watch || T.started_at ? '<div class="row one"><button class="btn done huge" id="done">' + I.check + "Delivered</button></div>" + (watch ? '<p class="note">Keep this page open until you hand the order over. The screen stays on for you.</p>' : "") : "")) + "</section>" + (s.phone ? '<section class="card"><h2>Need help?</h2><div class="row one"><a class="btn ghost" href="tel:' + esc(digits(s.phone)) + '">' + I.call + "Call " + esc(s.name || "the shop") + "</a></div></section>" : "") + "</main>";
-    var st = document.getElementById("start");
-    if (st) st.onclick = startSharing;
-    var dn = document.getElementById("done");
-    if (dn) dn.onclick = delivered;
+    app.innerHTML =
+      '<header class="hero"><div class="shop">' + esc(s.name || 'Delivery') + '</div>' +
+        '<h1>Delivery for ' + esc(o.customer || 'the customer') + '</h1>' +
+        '<span class="num">' + esc(o.pickup_label || o.number) + '</span></header>' +
+      '<main>' +
+        '<section class="card"><h2>Deliver to</h2>' +
+          '<div class="big">' + esc(o.address || 'No address was given. Call the customer.') + '</div>' +
+
+          (o.pin_moved && o.dest ? '<div class="lede" style="margin-top:6px;color:var(--warn);font-weight:600">The customer moved the map pin by hand. Check it matches the address, or call them.</div>' : '') +
+          (o.note ? '<div class="lede" style="margin-top:6px">' + esc(o.note) + '</div>' : '') +
+          '<div id="map" hidden></div>' +
+          '<div class="row one"><a class="btn primary" target="_blank" rel="noopener" href="' + esc(navUrl(o)) + '">' + I.nav + 'Navigate</a></div>' +
+          (o.phone
+            ? '<div class="row"><a class="btn ghost" href="tel:' + esc(digits(o.phone)) + '">' + I.call + 'Call ' + esc((o.customer || '').split(' ')[0] || 'customer') + '</a>' +
+              '<a class="btn ghost" href="sms:' + esc(digits(o.phone)) + '">' + I.text + 'Text</a></div>'
+            : '') +
+        '</section>' +
+        '<section class="card"><h2>In the bag</h2><ul class="items">' +
+          (o.items || []).map(function (i) {
+            var more = [extraText(i.meal), extraText(i.addons), extraText(i.note)].filter(Boolean).join(' · ');
+            return '<li><span class="q">' + esc(Number(i.qty)) + '&times;</span><span>' + esc(i.name) + (i.variant ? ', ' + esc(i.variant) : '') +
+              (more ? '<span class="xtra">' + esc(more) + '</span>' : '') + '</span></li>';
+          }).join('') + '</ul>' +
+          '<div id="cashbox">' + cashHtml(due, o.currency) + '</div>' +
+        '</section>' +
+        '<section class="card" id="share"><h2>Your trip</h2>' +
+          '<div id="st">' + statusHtml() + '</div>' +
+          (T.delivered_at ? ''
+            : (!watch && !T.capped
+                ? '<div class="row one"><button class="btn primary huge" id="start">' + I.go + (T.started_at ? 'Share my location again' : 'Start delivery') + '</button></div>' +
+                  '<p class="note">While you deliver, your location is shared with this customer and the shop. It stops when you tap Delivered. Keep this page open on the way.</p>'
+                : '') +
+
+              (watch || T.started_at
+                ? '<div class="row one"><button class="btn done huge" id="done">' + I.check + 'Delivered</button></div>' +
+                  (watch ? '<p class="note">Keep this page open until you hand the order over. The screen stays on for you.</p>' : '')
+                : '')) +
+        '</section>' +
+        (s.phone
+          ? '<section class="card"><h2>Need help?</h2><div class="row one"><a class="btn ghost" href="tel:' + esc(digits(s.phone)) + '">' + I.call + 'Call ' + esc(s.name || 'the shop') + '</a></div></section>'
+          : '') +
+      '</main>';
+    var st = document.getElementById('start'); if (st) st.onclick = startSharing;
+    var dn = document.getElementById('done'); if (dn) dn.onclick = delivered;
     drawMap();
   }
-  function redrawStatus() {
-    var st = document.getElementById("st");
-    if (st) st.innerHTML = statusHtml();
-  }
+  function redrawStatus() { var st = document.getElementById('st'); if (st) st.innerHTML = statusHtml(); }
+
   function drawMap() {
-    var el = document.getElementById("map");
+    var el = document.getElementById('map');
     if (!el || T.delivered_at || !window.EmberMap || !EmberMap.canDraw()) return;
     var o = T.order;
     if (!o.dest && !(T.shop && T.shop.geo) && !last) return;
     el.hidden = false;
-    if (mapH) {
-      try {
-        mapH.remove();
-      } catch (e) {}
-      mapH = null;
-    }
-    EmberMap.create(el, {
-      center: o.dest || T.shop && T.shop.geo || last
-    }).then(function(h) {
-      if (!h) {
-        el.hidden = true;
-        return;
-      }
+    if (mapH) { try { mapH.remove(); } catch (e) {  } mapH = null; }
+    EmberMap.create(el, { center: o.dest || (T.shop && T.shop.geo) || last }).then(function (h) {
+      if (!h) { el.hidden = true; return; }
       mapH = h;
-      h.set("home", o.dest);
-      h.set("shop", T.shop && T.shop.geo);
-      if (last) h.set("rider", last);
-      h.map.once("load", function() {
-        h.fit();
-      });
+      h.set('home', o.dest);
+      h.set('shop', T.shop && T.shop.geo);
+      if (last) h.set('rider', last);
+      h.map.once('load', function () { h.fit(); });
     });
   }
+
   function gotFix(pos) {
-    last = {
-      lat: pos.coords.latitude,
-      lng: pos.coords.longitude,
-      acc: Math.round(pos.coords.accuracy || 0),
-      at: Date.now()
-    };
-    gpsErr = "";
-    lost = false;
-    if (mapH) mapH.set("rider", last);
+    last = { lat: pos.coords.latitude, lng: pos.coords.longitude, acc: Math.round(pos.coords.accuracy || 0), at: Date.now() };
+    gpsErr = ''; lost = false;
+    if (mapH) mapH.set('rider', last);
   }
+
   function checkFix() {
-    if (asking || !navigator.geolocation || !navigator.geolocation.getCurrentPosition) {
-      if (!asking) lost = true;
-      return;
-    }
+    if (asking || !navigator.geolocation || !navigator.geolocation.getCurrentPosition) { if (!asking) lost = true; return; }
     if (lost && Date.now() - askedAt < PING_MS) return;
-    asking = true;
-    askedAt = Date.now();
-    navigator.geolocation.getCurrentPosition(function(pos) {
+    asking = true; askedAt = Date.now();
+    navigator.geolocation.getCurrentPosition(function (pos) {
       asking = false;
       if (watch == null) return;
-      gotFix(pos);
-      lastSent = 0;
-      send();
-      redrawStatus();
-    }, function() {
+      gotFix(pos); lastSent = 0; send(); redrawStatus();
+    }, function () {
       asking = false;
       if (watch == null) return;
       if (last && Date.now() - last.at > FIX_MAX_MS) lost = true;
       redrawStatus();
-    }, {
-      enableHighAccuracy: true,
-      maximumAge: 0,
-      timeout: 2e4
-    });
+    }, { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 });
   }
   async function send() {
     if (!last || !T || T.delivered_at) return;
-    if (Date.now() - last.at > FIX_MAX_MS) {
-      checkFix();
-      return;
-    }
+
+    if (Date.now() - last.at > FIX_MAX_MS) { checkFix(); return; }
     if (Date.now() - lastSent < PING_MS - 1500) return;
     lastSent = Date.now();
     try {
-      var r = await rpc("rider_ping", {
-        p_token: TOKEN,
-        p_lat: last.lat,
-        p_lng: last.lng,
-        p_acc: last.acc
-      });
+      var r = await rpc('rider_ping', { p_token: TOKEN, p_lat: last.lat, p_lng: last.lng, p_acc: last.acc });
       if (r && r.stop) {
         stopSharing();
-        var t = await rpc("rider_trip", {
-          p_token: TOKEN
-        });
-        if (!t || !t.ok) {
-          fatal(t && t.done ? "Delivered" : "This delivery is closed", t && t.error || "Please ask the shop.");
-          return;
-        }
-        T = t;
-        draw();
-        return;
+        var t = await rpc('rider_trip', { p_token: TOKEN });
+        if (!t || !t.ok) { fatal(t && t.done ? 'Delivered' : 'This delivery is closed', (t && t.error) || 'Please ask the shop.'); return; }
+        T = t; draw(); return;
       }
-      if (r && r.ok) {
-        sentOk = Date.now();
-        showDue(r.to_collect_cents);
-      }
-    } catch (e) {}
+      if (r && r.ok) { sentOk = Date.now(); showDue(r.to_collect_cents); }
+    } catch (e) {  }
     redrawStatus();
   }
   async function keepAwake() {
-    try {
-      if ("wakeLock" in navigator && !lock) {
-        lock = await navigator.wakeLock.request("screen");
-        lock.addEventListener("release", function() {
-          lock = null;
-        });
-      }
-    } catch (e) {}
+    try { if ('wakeLock' in navigator && !lock) { lock = await navigator.wakeLock.request('screen'); lock.addEventListener('release', function () { lock = null; }); } }
+    catch (e) {  }
   }
   function startSharing() {
     if (!navigator.geolocation) {
-      gpsErr = "This phone cannot share its location. You can still tap Delivered when you arrive.";
-      watch = -1;
-      draw();
-      return;
+      gpsErr = 'This phone cannot share its location. You can still tap Delivered when you arrive.';
+      watch = -1; draw(); return;
     }
-    gpsErr = "";
-    lost = false;
-    watch = navigator.geolocation.watchPosition(function(pos) {
+    gpsErr = ''; lost = false;
+    watch = navigator.geolocation.watchPosition(function (pos) {
       gotFix(pos);
-      if (!sentOk) {
-        lastSent = 0;
-        send();
-      }
+      if (!sentOk) { lastSent = 0; send(); }
       redrawStatus();
-    }, function(err) {
-      gpsErr = err && err.code === 1 ? "Location is blocked for this page. Allow location in your browser settings, then tap Share my location again." : "Waiting for GPS. Step outside or turn on Location.";
+    }, function (err) {
+      gpsErr = err && err.code === 1
+        ? 'Location is blocked for this page. Allow location in your browser settings, then tap Share my location again.'
+        : 'Waiting for GPS. Step outside or turn on Location.';
       if (err && err.code === 1 && watch != null && watch !== -1) {
+
         stopSharing();
         draw();
         return;
       }
       redrawStatus();
-    }, {
-      enableHighAccuracy: true,
-      maximumAge: 1e4,
-      timeout: 3e4
-    });
+    }, { enableHighAccuracy: true, maximumAge: 10000, timeout: 30000 });
     if (beat) clearInterval(beat);
-    beat = setInterval(function() {
-      send();
-      redrawStatus();
-    }, 5e3);
+    beat = setInterval(function () { send(); redrawStatus(); }, 5000);
     keepAwake();
-    rpc("rider_start", {
-      p_token: TOKEN
-    }).then(function(r) {
-      if (r && r.capped) {
-        stopSharing();
-        T.capped = true;
-        draw();
-        return;
-      }
-      if (r && r.ok === false && r.error) fatal("This delivery link is closed", r.error);
-    }).catch(function() {});
-    if (!T.started_at) T.started_at = (new Date).toISOString();
+    rpc('rider_start', { p_token: TOKEN }).then(function (r) {
+
+      if (r && r.capped) { stopSharing(); T.capped = true; draw(); return; }
+      if (r && r.ok === false && r.error) fatal('This delivery link is closed', r.error);
+    }).catch(function () {  });
+    if (!T.started_at) T.started_at = new Date().toISOString();
     draw();
   }
   function stopSharing() {
     if (watch != null && watch !== -1 && navigator.geolocation) navigator.geolocation.clearWatch(watch);
     watch = null;
-    if (beat) {
-      clearInterval(beat);
-      beat = null;
-    }
-    if (lock) {
-      try {
-        lock.release();
-      } catch (e) {}
-      lock = null;
-    }
+    if (beat) { clearInterval(beat); beat = null; }
+    if (lock) { try { lock.release(); } catch (e) {  } lock = null; }
   }
   async function delivered() {
-    if (!confirm("Mark this order delivered? Your location stops being shared.")) return;
-    var b = document.getElementById("done");
-    if (b) {
-      b.disabled = true;
-      b.textContent = "Saving…";
-    }
+    if (!confirm('Mark this order delivered? Your location stops being shared.')) return;
+    var b = document.getElementById('done'); if (b) { b.disabled = true; b.textContent = 'Saving…'; }
     try {
-      var r = await rpc("rider_done", {
-        p_token: TOKEN
-      });
-      if (!r || !r.ok) throw new Error(r && r.error || "no");
+      var r = await rpc('rider_done', { p_token: TOKEN });
+      if (!r || !r.ok) throw new Error((r && r.error) || 'no');
       stopSharing();
-      T.delivered_at = (new Date).toISOString();
-      if (mapH) {
-        mapH.remove();
-        mapH = null;
-      }
+      T.delivered_at = new Date().toISOString();
+      if (mapH) { mapH.remove(); mapH = null; }
       draw();
-      var sh = document.getElementById("share");
-      if (sh) sh.classList.add("swap");
+      var sh = document.getElementById('share'); if (sh) sh.classList.add('swap');
     } catch (e) {
-      if (b) {
-        b.disabled = false;
-        b.innerHTML = I.check + "Delivered";
-      }
-      alert("Could not save. Check your signal and tap Delivered again.");
+      if (b) { b.disabled = false; b.innerHTML = I.check + 'Delivered'; }
+      alert('Could not save. Check your signal and tap Delivered again.');
     }
   }
-  document.addEventListener("visibilitychange", function() {
-    if (document.visibilityState === "visible" && watch != null && watch !== -1) {
-      keepAwake();
-      lastSent = 0;
-      send();
-    }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && watch != null && watch !== -1) { keepAwake(); lastSent = 0; send(); }
   });
+
   (async function boot() {
-    if (!/^[0-9a-f]{24,64}$/.test(TOKEN)) {
-      fatal("This rider link is not complete", "Ask the shop to send it again.");
-      return;
-    }
+    if (!/^[0-9a-f]{24,64}$/.test(TOKEN)) { fatal('This rider link is not complete', 'Ask the shop to send it again.'); return; }
     try {
-      T = await rpc("rider_trip", {
-        p_token: TOKEN
-      });
-    } catch (e) {
-      fatal("No connection", "Check your signal and open the link again.");
-      return;
-    }
-    if (T && T.done) {
-      fatal("Delivered", T.error || "This delivery is done. Thank you!");
-      return;
-    }
-    if (!T || !T.ok) {
-      fatal("This rider link is not active", T && T.error || "Ask the shop to send it again.");
-      return;
-    }
-    if (T.old && !T.delivered_at) {
-      fatal("This rider link has expired", "Ask the shop for a new one.");
-      return;
-    }
-    document.title = "Delivery " + (T.order.pickup_label || T.order.number);
+      T = await rpc('rider_trip', { p_token: TOKEN });
+    } catch (e) { fatal('No connection', 'Check your signal and open the link again.'); return; }
+    if (T && T.done) { fatal('Delivered', T.error || 'This delivery is done. Thank you!'); return; }
+    if (!T || !T.ok) { fatal('This rider link is not active', (T && T.error) || 'Ask the shop to send it again.'); return; }
+    if (T.old && !T.delivered_at) { fatal('This rider link has expired', 'Ask the shop for a new one.'); return; }
+    document.title = 'Delivery ' + (T.order.pickup_label || T.order.number);
     draw();
+
     if (T.started_at && !T.delivered_at && navigator.permissions && navigator.permissions.query) {
       try {
-        var p = await navigator.permissions.query({
-          name: "geolocation"
-        });
-        if (p.state === "granted") startSharing();
-      } catch (e) {}
+        var p = await navigator.permissions.query({ name: 'geolocation' });
+        if (p.state === 'granted') startSharing();
+      } catch (e) {  }
     }
   })();
 })();

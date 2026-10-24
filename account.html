@@ -116,484 +116,366 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="ember-account.js"></script>
 <script>
-(function() {
+(function () {
   var A = window.EmberAccount, esc = A.esc;
-  var main = document.getElementById("main");
-  var ME = null, TAB = "shops", MORE_ORDERS = [], ORDERS_DONE = false;
+  var main = document.getElementById('main');
+  var ME = null, TAB = 'shops', MORE_ORDERS = [], ORDERS_DONE = false;
   var SHOWN_BEFORE = Infinity;
-  try {
-    TAB = sessionStorage.getItem("ember.account.tab") || "shops";
-  } catch (e) {}
+  try { TAB = sessionStorage.getItem('ember.account.tab') || 'shops'; } catch (e) {  }
+
   var toastT = null;
   function toast(m) {
-    var t = document.getElementById("toast");
-    t.textContent = m;
-    t.classList.add("on");
-    clearTimeout(toastT);
-    toastT = setTimeout(function() {
-      t.classList.remove("on");
-    }, 3200);
+    var t = document.getElementById('toast'); t.textContent = m; t.classList.add('on');
+    clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove('on'); }, 3200);
   }
   function money(c, cur) {
     var n = Math.abs(Number(c || 0)) / 100;
-    var sign = cur || "₱";
-    return sign + (/\p{L}{2}$/u.test(sign) ? " " : "") + n.toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
+
+    var sign = cur || '₱';
+
+    return sign + (/\p{L}{2}$/u.test(sign) ? '\u00a0' : '') + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
+
   function enter() {
-    main.querySelectorAll(":scope > .card, :scope > .row2").forEach(function(c, n) {
-      c.style.setProperty("--i", String(Math.min(n, 8)));
-    });
-    main.classList.remove("enter");
-    void main.offsetWidth;
-    main.classList.add("enter");
-    clearTimeout(enter.t);
-    enter.t = setTimeout(function() {
-      main.classList.remove("enter");
-    }, 900);
+    main.querySelectorAll(':scope > .card, :scope > .row2').forEach(function (c, n) { c.style.setProperty('--i', String(Math.min(n, 8))); });
+    main.classList.remove('enter'); void main.offsetWidth; main.classList.add('enter');
+    clearTimeout(enter.t); enter.t = setTimeout(function () { main.classList.remove('enter'); }, 900);
   }
-  function swapIn(node) {
-    if (!node) return;
-    node.classList.remove("swapin");
-    void node.offsetWidth;
-    node.classList.add("swapin");
-  }
+  function swapIn(node) { if (!node) return; node.classList.remove('swapin'); void node.offsetWidth; node.classList.add('swapin'); }
   function when(iso) {
-    try {
-      return new Date(iso).toLocaleString(undefined, {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit"
-      });
-    } catch (e) {
-      return "";
-    }
+    try { return new Date(iso).toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }); }
+    catch (e) { return ''; }
   }
   function day(iso) {
-    try {
-      return new Date(iso).toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric",
-        year: "numeric"
-      });
-    } catch (e) {
-      return "";
-    }
+    try { return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); } catch (e) { return ''; }
   }
-  function shopLink(token) {
-    return token ? "order.html?t=" + encodeURIComponent(token) : "";
-  }
+  function shopLink(token) { return token ? 'order.html?t=' + encodeURIComponent(token) : ''; }
+
   function followLink(o) {
-    if (!o || !o.store_token || !o.client_ref || o.order_number == null || o.order_number === "") return "";
-    return "order.html?t=" + encodeURIComponent(o.store_token) + "&o=" + encodeURIComponent(String(o.order_number)) + "&r=" + encodeURIComponent(String(o.client_ref));
+    if (!o || !o.store_token || !o.client_ref || o.order_number == null || o.order_number === '') return '';
+    return 'order.html?t=' + encodeURIComponent(o.store_token) + '&o=' + encodeURIComponent(String(o.order_number)) +
+      '&r=' + encodeURIComponent(String(o.client_ref));
   }
   async function call(fn, args) {
     var r;
-    try {
-      r = await A.rpc(fn, Object.assign({
-        p_session: A.getSession()
-      }, args || {}));
-    } catch (e) {
-      toast("No connection. Try again in a moment.");
-      return null;
-    }
-    if (r && r.signed_out) {
-      ME = null;
-      drawSignIn();
-      return null;
-    }
+    try { r = await A.rpc(fn, Object.assign({ p_session: A.getSession() }, args || {})); }
+    catch (e) { toast('No connection. Try again in a moment.'); return null; }
+    if (r && r.signed_out) { ME = null; drawSignIn(); return null; }
     return r;
   }
+
   function drawSignIn() {
-    document.getElementById("title").textContent = "Your Ember account";
-    document.getElementById("sub").textContent = "One account for every shop that uses Ember.";
+    document.getElementById('title').textContent = 'Your Ember account';
+    document.getElementById('sub').textContent = 'One account for every shop that uses Ember.';
     main.innerHTML = '<div class="card" id="ea-box"></div>';
-    A.signIn(document.getElementById("ea-box"), {
+    A.signIn(document.getElementById('ea-box'), {
       toast: toast,
-      onCancel: function() {
-        location.href = "https://emberpos.net";
-      },
-      onDone: function() {
-        load(true);
-      }
+      onCancel: function () { location.href = 'https://emberpos.net'; },
+      onDone: function () { load(true); },
     });
   }
+
   async function load(anim) {
-    if (!A.getSession()) {
-      drawSignIn();
-      return;
-    }
-    var r = await call("cust_me");
+    if (!A.getSession()) { drawSignIn(); return; }
+    var r = await call('cust_me');
+
     if (!r && !A.getSession()) return;
     if (!r || !r.ok) {
-      main.innerHTML = '<div class="card"><h2>Could not load your account</h2><p class="lede">' + esc(r && r.error || "Check your signal and try again.") + "</p>" + '<div class="row2"><button class="primary" id="retry">Try again</button></div></div>';
+
+      main.innerHTML = '<div class="card"><h2>Could not load your account</h2><p class="lede">' +
+        esc((r && r.error) || 'Check your signal and try again.') + '</p>' +
+        '<div class="row2"><button class="primary" id="retry">Try again</button></div></div>';
       swapIn(main.firstChild);
-      document.getElementById("retry").onclick = function() {
-        this.disabled = true;
-        load(true);
-      };
+      document.getElementById('retry').onclick = function () { this.disabled = true; load(true); };
       return;
     }
-    ME = r;
-    MORE_ORDERS = [];
-    ORDERS_DONE = (r.orders || []).length < 30;
+    ME = r; MORE_ORDERS = []; ORDERS_DONE = (r.orders || []).length < 30;
     if (!ME.profile.name || !ME.profile.phone || !ME.profile.terms_at) {
       main.innerHTML = '<div class="card" id="ea-box"></div>';
-      A.signIn(document.getElementById("ea-box"), {
-        toast: toast,
-        startAt: "profile",
-        onDone: function() {
-          load(true);
-        }
-      });
+
+      A.signIn(document.getElementById('ea-box'), { toast: toast, startAt: 'profile', onDone: function () { load(true); } });
       return;
     }
     draw(anim !== false);
   }
+
   function tabsHtml() {
-    var t = [ [ "shops", "Shops" ], [ "orders", "Orders" ], [ "details", "Details" ], [ "addresses", "Addresses" ], [ "security", "Sign-ins" ], [ "privacy", "Privacy" ] ];
-    return '<div class="tabs" role="tablist">' + t.map(function(x) {
-      return '<button role="tab" data-tab="' + x[0] + '" aria-current="' + (TAB === x[0]) + '">' + x[1] + "</button>";
-    }).join("") + "</div>";
+    var t = [['shops', 'Shops'], ['orders', 'Orders'], ['details', 'Details'], ['addresses', 'Addresses'], ['security', 'Sign-ins'], ['privacy', 'Privacy']];
+    return '<div class="tabs" role="tablist">' + t.map(function (x) {
+      return '<button role="tab" data-tab="' + x[0] + '" aria-current="' + (TAB === x[0]) + '">' + x[1] + '</button>';
+    }).join('') + '</div>';
   }
+
   function draw(anim) {
     var p = ME.profile;
-    document.getElementById("title").textContent = "Hi, " + (p.name || "").split(" ")[0];
-    document.getElementById("sub").textContent = p.email;
-    var body = TAB === "orders" ? ordersHtml() : TAB === "details" ? detailsHtml() : TAB === "addresses" ? addressesHtml() : TAB === "security" ? securityHtml() : TAB === "privacy" ? privacyHtml() : shopsHtml();
-    var strip = main.querySelector(".tabs"), sx = strip ? strip.scrollLeft : 0;
-    main.innerHTML = tabsHtml() + body + '<div class="row2"><button class="ghost" id="signout">Sign out on this device</button></div>';
-    if (sx) main.querySelector(".tabs").scrollLeft = sx;
+    document.getElementById('title').textContent = 'Hi, ' + (p.name || '').split(' ')[0];
+    document.getElementById('sub').textContent = p.email;
+    var body = TAB === 'orders' ? ordersHtml() : TAB === 'details' ? detailsHtml() : TAB === 'addresses' ? addressesHtml()
+      : TAB === 'security' ? securityHtml() : TAB === 'privacy' ? privacyHtml() : shopsHtml();
+    var strip = main.querySelector('.tabs'), sx = strip ? strip.scrollLeft : 0;
+    main.innerHTML = tabsHtml() + body +
+      '<div class="row2"><button class="ghost" id="signout">Sign out on this device</button></div>';
+
+    if (sx) main.querySelector('.tabs').scrollLeft = sx;
     if (anim) enter();
-    main.querySelectorAll("[data-tab]").forEach(function(b) {
-      b.onclick = function() {
+    main.querySelectorAll('[data-tab]').forEach(function (b) {
+      b.onclick = function () {
         if (TAB === b.dataset.tab) return;
-        TAB = b.dataset.tab;
-        try {
-          sessionStorage.setItem("ember.account.tab", TAB);
-        } catch (e) {}
+        TAB = b.dataset.tab; try { sessionStorage.setItem('ember.account.tab', TAB); } catch (e) {  }
         draw(true);
       };
     });
-    document.getElementById("signout").onclick = async function() {
-      await A.signOut(false);
-      ME = null;
-      toast("Signed out.");
-      drawSignIn();
-    };
+    document.getElementById('signout').onclick = async function () { await A.signOut(false); ME = null; toast('Signed out.'); drawSignIn(); };
     bind();
   }
-  function statsBox(inner) {
-    return inner ? '<div class="stats">' + inner + "</div>" : "";
-  }
+
+  function statsBox(inner) { return inner ? '<div class="stats">' + inner + '</div>' : ''; }
   function shopsHtml() {
     var shops = ME.shops || [];
     if (!shops.length) {
-      return '<div class="card"><h2>No shops yet</h2><p class="lede">Order from any shop that uses Ember while signed in, and it will show here with your stamps, card and orders.</p>' + '<div class="row2"><a class="primary" href="shops.html">Find Ember shops near you</a></div></div>';
+      return '<div class="card"><h2>No shops yet</h2><p class="lede">Order from any shop that uses Ember while signed in, and it will show here with your stamps, card and orders.</p>' +
+        '<div class="row2"><a class="primary" href="shops.html">Find Ember shops near you</a></div></div>';
     }
-    return shops.map(function(s, n) {
-      var qr = s.card_code ? A.cardQrSvg(s.card_code) : "";
-      var code = s.card_code ? s.card_code.length === 10 ? s.card_code.slice(0, 5) + " " + s.card_code.slice(5) : s.card_code : "";
+    return shops.map(function (s, n) {
+      var qr = s.card_code ? A.cardQrSvg(s.card_code) : '';
+      var code = s.card_code ? (s.card_code.length === 10 ? s.card_code.slice(0, 5) + ' ' + s.card_code.slice(5) : s.card_code) : '';
       var bal = Number(s.balance_cents || 0);
-      return '<div class="card shop">' + '<div style="display:flex;align-items:center;gap:10px"><h3 style="flex:1">' + esc(s.shop) + "</h3>" + (s.store_token && s.accounts_on ? '<a class="primary" href="' + esc(shopLink(s.store_token)) + '">Order</a>' : "") + "</div>" + statsBox((s.loyalty_on ? '<div class="stat"><b>' + Number(s.stamps || 0) + " / " + Number(s.stamps_required || 10) + "</b><span>" + (s.free_ready ? "A free one is ready" : "Stamps") + "</span></div>" : "") + (bal !== 0 ? '<div class="stat"><b>' + money(bal, s.currency) + "</b><span>" + (bal > 0 ? "Your tab" : "Your credit") + "</span></div>" : "") + (s.gift_cards || []).map(function(g) {
-        return '<div class="stat"><b>' + money(g.balance_cents, s.currency) + "</b><span>Gift card " + esc(g.code_end) + (g.active ? "" : " (not active)") + "</span></div>";
-      }).join("")) + (qr ? '<details class="more"><summary>Show my card for the counter</summary><div class="qr">' + qr + '</div><div class="code">' + esc(code) + "</div>" + '<p class="muted" style="text-align:center">The cashier scans this so your visit and stamps count.</p></details>' : "") + '<label class="ea-tick"><input type="checkbox" data-mkt="' + s.business_id + '"' + (s.marketing ? " checked" : "") + "> <span>" + esc(s.shop) + " may send me offers and news</span></label>" + "</div>";
-    }).join("") + '<div class="card"><h2>More Ember shops</h2><p class="lede">Cafes and food shops near you that take orders with Ember.</p>' + '<div class="row2"><a class="ghost" href="shops.html">Find shops near you</a></div></div>';
+      return '<div class="card shop">' +
+        '<div style="display:flex;align-items:center;gap:10px"><h3 style="flex:1">' + esc(s.shop) + '</h3>' +
+          (s.store_token && s.accounts_on ? '<a class="primary" href="' + esc(shopLink(s.store_token)) + '">Order</a>' : '') + '</div>' +
+        statsBox(
+          (s.loyalty_on ? '<div class="stat"><b>' + Number(s.stamps || 0) + ' / ' + Number(s.stamps_required || 10) + '</b><span>' + (s.free_ready ? 'A free one is ready' : 'Stamps') + '</span></div>' : '') +
+          (bal !== 0 ? '<div class="stat"><b>' + money(bal, s.currency) + '</b><span>' + (bal > 0 ? 'Your tab' : 'Your credit') + '</span></div>' : '') +
+          (s.gift_cards || []).map(function (g) { return '<div class="stat"><b>' + money(g.balance_cents, s.currency) + '</b><span>Gift card ' + esc(g.code_end) + (g.active ? '' : ' (not active)') + '</span></div>'; }).join('')) +
+        (qr ? '<details class="more"><summary>Show my card for the counter</summary><div class="qr">' + qr + '</div><div class="code">' + esc(code) + '</div>' +
+              '<p class="muted" style="text-align:center">The cashier scans this so your visit and stamps count.</p></details>' : '') +
+        '<label class="ea-tick"><input type="checkbox" data-mkt="' + s.business_id + '"' + (s.marketing ? ' checked' : '') + '> <span>' + esc(s.shop) + ' may send me offers and news</span></label>' +
+      '</div>';
+    }).join('') +
+
+    '<div class="card"><h2>More Ember shops</h2><p class="lede">Cafes and food shops near you that take orders with Ember.</p>' +
+      '<div class="row2"><a class="ghost" href="shops.html">Find shops near you</a></div></div>';
   }
+
   function orderItem(o, n) {
+
     var fresh = n >= SHOWN_BEFORE;
-    return '<div class="item' + (fresh ? ' fresh" style="--i:' + Math.min(n - SHOWN_BEFORE, 10) : "") + '"><div class="grow"><div><b>' + esc(o.shop) + "</b> &middot; " + money(o.total_cents, o.currency) + "</div>" + '<div class="muted">' + esc((o.items || []).map(function(l) {
-      return (Number(l.qty) || 1) + "× " + l.name;
-    }).join(", ")) + "</div>" + '<div class="muted">' + esc(when(o.created_at)) + " &middot; " + esc(A.orderLabel ? A.orderLabel(o) : o.order_number || "") + "</div></div>" + '<span class="pill">' + esc(A.statusWord(o)) + "</span>" + (followLink(o) ? '<a class="ghost" href="' + esc(followLink(o)) + '">Open</a>' : o.store_token ? '<a class="ghost" href="' + esc(shopLink(o.store_token)) + '">Shop</a>' : "") + "</div>";
+    return '<div class="item' + (fresh ? ' fresh" style="--i:' + Math.min(n - SHOWN_BEFORE, 10) : '') + '"><div class="grow"><div><b>' + esc(o.shop) + '</b> &middot; ' + money(o.total_cents, o.currency) + '</div>' +
+      '<div class="muted">' + esc((o.items || []).map(function (l) { return (Number(l.qty) || 1) + '× ' + l.name; }).join(', ')) + '</div>' +
+      '<div class="muted">' + esc(when(o.created_at)) + ' &middot; ' + esc(A.orderLabel ? A.orderLabel(o) : (o.order_number || '')) + '</div></div>' +
+      '<span class="pill">' + esc(A.statusWord(o)) + '</span>' +
+      (followLink(o) ? '<a class="ghost" href="' + esc(followLink(o)) + '">Open</a>'
+        : o.store_token ? '<a class="ghost" href="' + esc(shopLink(o.store_token)) + '">Shop</a>' : '') + '</div>';
   }
   function ordersHtml() {
     var all = (ME.orders || []).concat(MORE_ORDERS);
     if (!all.length) return '<div class="card"><h2>No orders yet</h2><p class="lede">Orders you place while signed in show here, at every shop.</p></div>';
-    return '<div class="card">' + all.map(function(o, n) {
-      return orderItem(o, n);
-    }).join("") + (ORDERS_DONE ? "" : '<div class="row2"><button class="ghost" id="moreorders">Show older orders</button></div>') + "</div>";
+    return '<div class="card">' + all.map(function (o, n) { return orderItem(o, n); }).join('') +
+      (ORDERS_DONE ? '' : '<div class="row2"><button class="ghost" id="moreorders">Show older orders</button></div>') + '</div>';
   }
+
   function detailsHtml() {
     var p = ME.profile;
-    return '<div class="card"><h2>Your details</h2><p class="lede">Shops see your name and number on your orders. They never see your email.</p>' + '<div class="label">Name</div><input class="note-in" id="d-name" maxlength="60" autocomplete="name" value="' + esc(p.name || "") + '">' + '<div class="label">Mobile number</div><input class="note-in" id="d-phone" type="tel" maxlength="20" autocomplete="tel" value="' + esc(p.phone || "") + '">' + '<div class="label">Birthday <span class="muted">(optional)</span></div><input class="note-in" id="d-bday" type="date" value="' + esc(p.birthday || "") + '">' + '<label class="ea-tick"><input type="checkbox" id="d-oemail"' + (p.order_emails !== false ? " checked" : "") + "> <span>Email me when a shop gets my order and when it is ready</span></label>" + '<label class="ea-tick"><input type="checkbox" id="d-news"' + (p.ember_news ? " checked" : "") + "> <span>Ember may email me about new shops and features</span></label>" + '<div class="row2"><button class="primary" id="d-save">Save</button></div></div>' + '<div class="card"><h2>Email</h2><p class="lede">You sign in with <b>' + esc(p.email) + "</b>.</p>" + '<details class="more"><summary>Change my email</summary>' + '<div class="label">New email</div><input class="note-in" id="e-new" type="email" maxlength="254" autocomplete="email">' + '<div class="row2"><button class="ghost" id="e-send">Send a code to the new email</button></div>' + '<div id="e-step2" hidden><div class="label">Code from the new email</div>' + '<input class="note-in" id="e-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code">' + '<div class="row2"><button class="primary" id="e-go">Change email</button></div></div>' + "</details></div>";
+    return '<div class="card"><h2>Your details</h2><p class="lede">Shops see your name and number on your orders. They never see your email.</p>' +
+      '<div class="label">Name</div><input class="note-in" id="d-name" maxlength="60" autocomplete="name" value="' + esc(p.name || '') + '">' +
+      '<div class="label">Mobile number</div><input class="note-in" id="d-phone" type="tel" maxlength="20" autocomplete="tel" value="' + esc(p.phone || '') + '">' +
+      '<div class="label">Birthday <span class="muted">(optional)</span></div><input class="note-in" id="d-bday" type="date" value="' + esc(p.birthday || '') + '">' +
+      '<label class="ea-tick"><input type="checkbox" id="d-oemail"' + (p.order_emails !== false ? ' checked' : '') + '> <span>Email me when a shop gets my order and when it is ready</span></label>' +
+      '<label class="ea-tick"><input type="checkbox" id="d-news"' + (p.ember_news ? ' checked' : '') + '> <span>Ember may email me about new shops and features</span></label>' +
+      '<div class="row2"><button class="primary" id="d-save">Save</button></div></div>' +
+      '<div class="card"><h2>Email</h2><p class="lede">You sign in with <b>' + esc(p.email) + '</b>.</p>' +
+      '<details class="more"><summary>Change my email</summary>' +
+        '<div class="label">New email</div><input class="note-in" id="e-new" type="email" maxlength="254" autocomplete="email">' +
+        '<div class="row2"><button class="ghost" id="e-send">Send a code to the new email</button></div>' +
+        '<div id="e-step2" hidden><div class="label">Code from the new email</div>' +
+          '<input class="note-in" id="e-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code">' +
+          '<div class="row2"><button class="primary" id="e-go">Change email</button></div></div>' +
+      '</details></div>';
   }
+
   function addressesHtml() {
     var a = ME.addresses || [];
-    return '<div class="card"><h2>Saved addresses</h2><p class="lede">Pick one at checkout instead of typing it. A shop only sees the address you order a delivery to.</p>' + (a.length ? a.map(function(x) {
-      return '<div class="item"><div class="grow"><div><b>' + esc(x.label || "Address") + "</b>" + (x.is_default ? ' <span class="pill">Default</span>' : "") + "</div>" + '<div class="muted">' + esc(x.address) + (x.landmark ? " (" + esc(x.landmark) + ")" : "") + (x.lat != null ? " &middot; pinned" : "") + "</div></div>" + '<button class="ghost" data-aedit="' + x.id + '">Edit</button></div>';
-    }).join("") : '<p class="muted">No saved addresses yet.</p>') + (a.length < 10 ? '<div class="row2"><button class="primary" id="a-add">Add an address</button></div>' : "") + "</div>" + '<div class="card" id="a-form" hidden></div>';
+    return '<div class="card"><h2>Saved addresses</h2><p class="lede">Pick one at checkout instead of typing it. A shop only sees the address you order a delivery to.</p>' +
+      (a.length ? a.map(function (x) {
+        return '<div class="item"><div class="grow"><div><b>' + esc(x.label || 'Address') + '</b>' + (x.is_default ? ' <span class="pill">Default</span>' : '') + '</div>' +
+          '<div class="muted">' + esc(x.address) + (x.landmark ? ' (' + esc(x.landmark) + ')' : '') + (x.lat != null ? ' &middot; pinned' : '') + '</div></div>' +
+          '<button class="ghost" data-aedit="' + x.id + '">Edit</button></div>';
+      }).join('') : '<p class="muted">No saved addresses yet.</p>') +
+      (a.length < 10 ? '<div class="row2"><button class="primary" id="a-add">Add an address</button></div>' : '') + '</div>' +
+      '<div class="card" id="a-form" hidden></div>';
   }
   function addressForm(x) {
     x = x || {};
-    var f = document.getElementById("a-form");
-    f.hidden = false;
-    f.innerHTML = "<h2>" + (x.id ? "Edit address" : "New address") + "</h2>" + '<div class="label">Name it <span class="muted">(Home, Work...)</span></div><input class="note-in" id="a-label" maxlength="30" value="' + esc(x.label || "") + '">' + '<div class="label">Address</div><textarea class="note-in" id="a-addr" rows="2" maxlength="300">' + esc(x.address || "") + "</textarea>" + '<div class="label">Landmark <span class="muted">(optional)</span></div><input class="note-in" id="a-land" maxlength="120" value="' + esc(x.landmark || "") + '">' + '<div class="label">Note for the rider <span class="muted">(optional)</span></div><input class="note-in" id="a-note" maxlength="200" value="' + esc(x.note || "") + '">' + '<div class="row2"><button class="ghost" id="a-pin">' + (x.lat != null ? "Update the pin to where I am" : "Pin where I am now") + "</button></div>" + '<p class="muted" id="a-pinout">' + (x.lat != null ? "Pinned." : "A pin lets shops that charge by distance work out the fee without asking.") + "</p>" + '<label class="ea-tick"><input type="checkbox" id="a-def"' + (x.is_default ? " checked" : "") + "> <span>Use this one first</span></label>" + '<div class="row2"><button class="ghost" id="a-cancel">Cancel</button>' + (x.id ? '<button class="danger" id="a-del">Remove</button>' : "") + '<button class="primary" id="a-save">Save address</button></div>';
-    var add = document.getElementById("a-add");
+    var f = document.getElementById('a-form'); f.hidden = false;
+    f.innerHTML = '<h2>' + (x.id ? 'Edit address' : 'New address') + '</h2>' +
+      '<div class="label">Name it <span class="muted">(Home, Work...)</span></div><input class="note-in" id="a-label" maxlength="30" value="' + esc(x.label || '') + '">' +
+      '<div class="label">Address</div><textarea class="note-in" id="a-addr" rows="2" maxlength="300">' + esc(x.address || '') + '</textarea>' +
+      '<div class="label">Landmark <span class="muted">(optional)</span></div><input class="note-in" id="a-land" maxlength="120" value="' + esc(x.landmark || '') + '">' +
+      '<div class="label">Note for the rider <span class="muted">(optional)</span></div><input class="note-in" id="a-note" maxlength="200" value="' + esc(x.note || '') + '">' +
+      '<div class="row2"><button class="ghost" id="a-pin">' + (x.lat != null ? 'Update the pin to where I am' : 'Pin where I am now') + '</button></div>' +
+      '<p class="muted" id="a-pinout">' + (x.lat != null ? 'Pinned.' : 'A pin lets shops that charge by distance work out the fee without asking.') + '</p>' +
+      '<label class="ea-tick"><input type="checkbox" id="a-def"' + (x.is_default ? ' checked' : '') + '> <span>Use this one first</span></label>' +
+      '<div class="row2"><button class="ghost" id="a-cancel">Cancel</button>' + (x.id ? '<button class="danger" id="a-del">Remove</button>' : '') + '<button class="primary" id="a-save">Save address</button></div>';
+
+    var add = document.getElementById('a-add');
     if (add) add.hidden = true;
     swapIn(f);
-    document.getElementById("a-cancel").onclick = function() {
-      f.hidden = true;
-      f.innerHTML = "";
+    document.getElementById('a-cancel').onclick = function () {
+      f.hidden = true; f.innerHTML = '';
       if (add) add.hidden = false;
     };
-    var pin = {
-      lat: x.lat == null ? null : x.lat,
-      lng: x.lng == null ? null : x.lng
+    var pin = { lat: x.lat == null ? null : x.lat, lng: x.lng == null ? null : x.lng };
+    document.getElementById('a-pin').onclick = function () {
+      if (!navigator.geolocation) { toast('This phone cannot share its location.'); return; }
+      document.getElementById('a-pinout').textContent = 'Finding you…';
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        pin.lat = Math.round(pos.coords.latitude * 1e5) / 1e5; pin.lng = Math.round(pos.coords.longitude * 1e5) / 1e5;
+        document.getElementById('a-pinout').textContent = 'Pinned. Save to keep it.';
+      }, function () { document.getElementById('a-pinout').textContent = 'Could not get your location. Allow location for this page, then try again.'; },
+      { enableHighAccuracy: true, timeout: 15000 });
     };
-    document.getElementById("a-pin").onclick = function() {
-      if (!navigator.geolocation) {
-        toast("This phone cannot share its location.");
-        return;
-      }
-      document.getElementById("a-pinout").textContent = "Finding you…";
-      navigator.geolocation.getCurrentPosition(function(pos) {
-        pin.lat = Math.round(pos.coords.latitude * 1e5) / 1e5;
-        pin.lng = Math.round(pos.coords.longitude * 1e5) / 1e5;
-        document.getElementById("a-pinout").textContent = "Pinned. Save to keep it.";
-      }, function() {
-        document.getElementById("a-pinout").textContent = "Could not get your location. Allow location for this page, then try again.";
-      }, {
-        enableHighAccuracy: true,
-        timeout: 15e3
-      });
+    document.getElementById('a-save').onclick = async function () {
+      var b = this; b.disabled = true;
+      var r = await call('cust_address_save', { p_id: x.id || null, p_label: document.getElementById('a-label').value,
+        p_address: document.getElementById('a-addr').value, p_landmark: document.getElementById('a-land').value,
+        p_note: document.getElementById('a-note').value, p_lat: pin.lat, p_lng: pin.lng, p_default: document.getElementById('a-def').checked });
+      if (!r) { b.disabled = false; return; }
+      if (!r.ok) { toast(r.error || 'Could not save.'); b.disabled = false; return; }
+      toast('Address saved.'); load(false);
     };
-    document.getElementById("a-save").onclick = async function() {
-      var b = this;
-      b.disabled = true;
-      var r = await call("cust_address_save", {
-        p_id: x.id || null,
-        p_label: document.getElementById("a-label").value,
-        p_address: document.getElementById("a-addr").value,
-        p_landmark: document.getElementById("a-land").value,
-        p_note: document.getElementById("a-note").value,
-        p_lat: pin.lat,
-        p_lng: pin.lng,
-        p_default: document.getElementById("a-def").checked
-      });
-      if (!r) {
-        b.disabled = false;
-        return;
-      }
-      if (!r.ok) {
-        toast(r.error || "Could not save.");
-        b.disabled = false;
-        return;
-      }
-      toast("Address saved.");
-      load(false);
+    if (x.id) document.getElementById('a-del').onclick = async function () {
+      if (!confirm('Remove this address?')) return;
+      var r = await call('cust_address_delete', { p_id: x.id });
+      if (r && r.ok) { toast('Address removed.'); load(false); }
     };
-    if (x.id) document.getElementById("a-del").onclick = async function() {
-      if (!confirm("Remove this address?")) return;
-      var r = await call("cust_address_delete", {
-        p_id: x.id
-      });
-      if (r && r.ok) {
-        toast("Address removed.");
-        load(false);
-      }
-    };
-    f.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
+    f.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+
   function securityHtml() {
     var ss = ME.sessions || [];
-    var words = {
-      signin: "Signed in",
-      signout_all: "Signed out everywhere",
-      profile: "Details changed",
-      email_changed: "Email changed",
-      card_linked: "Stamp card linked",
-      messages_on: "Offers turned on",
-      messages_off: "Offers turned off",
-      export: "Data downloaded",
-      card_wrong: "A wrong card code was typed",
-      gift_wrong: "A wrong gift-card code was typed"
-    };
-    return '<div class="card"><h2>Where you are signed in</h2>' + ss.map(function(s) {
-      return '<div class="item"><div class="grow"><div><b>' + esc(s.device || "A device") + "</b>" + (s.this_device ? ' <span class="pill">This one</span>' : "") + "</div>" + '<div class="muted">Signed in ' + esc(day(s.created_at)) + " &middot; last used " + esc(when(s.last_used_at)) + "</div></div>" + (s.this_device ? "" : '<button class="ghost" data-sout="' + s.id + '">Sign out</button>') + "</div>";
-    }).join("") + '<div class="row2"><button class="danger" id="s-all">Sign out everywhere</button></div></div>' + '<div class="card"><h2>Recent activity</h2>' + ((ME.activity || []).length ? ME.activity.map(function(e) {
-      return '<div class="item"><div class="grow"><div>' + esc(words[e.action] || e.action) + (e.detail ? " &middot; " + esc(e.detail) : "") + "</div>" + '<div class="muted">' + esc(when(e.at)) + "</div></div></div>";
-    }).join("") : '<p class="muted">Nothing yet.</p>') + '<p class="muted" style="margin-top:10px">Something here was not you? Sign out everywhere, then sign in again - nobody can get back in without a code sent to your email.</p></div>';
+    var words = { signin: 'Signed in', signout_all: 'Signed out everywhere', profile: 'Details changed', email_changed: 'Email changed',
+                  card_linked: 'Stamp card linked', messages_on: 'Offers turned on', messages_off: 'Offers turned off', export: 'Data downloaded',
+                  card_wrong: 'A wrong card code was typed', gift_wrong: 'A wrong gift-card code was typed' };
+    return '<div class="card"><h2>Where you are signed in</h2>' +
+      ss.map(function (s) {
+        return '<div class="item"><div class="grow"><div><b>' + esc(s.device || 'A device') + '</b>' + (s.this_device ? ' <span class="pill">This one</span>' : '') + '</div>' +
+          '<div class="muted">Signed in ' + esc(day(s.created_at)) + ' &middot; last used ' + esc(when(s.last_used_at)) + '</div></div>' +
+          (s.this_device ? '' : '<button class="ghost" data-sout="' + s.id + '">Sign out</button>') + '</div>';
+      }).join('') +
+      '<div class="row2"><button class="danger" id="s-all">Sign out everywhere</button></div></div>' +
+      '<div class="card"><h2>Recent activity</h2>' +
+      ((ME.activity || []).length ? ME.activity.map(function (e) {
+        return '<div class="item"><div class="grow"><div>' + esc(words[e.action] || e.action) + (e.detail ? ' &middot; ' + esc(e.detail) : '') + '</div>' +
+          '<div class="muted">' + esc(when(e.at)) + '</div></div></div>';
+      }).join('') : '<p class="muted">Nothing yet.</p>') +
+      '<p class="muted" style="margin-top:10px">Something here was not you? Sign out everywhere, then sign in again - nobody can get back in without a code sent to your email.</p></div>';
   }
+
   function privacyHtml() {
-    return '<div class="card"><h2>Your data</h2><p class="lede">Ember keeps your account (email, name, number, birthday, addresses) so it works at every shop. ' + "Each shop you order from gets your name and number for its own records, like any order. You can take everything we hold, or delete the account.</p>" + '<div class="row2"><button class="ghost" id="p-export">Download my data</button></div>' + '<p class="muted" style="margin-top:10px">Read the <a href="customer-terms.html">terms and privacy for Ember accounts</a>. Questions: <a href="mailto:hello@emberpos.net">hello@emberpos.net</a>.</p></div>' + '<div class="card"><h2>Delete my account</h2><p class="lede">Your email, addresses, sign-ins and saved cards are deleted, and every shop stops sending you offers. ' + "Shops keep their own records of what they sold you (their receipts and books), as the law asks of them. This cannot be undone.</p>" + '<div class="label">Type DELETE to confirm</div><input class="note-in" id="p-confirm" maxlength="10" autocomplete="off">' + '<div class="row2"><button class="danger" id="p-delete">Delete my account</button></div></div>';
+    return '<div class="card"><h2>Your data</h2><p class="lede">Ember keeps your account (email, name, number, birthday, addresses) so it works at every shop. ' +
+      'Each shop you order from gets your name and number for its own records, like any order. You can take everything we hold, or delete the account.</p>' +
+      '<div class="row2"><button class="ghost" id="p-export">Download my data</button></div>' +
+      '<p class="muted" style="margin-top:10px">Read the <a href="customer-terms.html">terms and privacy for Ember accounts</a>. Questions: <a href="mailto:hello@emberpos.net">hello@emberpos.net</a>.</p></div>' +
+      '<div class="card"><h2>Delete my account</h2><p class="lede">Your email, addresses, sign-ins and saved cards are deleted, and every shop stops sending you offers. ' +
+      'Shops keep their own records of what they sold you (their receipts and books), as the law asks of them. This cannot be undone.</p>' +
+      '<div class="label">Type DELETE to confirm</div><input class="note-in" id="p-confirm" maxlength="10" autocomplete="off">' +
+      '<div class="row2"><button class="danger" id="p-delete">Delete my account</button></div></div>';
   }
+
   function bind() {
-    var oe = document.getElementById("d-oemail");
-    if (oe) oe.onchange = async function() {
-      var r = await call("cust_order_emails", {
-        p_on: oe.checked
-      });
-      if (!r || !r.ok) {
-        oe.checked = !oe.checked;
-        if (r) toast(r.error || "Could not save.");
-        return;
-      }
+
+    var oe = document.getElementById('d-oemail');
+    if (oe) oe.onchange = async function () {
+      var r = await call('cust_order_emails', { p_on: oe.checked });
+      if (!r || !r.ok) { oe.checked = !oe.checked; if (r) toast(r.error || 'Could not save.'); return; }
       ME.profile.order_emails = oe.checked;
-      toast(oe.checked ? "Order emails are on." : "No more order emails.");
+      toast(oe.checked ? 'Order emails are on.' : 'No more order emails.');
     };
-    main.querySelectorAll("[data-mkt]").forEach(function(c) {
-      c.onchange = async function() {
-        var r = await call("cust_shop_marketing", {
-          p_business: Number(c.dataset.mkt),
-          p_on: c.checked
-        });
-        if (!r || !r.ok) {
-          c.checked = !c.checked;
-          if (r) toast(r.error || "Could not save.");
-          return;
-        }
-        toast(c.checked ? "Offers turned on for this shop." : "No more offers from this shop.");
+    main.querySelectorAll('[data-mkt]').forEach(function (c) {
+      c.onchange = async function () {
+        var r = await call('cust_shop_marketing', { p_business: Number(c.dataset.mkt), p_on: c.checked });
+        if (!r || !r.ok) { c.checked = !c.checked; if (r) toast(r.error || 'Could not save.'); return; }
+        toast(c.checked ? 'Offers turned on for this shop.' : 'No more offers from this shop.');
       };
     });
-    var more = document.getElementById("moreorders");
-    if (more) more.onclick = async function() {
+    var more = document.getElementById('moreorders');
+    if (more) more.onclick = async function () {
       var all = (ME.orders || []).concat(MORE_ORDERS);
       var last = all[all.length - 1];
       more.disabled = true;
-      var r = await call("cust_orders_page", {
-        p_before: last ? last.created_at : null
-      });
-      if (!r || !r.ok) {
-        more.disabled = false;
-        return;
-      }
+      var r = await call('cust_orders_page', { p_before: last ? last.created_at : null });
+      if (!r || !r.ok) { more.disabled = false; return; }
       MORE_ORDERS = MORE_ORDERS.concat(r.orders || []);
       ORDERS_DONE = (r.orders || []).length < 30;
-      SHOWN_BEFORE = all.length;
-      draw();
-      SHOWN_BEFORE = Infinity;
+      SHOWN_BEFORE = all.length; draw(); SHOWN_BEFORE = Infinity;
     };
-    var ds = document.getElementById("d-save");
-    if (ds) ds.onclick = async function() {
-      var b = this;
-      b.disabled = true;
-      var r = await call("cust_profile_save", {
-        p_name: document.getElementById("d-name").value,
-        p_phone: document.getElementById("d-phone").value,
-        p_birthday: document.getElementById("d-bday").value || null,
-        p_ember_news: document.getElementById("d-news").checked,
-        p_terms_version: null
-      });
+    var ds = document.getElementById('d-save');
+    if (ds) ds.onclick = async function () {
+      var b = this; b.disabled = true;
+      var r = await call('cust_profile_save', { p_name: document.getElementById('d-name').value, p_phone: document.getElementById('d-phone').value,
+        p_birthday: document.getElementById('d-bday').value || null, p_ember_news: document.getElementById('d-news').checked, p_terms_version: null });
       b.disabled = false;
       if (!r) return;
-      if (!r.ok) {
-        toast(r.error || "Could not save.");
-        return;
-      }
-      toast("Saved.");
-      load(false);
+      if (!r.ok) { toast(r.error || 'Could not save.'); return; }
+      toast('Saved.'); load(false);
     };
-    var es = document.getElementById("e-send");
-    if (es) es.onclick = async function() {
-      var em = (document.getElementById("e-new").value || "").trim().toLowerCase();
-      if (!A.validEmail(em)) {
-        toast("Type the new email address.");
-        return;
-      }
+    var es = document.getElementById('e-send');
+    if (es) es.onclick = async function () {
+      var em = (document.getElementById('e-new').value || '').trim().toLowerCase();
+      if (!A.validEmail(em)) { toast('Type the new email address.'); return; }
       es.disabled = true;
-      var r = await A.sendCode(em, "email_change", null);
+      var r = await A.sendCode(em, 'email_change', null);
       es.disabled = false;
-      if (!r.ok) {
-        toast(r.error || "Could not send a code.");
-        return;
-      }
-      document.getElementById("e-step2").hidden = false;
-      toast("Code sent to " + em + ".");
+      if (!r.ok) { toast(r.error || 'Could not send a code.'); return; }
+      document.getElementById('e-step2').hidden = false; toast('Code sent to ' + em + '.');
     };
-    var eg = document.getElementById("e-go");
-    if (eg) eg.onclick = async function() {
-      var r = await call("cust_email_change", {
-        p_new_email: document.getElementById("e-new").value,
-        p_code: document.getElementById("e-code").value
-      });
+    var eg = document.getElementById('e-go');
+    if (eg) eg.onclick = async function () {
+      var r = await call('cust_email_change', { p_new_email: document.getElementById('e-new').value, p_code: document.getElementById('e-code').value });
       if (!r) return;
-      if (!r.ok) {
-        toast(r.error || "Could not change the email.");
-        return;
-      }
-      toast("Your email is now " + r.email + ".");
-      load(false);
+      if (!r.ok) { toast(r.error || 'Could not change the email.'); return; }
+      toast('Your email is now ' + r.email + '.'); load(false);
     };
-    var aa = document.getElementById("a-add");
-    if (aa) aa.onclick = function() {
-      addressForm(null);
-    };
-    main.querySelectorAll("[data-aedit]").forEach(function(b) {
-      b.onclick = function() {
-        addressForm((ME.addresses || []).find(function(x) {
-          return String(x.id) === b.dataset.aedit;
-        }));
+    var aa = document.getElementById('a-add');
+    if (aa) aa.onclick = function () { addressForm(null); };
+    main.querySelectorAll('[data-aedit]').forEach(function (b) {
+      b.onclick = function () { addressForm((ME.addresses || []).find(function (x) { return String(x.id) === b.dataset.aedit; })); };
+    });
+    main.querySelectorAll('[data-sout]').forEach(function (b) {
+      b.onclick = async function () {
+        var r = await call('cust_session_revoke', { p_id: Number(b.dataset.sout) });
+        if (r && r.ok) { toast('That device is signed out.'); load(false); }
       };
     });
-    main.querySelectorAll("[data-sout]").forEach(function(b) {
-      b.onclick = async function() {
-        var r = await call("cust_session_revoke", {
-          p_id: Number(b.dataset.sout)
-        });
-        if (r && r.ok) {
-          toast("That device is signed out.");
-          load(false);
-        }
-      };
-    });
-    var sa = document.getElementById("s-all");
-    if (sa) sa.onclick = async function() {
-      if (!confirm("Sign out on every device, including this one?")) return;
-      await A.signOut(true);
-      ME = null;
-      toast("Signed out everywhere.");
-      drawSignIn();
+    var sa = document.getElementById('s-all');
+    if (sa) sa.onclick = async function () {
+      if (!confirm('Sign out on every device, including this one?')) return;
+      await A.signOut(true); ME = null; toast('Signed out everywhere.'); drawSignIn();
     };
-    var pe = document.getElementById("p-export");
-    if (pe) pe.onclick = async function() {
-      var r = await call("cust_export");
+    var pe = document.getElementById('p-export');
+    if (pe) pe.onclick = async function () {
+      var r = await call('cust_export');
       if (!r || !r.ok) return;
-      var blob = new Blob([ JSON.stringify(r, null, 2) ], {
-        type: "application/json"
-      });
-      var a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "my-ember-account.json";
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function() {
-        URL.revokeObjectURL(a.href);
-        a.remove();
-      }, 1e3);
-      toast("Your data is downloading.");
+      var blob = new Blob([JSON.stringify(r, null, 2)], { type: 'application/json' });
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'my-ember-account.json';
+      document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+      toast('Your data is downloading.');
     };
-    var pd = document.getElementById("p-delete");
-    if (pd) pd.onclick = async function() {
-      var v = (document.getElementById("p-confirm").value || "").trim();
-      if (v !== "DELETE") {
-        toast("Type DELETE to confirm.");
-        return;
-      }
-      if (!confirm("Delete your Ember account for good?")) return;
-      var r = await call("cust_delete", {
-        p_confirm: "DELETE"
-      });
+    var pd = document.getElementById('p-delete');
+    if (pd) pd.onclick = async function () {
+      var v = (document.getElementById('p-confirm').value || '').trim();
+      if (v !== 'DELETE') { toast('Type DELETE to confirm.'); return; }
+      if (!confirm('Delete your Ember account for good?')) return;
+      var r = await call('cust_delete', { p_confirm: 'DELETE' });
       if (!r) return;
-      if (!r.ok) {
-        toast(r.error || "Could not delete.");
-        return;
-      }
-      A.setSession("");
-      ME = null;
-      try {
-        localStorage.removeItem("ember.account.email");
-      } catch (e) {}
+      if (!r.ok) { toast(r.error || 'Could not delete.'); return; }
+      A.setSession(''); ME = null;
+      try { localStorage.removeItem('ember.account.email'); } catch (e) {  }
       main.innerHTML = '<div class="card"><h2>Your account is deleted</h2><p class="lede">Thank you for using Ember. You can make a new account any time.</p></div>';
       swapIn(main.firstChild);
     };
   }
+
   load(true);
 })();
 </script>

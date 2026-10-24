@@ -19,7 +19,6 @@
 <link rel="preload" as="font" type="font/woff2" href="fonts/space-grotesk-latin-wght-normal.woff2" crossorigin />
 <link rel="preload" as="image" href="logo.png" />
 <style>
-
   @font-face { font-family: 'Space Grotesk'; src: url('fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap;
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
   @font-face { font-family: 'Space Grotesk'; src: url('fonts/space-grotesk-latin-ext-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap;
@@ -1255,7 +1254,7 @@
       <div>
         <a class="foot-brand" href="index.html"><img src="logo.png" height="30" alt="" /><b>Ember POS</b></a>
         <p>The all-in-one POS app for cafés and food shops in the Philippines.</p>
-        
+
         <address class="foot-addr" style="font-style:normal;margin-top:10px;line-height:1.55;font-size:13px;opacity:.85"><strong>EMBER POS COMPUTER SOFTWARE STORE</strong><br>A1-5CD Anaheim, Domingo M. Guevara St., Highway Hills,<br>Mandaluyong City 1550, Metro Manila, Philippines<br>Email: <a href="mailto:hello@emberpos.net">hello@emberpos.net</a> &middot; <a href="contact.html">Contact us</a></address>
       </div>
       <div>
@@ -1310,87 +1309,46 @@
 </div>
 
 <script>
-document.documentElement.classList.add("js");
-
-(function() {
-  "use strict";
+document.documentElement.classList.add('js');
+(function () {
+  'use strict';
   var d = document;
-  var reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var hasIO = "IntersectionObserver" in window;
-  var $ = function(s) {
-    return d.querySelector(s);
-  };
-  var $$ = function(s, c) {
-    return Array.prototype.slice.call((c || d).querySelectorAll(s));
-  };
-  var header = $(".site-header"), menuBtn = $("#menu-btn");
-  function onScroll() {
-    header.classList.toggle("scrolled", window.scrollY > 8);
-  }
-  addEventListener("scroll", onScroll, {
-    passive: true
-  });
-  onScroll();
+  var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var hasIO = 'IntersectionObserver' in window;
+  var $ = function (s) { return d.querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || d).querySelectorAll(s)); };
+
+  var header = $('.site-header'), menuBtn = $('#menu-btn');
+  function onScroll() { header.classList.toggle('scrolled', window.scrollY > 8); }
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
   function setMenu(open) {
-    menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
-    header.classList.toggle("menu-open", open);
-    d.body.classList.toggle("no-scroll", open);
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    header.classList.toggle('menu-open', open);
+    d.body.classList.toggle('no-scroll', open);
   }
-  menuBtn.addEventListener("click", function() {
-    setMenu(menuBtn.getAttribute("aria-expanded") !== "true");
-  });
-  $$("#site-nav a").forEach(function(a) {
-    a.addEventListener("click", function() {
-      setMenu(false);
-    });
-  });
-  addEventListener("keydown", function(e) {
-    if (e.key === "Escape" && header.classList.contains("menu-open")) {
-      setMenu(false);
-      menuBtn.focus();
-    }
-  });
-  addEventListener("resize", function() {
-    if (innerWidth > 960) setMenu(false);
-  });
-  var rv = $$(".rv");
+  menuBtn.addEventListener('click', function () { setMenu(menuBtn.getAttribute('aria-expanded') !== 'true'); });
+  $$('#site-nav a').forEach(function (a) { a.addEventListener('click', function () { setMenu(false); }); });
+  addEventListener('keydown', function (e) { if (e.key === 'Escape' && header.classList.contains('menu-open')) { setMenu(false); menuBtn.focus(); } });
+  addEventListener('resize', function () { if (innerWidth > 960) setMenu(false); });
+
+  var rv = $$('.rv');
   if (hasIO && !reduced) {
-    var io = new IntersectionObserver(function(es) {
-      es.forEach(function(e) {
-        if (e.isIntersecting) {
-          e.target.classList.add("in");
-          io.unobserve(e.target);
-        }
-      });
-    }, {
-      rootMargin: "0px 0px -8% 0px",
-      threshold: .08
-    });
-    rv.forEach(function(el) {
-      io.observe(el);
-    });
-  } else {
-    rv.forEach(function(el) {
-      el.classList.add("in");
-    });
-  }
-  var peso = function(c) {
-    return "₱" + (Math.round(c) / 100).toLocaleString("en-PH", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    rv.forEach(function (el) { io.observe(el); });
+  } else { rv.forEach(function (el) { el.classList.add('in'); }); }
+
+  var peso = function (c) {
+    return '₱' + (Math.round(c) / 100).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
-  var qty = function(n, unit) {
-    if (unit === "g" && n >= 1e3) return (n / 1e3).toFixed(2) + " kg";
-    if (unit === "mL" && n >= 1e3) return (n / 1e3).toFixed(2) + " L";
-    return Math.round(n).toLocaleString("en-PH") + (unit === "pc" ? " pcs" : " " + unit);
+  var qty = function (n, unit) {
+    if (unit === 'g' && n >= 1000) return (n / 1000).toFixed(2) + ' kg';
+    if (unit === 'mL' && n >= 1000) return (n / 1000).toFixed(2) + ' L';
+    return Math.round(n).toLocaleString('en-PH') + (unit === 'pc' ? ' pcs' : ' ' + unit);
   };
   function tween(from, to, ms, draw, done) {
-    if (reduced || ms <= 0) {
-      draw(to);
-      if (done) done();
-      return;
-    }
+    if (reduced || ms <= 0) { draw(to); if (done) done(); return; }
     var t0 = performance.now();
     (function step(t) {
       var k = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - k, 3);
@@ -1398,703 +1356,327 @@ document.documentElement.classList.add("js");
       if (k < 1) requestAnimationFrame(step); else if (done) done();
     })(t0);
   }
+
   var ING = {
-    beans: {
-      name: "Coffee beans",
-      unit: "g",
-      cost: 62,
-      q: 6200,
-      low: 1500
-    },
-    milk: {
-      name: "Fresh milk",
-      unit: "mL",
-      cost: 9,
-      q: 21e3,
-      low: 6e3
-    },
-    condensed: {
-      name: "Condensed milk",
-      unit: "mL",
-      cost: 15,
-      q: 4600,
-      low: 1200
-    },
-    sugar: {
-      name: "White sugar",
-      unit: "g",
-      cost: 6,
-      q: 7800,
-      low: 2e3
-    },
-    matcha: {
-      name: "Matcha powder",
-      unit: "g",
-      cost: 260,
-      q: 900,
-      low: 250
-    },
-    ube: {
-      name: "Ube halaya",
-      unit: "g",
-      cost: 32,
-      q: 2100,
-      low: 600
-    },
-    javachips: {
-      name: "Java chips",
-      unit: "g",
-      cost: 34,
-      q: 1400,
-      low: 400
-    },
-    choc: {
-      name: "Chocolate sauce",
-      unit: "mL",
-      cost: 21,
-      q: 2500,
-      low: 700
-    },
-    whipped: {
-      name: "Whipped cream",
-      unit: "g",
-      cost: 26,
-      q: 1500,
-      low: 400
-    },
-    cup12: {
-      name: "Cup 12 oz",
-      unit: "pc",
-      cost: 450,
-      q: 340,
-      low: 80
-    },
-    cup16: {
-      name: "Cup 16 oz",
-      unit: "pc",
-      cost: 560,
-      q: 300,
-      low: 80
-    },
-    lid: {
-      name: "Dome lid",
-      unit: "pc",
-      cost: 180,
-      q: 380,
-      low: 100
-    },
-    straw: {
-      name: "Straw",
-      unit: "pc",
-      cost: 60,
-      q: 700,
-      low: 150
-    },
-    tapa: {
-      name: "Beef tapa",
-      unit: "g",
-      cost: 44,
-      q: 5200,
-      low: 1500
-    },
-    egg: {
-      name: "Egg",
-      unit: "pc",
-      cost: 950,
-      q: 150,
-      low: 40
-    },
-    rice: {
-      name: "Rice",
-      unit: "g",
-      cost: 6,
-      q: 26e3,
-      low: 8e3
-    },
-    oil: {
-      name: "Cooking oil",
-      unit: "mL",
-      cost: 11,
-      q: 6600,
-      low: 2e3
-    },
-    garlic: {
-      name: "Garlic",
-      unit: "g",
-      cost: 14,
-      q: 1500,
-      low: 400
-    },
-    cheesecake: {
-      name: "Cheesecake slice",
-      unit: "pc",
-      cost: 6500,
-      q: 18,
-      low: 6
-    },
-    vanilla: {
-      name: "Vanilla syrup",
-      unit: "mL",
-      cost: 18,
-      q: 2400,
-      low: 700
-    },
-    caramel: {
-      name: "Caramel syrup",
-      unit: "mL",
-      cost: 18,
-      q: 2300,
-      low: 700
-    },
-    calamansi: {
-      name: "Calamansi",
-      unit: "pc",
-      cost: 300,
-      q: 130,
-      low: 40
-    },
-    coldbrew: {
-      name: "Cold brew concentrate",
-      unit: "mL",
-      cost: 280 * 62 / 4e3,
-      q: 5200,
-      low: 1500
-    },
-    sisig: {
-      name: "Sisig mix",
-      unit: "g",
-      cost: (2340 * 33 + 340 * 9 + 78 * 16 + 208 * 12 + 78 * 14) / 2600,
-      q: 2600,
-      low: 800
-    }
+    beans:     { name: 'Coffee beans',   unit: 'g',  cost: 62,   q: 6200,  low: 1500 },
+    milk:      { name: 'Fresh milk',     unit: 'mL', cost: 9,    q: 21000, low: 6000 },
+    condensed: { name: 'Condensed milk', unit: 'mL', cost: 15,   q: 4600,  low: 1200 },
+    sugar:     { name: 'White sugar',    unit: 'g',  cost: 6,    q: 7800,  low: 2000 },
+    matcha:    { name: 'Matcha powder',  unit: 'g',  cost: 260,  q: 900,   low: 250 },
+    ube:       { name: 'Ube halaya',     unit: 'g',  cost: 32,   q: 2100,  low: 600 },
+    javachips: { name: 'Java chips',     unit: 'g',  cost: 34,   q: 1400,  low: 400 },
+    choc:      { name: 'Chocolate sauce', unit: 'mL', cost: 21,  q: 2500,  low: 700 },
+    whipped:   { name: 'Whipped cream',  unit: 'g',  cost: 26,   q: 1500,  low: 400 },
+    cup12:     { name: 'Cup 12 oz',      unit: 'pc', cost: 450,  q: 340,   low: 80 },
+    cup16:     { name: 'Cup 16 oz',      unit: 'pc', cost: 560,  q: 300,   low: 80 },
+    lid:       { name: 'Dome lid',       unit: 'pc', cost: 180,  q: 380,   low: 100 },
+    straw:     { name: 'Straw',          unit: 'pc', cost: 60,   q: 700,   low: 150 },
+    tapa:      { name: 'Beef tapa',      unit: 'g',  cost: 44,   q: 5200,  low: 1500 },
+    egg:       { name: 'Egg',            unit: 'pc', cost: 950,  q: 150,   low: 40 },
+    rice:      { name: 'Rice',           unit: 'g',  cost: 6,    q: 26000, low: 8000 },
+    oil:       { name: 'Cooking oil',    unit: 'mL', cost: 11,   q: 6600,  low: 2000 },
+    garlic:    { name: 'Garlic',         unit: 'g',  cost: 14,   q: 1500,  low: 400 },
+    cheesecake:{ name: 'Cheesecake slice', unit: 'pc', cost: 6500, q: 18,  low: 6 },
+    vanilla:   { name: 'Vanilla syrup',  unit: 'mL', cost: 18,   q: 2400,  low: 700 },
+    caramel:   { name: 'Caramel syrup',  unit: 'mL', cost: 18,   q: 2300,  low: 700 },
+    calamansi: { name: 'Calamansi',      unit: 'pc', cost: 300,  q: 130,   low: 40 },
+
+    coldbrew:  { name: 'Cold brew concentrate', unit: 'mL', cost: 280 * 62 / 4000, q: 5200, low: 1500 },
+    sisig:     { name: 'Sisig mix',      unit: 'g',  cost: (2340 * 33 + 340 * 9 + 78 * 16 + 208 * 12 + 78 * 14) / 2600, q: 2600, low: 800 }
   };
-  var C12 = [ [ "cup12", 1 ], [ "lid", 1 ], [ "straw", 1 ] ], C16 = [ [ "cup16", 1 ], [ "lid", 1 ], [ "straw", 1 ] ];
+  var C12 = [['cup12', 1], ['lid', 1], ['straw', 1]], C16 = [['cup16', 1], ['lid', 1], ['straw', 1]];
   var MENU = {
-    spanish: {
-      name: "Spanish Latte",
-      price: 13500,
-      r: [ [ "beans", 18 ], [ "milk", 160 ], [ "condensed", 30 ] ].concat(C12)
-    },
-    latte: {
-      name: "Cafe Latte",
-      price: 12500,
-      r: [ [ "beans", 18 ], [ "milk", 180 ] ].concat(C12)
-    },
-    americano: {
-      name: "Americano",
-      price: 9500,
-      r: [ [ "beans", 18 ] ].concat(C12)
-    },
-    macchiato: {
-      name: "Caramel Macchiato",
-      price: 14500,
-      r: [ [ "beans", 18 ], [ "milk", 170 ], [ "vanilla", 15 ], [ "caramel", 15 ] ].concat(C12)
-    },
-    mocha: {
-      name: "Cafe Mocha",
-      price: 14500,
-      r: [ [ "beans", 18 ], [ "milk", 160 ], [ "choc", 25 ] ].concat(C12)
-    },
-    coldbrew: {
-      name: "Cold Brew",
-      price: 13e3,
-      r: [ [ "coldbrew", 150 ], [ "sugar", 10 ] ].concat(C12)
-    },
-    matcha: {
-      name: "Matcha Latte",
-      price: 14e3,
-      r: [ [ "matcha", 4 ], [ "milk", 200 ], [ "sugar", 12 ] ].concat(C12)
-    },
-    ube: {
-      name: "Ube Latte",
-      price: 13500,
-      r: [ [ "ube", 40 ], [ "milk", 200 ], [ "condensed", 20 ] ].concat(C12)
-    },
-    javachip: {
-      name: "Java Chip Frappe",
-      price: 16500,
-      r: [ [ "beans", 14 ], [ "milk", 160 ], [ "javachips", 30 ], [ "choc", 20 ], [ "whipped", 20 ] ].concat(C16)
-    },
-    tapsilog: {
-      name: "Tapsilog",
-      price: 14500,
-      size: false,
-      r: [ [ "tapa", 140 ], [ "egg", 1 ], [ "rice", 180 ], [ "oil", 12 ], [ "garlic", 6 ] ]
-    },
-    sisig: {
-      name: "Pork Sisig Rice",
-      price: 14900,
-      size: false,
-      r: [ [ "sisig", 160 ], [ "egg", 1 ], [ "calamansi", 1 ], [ "rice", 180 ], [ "oil", 12 ], [ "garlic", 6 ] ]
-    },
-    cheesecake: {
-      name: "Cheesecake Slice",
-      price: 12e3,
-      size: false,
-      r: [ [ "cheesecake", 1 ] ]
-    }
+    spanish:    { name: 'Spanish Latte',    price: 13500, r: [['beans', 18], ['milk', 160], ['condensed', 30]].concat(C12) },
+    latte:      { name: 'Cafe Latte',       price: 12500, r: [['beans', 18], ['milk', 180]].concat(C12) },
+    americano:  { name: 'Americano',        price: 9500,  r: [['beans', 18]].concat(C12) },
+    macchiato:  { name: 'Caramel Macchiato', price: 14500, r: [['beans', 18], ['milk', 170], ['vanilla', 15], ['caramel', 15]].concat(C12) },
+    mocha:      { name: 'Cafe Mocha',       price: 14500, r: [['beans', 18], ['milk', 160], ['choc', 25]].concat(C12) },
+    coldbrew:   { name: 'Cold Brew',        price: 13000, r: [['coldbrew', 150], ['sugar', 10]].concat(C12) },
+    matcha:     { name: 'Matcha Latte',     price: 14000, r: [['matcha', 4], ['milk', 200], ['sugar', 12]].concat(C12) },
+    ube:        { name: 'Ube Latte',        price: 13500, r: [['ube', 40], ['milk', 200], ['condensed', 20]].concat(C12) },
+    javachip:   { name: 'Java Chip Frappe', price: 16500, r: [['beans', 14], ['milk', 160], ['javachips', 30], ['choc', 20], ['whipped', 20]].concat(C16) },
+    tapsilog:   { name: 'Tapsilog',         price: 14500, size: false, r: [['tapa', 140], ['egg', 1], ['rice', 180], ['oil', 12], ['garlic', 6]] },
+    sisig:      { name: 'Pork Sisig Rice',  price: 14900, size: false, r: [['sisig', 160], ['egg', 1], ['calamansi', 1], ['rice', 180], ['oil', 12], ['garlic', 6]] },
+    cheesecake: { name: 'Cheesecake Slice', price: 12000, size: false, r: [['cheesecake', 1]] }
   };
-  var tiles = $("#tiles"), linesEl = $("#lines"), totalEl = $("#c-total"), payBtn = $("#c-pay"), clearBtn = $("#c-clear");
-  var status = $("#till-status"), hint = $("#hint");
+
+  var tiles = $('#tiles'), linesEl = $('#lines'), totalEl = $('#c-total'), payBtn = $('#c-pay'), clearBtn = $('#c-clear');
+  var status = $('#till-status'), hint = $('#hint');
   var cart = {}, order = [], busy = false, touched = false;
-  var S = {
-    no: 22,
-    sales: 863100,
-    orders: 21,
-    profit: 263776
-  };
-  var tickets = [ {
-    no: 21,
-    where: "Table 6",
-    age: 492,
-    lines: [ [ 1, "Caramel Macchiato" ], [ 2, "Butter Croissant" ] ]
-  }, {
-    no: 20,
-    where: "Takeout",
-    age: 812,
-    lines: [ [ 1, "Pork Sisig Rice" ], [ 1, "House Iced Tea" ] ]
-  } ];
-  var shown = [ "milk", "beans", "cup12", "condensed" ];
-  function total() {
-    return order.reduce(function(t, k) {
-      return t + MENU[k].price * cart[k];
-    }, 0);
-  }
+  var S = { no: 22, sales: 863100, orders: 21, profit: 263776 };
+  var tickets = [
+    { no: 21, where: 'Table 6', age: 492, lines: [[1, 'Caramel Macchiato'], [2, 'Butter Croissant']] },
+    { no: 20, where: 'Takeout', age: 812, lines: [[1, 'Pork Sisig Rice'], [1, 'House Iced Tea']] }
+  ];
+  var shown = ['milk', 'beans', 'cup12', 'condensed'];
+
+  function total() { return order.reduce(function (t, k) { return t + MENU[k].price * cart[k]; }, 0); }
   function renderCart() {
-    if (!order.length) linesEl.innerHTML = '<li class="c-empty">Tap an item to start the order</li>'; else linesEl.innerHTML = order.map(function(k) {
-      var size = MENU[k].size === false ? "" : "<small>Medium</small>";
-      return '<li class="c-line"><span class="n">' + cart[k] + '×</span><span class="t">' + MENU[k].name + size + '</span><span class="a">' + peso(MENU[k].price * cart[k]) + "</span></li>";
-    }).join("");
+    if (!order.length) linesEl.innerHTML = '<li class="c-empty">Tap an item to start the order</li>';
+    else linesEl.innerHTML = order.map(function (k) {
+      var size = MENU[k].size === false ? '' : '<small>Medium</small>';
+      return '<li class="c-line"><span class="n">' + cart[k] + '×</span><span class="t">' + MENU[k].name + size + '</span><span class="a">' + peso(MENU[k].price * cart[k]) + '</span></li>';
+    }).join('');
     totalEl.textContent = peso(total());
     payBtn.disabled = !order.length || busy;
-    $$(".tile", tiles).forEach(function(t) {
-      var n = cart[t.getAttribute("data-item")] || 0;
-      t.classList.toggle("has", n > 0);
-      t.querySelector(".q").textContent = n || "";
+    $$('.tile', tiles).forEach(function (t) {
+      var n = cart[t.getAttribute('data-item')] || 0;
+      t.classList.toggle('has', n > 0);
+      t.querySelector('.q').textContent = n || '';
     });
   }
   function add(k, ghost) {
     if (busy) return;
-    if (!cart[k]) {
-      cart[k] = 0;
-      order.push(k);
-    }
+    if (!cart[k]) { cart[k] = 0; order.push(k); }
     cart[k]++;
     var t = tiles.querySelector('[data-item="' + k + '"]');
-    if (t) {
-      t.classList.add(ghost ? "ghost" : "tap");
-      setTimeout(function() {
-        t.classList.remove("tap", "ghost");
-      }, ghost ? 420 : 160);
-    }
+    if (t) { t.classList.add(ghost ? 'ghost' : 'tap'); setTimeout(function () { t.classList.remove('tap', 'ghost'); }, ghost ? 420 : 160); }
     renderCart();
-    hint.classList.add("gone");
-    if (!ghost) status.textContent = MENU[k].name + " added. Total " + peso(total()) + ".";
+    hint.classList.add('gone');
+    if (!ghost) status.textContent = MENU[k].name + ' added. Total ' + peso(total()) + '.';
   }
-  tiles.addEventListener("click", function(e) {
-    var t = e.target.closest(".tile");
-    if (!t) return;
-    touched = true;
-    add(t.getAttribute("data-item"));
+  tiles.addEventListener('click', function (e) {
+    var t = e.target.closest('.tile'); if (!t) return;
+    touched = true; add(t.getAttribute('data-item'));
   });
-  $("#chips").addEventListener("click", function(e) {
-    var c = e.target.closest(".chip");
-    if (!c) return;
+  $('#chips').addEventListener('click', function (e) {
+    var c = e.target.closest('.chip'); if (!c) return;
     touched = true;
-    var cat = c.getAttribute("data-cat");
-    $$(".chip").forEach(function(x) {
-      x.setAttribute("aria-pressed", x === c ? "true" : "false");
-    });
-    $$(".tile", tiles).forEach(function(t) {
-      t.hidden = cat !== "all" && t.getAttribute("data-cat") !== cat;
-    });
+    var cat = c.getAttribute('data-cat');
+    $$('.chip').forEach(function (x) { x.setAttribute('aria-pressed', x === c ? 'true' : 'false'); });
+    $$('.tile', tiles).forEach(function (t) { t.hidden = cat !== 'all' && t.getAttribute('data-cat') !== cat; });
   });
-  clearBtn.addEventListener("click", function() {
-    if (busy) return;
-    touched = true;
-    cart = {};
-    order = [];
-    renderCart();
-    status.textContent = "Order cleared.";
-  });
-  var ticketsEl = $("#tickets"), kCount = $("#k-count");
-  var mmss = function(s) {
-    return Math.floor(s / 60) + ":" + ("0" + s % 60).slice(-2);
-  };
+  clearBtn.addEventListener('click', function () { if (busy) return; touched = true; cart = {}; order = []; renderCart(); status.textContent = 'Order cleared.'; });
+
+  var ticketsEl = $('#tickets'), kCount = $('#k-count');
+  var mmss = function (s) { return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); };
   function renderTickets(fresh) {
-    ticketsEl.innerHTML = tickets.slice(0, 2).map(function(t, i) {
-      var cls = t.age >= 600 ? "late" : t.age >= 300 ? "warm" : "";
-      return '<div class="tk ' + cls + (fresh && i === 0 ? " new" : "") + '"><div class="tk-h"><span>#' + t.no + " · " + t.where + '</span><span class="age" data-i="' + i + '">' + mmss(t.age) + "</span></div><ul>" + t.lines.map(function(l) {
-        return "<li><b>" + l[0] + "×</b>" + l[1] + "</li>";
-      }).join("") + "</ul></div>";
-    }).join("");
-    kCount.textContent = tickets.length + " waiting";
+    ticketsEl.innerHTML = tickets.slice(0, 2).map(function (t, i) {
+      var cls = t.age >= 600 ? 'late' : t.age >= 300 ? 'warm' : '';
+      return '<div class="tk ' + cls + (fresh && i === 0 ? ' new' : '') + '"><div class="tk-h"><span>#' + t.no + ' · ' + t.where + '</span><span class="age" data-i="' + i + '">' + mmss(t.age) + '</span></div><ul>' +
+        t.lines.map(function (l) { return '<li><b>' + l[0] + '×</b>' + l[1] + '</li>'; }).join('') + '</ul></div>';
+    }).join('');
+    kCount.textContent = tickets.length + ' waiting';
   }
-  setInterval(function() {
-    tickets.forEach(function(t) {
-      t.age++;
-    });
-    $$(".age", ticketsEl).forEach(function(el) {
-      var t = tickets[+el.getAttribute("data-i")];
-      if (!t) return;
+  setInterval(function () {
+    tickets.forEach(function (t) { t.age++; });
+    $$('.age', ticketsEl).forEach(function (el) {
+      var t = tickets[+el.getAttribute('data-i')]; if (!t) return;
       el.textContent = mmss(t.age);
-      var tk = el.closest(".tk");
-      tk.classList.toggle("late", t.age >= 600);
-      tk.classList.toggle("warm", t.age >= 300 && t.age < 600);
+      var tk = el.closest('.tk');
+      tk.classList.toggle('late', t.age >= 600); tk.classList.toggle('warm', t.age >= 300 && t.age < 600);
     });
-  }, 1e3);
-  var stockEl = $("#stock");
-  var level = function(id, q) {
-    var i = ING[id];
-    return Math.max(4, Math.min(100, q / (i.low * 4) * 100));
-  };
+  }, 1000);
+
+  var stockEl = $('#stock');
+  var level = function (id, q) { var i = ING[id]; return Math.max(4, Math.min(100, q / (i.low * 4) * 100)); };
   function renderStock(ids, before) {
-    stockEl.innerHTML = ids.map(function(id) {
+    stockEl.innerHTML = ids.map(function (id) {
       var i = ING[id], q = before ? before[id] : i.q;
-      return '<div class="st' + (q < i.low * 1.5 ? " low" : "") + '" data-id="' + id + '"><span class="nm">' + i.name + '</span><span class="v"><span class="dl"></span><span class="n">' + qty(q, i.unit) + '</span></span><span class="bar"><i style="--w:' + level(id, q).toFixed(1) + '%"></i></span></div>';
-    }).join("");
+      return '<div class="st' + (q < i.low * 1.5 ? ' low' : '') + '" data-id="' + id + '"><span class="nm">' + i.name + '</span><span class="v"><span class="dl"></span><span class="n">' + qty(q, i.unit) + '</span></span><span class="bar"><i style="--w:' + level(id, q).toFixed(1) + '%"></i></span></div>';
+    }).join('');
   }
-  var pSales = $("#p-sales"), pOrders = $("#p-orders"), pProfit = $("#p-profit"), toast = $("#toast"), toastT = $("#toast-t");
-  var flash = function(el) {
-    el.classList.remove("flash");
-    void el.offsetWidth;
-    el.classList.add("flash");
-  };
-  var stageEl = $("#stage");
+
+  var pSales = $('#p-sales'), pOrders = $('#p-orders'), pProfit = $('#p-profit'), toast = $('#toast'), toastT = $('#toast-t');
+  var flash = function (el) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); };
+  var stageEl = $('#stage');
+
   function spark(to) {
     if (reduced || !stageEl.animate) return;
     var r0 = stageEl.getBoundingClientRect(), a = payBtn.getBoundingClientRect(), b = to.getBoundingClientRect();
     var x0 = a.left + a.width / 2 - r0.left, y0 = a.top + a.height / 2 - r0.top;
     var x1 = b.left + 28 - r0.left, y1 = b.top + 18 - r0.top;
     var mx = (x0 + x1) / 2, my = Math.min(y0, y1) - 40;
-    var dot = d.createElement("i");
-    dot.className = "spark";
-    stageEl.appendChild(dot);
-    var anim = dot.animate([ {
-      transform: "translate(" + x0 + "px," + y0 + "px) scale(.4)",
-      opacity: 0
-    }, {
-      transform: "translate(" + mx + "px," + my + "px) scale(1.15)",
-      opacity: 1,
-      offset: .45
-    }, {
-      transform: "translate(" + x1 + "px," + y1 + "px) scale(.6)",
-      opacity: .2
-    } ], {
-      duration: 520,
-      easing: "cubic-bezier(0.5, 0, 0.3, 1)"
-    });
-    anim.onfinish = function() {
-      dot.remove();
-    };
+    var dot = d.createElement('i'); dot.className = 'spark'; stageEl.appendChild(dot);
+    var anim = dot.animate([
+      { transform: 'translate(' + x0 + 'px,' + y0 + 'px) scale(.4)', opacity: 0 },
+      { transform: 'translate(' + mx + 'px,' + my + 'px) scale(1.15)', opacity: 1, offset: 0.45 },
+      { transform: 'translate(' + x1 + 'px,' + y1 + 'px) scale(.6)', opacity: 0.2 }
+    ], { duration: 520, easing: 'cubic-bezier(0.5, 0, 0.3, 1)' });
+    anim.onfinish = function () { dot.remove(); };
   }
-  payBtn.addEventListener("click", function(e) {
-    if (e.isTrusted) touched = true;
-    pay();
-  });
+
+  payBtn.addEventListener('click', function (e) { if (e.isTrusted) touched = true; pay(); });
   function pay() {
     if (busy || !order.length) return;
-    busy = true;
-    payBtn.disabled = true;
+    busy = true; payBtn.disabled = true;
     var amt = total(), used = {}, cost = 0, ids = [];
-    order.forEach(function(k) {
-      MENU[k].r.forEach(function(r) {
+    order.forEach(function (k) {
+      MENU[k].r.forEach(function (r) {
         var id = r[0], n = r[1] * cart[k];
-        if (!used[id]) {
-          used[id] = 0;
-          ids.push(id);
-        }
-        used[id] += n;
-        cost += ING[id].cost * n;
+        if (!used[id]) { used[id] = 0; ids.push(id); }
+        used[id] += n; cost += ING[id].cost * n;
       });
     });
     var margin = amt - cost, no = S.no;
-    var lines = order.map(function(k) {
-      return [ cart[k], MENU[k].name ];
-    });
-    payBtn.classList.add("paid");
-    payBtn.querySelector(".lbl").innerHTML = '<svg class="i"><use href="#i-check"/></svg>Paid';
+    var lines = order.map(function (k) { return [cart[k], MENU[k].name]; });
+    payBtn.classList.add('paid');
+    payBtn.querySelector('.lbl').innerHTML = '<svg class="i"><use href="#i-check"/></svg>Paid';
+
     var wait = reduced ? 0 : 1;
-    spark($("#fx-kitchen"));
-    setTimeout(function() {
-      spark($("#fx-stock"));
-    }, 200 * wait);
-    setTimeout(function() {
-      spark($("#fx-phone"));
-    }, 400 * wait);
-    setTimeout(function() {
-      tickets.unshift({
-        no: no,
-        where: "Table 4",
-        age: 0,
-        lines: lines
-      });
+    spark($('#fx-kitchen'));
+    setTimeout(function () { spark($('#fx-stock')); }, 200 * wait);
+    setTimeout(function () { spark($('#fx-phone')); }, 400 * wait);
+    setTimeout(function () {
+      tickets.unshift({ no: no, where: 'Table 4', age: 0, lines: lines });
       if (tickets.length > 4) tickets.length = 4;
-      renderTickets(true);
-      flash($("#fx-kitchen"));
+      renderTickets(true); flash($('#fx-kitchen'));
     }, 480 * wait);
-    setTimeout(function() {
-      var show = ids.slice().sort(function(a, b) {
-        return used[b] * ING[b].cost - used[a] * ING[a].cost;
-      }).slice(0, 4);
-      var before = {};
-      show.forEach(function(id) {
-        before[id] = ING[id].q;
-      });
-      ids.forEach(function(id) {
-        ING[id].q = Math.max(0, ING[id].q - used[id]);
-      });
-      renderStock(show, before);
-      flash($("#fx-stock"));
-      $("#s-note").textContent = ids.length + " items used";
-      requestAnimationFrame(function() {
-        requestAnimationFrame(function() {
-          show.forEach(function(id) {
-            var row = stockEl.querySelector('[data-id="' + id + '"]');
-            if (!row) return;
-            var i = ING[id], n = row.querySelector(".n");
-            row.querySelector(".dl").textContent = "−" + qty(used[id], i.unit).replace(" pcs", "");
-            row.classList.add("moved");
-            row.querySelector(".bar i").style.setProperty("--w", level(id, i.q).toFixed(1) + "%");
-            row.classList.toggle("low", i.q < i.low * 1.5);
-            tween(before[id], i.q, 900, function(v) {
-              n.textContent = qty(v, i.unit);
-            });
-          });
+    setTimeout(function () {
+      var show = ids.slice().sort(function (a, b) { return (used[b] * ING[b].cost) - (used[a] * ING[a].cost); }).slice(0, 4);
+      var before = {}; show.forEach(function (id) { before[id] = ING[id].q; });
+      ids.forEach(function (id) { ING[id].q = Math.max(0, ING[id].q - used[id]); });
+      renderStock(show, before); flash($('#fx-stock'));
+      $('#s-note').textContent = ids.length + ' items used';
+      requestAnimationFrame(function () { requestAnimationFrame(function () {
+        show.forEach(function (id) {
+          var row = stockEl.querySelector('[data-id="' + id + '"]'); if (!row) return;
+          var i = ING[id], n = row.querySelector('.n');
+          row.querySelector('.dl').textContent = '−' + qty(used[id], i.unit).replace(' pcs', '');
+          row.classList.add('moved');
+          row.querySelector('.bar i').style.setProperty('--w', level(id, i.q).toFixed(1) + '%');
+          row.classList.toggle('low', i.q < i.low * 1.5);
+          tween(before[id], i.q, 900, function (v) { n.textContent = qty(v, i.unit); });
         });
-      });
+      }); });
     }, 700 * wait);
-    setTimeout(function() {
+    setTimeout(function () {
       var s0 = S.sales, p0 = S.profit;
-      S.sales += amt;
-      S.orders += 1;
-      S.profit += margin;
-      toastT.textContent = "#" + no + " · " + peso(amt) + " · Cash · Register 1";
-      toast.classList.add("show");
-      tween(s0, S.sales, 1e3, function(v) {
-        pSales.textContent = peso(v);
-      });
-      tween(p0, S.profit, 1e3, function(v) {
-        pProfit.textContent = peso(v);
-      });
+      S.sales += amt; S.orders += 1; S.profit += margin;
+      toastT.textContent = '#' + no + ' · ' + peso(amt) + ' · Cash · Register 1';
+      toast.classList.add('show');
+      tween(s0, S.sales, 1000, function (v) { pSales.textContent = peso(v); });
+      tween(p0, S.profit, 1000, function (v) { pProfit.textContent = peso(v); });
       pOrders.textContent = S.orders;
-      flash($("#fx-phone"));
-      setTimeout(function() {
-        toast.classList.remove("show");
-      }, 3600);
-      if (touched) status.textContent = "Paid " + peso(amt) + ". Order " + no + " is on the kitchen screen, " + ids.length + " ingredients came out of stock, and sales today are now " + peso(S.sales) + ".";
+      flash($('#fx-phone'));
+      setTimeout(function () { toast.classList.remove('show'); }, 3600);
+      if (touched) status.textContent = 'Paid ' + peso(amt) + '. Order ' + no + ' is on the kitchen screen, ' + ids.length + ' ingredients came out of stock, and sales today are now ' + peso(S.sales) + '.';
     }, 920 * wait);
-    setTimeout(function() {
-      cart = {};
-      order = [];
-      S.no += 1;
-      busy = false;
-      $("#c-no").textContent = "#" + S.no;
-      payBtn.classList.remove("paid");
-      payBtn.querySelector(".lbl").textContent = "Send + Pay";
+    setTimeout(function () {
+      cart = {}; order = []; S.no += 1; busy = false;
+      $('#c-no').textContent = '#' + S.no;
+      payBtn.classList.remove('paid');
+      payBtn.querySelector('.lbl').textContent = 'Send + Pay';
       renderCart();
     }, 1900 * wait);
   }
+
   function attract() {
     if (touched || busy || reduced) return;
-    var seq = [ "spanish", "ube", "tapsilog" ], i = 0;
+    var seq = ['spanish', 'ube', 'tapsilog'], i = 0;
     (function next() {
       if (touched) return;
-      if (i < seq.length) {
-        add(seq[i++], true);
-        setTimeout(next, 700);
-      } else setTimeout(function() {
-        if (!touched) pay();
-      }, 800);
+      if (i < seq.length) { add(seq[i++], true); setTimeout(next, 700); }
+      else setTimeout(function () { if (!touched) pay(); }, 800);
     })();
   }
   var stage = stageEl;
-  [ "pointerdown", "keydown" ].forEach(function(ev) {
-    stage.addEventListener(ev, function() {
-      touched = true;
-    }, true);
-  });
+  ['pointerdown', 'keydown'].forEach(function (ev) { stage.addEventListener(ev, function () { touched = true; }, true); });
   if (hasIO && !reduced) {
     var seen = false;
-    new IntersectionObserver(function(es, obs) {
-      if (es[0].isIntersecting && !seen) {
-        seen = true;
-        obs.disconnect();
-        setTimeout(attract, 2600);
-      }
-    }, {
-      threshold: .5
-    }).observe(stage);
+    new IntersectionObserver(function (es, obs) {
+      if (es[0].isIntersecting && !seen) { seen = true; obs.disconnect(); setTimeout(attract, 2600); }
+    }, { threshold: 0.5 }).observe(stage);
   }
-  var clock = $("#t-clock");
-  function tick() {
-    try {
-      clock.textContent = (new Date).toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit"
-      });
-    } catch (e) {}
-  }
-  tick();
-  setInterval(tick, 15e3);
-  renderCart();
-  renderTickets(false);
-  renderStock(shown);
-  var net = $("#net");
-  if (!reduced) setInterval(function() {
-    net.classList.toggle("live");
-  }, 3200); else net.classList.add("live");
-  var ana = $("#ana-hrs");
+
+  var clock = $('#t-clock');
+  function tick() { try { clock.textContent = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); } catch (e) {} }
+  tick(); setInterval(tick, 15000);
+
+  renderCart(); renderTickets(false); renderStock(shown);
+
+  var net = $('#net');
+  if (!reduced) setInterval(function () { net.classList.toggle('live'); }, 3200);
+  else net.classList.add('live');
+
+  var ana = $('#ana-hrs');
   function hrs() {
-    var n = new Date, m = (n.getHours() - 7) * 60 + n.getMinutes();
+    var n = new Date(), m = (n.getHours() - 7) * 60 + n.getMinutes();
     if (m < 30 || m > 14 * 60) m = 7 * 60 + 32;
-    ana.textContent = Math.floor(m / 60) + "h " + ("0" + m % 60).slice(-2) + "m";
+    ana.textContent = Math.floor(m / 60) + 'h ' + ('0' + (m % 60)).slice(-2) + 'm';
   }
-  hrs();
-  setInterval(hrs, 3e4);
-  var paperRows = $$("#paper div"), madeTiles = $$("#made-tiles span");
+  hrs(); setInterval(hrs, 30000);
+
+  var paperRows = $$('#paper div'), madeTiles = $$('#made-tiles span');
   function build() {
-    madeTiles.forEach(function(t, i) {
-      setTimeout(function() {
-        paperRows.forEach(function(r, j) {
-          r.classList.toggle("lit", i === j);
-        });
-        t.classList.add("pop");
-        if (i === madeTiles.length - 1) setTimeout(function() {
-          paperRows.forEach(function(r) {
-            r.classList.remove("lit");
-          });
-        }, 700);
+    madeTiles.forEach(function (t, i) {
+      setTimeout(function () {
+        paperRows.forEach(function (r, j) { r.classList.toggle('lit', i === j); });
+        t.classList.add('pop');
+        if (i === madeTiles.length - 1) setTimeout(function () { paperRows.forEach(function (r) { r.classList.remove('lit'); }); }, 700);
       }, reduced ? 0 : 320 * i);
     });
   }
   if (hasIO && !reduced) {
-    new IntersectionObserver(function(es, obs) {
-      if (es[0].isIntersecting) {
-        obs.disconnect();
-        setTimeout(build, 300);
-      }
-    }, {
-      threshold: .4
-    }).observe($("#transform"));
+    new IntersectionObserver(function (es, obs) { if (es[0].isIntersecting) { obs.disconnect(); setTimeout(build, 300); } }, { threshold: 0.4 }).observe($('#transform'));
   } else build();
-  var dock = $("#dock"), heroCtas = $("#hero-ctas"), final = $("#demo");
+
+  var dock = $('#dock'), heroCtas = $('#hero-ctas'), final = $('#demo');
   if (hasIO) {
     var past = false, end = false;
-    var upd = function() {
-      dock.classList.toggle("show", past && !end);
-    };
-    new IntersectionObserver(function(es) {
-      past = !es[0].isIntersecting && es[0].boundingClientRect.top < 0;
-      upd();
-    }).observe(heroCtas);
-    new IntersectionObserver(function(es) {
-      end = es.some(function(e) {
-        return e.isIntersecting;
-      });
-      upd();
-    }, {
-      threshold: 0
-    }).observe(final);
+    var upd = function () { dock.classList.toggle('show', past && !end); };
+    new IntersectionObserver(function (es) { past = !es[0].isIntersecting && es[0].boundingClientRect.top < 0; upd(); }).observe(heroCtas);
+    new IntersectionObserver(function (es) { end = es.some(function (e) { return e.isIntersecting; }); upd(); }, { threshold: 0 }).observe(final);
   }
 })();
 </script>
 <script>
-(function() {
-  "use strict";
+
+(function () {
+  'use strict';
   var d = document;
-  var reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var hasIO = "IntersectionObserver" in window;
-  var row = d.getElementById("hrail"), count = d.getElementById("hr-count");
+  var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var hasIO = 'IntersectionObserver' in window;
+
+  var row = d.getElementById('hrail'), count = d.getElementById('hr-count');
   if (row) {
-    var POOL = [ {
-      where: "Table 4",
-      lines: [ [ 2, "Spanish Latte", "Medium, less sweet" ], [ 1, "Tapsilog", "" ], [ 1, "Cheesecake Slice", "" ] ]
-    }, {
-      where: "Takeout",
-      lines: [ [ 1, "Pork Sisig Rice", "No onions" ], [ 1, "House Iced Tea", "Less ice" ], [ 2, "Americano", "Hot" ] ]
-    }, {
-      where: "Table 6",
-      lines: [ [ 1, "Caramel Macchiato", "Large" ], [ 2, "Butter Croissant", "" ], [ 1, "Ube Latte", "Medium" ] ]
-    }, {
-      where: "GrabFood",
-      lines: [ [ 3, "Ube Latte", "Medium" ], [ 1, "Cheesecake Slice", "" ], [ 1, "Cold Brew", "" ] ]
-    }, {
-      where: "Table 2",
-      lines: [ [ 1, "Java Chip Frappe", "Large" ], [ 1, "Americano", "Hot" ], [ 1, "Tapsilog", "" ] ]
-    }, {
-      where: "Takeout",
-      lines: [ [ 2, "Matcha Latte", "Less ice" ], [ 1, "Tapsilog", "" ], [ 1, "Cafe Mocha", "" ] ]
-    } ];
+    var POOL = [
+      { where: 'Table 4', lines: [[2, 'Spanish Latte', 'Medium, less sweet'], [1, 'Tapsilog', ''], [1, 'Cheesecake Slice', '']] },
+      { where: 'Takeout', lines: [[1, 'Pork Sisig Rice', 'No onions'], [1, 'House Iced Tea', 'Less ice'], [2, 'Americano', 'Hot']] },
+      { where: 'Table 6', lines: [[1, 'Caramel Macchiato', 'Large'], [2, 'Butter Croissant', ''], [1, 'Ube Latte', 'Medium']] },
+      { where: 'GrabFood', lines: [[3, 'Ube Latte', 'Medium'], [1, 'Cheesecake Slice', ''], [1, 'Cold Brew', '']] },
+      { where: 'Table 2', lines: [[1, 'Java Chip Frappe', 'Large'], [1, 'Americano', 'Hot'], [1, 'Tapsilog', '']] },
+      { where: 'Takeout', lines: [[2, 'Matcha Latte', 'Less ice'], [1, 'Tapsilog', ''], [1, 'Cafe Mocha', '']] }
+    ];
     var seq = 41, tickets = [];
-    var make = function(age) {
-      var p = POOL[seq % POOL.length];
-      return {
-        no: seq++,
-        where: p.where,
-        lines: p.lines,
-        age: age
-      };
+    var make = function (age) { var p = POOL[seq % POOL.length]; return { no: seq++, where: p.where, lines: p.lines, age: age }; };
+    tickets = [make(605), make(318), make(24)];
+    var mmss = function (s) { return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); };
+    var tone = function (s) { return s >= 600 ? ' r' : s >= 300 ? ' o' : ''; };
+    var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+    var html = function (t, enter) {
+      return '<div class="tix clip' + tone(t.age) + (enter ? ' enter' : '') + '" data-no="' + t.no + '">' +
+        '<div class="tix-h"><span>#' + t.no + '</span><span class="age">' + mmss(t.age) + '</span></div>' +
+        '<div class="tix-b"><div class="hk-where">' + esc(t.where) + '</div><ul class="hk-lines">' +
+        t.lines.map(function (l) { return '<li><b>' + l[0] + '×</b>' + esc(l[1]) + (l[2] ? '<small>' + esc(l[2]) + '</small>' : '') + '</li>'; }).join('') +
+        '</ul></div><span class="done-stamp">Done</span></div>';
     };
-    tickets = [ make(605), make(318), make(24) ];
-    var mmss = function(s) {
-      return Math.floor(s / 60) + ":" + ("0" + s % 60).slice(-2);
-    };
-    var tone = function(s) {
-      return s >= 600 ? " r" : s >= 300 ? " o" : "";
-    };
-    var esc = function(s) {
-      return String(s).replace(/[&<>"]/g, function(c) {
-        return {
-          "&": "&amp;",
-          "<": "&lt;",
-          ">": "&gt;",
-          '"': "&quot;"
-        }[c];
-      });
-    };
-    var html = function(t, enter) {
-      return '<div class="tix clip' + tone(t.age) + (enter ? " enter" : "") + '" data-no="' + t.no + '">' + '<div class="tix-h"><span>#' + t.no + '</span><span class="age">' + mmss(t.age) + "</span></div>" + '<div class="tix-b"><div class="hk-where">' + esc(t.where) + '</div><ul class="hk-lines">' + t.lines.map(function(l) {
-        return "<li><b>" + l[0] + "×</b>" + esc(l[1]) + (l[2] ? "<small>" + esc(l[2]) + "</small>" : "") + "</li>";
-      }).join("") + '</ul></div><span class="done-stamp">Done</span></div>';
-    };
-    var render = function(enterLast) {
-      row.innerHTML = tickets.map(function(t, i) {
-        return html(t, enterLast && i === tickets.length - 1);
-      }).join("");
-      if (count) count.textContent = tickets.length + " waiting";
+    var render = function (enterLast) {
+      row.innerHTML = tickets.map(function (t, i) { return html(t, enterLast && i === tickets.length - 1); }).join('');
+      if (count) count.textContent = tickets.length + ' waiting';
     };
     render(false);
     var visible = true, busy = false;
-    setInterval(function() {
+    setInterval(function () {
       if (!visible) return;
-      tickets.forEach(function(t) {
-        t.age++;
+      tickets.forEach(function (t) { t.age++; });
+      Array.prototype.forEach.call(row.children, function (el, i) {
+        var t = tickets[i]; if (!t) return;
+        el.querySelector('.age').textContent = mmss(t.age);
+        el.classList.toggle('r', t.age >= 600); el.classList.toggle('o', t.age >= 300 && t.age < 600);
       });
-      Array.prototype.forEach.call(row.children, function(el, i) {
-        var t = tickets[i];
-        if (!t) return;
-        el.querySelector(".age").textContent = mmss(t.age);
-        el.classList.toggle("r", t.age >= 600);
-        el.classList.toggle("o", t.age >= 300 && t.age < 600);
-      });
-    }, 1e3);
-    var cycle = function() {
+    }, 1000);
+    var cycle = function () {
       if (!visible || busy || reduced) return;
       busy = true;
-      var first = row.firstElementChild;
-      if (!first) {
-        busy = false;
-        return;
-      }
-      first.classList.add("bumped");
-      setTimeout(function() {
-        first.classList.add("leave");
-        setTimeout(function() {
+      var first = row.firstElementChild; if (!first) { busy = false; return; }
+      first.classList.add('bumped');
+      setTimeout(function () {
+        first.classList.add('leave');
+        setTimeout(function () {
           tickets.shift();
-          tickets.forEach(function(t) {
-            t.age += 290;
-          });
+
+          tickets.forEach(function (t) { t.age += 290; });
           tickets.push(make(18 + Math.floor(Math.random() * 20)));
           render(true);
           busy = false;
@@ -2102,62 +1684,39 @@ document.documentElement.classList.add("js");
       }, 900);
     };
     setInterval(cycle, 5200);
-    if (hasIO) new IntersectionObserver(function(es) {
-      visible = es[0].isIntersecting;
-    }).observe(row);
+    if (hasIO) new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(row);
   }
-  var hr = d.getElementById("how-row"), prev = d.getElementById("how-prev"), next = d.getElementById("how-next"), at = d.getElementById("how-at");
+
+  var hr = d.getElementById('how-row'), prev = d.getElementById('how-prev'), next = d.getElementById('how-next'), at = d.getElementById('how-at');
   if (hr && prev && next) {
-    var cards = hr.querySelectorAll(".tix");
-    var stepW = function() {
-      var c = cards[0];
-      return c ? c.getBoundingClientRect().width + 22 : 300;
-    };
-    var sync = function() {
+    var cards = hr.querySelectorAll('.tix');
+    var stepW = function () { var c = cards[0]; return c ? c.getBoundingClientRect().width + 22 : 300; };
+    var sync = function () {
       var i = Math.min(cards.length - 1, Math.round(hr.scrollLeft / stepW()));
       if (hr.scrollLeft + hr.clientWidth >= hr.scrollWidth - 4) i = cards.length - 1;
-      at.textContent = i + 1 + " / " + cards.length;
+      at.textContent = (i + 1) + ' / ' + cards.length;
       prev.disabled = hr.scrollLeft < 4;
       next.disabled = hr.scrollLeft + hr.clientWidth >= hr.scrollWidth - 4;
     };
-    var go = function(dir) {
-      hr.scrollBy({
-        left: dir * stepW(),
-        behavior: reduced ? "auto" : "smooth"
-      });
-    };
-    prev.addEventListener("click", function() {
-      go(-1);
-    });
-    next.addEventListener("click", function() {
-      go(1);
-    });
+    var go = function (dir) { hr.scrollBy({ left: dir * stepW(), behavior: reduced ? 'auto' : 'smooth' }); };
+    prev.addEventListener('click', function () { go(-1); });
+    next.addEventListener('click', function () { go(1); });
     var q = 0;
-    hr.addEventListener("scroll", function() {
-      if (!q) q = requestAnimationFrame(function() {
-        q = 0;
-        sync();
-      });
-    }, {
-      passive: true
-    });
-    addEventListener("resize", sync);
-    sync();
+    hr.addEventListener('scroll', function () { if (!q) q = requestAnimationFrame(function () { q = 0; sync(); }); }, { passive: true });
+    addEventListener('resize', sync); sync();
   }
-  var cats = Array.prototype.slice.call(d.querySelectorAll("#board-menu details"));
-  var fitMenu = function() {
+
+  var cats = Array.prototype.slice.call(d.querySelectorAll('#board-menu details'));
+  var fitMenu = function () {
     var small = innerWidth <= 720;
-    cats.forEach(function(c, i) {
-      if (!small) c.open = true; else if (!c.getAttribute("data-touched")) c.open = i === 0;
-    });
+    cats.forEach(function (c, i) { if (!small) c.open = true; else if (!c.getAttribute('data-touched')) c.open = i === 0; });
   };
-  cats.forEach(function(c) {
-    c.querySelector("summary").addEventListener("click", function(e) {
-      if (innerWidth > 720) e.preventDefault(); else c.setAttribute("data-touched", "1");
+  cats.forEach(function (c) {
+    c.querySelector('summary').addEventListener('click', function (e) {
+      if (innerWidth > 720) e.preventDefault(); else c.setAttribute('data-touched', '1');
     });
   });
-  fitMenu();
-  addEventListener("resize", fitMenu);
+  fitMenu(); addEventListener('resize', fitMenu);
 })();
 </script>
 <script src="beacon.js" defer></script>

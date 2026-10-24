@@ -11,7 +11,6 @@
 
 <style>
 
-
   @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; }
   @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-ext-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20C0; }
   :root {
@@ -72,7 +71,6 @@
   .made a { color: var(--muted); font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--line); }
   .waitdot { display: inline-block; width: 8px; height: 8px; border-radius: 99px; background: var(--accent); margin-right: 8px; vertical-align: 1px; }
 
-
   @keyframes cardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
   @keyframes qrIn { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
   @keyframes shake { 0%, 100% { transform: none; } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-3px); } }
@@ -97,167 +95,123 @@
 <div class="made">Powered by <a href="https://emberpos.net" target="_blank" rel="noopener">Ember POS</a></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script>
-const URLB = "https://qqmkgafyfxrcnwdkkyxc.supabase.co";
-
-const ANON = "sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX";
-
-const TOKEN = new URLSearchParams(location.search).get("t") || "";
-
-const KEY = "ember.card." + TOKEN.slice(0, 12);
-
-const el = id => document.getElementById(id);
-
-const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': "&quot;",
-  "'": "&#39;"
-}[c]));
+const URLB = 'https://qqmkgafyfxrcnwdkkyxc.supabase.co';
+const ANON = 'sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX';
+const TOKEN = new URLSearchParams(location.search).get('t') || '';
+const KEY = 'ember.card.' + TOKEN.slice(0, 12);
+const el = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 
 async function rpc(fn, args) {
-  const r = await fetch(URLB + "/rest/v1/rpc/" + fn, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: ANON,
-      Authorization: "Bearer " + ANON
-    },
-    body: JSON.stringify(args)
+  const r = await fetch(URLB + '/rest/v1/rpc/' + fn, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON },
+    body: JSON.stringify(args),
   });
-  if (!r.ok) throw new Error("network");
+  if (!r.ok) throw new Error('network');
   return await r.json();
 }
 
 function cardHtml(c) {
-  let svg = "";
+  let svg = '';
   try {
-    const q = qrcode(0, "M");
-    q.addData("EMBER-CARD:" + c.code);
+    const q = qrcode(0, 'M');
+    q.addData('EMBER-CARD:' + c.code);
     q.make();
-    svg = q.createSvgTag({
-      cellSize: 6,
-      margin: 0,
-      scalable: true
-    });
-  } catch (e) {
-    svg = "";
-  }
-  const shown = c.code.length === 10 ? c.code.slice(0, 5) + " " + c.code.slice(5) : c.code;
-  return '<div class="card loyal">' + '<div class="shop">' + esc(c.shop || "Loyalty card") + "</div>" + '<div class="who">' + esc(c.name) + "</div>" + (svg ? '<div class="qr">' + svg + "</div>" : "") + '<div class="code">' + esc(shown) + "</div>" + '<div id="stampbox"></div>' + '<div class="note">Show this at the counter every time you order. Take a screenshot to keep it handy, ' + "or open this link again, your card stays on this phone.</div></div>";
+    svg = q.createSvgTag({ cellSize: 6, margin: 0, scalable: true });
+  } catch (e) { svg = ''; }
+  const shown = c.code.length === 10 ? c.code.slice(0, 5) + ' ' + c.code.slice(5) : c.code;
+  return '<div class="card loyal">' +
+    '<div class="shop">' + esc(c.shop || 'Loyalty card') + '</div>' +
+    '<div class="who">' + esc(c.name) + '</div>' +
+    (svg ? '<div class="qr">' + svg + '</div>' : '') +
+    '<div class="code">' + esc(shown) + '</div>' +
+    '<div id="stampbox"></div>' +
+    '<div class="note">Show this at the counter every time you order. Take a screenshot to keep it handy, ' +
+    'or open this link again, your card stays on this phone.</div></div>';
 }
 
 function showCard(c) {
-  el("title").textContent = c.shop ? c.shop : "Loyalty card";
-  el("sub").textContent = "Your loyalty card";
-  el("main").innerHTML = cardHtml(c);
+  el('title').textContent = c.shop ? c.shop : 'Loyalty card';
+  el('sub').textContent = 'Your loyalty card';
+  el('main').innerHTML = cardHtml(c);
   loadStamps(c);
 }
 
 async function loadStamps(c) {
   try {
-    const r = await rpc("loyalty_card_status", {
-      p_token: TOKEN,
-      p_code: c.code
-    });
+    const r = await rpc('loyalty_card_status', { p_token: TOKEN, p_code: c.code });
     if (!r || !r.ok) return;
     const req = Math.max(1, Math.min(50, Number(r.required) || 10));
     const have = Math.max(0, Number(r.stamps) || 0);
     const shownDots = Math.min(have, req);
-    let dots = "";
-    if (req <= 20) for (let i = 0; i < req; i++) dots += '<i class="' + (i < shownDots ? "on" : "") + '"></i>';
+    let dots = '';
+    if (req <= 20) for (let i = 0; i < req; i++) dots += '<i class="' + (i < shownDots ? 'on' : '') + '"></i>';
     const left = req - have;
-    const line = r.free_ready ? "You have a free one ready. Ask at the counter!" : left === 1 ? "1 more stamp for a free one." : left + " more stamps for a free one.";
-    const box = el("stampbox");
+    const line = r.free_ready ? 'You have a free one ready. Ask at the counter!'
+      : (left === 1 ? '1 more stamp for a free one.' : left + ' more stamps for a free one.');
+    const box = el('stampbox');
     if (!box) return;
-    box.innerHTML = (dots ? '<div class="stamps" aria-hidden="true">' + dots + "</div>" : "") + '<div class="stampline' + (r.free_ready ? " ready" : "") + '">' + have + " of " + req + " stamps</div>" + '<div class="note" style="margin-top:4px">' + esc(line) + "</div>";
-  } catch (e) {}
+    box.innerHTML = (dots ? '<div class="stamps" aria-hidden="true">' + dots + '</div>' : '') +
+      '<div class="stampline' + (r.free_ready ? ' ready' : '') + '">' + have + ' of ' + req + ' stamps</div>' +
+      '<div class="note" style="margin-top:4px">' + esc(line) + '</div>';
+  } catch (e) {  }
 }
 
 function showForm(shop) {
-  el("title").textContent = shop.shop || "Loyalty card";
-  el("sub").textContent = "Join our loyalty card: get a stamp with every visit, and a free item after " + shop.required + ".";
-  el("main").innerHTML = '<div class="card">' + '<label for="nm">Your name</label>' + '<input id="nm" autocomplete="name" maxlength="60" placeholder="Your name">' + '<label for="ph">Mobile number</label>' + '<input id="ph" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="Mobile number">' + '<label for="bd">Birthday <span>(optional, for a birthday treat)</span></label>' + '<input id="bd" type="date" autocomplete="bday">' + '<button class="go" id="go">Get my card</button>' + '<div class="msg" id="msg"></div>' + '<div class="note">Your name and number go to this shop only, for its loyalty card.</div>' + "</div>";
+  el('title').textContent = shop.shop || 'Loyalty card';
+  el('sub').textContent = 'Join our loyalty card: get a stamp with every visit, and a free item after ' + shop.required + '.';
+  el('main').innerHTML =
+    '<div class="card">' +
+      '<label for="nm">Your name</label>' +
+
+      '<input id="nm" autocomplete="name" maxlength="60" placeholder="Your name">' +
+      '<label for="ph">Mobile number</label>' +
+      '<input id="ph" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="Mobile number">' +
+      '<label for="bd">Birthday <span>(optional, for a birthday treat)</span></label>' +
+      '<input id="bd" type="date" autocomplete="bday">' +
+      '<button class="go" id="go">Get my card</button>' +
+      '<div class="msg" id="msg"></div>' +
+      '<div class="note">Your name and number go to this shop only, for its loyalty card.</div>' +
+    '</div>';
+
   const say = (text, kind) => {
-    const m = el("msg");
-    m.classList.remove("bad");
-    if (kind === "wait") {
-      m.innerHTML = '<span class="waitdot"></span>' + esc(text);
-      return;
-    }
+    const m = el('msg');
+    m.classList.remove('bad');
+    if (kind === 'wait') { m.innerHTML = '<span class="waitdot"></span>' + esc(text); return; }
     m.textContent = text;
-    if (kind === "bad") {
-      void m.offsetWidth;
-      m.classList.add("bad");
-    }
+    if (kind === 'bad') { void m.offsetWidth; m.classList.add('bad'); }
   };
-  el("go").onclick = async function() {
-    if (el("go").disabled) return;
-    const name = el("nm").value.trim(), phone = el("ph").value.trim(), bday = el("bd").value || null;
-    if (name.length < 2) {
-      say("Type your name.", "bad");
-      return;
-    }
-    if (phone.replace(/\D/g, "").length < 10) {
-      say("Type your full mobile number.", "bad");
-      return;
-    }
-    el("go").disabled = true;
-    say("Making your card…", "wait");
+  el('go').onclick = async function () {
+    if (el('go').disabled) return;
+    const name = el('nm').value.trim(), phone = el('ph').value.trim(), bday = el('bd').value || null;
+    if (name.length < 2) { say('Type your name.', 'bad'); return; }
+    if (phone.replace(/\D/g, '').length < 10) { say('Type your full mobile number.', 'bad'); return; }
+    el('go').disabled = true; say('Making your card…', 'wait');
     try {
-      const r = await rpc("loyalty_join", {
-        p_token: TOKEN,
-        p_name: name,
-        p_phone: phone,
-        p_birthday: bday
-      });
-      if (!r || !r.ok) {
-        say(r && r.error || "Please ask at the counter.", "bad");
-        el("go").disabled = false;
-        return;
-      }
-      const card = {
-        code: r.card_code,
-        name: name,
-        shop: r.shop || shop.shop || ""
-      };
-      try {
-        localStorage.setItem(KEY, JSON.stringify(card));
-      } catch (e) {}
+      const r = await rpc('loyalty_join', { p_token: TOKEN, p_name: name, p_phone: phone, p_birthday: bday });
+      if (!r || !r.ok) { say((r && r.error) || 'Please ask at the counter.', 'bad'); el('go').disabled = false; return; }
+      const card = { code: r.card_code, name: name, shop: r.shop || shop.shop || '' };
+      try { localStorage.setItem(KEY, JSON.stringify(card)); } catch (e) {  }
       showCard(card);
     } catch (e) {
-      say("No connection. Try again in a moment.", "bad");
-      el("go").disabled = false;
+      say('No connection. Try again in a moment.', 'bad');
+      el('go').disabled = false;
     }
   };
 }
 
-(async function() {
-  if (!TOKEN) {
-    el("main").innerHTML = '<div class="card"><div class="msg">This link is not complete. Please scan the QR code again.</div></div>';
-    return;
-  }
+(async function () {
+  if (!TOKEN) { el('main').innerHTML = '<div class="card"><div class="msg">This link is not complete. Please scan the QR code again.</div></div>'; return; }
   let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { saved = null; }
+  if (saved && saved.code) { showCard(saved); return; }
   try {
-    saved = JSON.parse(localStorage.getItem(KEY) || "null");
-  } catch (e) {
-    saved = null;
-  }
-  if (saved && saved.code) {
-    showCard(saved);
-    return;
-  }
-  try {
-    const shop = await rpc("loyalty_join_shop", {
-      p_token: TOKEN
-    });
-    if (!shop || !shop.ok) {
-      el("main").innerHTML = '<div class="card"><div class="msg">' + esc(shop && shop.error || "Please ask at the counter.") + "</div></div>";
-      return;
-    }
+    const shop = await rpc('loyalty_join_shop', { p_token: TOKEN });
+    if (!shop || !shop.ok) { el('main').innerHTML = '<div class="card"><div class="msg">' + esc((shop && shop.error) || 'Please ask at the counter.') + '</div></div>'; return; }
     showForm(shop);
   } catch (e) {
-    el("main").innerHTML = '<div class="card"><div class="msg">No connection. Check your signal and try again.</div></div>';
+    el('main').innerHTML = '<div class="card"><div class="msg">No connection. Check your signal and try again.</div></div>';
   }
 })();
 </script>

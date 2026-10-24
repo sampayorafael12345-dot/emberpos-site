@@ -10,7 +10,6 @@
 <link rel="icon" href="favicon.png">
 
 <style>
-
   :root {
     color-scheme: light dark;
     --bg: #f2f2f4;          --bg-sub: #ffffff;
@@ -208,165 +207,118 @@
 <p class="wrap lede" style="text-align:center;padding-top:0"><a href="/privacy-policy.html" target="_blank" rel="noopener" style="color:inherit">Privacy</a></p>
 
 <script>
-const URLB = "https://qqmkgafyfxrcnwdkkyxc.supabase.co";
+const URLB = 'https://qqmkgafyfxrcnwdkkyxc.supabase.co';
+const ANON = 'sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX';
 
-const ANON = "sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX";
+const el = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 
-const el = id => document.getElementById(id);
+let CUR = 'P';
 
-const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': "&quot;",
-  "'": "&#39;"
-}[c]));
-
-let CUR = "P";
-
-const money = c => CUR + (/\p{L}{2}$/u.test(CUR) ? " " : "") + (Math.round(c) / 100).toLocaleString("en-US", {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2
-});
+const money = (c) => CUR + (/\p{L}{2}$/u.test(CUR) ? '\u00a0' : '') + (Math.round(c) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 async function rpc(fn, args) {
-  const r = await fetch(URLB + "/rest/v1/rpc/" + fn, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: ANON,
-      Authorization: "Bearer " + ANON
-    },
-    body: JSON.stringify(args)
+  const r = await fetch(URLB + '/rest/v1/rpc/' + fn, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON },
+    body: JSON.stringify(args),
   });
-  if (!r.ok) throw new Error("network");
+  if (!r.ok) throw new Error('network');
   return await r.json();
 }
 
 const params = new URLSearchParams(location.search);
-
-const TOKEN = params.get("t") || "";
-
-const RESTOK = params.get("r") || "";
+const TOKEN = params.get('t') || '';
+const RESTOK = params.get('r') || '';
 
 let INFO = null;
 
-let SHOPDAY = "";
-
+let SHOPDAY = '';
 function takeInfo(r) {
   INFO = r;
-  if (r && typeof r.currency === "string" && r.currency) CUR = r.currency;
-  if (r && typeof r.today === "string" && /^\d{4}-\d{2}-\d{2}$/.test(r.today)) SHOPDAY = r.today;
+  if (r && typeof r.currency === 'string' && r.currency) CUR = r.currency;
+  if (r && typeof r.today === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(r.today)) SHOPDAY = r.today;
 }
 
 function shopDayPlus(i) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(SHOPDAY);
-  if (!m) {
-    const t = new Date;
-    return new Date(Date.UTC(t.getFullYear(), t.getMonth(), t.getDate() + i));
-  }
+  if (!m) { const t = new Date(); return new Date(Date.UTC(t.getFullYear(), t.getMonth(), t.getDate() + i)); }
   return new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]) + i));
 }
-
-const ymdUtc = d => d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, "0") + "-" + String(d.getUTCDate()).padStart(2, "0");
-
+const ymdUtc = (d) => d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') + '-' + String(d.getUTCDate()).padStart(2, '0');
 let DAY = null;
 
 let LOADING = false, FRESH = false;
 
-let FORMMSG = "";
-
+let FORMMSG = '';
 let TIME = null;
-
 let PARTY = 2;
-
 let BUSY = false;
 
-const FORM = {
-  name: "",
-  phone: "",
-  email: "",
-  note: ""
-};
-
+const FORM = { name: '', phone: '', email: '', note: '' };
 function grabForm() {
-  for (const k in FORM) {
-    const n = el(k);
-    if (n) FORM[k] = n.value;
-  }
+  for (const k in FORM) { const n = el(k); if (n) FORM[k] = n.value; }
 }
-
 function fillForm() {
-  for (const k in FORM) {
-    const n = el(k);
-    if (n && FORM[k]) n.value = FORM[k];
-  }
+  for (const k in FORM) { const n = el(k); if (n && FORM[k]) n.value = FORM[k]; }
 }
 
 function dayOptions(policy) {
   const out = [];
-  const open = String(policy.days ?? "0,1,2,3,4,5,6").split(",").map(s => s.trim()).filter(Boolean);
+
+  const open = String(policy.days ?? '0,1,2,3,4,5,6').split(',').map((s) => s.trim()).filter(Boolean);
   const horizon = Number(policy.horizon_days || 30);
   for (let i = 0; i <= Math.min(horizon, 90); i++) {
     const d = shopDayPlus(i);
     if (open.indexOf(String(d.getUTCDay())) === -1) continue;
     const ymd = ymdUtc(d);
     out.push({
-      ymd: ymd,
-      label: i === 0 ? "Today" : i === 1 ? "Tomorrow" : new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()).toLocaleDateString(undefined, {
-        weekday: "short",
-        day: "numeric",
-        month: "short"
-      })
+      ymd,
+      label: i === 0 ? 'Today' : i === 1 ? 'Tomorrow'
+        : new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }),
     });
   }
   return out;
 }
 
 let CAL_SHIFT = 0;
-
 function ymdOf(d) {
-  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
-
 function calendarHtml(days) {
-  const ok = new Set(days.map(d => d.ymd));
-  const todayYmd = SHOPDAY || ymdOf(new Date);
-  const base = DAY ? new Date(DAY + "T00:00:00") : new Date;
+  const ok = new Set(days.map((d) => d.ymd));
+  const todayYmd = SHOPDAY || ymdOf(new Date());
+  const base = DAY ? new Date(DAY + 'T00:00:00') : new Date();
   const first = new Date(base.getFullYear(), base.getMonth() + CAL_SHIFT, 1);
-  const monthKey = d => d.getFullYear() * 12 + d.getMonth();
-  const minM = days.length ? monthKey(new Date(days[0].ymd + "T00:00:00")) : monthKey(new Date);
-  const maxM = days.length ? monthKey(new Date(days[days.length - 1].ymd + "T00:00:00")) : minM;
+  const monthKey = (d) => d.getFullYear() * 12 + d.getMonth();
+  const minM = days.length ? monthKey(new Date(days[0].ymd + 'T00:00:00')) : monthKey(new Date());
+  const maxM = days.length ? monthKey(new Date(days[days.length - 1].ymd + 'T00:00:00')) : minM;
   const cur = monthKey(first);
-  const start = new Date(first);
-  start.setDate(1 - first.getDay());
+  const start = new Date(first); start.setDate(1 - first.getDay());
   const last = new Date(first.getFullYear(), first.getMonth() + 1, 0);
   const cells = Math.ceil((first.getDay() + last.getDate()) / 7) * 7;
-  let h = '<div class="cal" id="days">' + '<div class="cal-head">' + '<button class="cal-nav" data-month="-1" aria-label="Previous month"' + (cur <= minM ? " disabled" : "") + ">&#8249;</button>" + '<div class="cal-title">' + esc(first.toLocaleDateString(undefined, {
-    month: "long",
-    year: "numeric"
-  })) + "</div>" + '<button class="cal-nav" data-month="1" aria-label="Next month"' + (cur >= maxM ? " disabled" : "") + ">&#8250;</button>" + '</div><div class="cal-grid">' + [ "S", "M", "T", "W", "T", "F", "S" ].map(w => '<div class="cal-wd">' + w + "</div>").join("");
+  let h = '<div class="cal" id="days">'
+    + '<div class="cal-head">'
+    + '<button class="cal-nav" data-month="-1" aria-label="Previous month"' + (cur <= minM ? ' disabled' : '') + '>&#8249;</button>'
+    + '<div class="cal-title">' + esc(first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })) + '</div>'
+    + '<button class="cal-nav" data-month="1" aria-label="Next month"' + (cur >= maxM ? ' disabled' : '') + '>&#8250;</button>'
+    + '</div><div class="cal-grid">'
+    + ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((w) => '<div class="cal-wd">' + w + '</div>').join('');
   for (let i = 0; i < cells; i++) {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
+    const d = new Date(start); d.setDate(start.getDate() + i);
     const y = ymdOf(d);
     const inMonth = d.getMonth() === first.getMonth();
     const can = inMonth && ok.has(y);
-    h += '<button class="cal-day' + (inMonth ? "" : " other") + (y === todayYmd ? " today" : "") + '"' + (can ? ' data-day="' + y + '"' : " disabled") + ' aria-pressed="' + (y === DAY) + '"' + ' aria-label="' + esc(d.toLocaleDateString(undefined, {
-      weekday: "long",
-      day: "numeric",
-      month: "long"
-    })) + '">' + d.getDate() + "</button>";
+    h += '<button class="cal-day' + (inMonth ? '' : ' other') + (y === todayYmd ? ' today' : '') + '"'
+      + (can ? ' data-day="' + y + '"' : ' disabled') + ' aria-pressed="' + (y === DAY) + '"'
+      + ' aria-label="' + esc(d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })) + '">'
+      + d.getDate() + '</button>';
   }
-  h += "</div>";
+  h += '</div>';
   if (DAY) {
-    h += '<div class="cal-picked">' + esc(new Date(DAY + "T00:00:00").toLocaleDateString(undefined, {
-      weekday: "long",
-      day: "numeric",
-      month: "long"
-    })) + "</div>";
+    h += '<div class="cal-picked">' + esc(new Date(DAY + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })) + '</div>';
   }
-  return h + "</div>";
+  return h + '</div>';
 }
 
 async function loadDay(ymd) {
@@ -376,258 +328,279 @@ async function loadDay(ymd) {
   LOADING = true;
   render();
   try {
-    takeInfo(await rpc("kiosk_reserve_info", {
-      p_token: TOKEN,
-      p_date: ymd
-    }));
+    takeInfo(await rpc('kiosk_reserve_info', { p_token: TOKEN, p_date: ymd }));
   } catch (e) {
-    INFO = {
-      ok: false,
-      error: "network"
-    };
+    INFO = { ok: false, error: 'network' };
   }
-  LOADING = false;
-  FRESH = true;
+  LOADING = false; FRESH = true;
   render();
 }
 
 function partyOptions(max) {
-  let s = "";
-  for (let i = 1; i <= max; i++) s += '<option value="' + i + '"' + (i === PARTY ? " selected" : "") + ">" + i + (i === 1 ? " person" : " people") + "</option>";
+  let s = '';
+  for (let i = 1; i <= max; i++) s += '<option value="' + i + '"' + (i === PARTY ? ' selected' : '') + '>' + i + (i === 1 ? ' person' : ' people') + '</option>';
   return s;
 }
 
 function depositLine(policy) {
-  if (!policy || policy.deposit_mode === "none" || !Number(policy.deposit_cents)) return "";
+  if (!policy || policy.deposit_mode === 'none' || !Number(policy.deposit_cents)) return '';
   const each = Number(policy.deposit_cents);
-  const total = policy.deposit_mode === "per_head" ? each * PARTY : each;
-  return '<div class="note warn" style="margin-top:10px">' + "This shop asks for a <b>" + money(total) + "</b> deposit to hold the table" + (policy.deposit_mode === "per_head" ? " (" + money(each) + " a head)" : "") + ". They will message you how to send it, and your table is confirmed once it is received." + "</div>";
+  const total = policy.deposit_mode === 'per_head' ? each * PARTY : each;
+  return '<div class="note warn" style="margin-top:10px">'
+    + 'This shop asks for a <b>' + money(total) + '</b> deposit to hold the table'
+    + (policy.deposit_mode === 'per_head' ? ' (' + money(each) + ' a head)' : '')
+    + '. They will message you how to send it, and your table is confirmed once it is received.'
+    + '</div>';
 }
 
 function stepH(n, text, done) {
-  return '<h2 class="step' + (done ? " done" : "") + '"><span class="num">' + (done ? "&#10003;" : n) + "</span>" + esc(text) + "</h2>";
+  return '<h2 class="step' + (done ? ' done' : '') + '"><span class="num">' + (done ? '&#10003;' : n) + '</span>' + esc(text) + '</h2>';
 }
 
 function bookingLabel() {
-  const d = DAY ? new Date(DAY + "T00:00:00").toLocaleDateString(undefined, {
-    weekday: "short",
-    day: "numeric",
-    month: "short"
-  }) : "";
-  const hit = (INFO && INFO.slots || []).filter(x => x.time === TIME)[0];
-  return d + ", " + (hit ? hit.label : TIME) + " for " + PARTY;
+  const d = DAY ? new Date(DAY + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) : '';
+  const hit = (INFO && INFO.slots || []).filter((x) => x.time === TIME)[0];
+  return d + ', ' + (hit ? hit.label : TIME) + ' for ' + PARTY;
 }
-
 let FIRST_PAINT = true;
 
 function render() {
   if (RESTOK) return;
   grabForm();
-  const app = el("app");
+  const app = el('app');
+
   if (!TOKEN) {
-    app.innerHTML = '<div class="card"><h2>This link is incomplete</h2>' + '<p class="lede">Ask the shop for their booking link again.</p></div>';
+    app.innerHTML = '<div class="card"><h2>This link is incomplete</h2>'
+      + '<p class="lede">Ask the shop for their booking link again.</p></div>';
     return;
   }
-  if (!INFO) {
-    app.innerHTML = '<div class="card"><p class="lede">Loading&hellip;</p></div>';
-    return;
-  }
+  if (!INFO) { app.innerHTML = '<div class="card"><p class="lede">Loading&hellip;</p></div>'; return; }
+
   if (INFO.ok === false) {
-    const msg = INFO.error === "off" ? "This shop is not taking online bookings at the moment. Please message or call them." : INFO.error === "unknown_link" ? "That booking link is not recognised. Ask the shop for a fresh one." : "Could not reach the shop just now. Please try again in a moment.";
-    app.innerHTML = '<div class="card"><h2>Not available</h2><p class="lede">' + esc(msg) + "</p></div>";
-    el("herosub").textContent = "";
+    const msg = INFO.error === 'off'
+      ? 'This shop is not taking online bookings at the moment. Please message or call them.'
+      : INFO.error === 'unknown_link'
+      ? 'That booking link is not recognised. Ask the shop for a fresh one.'
+      : 'Could not reach the shop just now. Please try again in a moment.';
+    app.innerHTML = '<div class="card"><h2>Not available</h2><p class="lede">' + esc(msg) + '</p></div>';
+    el('herosub').textContent = '';
     return;
   }
+
   const policy = INFO.policy || {};
-  el("shopname").textContent = INFO.shop || "Book a table";
-  el("herosub").textContent = "Reserve a table in a few taps.";
+  el('shopname').textContent = INFO.shop || 'Book a table';
+  el('herosub').textContent = 'Reserve a table in a few taps.';
+
   const days = dayOptions(policy);
   const slots = INFO.slots || [];
+
   if (!days.length) {
-    app.innerHTML = '<div class="card"><h2>No bookings right now</h2>' + '<p class="lede">This shop is not taking bookings on any day right now. Please message them.</p></div>';
+    app.innerHTML = '<div class="card"><h2>No bookings right now</h2>'
+      + '<p class="lede">This shop is not taking bookings on any day right now. Please message them.</p></div>';
     return;
   }
-  app.innerHTML = '<div class="card">' + stepH(1, "Which day?", !!DAY) + calendarHtml(days) + "</div>" + '<div class="card">' + stepH(2, "What time?", !!TIME) + (LOADING ? '<p class="lede" style="margin-top:6px"><span class="waitdot"></span>Finding the times&hellip;</p>' : slots.length === 0 ? '<p class="lede" style="margin-top:6px">No times left on this day. Try another.</p>' : '<div class="row" style="margin-top:8px" id="slots">' + slots.map((s, n) => {
-    const left = Number(s.seats_left);
-    const full = left <= 0 || left < PARTY;
-    return '<button class="chip" style="--i:' + Math.min(n, 12) + '" data-time="' + esc(s.time) + '" aria-pressed="' + (s.time === TIME) + '"' + (full ? " disabled" : "") + ">" + esc(s.label) + "<small>" + (left <= 0 ? "full" : left < PARTY ? "only " + left + " left" : left + " seats left") + "</small></button>";
-  }).join("") + "</div>") + "</div>" + '<div class="card">' + stepH(3, "Your details", false) + '<label class="f" style="margin-top:8px"><span>How many people?</span>' + '<select id="party">' + partyOptions(Number(policy.max_party || 12)) + "</select></label>" + '<label class="f"><span>Name</span><input type="text" id="name" autocomplete="name" placeholder="Who is the table for?"></label>' + '<label class="f"><span>Mobile number</span><input type="tel" id="phone" autocomplete="tel" inputmode="tel" placeholder="' + (CUR === "₱" || CUR === "P" ? "09XX XXX XXXX" : "For the shop to reach you") + '"></label>' + '<label class="f"><span>Email <span class="lede">(optional)</span></span><input type="email" id="email" autocomplete="email" placeholder="For your confirmation"></label>' + '<label class="f"><span>Anything they should know? <span class="lede">(optional)</span></span>' + '<textarea id="note" placeholder="Birthday, high chair, wheelchair access, allergies&hellip;"></textarea></label>' + (policy.note ? '<div class="note warn">' + esc(policy.note) + "</div>" : "") + depositLine(policy) + "</div>" + '<button class="primary" id="go"' + (TIME && DAY ? "" : " disabled") + ">" + (TIME ? "Book " + esc(bookingLabel()) : "Pick a time first") + "</button>" + '<p class="formmsg" id="formmsg" role="status">' + esc(FORMMSG) + "</p>" + '<p class="lede" style="text-align:center;margin-top:10px">' + "You can cancel up to " + esc(String(policy.cancel_hours || 12)) + " hours before.</p>";
+
+  app.innerHTML =
+    '<div class="card">'
+    + stepH(1, 'Which day?', !!DAY)
+    + calendarHtml(days)
+    + '</div>'
+
+    + '<div class="card">'
+    + stepH(2, 'What time?', !!TIME)
+    + (LOADING
+        ? '<p class="lede" style="margin-top:6px"><span class="waitdot"></span>Finding the times&hellip;</p>'
+        : slots.length === 0
+        ? '<p class="lede" style="margin-top:6px">No times left on this day. Try another.</p>'
+        : '<div class="row" style="margin-top:8px" id="slots">'
+          + slots.map((s, n) => {
+              const left = Number(s.seats_left);
+              const full = left <= 0 || left < PARTY;
+              return '<button class="chip" style="--i:' + Math.min(n, 12) + '" data-time="' + esc(s.time) + '" aria-pressed="' + (s.time === TIME) + '"'
+                + (full ? ' disabled' : '') + '>' + esc(s.label)
+                + '<small>' + (left <= 0 ? 'full' : left < PARTY ? 'only ' + left + ' left' : left + ' seats left') + '</small></button>';
+            }).join('')
+          + '</div>')
+    + '</div>'
+
+    + '<div class="card">'
+    + stepH(3, 'Your details', false)
+    + '<label class="f" style="margin-top:8px"><span>How many people?</span>'
+    + '<select id="party">' + partyOptions(Number(policy.max_party || 12)) + '</select></label>'
+    + '<label class="f"><span>Name</span><input type="text" id="name" autocomplete="name" placeholder="Who is the table for?"></label>'
+    + '<label class="f"><span>Mobile number</span><input type="tel" id="phone" autocomplete="tel" inputmode="tel" placeholder="' + ((CUR === '₱' || CUR === 'P') ? '09XX XXX XXXX' : 'For the shop to reach you') + '"></label>'
+    + '<label class="f"><span>Email <span class="lede">(optional)</span></span><input type="email" id="email" autocomplete="email" placeholder="For your confirmation"></label>'
+    + '<label class="f"><span>Anything they should know? <span class="lede">(optional)</span></span>'
+    + '<textarea id="note" placeholder="Birthday, high chair, wheelchair access, allergies&hellip;"></textarea></label>'
+    + (policy.note ? '<div class="note warn">' + esc(policy.note) + '</div>' : '')
+    + depositLine(policy)
+    + '</div>'
+
+    + '<button class="primary" id="go"' + (TIME && DAY ? '' : ' disabled') + '>'
+    + (TIME ? 'Book ' + esc(bookingLabel()) : 'Pick a time first') + '</button>'
+    + '<p class="formmsg" id="formmsg" role="status">' + esc(FORMMSG) + '</p>'
+    + '<p class="lede" style="text-align:center;margin-top:10px">'
+    + 'You can cancel up to ' + esc(String(policy.cancel_hours || 12)) + ' hours before.</p>';
+
   if (FIRST_PAINT) {
     FIRST_PAINT = false;
-    document.body.classList.add("intro");
-    setTimeout(() => document.body.classList.remove("intro"), 1100);
+    document.body.classList.add('intro');
+    setTimeout(() => document.body.classList.remove('intro'), 1100);
   }
-  if (FRESH) {
-    FRESH = false;
-    const sw = el("slots");
-    if (sw) sw.classList.add("fresh");
-  }
-  const dayWrap = el("days");
-  if (dayWrap) dayWrap.onclick = e => {
-    const m = e.target.closest("[data-month]");
-    if (m && !m.disabled) {
-      CAL_SHIFT += Number(m.getAttribute("data-month"));
-      render();
-      return;
-    }
-    const b = e.target.closest("[data-day]");
-    if (b && !b.disabled) {
-      FORMMSG = "";
-      loadDay(b.getAttribute("data-day"));
-    }
+  if (FRESH) { FRESH = false; const sw = el('slots'); if (sw) sw.classList.add('fresh'); }
+  const dayWrap = el('days');
+  if (dayWrap) dayWrap.onclick = (e) => {
+    const m = e.target.closest('[data-month]');
+    if (m && !m.disabled) { CAL_SHIFT += Number(m.getAttribute('data-month')); render(); return; }
+    const b = e.target.closest('[data-day]');
+    if (b && !b.disabled) { FORMMSG = ''; loadDay(b.getAttribute('data-day')); }
   };
-  const slotWrap = el("slots");
-  if (slotWrap) slotWrap.onclick = e => {
-    const b = e.target.closest("[data-time]");
-    if (b && !b.disabled) {
-      TIME = b.getAttribute("data-time");
-      FORMMSG = "";
-      render();
-    }
+  const slotWrap = el('slots');
+  if (slotWrap) slotWrap.onclick = (e) => {
+    const b = e.target.closest('[data-time]');
+    if (b && !b.disabled) { TIME = b.getAttribute('data-time'); FORMMSG = ''; render(); }
   };
-  const partySel = el("party");
-  if (partySel) partySel.onchange = e => {
+  const partySel = el('party');
+  if (partySel) partySel.onchange = (e) => {
     PARTY = Number(e.target.value) || 1;
+
     if (TIME) {
-      const hit = (INFO.slots || []).filter(s => s.time === TIME)[0];
+      const hit = (INFO.slots || []).filter((s) => s.time === TIME)[0];
       if (!hit || Number(hit.seats_left) < PARTY) TIME = null;
     }
     render();
   };
-  const go = el("go");
+  const go = el('go');
   if (go) go.onclick = submit;
   fillForm();
 }
 
 function formSay(text) {
   FORMMSG = text;
-  const m = el("formmsg");
+  const m = el('formmsg');
   if (!m) return;
   m.textContent = text;
-  m.classList.remove("swapin");
-  void m.offsetWidth;
-  if (text) m.classList.add("swapin");
+  m.classList.remove('swapin'); void m.offsetWidth; if (text) m.classList.add('swapin');
 }
 
 async function submit() {
   if (BUSY) return;
-  const name = (el("name").value || "").trim();
-  const phone = (el("phone").value || "").trim();
+  const name = (el('name').value || '').trim();
+  const phone = (el('phone').value || '').trim();
   if (!name || !phone) {
-    formSay("Please put your name and mobile number so the shop can reach you.");
+    formSay('Please put your name and mobile number so the shop can reach you.');
     return;
   }
-  formSay("");
+  formSay('');
   BUSY = true;
-  el("go").disabled = true;
-  el("go").textContent = "Booking…";
+  el('go').disabled = true;
+  el('go').textContent = 'Booking…';
   let res;
   try {
-    res = await rpc("kiosk_reserve", {
-      p_token: TOKEN,
-      p_date: DAY,
-      p_time: TIME,
-      p_party: PARTY,
-      p_name: name,
-      p_phone: phone,
-      p_email: (el("email").value || "").trim() || null,
-      p_note: (el("note").value || "").trim() || null
+    res = await rpc('kiosk_reserve', {
+      p_token: TOKEN, p_date: DAY, p_time: TIME, p_party: PARTY,
+      p_name: name, p_phone: phone,
+      p_email: (el('email').value || '').trim() || null,
+      p_note: (el('note').value || '').trim() || null,
     });
   } catch (e) {
-    res = {
-      ok: false,
-      error: "network"
-    };
+    res = { ok: false, error: 'network' };
   }
   BUSY = false;
+
   if (!res || res.ok !== true) {
     const m = {
-      full: "Somebody just took the last seats in that slot. Please pick another time.",
-      too_soon: "That is too close to now for this shop. Please pick a later time.",
-      too_far: "That is further ahead than this shop takes bookings.",
-      closed_that_day: "The shop does not open that day.",
-      closed_then: "The shop is not taking bookings at that time. Please pick one of the times shown.",
-      party_too_big: "That is a bigger party than they take online, please message the shop directly.",
-      need_name_and_phone: "Please put your name and mobile number.",
-      too_many: "There are already several bookings from this number today.",
-      busy: "The shop is taking a lot of bookings right now. Please try again in a little while.",
-      too_long: "That is a bit long for the form. Please shorten your name or note.",
-      bad_date: "That day could not be read. Please pick it again.",
-      bad_time: "That time could not be read. Please pick it again.",
-      off: "This shop has stopped taking online bookings.",
-      network: "Could not reach the shop. Please try again."
-    }[res && res.error] || "That booking could not be made. Please try another time.";
+      full: 'Somebody just took the last seats in that slot. Please pick another time.',
+      too_soon: 'That is too close to now for this shop. Please pick a later time.',
+      too_far: 'That is further ahead than this shop takes bookings.',
+      closed_that_day: 'The shop does not open that day.',
+      closed_then: 'The shop is not taking bookings at that time. Please pick one of the times shown.',
+      party_too_big: 'That is a bigger party than they take online, please message the shop directly.',
+      need_name_and_phone: 'Please put your name and mobile number.',
+      too_many: 'There are already several bookings from this number today.',
+      busy: 'The shop is taking a lot of bookings right now. Please try again in a little while.',
+      too_long: 'That is a bit long for the form. Please shorten your name or note.',
+      bad_date: 'That day could not be read. Please pick it again.',
+      bad_time: 'That time could not be read. Please pick it again.',
+      off: 'This shop has stopped taking online bookings.',
+      network: 'Could not reach the shop. Please try again.',
+    }[res && res.error] || 'That booking could not be made. Please try another time.';
+
     FORMMSG = m;
+
     loadDay(DAY);
     return;
   }
-  history.replaceState(null, "", location.pathname + "?r=" + encodeURIComponent(res.token));
+  history.replaceState(null, '', location.pathname + '?r=' + encodeURIComponent(res.token));
   showBooking(res.token);
 }
 
 async function showBooking(tok) {
-  const app = el("app");
-  app.classList.remove("booked");
+  const app = el('app');
+  app.classList.remove('booked');
   app.innerHTML = '<div class="card"><p class="lede"><span class="waitdot"></span>Loading your booking&hellip;</p></div>';
   let r;
-  try {
-    r = await rpc("kiosk_reservation", {
-      p_res_token: tok
-    });
-  } catch (e) {
-    r = {
-      ok: false,
-      error: "network"
-    };
-  }
+  try { r = await rpc('kiosk_reservation', { p_res_token: tok }); }
+  catch (e) { r = { ok: false, error: 'network' }; }
+
   if (!r || r.ok !== true) {
-    app.innerHTML = '<div class="card"><h2>Booking not found</h2>' + '<p class="lede">Check the link, or message the shop.</p></div>';
-    el("herosub").textContent = "";
+    app.innerHTML = '<div class="card"><h2>Booking not found</h2>'
+      + '<p class="lede">Check the link, or message the shop.</p></div>';
+    el('herosub').textContent = '';
     return;
   }
-  if (typeof r.currency === "string" && r.currency) CUR = r.currency;
-  el("shopname").textContent = r.shop || "Your booking";
-  el("herosub").textContent = "Your table";
-  const when = new Date(r.date + "T" + (r.time || "00:00"));
-  const whenLabel = when.toLocaleDateString(undefined, {
-    weekday: "long",
-    day: "numeric",
-    month: "long"
-  }) + " at " + when.toLocaleTimeString(undefined, {
-    hour: "numeric",
-    minute: "2-digit"
-  });
+
+  if (typeof r.currency === 'string' && r.currency) CUR = r.currency;
+  el('shopname').textContent = r.shop || 'Your booking';
+  el('herosub').textContent = 'Your table';
+
+  const when = new Date(r.date + 'T' + (r.time || '00:00'));
+  const whenLabel = when.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })
+    + ' at ' + when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
   const owing = Math.max(0, Number(r.deposit_cents || 0) - Number(r.deposit_paid_cents || 0));
-  const statusNote = r.status === "cancelled" ? '<div class="note warn">This booking is cancelled.</div>' : r.status === "no_show" ? '<div class="note warn">This was marked as a no-show.</div>' : r.status === "pending" && owing > 0 ? '<div class="note warn">Your table is held. The shop will message you how to send the ' + money(owing) + " deposit, and it is confirmed once that arrives.</div>" : '<div class="note ok">Confirmed. See you then!</div>';
-  app.innerHTML = '<div class="card" style="text-align:center">' + (r.status !== "cancelled" && r.status !== "no_show" ? '<svg class="done-tick" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30"/><path d="M19 33 l9 9 l17 -19"/></svg>' : "") + '<div class="big">' + esc(whenLabel) + "</div>" + '<p class="lede" style="margin:6px 0 0">' + esc(r.name) + " · " + esc(String(r.party_size)) + (Number(r.party_size) === 1 ? " person" : " people") + (r.table_label ? " · table " + esc(r.table_label) : "") + "</p>" + '<div style="margin-top:12px">' + statusNote + "</div>" + '<p class="lede" style="margin-top:12px">Your booking code</p>' + '<div class="code">' + esc(String(tok).slice(0, 8).toUpperCase()) + "</div>" + "</div>" + (r.can_cancel ? '<button class="ghost" id="cancel" style="width:100%">Cancel this booking</button>' : '<p class="lede" style="text-align:center">To change this booking, please message the shop.</p>') + '<p class="formmsg" id="cancelmsg" role="status"></p>' + '<p class="lede" style="text-align:center;margin-top:14px">Keep this page, the link is your booking.</p>';
-  app.classList.add("booked");
-  const c = el("cancel");
+
+  const statusNote =
+    r.status === 'cancelled' ? '<div class="note warn">This booking is cancelled.</div>'
+    : r.status === 'no_show' ? '<div class="note warn">This was marked as a no-show.</div>'
+    : r.status === 'pending' && owing > 0
+      ? '<div class="note warn">Your table is held. The shop will message you how to send the '
+        + money(owing) + ' deposit, and it is confirmed once that arrives.</div>'
+    : '<div class="note ok">Confirmed. See you then!</div>';
+
+  app.innerHTML =
+    '<div class="card" style="text-align:center">'
+    + (r.status !== 'cancelled' && r.status !== 'no_show'
+        ? '<svg class="done-tick" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30"/><path d="M19 33 l9 9 l17 -19"/></svg>' : '')
+    + '<div class="big">' + esc(whenLabel) + '</div>'
+    + '<p class="lede" style="margin:6px 0 0">'
+    + esc(r.name) + ' · ' + esc(String(r.party_size)) + (Number(r.party_size) === 1 ? ' person' : ' people')
+    + (r.table_label ? ' · table ' + esc(r.table_label) : '') + '</p>'
+    + '<div style="margin-top:12px">' + statusNote + '</div>'
+    + '<p class="lede" style="margin-top:12px">Your booking code</p>'
+    + '<div class="code">' + esc(String(tok).slice(0, 8).toUpperCase()) + '</div>'
+    + '</div>'
+    + (r.can_cancel
+        ? '<button class="ghost" id="cancel" style="width:100%">Cancel this booking</button>'
+        : '<p class="lede" style="text-align:center">To change this booking, please message the shop.</p>')
+    + '<p class="formmsg" id="cancelmsg" role="status"></p>'
+    + '<p class="lede" style="text-align:center;margin-top:14px">Keep this page, the link is your booking.</p>';
+
+  app.classList.add('booked');
+
+  const c = el('cancel');
   if (c) c.onclick = async () => {
-    if (!confirm("Cancel this booking?")) return;
-    c.disabled = true;
-    c.textContent = "Cancelling…";
+    if (!confirm('Cancel this booking?')) return;
+    c.disabled = true; c.textContent = 'Cancelling…';
     let out;
-    try {
-      out = await rpc("kiosk_reservation_cancel", {
-        p_res_token: tok
-      });
-    } catch (e) {
-      out = {
-        ok: false,
-        error: "network"
-      };
-    }
-    if (out && out.ok === true) {
-      showBooking(tok);
-      return;
-    }
-    const m = el("cancelmsg");
-    m.textContent = out && out.error === "too_late" ? "It is too close to the time to cancel here, please message the shop." : "That could not be cancelled. Please message the shop.";
-    m.classList.remove("swapin");
-    void m.offsetWidth;
-    m.classList.add("swapin");
-    c.disabled = false;
-    c.textContent = "Cancel this booking";
+    try { out = await rpc('kiosk_reservation_cancel', { p_res_token: tok }); }
+    catch (e) { out = { ok: false, error: 'network' }; }
+    if (out && out.ok === true) { showBooking(tok); return; }
+    const m = el('cancelmsg');
+    m.textContent = out && out.error === 'too_late'
+      ? 'It is too close to the time to cancel here, please message the shop.'
+      : 'That could not be cancelled. Please message the shop.';
+    m.classList.remove('swapin'); void m.offsetWidth; m.classList.add('swapin');
+    c.disabled = false; c.textContent = 'Cancel this booking';
   };
 }
 
@@ -635,19 +608,9 @@ if (RESTOK) {
   showBooking(RESTOK);
 } else if (TOKEN) {
   (async () => {
-    takeInfo(await rpc("kiosk_reserve_info", {
-      p_token: TOKEN,
-      p_date: null
-    }).catch(() => ({
-      ok: false,
-      error: "network"
-    })));
+    takeInfo(await rpc('kiosk_reserve_info', { p_token: TOKEN, p_date: null }).catch(() => ({ ok: false, error: 'network' })));
     const days = INFO && INFO.policy ? dayOptions(INFO.policy) : [];
-    if (INFO && INFO.ok !== false && days.length) {
-      await loadDay(days[0].ymd);
-    } else {
-      render();
-    }
+    if (INFO && INFO.ok !== false && days.length) { await loadDay(days[0].ymd); } else { render(); }
   })();
 } else {
   render();

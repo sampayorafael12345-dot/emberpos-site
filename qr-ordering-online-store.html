@@ -84,7 +84,7 @@
       <div>
         <a class="brand-row" href="index.html"><img src="logo.png" height="30" alt="" /><b>Ember POS</b></a>
         <p>The all-in-one POS app for cafés and food shops in the Philippines.</p>
-        
+
         <address class="foot-addr" style="font-style:normal;margin-top:10px;line-height:1.55;font-size:13px;opacity:.85"><strong>EMBER POS COMPUTER SOFTWARE STORE</strong><br>A1-5CD Anaheim, Domingo M. Guevara St., Highway Hills,<br>Mandaluyong City 1550, Metro Manila, Philippines<br>Email: <a href="mailto:hello@emberpos.net">hello@emberpos.net</a> &middot; <a href="contact.html">Contact us</a></address>
       </div>
       <div>
@@ -133,23 +133,15 @@
 
 <script src="beacon.js" defer></script>
 <script>
-if (location.hash) document.documentElement.classList.add("k-hash");
 
-(function() {
-  var h = document.getElementById("k-head"), b = document.getElementById("k-menu");
-  if (!h || !b) return;
-  b.addEventListener("click", function() {
-    var o = !h.classList.contains("open");
-    h.classList.toggle("open", o);
-    b.setAttribute("aria-expanded", o ? "true" : "false");
-  });
-  document.addEventListener("keydown", function(e) {
-    if (e.key === "Escape") {
-      h.classList.remove("open");
-      b.setAttribute("aria-expanded", "false");
-    }
-  });
-})();
+  if (location.hash) document.documentElement.classList.add('k-hash');
+
+  (function () {
+    var h = document.getElementById('k-head'), b = document.getElementById('k-menu');
+    if (!h || !b) return;
+    b.addEventListener('click', function () { var o = !h.classList.contains('open'); h.classList.toggle('open', o); b.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { h.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); } });
+  })();
 </script>
 </body>
 </html>

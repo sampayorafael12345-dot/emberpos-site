@@ -9,7 +9,6 @@
 <meta name="theme-color" content="#ff5c00" />
 <link rel="icon" href="/favicon.png" type="image/png" />
 <style>
-
   @font-face { font-family: 'Space Grotesk'; src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations'); font-weight: 300 700; font-display: swap; }
   * { box-sizing: border-box; margin: 0; }
   body { min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 48px 20px;
@@ -24,10 +23,10 @@
   a:focus-visible { outline: 3px solid #0b0c0d; outline-offset: 3px; }
 </style>
 <script>
-(function() {
-  var s = new URLSearchParams(location.search).get("s");
-  document.documentElement.className = s === "bad" ? "bad" : s === "err" ? "err" : "ok";
-})();
+  (function () {
+    var s = new URLSearchParams(location.search).get('s');
+    document.documentElement.className = s === 'bad' ? 'bad' : s === 'err' ? 'err' : 'ok';
+  })();
 </script>
 </head>
 <body>

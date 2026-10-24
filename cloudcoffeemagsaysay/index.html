@@ -12,33 +12,20 @@
 <meta property="og:image" content="https://emberpos.net/shots/og.png">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/favicon.png">
-<style>
-html,body{margin:0;height:100%;background:#0b0c0d;color:#f4f1ec;font:16px system-ui,sans-serif}main{min-height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}a{color:#ff6a1a}</style>
+<style>html,body{margin:0;height:100%;background:#0b0c0d;color:#f4f1ec;font:16px system-ui,sans-serif}main{min-height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}a{color:#ff6a1a}</style>
 </head><body>
 <main><p>Opening Cloud Coffee&hellip;<br><a href="/order.html" id="go" hidden>Open the menu</a></p></main>
 <script>
-(function() {
-  var go = function(t) {
-    location.replace("/order.html?t=" + encodeURIComponent(t));
-  };
-  var fail = function() {
-    document.getElementById("go").hidden = false;
-  };
-  fetch("https://qqmkgafyfxrcnwdkkyxc.supabase.co/rest/v1/rpc/shop_link_token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: "sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX",
-      Authorization: "Bearer sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX"
-    },
-    body: JSON.stringify({
-      p_slug: "cloudcoffeemagsaysay"
-    })
-  }).then(function(r) {
-    return r.ok ? r.json() : null;
-  }).then(function(t) {
-    if (typeof t === "string" && t) go(t); else fail();
-  }).catch(fail);
-})();
+  (function () {
+    var go = function (t) { location.replace('/order.html?t=' + encodeURIComponent(t)); };
+    var fail = function () { document.getElementById('go').hidden = false; };
+    fetch('https://qqmkgafyfxrcnwdkkyxc.supabase.co/rest/v1/rpc/shop_link_token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: 'sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX', Authorization: 'Bearer sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX' },
+      body: JSON.stringify({ p_slug: "cloudcoffeemagsaysay" }),
+    }).then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (t) { if (typeof t === 'string' && t) go(t); else fail(); })
+      .catch(fail);
+  })();
 </script>
 </body></html>
