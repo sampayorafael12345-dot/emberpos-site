@@ -230,6 +230,8 @@ button:disabled { opacity: .55; cursor: default; }
   .k-head.open .links > a:nth-child(n+6) { transition-delay: 150ms; }
 }
 
+.k-band .ctas { display: flex; flex-wrap: wrap; gap: 10px; }
+.k-band .try { display: inline-flex; align-items: center; padding: 12px 18px; border-radius: 10px; font-size: 15px; text-decoration: none; white-space: nowrap; transition: transform .15s, box-shadow .15s; }
 .k-band .try { background: var(--night); color: #fff; border: 2.5px solid var(--night); box-shadow: none; font-weight: 700; }
 .k-band .try.ghost { background: #fff; color: var(--night); border: 2.5px solid var(--night); }
 @media (hover: hover) { .k-band .try:hover { background: var(--night); transform: translateY(-2px); box-shadow: 0 5px 0 var(--night); } .k-band .try.ghost:hover { background: #fff; } }
