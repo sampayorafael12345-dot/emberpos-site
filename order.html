@@ -2033,7 +2033,10 @@ function openItem(id, opts) {
     if (raw == null) return 1;
     return raw === 0 ? Infinity : Math.max(1, raw);
   };
-  const capOpt = () => {
+
+  const ONE_CHOICE = { sugar: 1, spice: 1 };
+  const capOpt = (key) => {
+    if (key && ONE_CHOICE[key]) return 1;
     const raw = rawMax();
     if (raw == null || raw === 0) return Infinity;
     return Math.max(1, raw);
@@ -2044,7 +2047,7 @@ function openItem(id, opts) {
 
   const trimToCap = () => {
     addonGroups.forEach((g) => {
-      const cap = reqCats.has(g.key) ? capFor() : capOpt();
+      const cap = reqCats.has(g.key) ? capFor() : capOpt(g.key);
       if (cap === Infinity) return;
       let room = cap;
       g.items.forEach((a) => {
@@ -2100,7 +2103,7 @@ function openItem(id, opts) {
       addonGroups.map((g) => {
         const need = reqCats.has(g.key);
         const unanswered = need && missingCats().indexOf(g.key) >= 0;
-        const cap = need ? capFor() : capOpt();
+        const cap = need ? capFor() : capOpt(g.key);
         const badge = need
           ? (cap === Infinity ? 'Required' : cap === 1 ? 'Pick one' : 'Pick up to ' + cap)
           : (cap === Infinity ? '' : 'Up to ' + cap);
@@ -2109,7 +2112,7 @@ function openItem(id, opts) {
           g.items.map((a) => {
             const n = qtyOf(a.id);
 
-            const stepper = n > 0 && !(need && cap === 1);
+            const stepper = n > 0 && cap !== 1 && a.price_cents > 0;
             return '<div class="opt" data-ad="' + a.id + '" role="button" tabindex="0" aria-pressed="' + (n > 0) + '">' +
               '<span data-notl>' + esc(a.text) + '</span>' +
               '<span class="delta">' + (a.price_cents > 0 ? '+' + money(a.price_cents) : 'Free') + '</span>' +
@@ -2158,9 +2161,9 @@ function openItem(id, opts) {
       const a = addons.find((x) => x.id === id);
       const key = (a && a.category) || 'other';
       const need = reqCats.has(key);
-      const cap = need ? capFor() : capOpt();
+      const cap = need ? capFor() : capOpt(key);
       if (cap !== Infinity && countIn(key) >= cap) {
-        if (need && cap === 1) {
+        if (cap === 1) {
 
           picksIn(key).forEach((x) => addonPicks.delete(x.id));
         } else {

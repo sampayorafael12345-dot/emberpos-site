@@ -12,7 +12,7 @@
 <meta name="twitter:card" content="summary_large_image" />
 <link rel="icon" href="favicon.png" type="image/png" />
 <link rel="stylesheet" href="style.css" />
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Ember POS guides","url":"https://emberpos.net/guides.html","hasPart":[{"@type":"WebPage","name":"A POS app for cafés and coffee shops in the Philippines","url":"https://emberpos.net/cafe-pos-philippines.html"},{"@type":"WebPage","name":"A POS for milk tea shops and drink kiosks","url":"https://emberpos.net/milk-tea-shop-pos.html"},{"@type":"WebPage","name":"A restaurant POS with tables, a kitchen screen and real stock","url":"https://emberpos.net/restaurant-pos-philippines.html"},{"@type":"WebPage","name":"A POS for bakeries and pastry shops","url":"https://emberpos.net/bakery-pos.html"},{"@type":"WebPage","name":"A POS that keeps selling when the internet drops","url":"https://emberpos.net/offline-pos-app.html"},{"@type":"WebPage","name":"Utang, tracked in your POS instead of a notebook","url":"https://emberpos.net/utang-tracker-pos.html"},{"@type":"WebPage","name":"GCash and Maya at the counter, and checked against your statement","url":"https://emberpos.net/gcash-maya-pos.html"},{"@type":"WebPage","name":"Stock that follows every sale, and a cost on every recipe","url":"https://emberpos.net/inventory-recipe-costing.html"},{"@type":"WebPage","name":"Payroll for small shops, with SSS, PhilHealth and Pag-IBIG","url":"https://emberpos.net/payroll-sss-philhealth-pagibig.html"},{"@type":"WebPage","name":"BIR tax help for small shops: your figures, ready for your accountant","url":"https://emberpos.net/bir-tax-help-small-shops.html"},{"@type":"WebPage","name":"QR ordering, your own online store, and delivery with your own riders","url":"https://emberpos.net/qr-ordering-online-store.html"},{"@type":"WebPage","name":"How to choose a POS for a small food shop in the Philippines","url":"https://emberpos.net/how-to-choose-a-pos-philippines.html"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Ember POS guides","url":"https://emberpos.net/guides.html","hasPart":[{"@type":"WebPage","name":"A POS app for cafés and coffee shops in the Philippines","url":"https://emberpos.net/cafe-pos-philippines.html"},{"@type":"WebPage","name":"A POS for milk tea shops and drink kiosks","url":"https://emberpos.net/milk-tea-shop-pos.html"},{"@type":"WebPage","name":"A restaurant POS with tables, a kitchen screen and real stock","url":"https://emberpos.net/restaurant-pos-philippines.html"},{"@type":"WebPage","name":"A POS for bakeries and pastry shops","url":"https://emberpos.net/bakery-pos.html"},{"@type":"WebPage","name":"A POS that keeps selling when the internet drops","url":"https://emberpos.net/offline-pos-app.html"},{"@type":"WebPage","name":"Utang, tracked in your POS instead of a notebook","url":"https://emberpos.net/utang-tracker-pos.html"},{"@type":"WebPage","name":"GCash and Maya at the counter, and checked against your statement","url":"https://emberpos.net/gcash-maya-pos.html"},{"@type":"WebPage","name":"Stock that follows every sale, and a cost on every recipe","url":"https://emberpos.net/inventory-recipe-costing.html"},{"@type":"WebPage","name":"How to import your menu into Ember POS","url":"https://emberpos.net/import-your-menu.html"},{"@type":"WebPage","name":"Payroll for small shops, with SSS, PhilHealth and Pag-IBIG","url":"https://emberpos.net/payroll-sss-philhealth-pagibig.html"},{"@type":"WebPage","name":"BIR tax help for small shops: your figures, ready for your accountant","url":"https://emberpos.net/bir-tax-help-small-shops.html"},{"@type":"WebPage","name":"QR ordering, your own online store, and delivery with your own riders","url":"https://emberpos.net/qr-ordering-online-store.html"},{"@type":"WebPage","name":"How to choose a POS for a small food shop in the Philippines","url":"https://emberpos.net/how-to-choose-a-pos-philippines.html"}]}</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -74,6 +74,10 @@
     <b>Stock that follows every sale, and a cost on every recipe</b>
     <span class="muted">Ember POS takes ingredients out of stock as you sell, costs every recipe, counts deliveries in, logs waste, and writes your shopping list. For cafés and food shops in the Philippines.</span>
   </a>
+  <a class="card" href="import-your-menu.html">
+    <b>Import your menu</b>
+    <span class="muted">Our Excel template, or the file your old POS exports: your whole menu, sizes, ingredients and recipes in one go.</span>
+  </a>
   <a class="card" href="payroll-sss-philhealth-pagibig.html">
     <b>Payroll for small shops, with SSS, PhilHealth and Pag-IBIG</b>
     <span class="muted">Ember POS turns time-clock hours into payroll: regular hours, overtime, tips, and one tap to fill SSS, PhilHealth, Pag-IBIG and withholding tax from the government tables, with payslips.</span>
@@ -99,7 +103,7 @@
       <div>
         <a class="brand-row" href="index.html"><img src="logo.png" height="30" alt="" /><b>Ember POS</b></a>
         <p>The all-in-one POS app for cafés and food shops in the Philippines.</p>
-        
+
         <address class="foot-addr" style="font-style:normal;margin-top:10px;line-height:1.55;font-size:13px;opacity:.85"><strong>EMBER POS COMPUTER SOFTWARE STORE</strong><br>A1-5CD Anaheim, Domingo M. Guevara St., Highway Hills,<br>Mandaluyong City 1550, Metro Manila, Philippines<br>Email: <a href="mailto:hello@emberpos.net">hello@emberpos.net</a> &middot; <a href="contact.html">Contact us</a></address>
       </div>
       <div>
@@ -148,23 +152,15 @@
 
 <script src="beacon.js" defer></script>
 <script>
-if (location.hash) document.documentElement.classList.add("k-hash");
 
-(function() {
-  var h = document.getElementById("k-head"), b = document.getElementById("k-menu");
-  if (!h || !b) return;
-  b.addEventListener("click", function() {
-    var o = !h.classList.contains("open");
-    h.classList.toggle("open", o);
-    b.setAttribute("aria-expanded", o ? "true" : "false");
-  });
-  document.addEventListener("keydown", function(e) {
-    if (e.key === "Escape") {
-      h.classList.remove("open");
-      b.setAttribute("aria-expanded", "false");
-    }
-  });
-})();
+  if (location.hash) document.documentElement.classList.add('k-hash');
+
+  (function () {
+    var h = document.getElementById('k-head'), b = document.getElementById('k-menu');
+    if (!h || !b) return;
+    b.addEventListener('click', function () { var o = !h.classList.contains('open'); h.classList.toggle('open', o); b.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { h.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); } });
+  })();
 </script>
 </body>
 </html>
