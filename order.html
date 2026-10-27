@@ -3199,6 +3199,11 @@ async function openPaySheet(num, type) {
   try { r = await payFn({ action: 'kiosk_create', token: TOKEN, orderNumber: num, clientRef: refOf(num) }); }
   catch (e) { r = null; }
   if (r && (r.alreadyPaid || r.paid)) { markPrepaid(num); BANNER_NEW[num] = 1; closeSheet(); showOrders(num); toast('Already paid!'); return; }
+  if (r && r.code === 'rx_counter') {
+
+    closeSheet(); showOrders(num); toast(r.error || 'Please pay at the pharmacy when you pick it up, and bring your prescription.');
+    return;
+  }
   if (!r || !r.ok) {
     closeSheet(); showOrders(num);
 
