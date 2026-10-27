@@ -7,7 +7,6 @@
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#151210" />
 
-
     <meta http-equiv="Content-Security-Policy" content="
       default-src 'self';
       script-src 'self' 'unsafe-inline';
@@ -23,7 +22,6 @@
       frame-ancestors 'none';
     " />
     <title>Ember POS</title>
-
 
     <link rel="icon" href="/app/brand/favicon.png" type="image/png" />
     <meta name="robots" content="noindex" />
@@ -91,18 +89,29 @@
           show('Ember POS hit an error while starting.', r && r.message ? r.message : String(r));
         });
 
+        var rendered = function () { var root = document.getElementById('root'); return !(root && root.childNodes.length === 0); };
         setTimeout(function () {
-          var root = document.getElementById('root');
-          if (root && root.childNodes.length === 0) {
-            report('boot timeout: nothing rendered after 12s', '', true);
+
+          if (rendered()) { try { sessionStorage.removeItem('ember.boot.retried'); } catch (e0) {} return; }
+          report('boot timeout: nothing rendered after 12s', '', true);
+          setTimeout(function () {
+            if (rendered()) return;
+            var retried = false;
+            try { retried = sessionStorage.getItem('ember.boot.retried') === '1'; } catch (e3) { retried = true; }
+            if (!retried) {
+              try { sessionStorage.setItem('ember.boot.retried', '1'); } catch (e4) {}
+              location.reload();
+              return;
+            }
+            try { sessionStorage.removeItem('ember.boot.retried'); } catch (e5) {}
             show('Ember POS did not finish loading.',
               'The page loaded but the app did not render. This usually means the device\'s "Android System WebView" is out of date and cannot run the app. Update Android System WebView / Chrome, or check the internet connection, then reopen.');
-          }
+          }, 13000);
         }, 12000);
       })();
 </script>
-    <script src="/app/brand/logo-loader.js"></script>
-    <script crossorigin id="vite-legacy-polyfill" src="/app/assets/polyfills-legacy-Dxb8lkbn.js"></script>
-    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-DHHUTpgt.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+    <script src="/app/brand/logo-loader.js"></script>
+    <script crossorigin id="vite-legacy-polyfill" src="/app/assets/polyfills-legacy-Dlwf5jXq.js"></script>
+    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-CBer1ODF.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
   </body>
 </html>
