@@ -190,6 +190,14 @@
   #slots .chip:last-child:nth-child(3n+1) { grid-column: 1 / -1; }
   #slots .chip:last-child:nth-child(3n+2) { grid-column: span 2; }
   #slots .chip { width: 100%; min-height: 44px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 6px; padding-right: 6px; }
+
+input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus,
+textarea:-webkit-autofill, select:-webkit-autofill {
+  transition: background-color 600000s 0s, color 600000s 0s;
+}
+input:autofill, textarea:autofill, select:autofill {
+  transition: background-color 600000s 0s, color 600000s 0s;
+}
 </style>
 </head>
 <body>

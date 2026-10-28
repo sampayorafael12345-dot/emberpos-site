@@ -1,0 +1,30 @@
+import{$r as e,Bt as t,E as n,It as r,Lt as i,Pt as a,Yt as o,b as s,g as c,gn as l,x as u}from"./csv-import-CU9VDqFG.js";import{t as d}from"./jsx-runtime-C3cWAN_r.js";import{a as f,i as p,t as m}from"./delivery-distance-BnPvgp9y.js";var h=e=>Math.max(0,Math.round(Number(e)||0)),g=e=>String(e??``).trim().toLowerCase()===`cash`;function _(e){if(!e||e.status===`voided`)return 0;let t=h(e.total_cents),n=h(e.tip_cents),r=h(e.prepaid_cents);if(e.status===`paid`||e.paid_at){let i=t+(r>0?0:n);if(Array.isArray(e.payments)&&e.payments.length)return Math.min(i,e.payments.filter(e=>g(e?.method)).reduce((e,t)=>e+h(t?.amount_cents),0));let a=String(e.payment_method??``).split(`+`).map(e=>e.trim().toLowerCase()).filter(Boolean);return a.includes(`cash`)?a.every(e=>e===`cash`)||e.cash_tendered_cents==null?i:Math.min(i,Math.max(0,h(e.cash_tendered_cents)-h(e.change_cents))):0}return Math.max(0,t+n-r-h(e.deposit_cents))}var v=e=>String(e??``).replace(/&/g,`&amp;`).replace(/</g,`&lt;`).replace(/>/g,`&gt;`);function y(t,n,o,s){let c=new a(n);c.align(`center`).bold(!0).size(2).line(`DELIVERY`).size(1),c.line(t.shopName||``).bold(!1),t.shopPhone&&c.line(t.shopPhone),c.align(`left`).rule(),c.pair(`Order`,t.pickupLabel&&t.pickupLabel!==t.orderNumber?`${t.pickupLabel} (${t.orderNumber})`:t.orderNumber),c.pair(`Date`,t.at.toLocaleString()),t.deliverAt&&c.pair(`Deliver at`,t.deliverAt),t.riderName&&c.pair(`Rider`,t.riderName),c.rule(),c.bold(!0).line(`DELIVER TO`).bold(!1),t.customerName&&c.line(t.customerName),t.customerPhone&&c.line(t.customerPhone);for(let e of String(t.address??``).split(/\n+/))e.trim()&&c.line(e.trim());if(t.pinMoved)for(let e of i(m,c.cols))c.line(e);t.notes&&(c.line(``),c.line(`Note: `+t.notes)),c.rule();for(let e of t.items){c.line(`${e.quantity}x ${e.name}${e.variant?`, `+e.variant:``}`);for(let t of e.extras??[])for(let e of i(t,Math.max(8,c.cols-2)))c.line(`  `+e)}if(c.rule(),t.collect){c.bold(!0).size(2).line(`COLLECT`).line(e(t.collectCents,o)).size(1).bold(!1);for(let e of i(b(t,o),c.cols))c.line(e)}else c.bold(!0).size(2).line(`PAID`).size(1).bold(!1),c.line(`Paid already, collect NOTHING`);return c.line(``),c.line(r(`Received by`,c.cols)),c.finish(s),c.base64()}function b(t,n){return t.collectCents<t.totalCents?`Part paid, order total ${e(t.totalCents,n)}`:`Cash on delivery`}function x(t,n){let r=(e,t)=>`<div class="row"><span>${v(e)}</span><span>${v(t)}</span></div>`;return`<!doctype html><html><head><meta charset="utf-8">
+    <title>Delivery ${v(t.orderNumber)}</title>
+    <style>
+      body{font-family:ui-monospace,'Segoe UI',Roboto,sans-serif;padding:16px;max-width:340px;font-size:12px}
+      h1{text-align:center;font-size:16px;margin:0}
+      .sub{text-align:center;font-size:11px;color:#555;margin-bottom:6px}
+      hr{border:0;border-top:1px dashed #888;margin:9px 0}
+      .row{display:flex;justify-content:space-between;margin:2px 0;gap:10px}
+      .big{font-weight:bold;font-size:17px;text-align:center;margin:6px 0}
+      .addr{font-size:13px;line-height:1.45}
+      .sign{margin-top:16px;font-size:11px}
+    </style></head><body>
+    <h1>DELIVERY</h1>
+    <div class="sub">${v(t.shopName)}${t.shopPhone?` - `+v(t.shopPhone):``}</div>
+    <hr/>
+    ${r(`Order`,t.pickupLabel&&t.pickupLabel!==t.orderNumber?`${t.pickupLabel} (${t.orderNumber})`:t.orderNumber)}
+    ${r(`Date`,t.at.toLocaleString())}
+    ${t.deliverAt?r(`Deliver at`,t.deliverAt):``}
+    ${t.riderName?r(`Rider`,t.riderName):``}
+    <hr/>
+    <div><b>DELIVER TO</b></div>
+    <div class="addr">${t.customerName?v(t.customerName)+`<br/>`:``}${t.customerPhone?v(t.customerPhone)+`<br/>`:``}${v(t.address??``).replace(/\n/g,`<br/>`)}</div>
+    ${t.pinMoved?`<div style="margin-top:6px;font-weight:bold">${v(m)}</div>`:``}
+    ${t.notes?`<div style="margin-top:6px">Note: ${v(t.notes)}</div>`:``}
+    <hr/>
+    ${t.items.map(e=>`<div>${v(e.quantity)}× ${v(e.name)}${e.variant?`, `+v(e.variant):``}</div>`+(e.extras??[]).map(e=>`<div style="padding-left:14px;font-size:11px">${v(e)}</div>`).join(``)).join(``)}
+    <hr/>
+    ${t.collect?`<div class="big">COLLECT ${v(e(t.collectCents,n))}</div><div class="sub">${v(b(t,n))}</div>`:`<div class="big">PAID</div><div class="sub">Paid already, collect nothing</div>`}
+    <div class="sign">Received by: ______________________</div>
+  </body></html>`}function S(e){let n=_(e);return{orderNumber:e.order_number,pickupLabel:e.pickup_label??null,at:e.created_at?new Date(e.created_at):new Date,customerName:e.customer_note||e.customer_name||null,customerPhone:e.customer_phone||e.customer_contact_phone||null,address:e.delivery_address??null,items:(e.items??[]).filter(e=>!o(e)).map(e=>{let n={quantity:e.quantity,name:e.name_snapshot,variant:e.variant_label??null},r=[e.meal_choices?.length?`> `+t(e.meal_choices):``,e.modifier_ids?.length?`+ `+c(e.modifier_ids):``,e.notes?`Note: `+String(e.notes):``].filter(e=>e&&e!==`+ `&&e!==`> `);return r.length&&(n.extras=r),n}),totalCents:(e.total_cents??0)+Math.max(0,e.tip_cents??0),collectCents:n,collect:n>0,riderName:e.rider_name??null,notes:e.notes??null,pinMoved:p(e.delivery_address,e.delivery_pin_moved),deliverAt:l(e)?.label??null}}async function C(e){let t=await window.ember.settings.getAll(),r={...e,shopName:t.restaurant_name??``,shopPhone:t.shop_phone??null},i=t.currency_symbol||`P`,a=u(t,`receipt`);if(a){await s(a.address,y(r,a.widthMm,i,n(a)));return}let o=await window.ember.printing.printHtml(x(r,i),`receipt`);if(o&&o.ok===!1)throw Error(o.error??`check the printer in Settings`)}var w=d();function T({address:e,shopLat:t,shopLng:n,moved:r=!1,className:i=``}){let a=f(e,t,n,r);return a?a.warn?(0,w.jsx)(`span`,{className:`block text-xs text-amber-300 font-semibold ${i}`,children:a.text}):(0,w.jsx)(`span`,{className:`block text-xs text-white/50 ${i}`,children:a.text}):null}export{C as n,S as r,T as t};

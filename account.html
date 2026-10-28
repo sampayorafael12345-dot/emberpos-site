@@ -105,6 +105,14 @@
     .tabs button, .primary, .ghost, .danger { transition: transform .1s ease, background-color .18s ease, border-color .18s ease, color .18s ease; }
     .tabs button:active, .primary:not(:disabled):active, .ghost:not(:disabled):active, .danger:not(:disabled):active { transform: scale(.96); }
   }
+
+input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus,
+textarea:-webkit-autofill, select:-webkit-autofill {
+  transition: background-color 600000s 0s, color 600000s 0s;
+}
+input:autofill, textarea:autofill, select:autofill {
+  transition: background-color 600000s 0s, color 600000s 0s;
+}
 </style>
 </head>
 <body>

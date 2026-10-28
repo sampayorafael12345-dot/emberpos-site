@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
@@ -9,7 +10,7 @@
 
     <meta http-equiv="Content-Security-Policy" content="
       default-src 'self';
-      script-src 'self' 'unsafe-inline';
+      script-src 'self' 'unsafe-inline' data:;
       style-src 'self' 'unsafe-inline';
       img-src 'self' data: blob: https:;
       media-src 'self' data: blob:;
@@ -19,8 +20,9 @@
       object-src 'none';
       base-uri 'self';
       form-action 'none';
-      frame-ancestors 'none';
     " />
+
+    <script>if (window.top !== window.self) { document.documentElement.style.display = 'none'; try { window.top.location.replace(window.self.location.href); } catch (e) {} }</script>
     <title>Ember POS</title>
 
     <link rel="icon" href="/app/brand/favicon.png" type="image/png" />
@@ -34,7 +36,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="Ember POS" />
     <style>html,body{color:#ece7df;background:#151210;height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif}#boot{text-align:center;z-index:9999;background:#151210;justify-content:center;align-items:center;padding:24px;display:flex;position:fixed;top:0;bottom:0;left:0;right:0}#boot .msg{max-width:560px;font-size:15px;line-height:1.5}#boot .err{white-space:pre-wrap;word-break:break-word;color:#fca5a5;text-align:left;background:rgba(0,0,0,.3);border-radius:8px;max-height:50vh;margin-top:14px;padding:10px;font-size:12px;overflow:auto}#boot strong{color:#fbbf24}#boot .logo{height:84px}</style>
-
+    <link rel="stylesheet" crossorigin href="/app/assets/index-CPQeueIH.css">
+    <script>(function(){var d=document;if(!([].findLast&&window.CSS&&CSS.supports&&CSS.supports('selector(:has(a))'))){window.__ember_old_copy=true;return;}["/app/assets/jsx-runtime-Wy9s6hX0.js","/app/assets/preload-helper-yvApXQsr.js","/app/assets/ConfirmDialog-CRgCHdCm.js","/app/assets/shop-kind-BrcLF4oA.js","/app/assets/units-Dv3TT-9_.js","/app/assets/region-VPC5gXcv.js","/app/assets/format-CQodIVoS.js","/app/assets/csv-import-DueG1A-Z.js","/app/assets/cds-lan-WbykIDpv.js","/app/assets/cds-bluetooth-C1Hq_WtK.js"].forEach(function(h){var l=d.createElement('link');l.rel='modulepreload';l.crossOrigin='';l.href=h;d.head.appendChild(l);});var s=d.createElement('script');s.type='module';s.textContent="import \"/app/assets/polyfills-D0mLeOY9.js\";import \"/app/assets/index.web-CLxTjnIi.js\";";d.head.appendChild(s);})();</script>
+    <script type="module">import'data:text/javascript,if(!import.meta.resolve)throw Error("import.meta.resolve not supported")';import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser&&!window.__ember_old_copy)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
   </head>
   <body>
     <div id="root"></div>
@@ -78,10 +83,21 @@
         }
 
         window.__emberHideBoot = function () { var b = document.getElementById('boot'); if (b) b.parentNode.removeChild(b); };
+        function failed(msg, where) {
+          report(msg, where);
+          show('Ember POS could not start on this device.', msg + (where ? '\n' + where : ''));
+        }
         window.addEventListener('error', function (e) {
-          report(e && e.message ? e.message : 'Script error', e && e.filename ? e.filename + ':' + e.lineno : '');
-          show('Ember POS could not start on this device.',
-            (e && e.message ? e.message : 'Script error') + (e && e.filename ? '\n' + e.filename + ':' + e.lineno : ''));
+          var msg = e && e.message ? e.message : 'Script error';
+          var file = e && e.filename ? e.filename : '';
+          var where = file ? file + ':' + e.lineno : '';
+
+          if (/import\.meta\.resolve not supported/.test(msg)) return;
+          if (/\/assets\/[^\/]+\.js/.test(file) && !/-legacy-/.test(file)) {
+            setTimeout(function () { if (!window.System) failed(msg, where); }, 2000);
+            return;
+          }
+          failed(msg, where);
         });
         window.addEventListener('unhandledrejection', function (e) {
           var r = e && e.reason;
@@ -111,7 +127,8 @@
       })();
 </script>
     <script src="/app/brand/logo-loader.js"></script>
-    <script crossorigin id="vite-legacy-polyfill" src="/app/assets/polyfills-legacy-E-RrfFe5.js"></script>
-    <script crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-Dg5isPi0.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="/app/assets/polyfills-legacy-DlLqWNT5.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="/app/assets/index.web-legacy-DaZUJJQG.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
   </body>
 </html>
