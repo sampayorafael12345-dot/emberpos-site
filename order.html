@@ -2124,8 +2124,8 @@ function openItem(id, opts) {
               '</div>';
           }).join('');
       }).join('') +
-      '<div class="label">Anything to tell the kitchen?</div>' +
-      '<input class="note-in" id="inote" type="text" maxlength="120" placeholder="Allergies, no onions, extra napkins" aria-label="Note for the kitchen">' +
+      '<div class="label">Anything to tell the shop?</div>' +
+      '<input class="note-in" id="inote" type="text" maxlength="120" placeholder="Allergies, no onions, extra napkins" aria-label="Note for the shop">' +
       '<div class="label">How many?</div>' +
       '<div class="stepper"><button id="minus" aria-label="One less">&minus;</button><span id="qv" aria-live="polite">' + qty + '</span>' +
       '<button id="plus" aria-label="One more">+</button></div>' +
@@ -4157,7 +4157,7 @@ async function saveOrderLink(num) {
       }
     }
     if (!m.items.length) {
-      fatal('Not serving right now', 'The kitchen has nothing on the menu at the moment. Please ask a staff member.');
+      fatal('Not serving right now', 'Nothing is on sale at the moment. Please ask a staff member.');
       return;
     }
     applyMenu(m);
