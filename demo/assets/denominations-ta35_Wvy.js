@@ -1,0 +1,1 @@
+function e(e){let t=0;for(let[n,r]of Object.entries(e)){let e=Number(n),i=Math.max(0,Math.trunc(Number(r)||0));e>0&&(t+=e*i)}return t}function t(e,t=`₱`,n=`¢`){return e>=100?`${t}${(e/100).toLocaleString(`en-PH`)}`:`${e}${n}`}export{e as n,t};
