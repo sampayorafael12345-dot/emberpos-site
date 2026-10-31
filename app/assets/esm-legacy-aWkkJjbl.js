@@ -1,0 +1,1 @@
+(function(){System.register([`./preload-helper-legacy-mRVs4gLv.js`,`./index.web-legacy-CJrtD1kt.js`],function(e,t){var n,r;return{setters:[function(e){n=e.t},function(e){r=e._s}],execute:function(){e(`App`,r(`App`,{web:function(){return n(function(){return t.import(`./web-legacy-Dit5N710.js`).then(function(e){return new e.AppWeb})},void 0)}}))}}})})();
