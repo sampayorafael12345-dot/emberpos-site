@@ -111,6 +111,8 @@
       var tick = function () {
         if (st.stopped) return;
         if (!cv.parentNode) { st.stopped = true; return; }
+
+        if (st.once && clock() - t0 >= FILL) { paint(1, -1); return; }
         var t = (clock() - t0) % (FILL + DRAIN);
         if (t < FILL) paint(t / FILL, -1); else paint(1, (t - FILL) / DRAIN);
         st.raf = (window.requestAnimationFrame || function (f2) { return setTimeout(f2, 16); })(tick);
@@ -127,7 +129,7 @@
     try {
       w = new Worker(WORKER);
       var off = cv.transferControlToOffscreen();
-      w.postMessage({ canvas: off, data: DATA, E: E, FILL: FILL, DRAIN: DRAIN, rgb: RGB, reduced: reduced }, [off]);
+      w.postMessage({ canvas: off, data: DATA, E: E, FILL: FILL, DRAIN: DRAIN, rgb: RGB, reduced: reduced, once: !!st.once }, [off]);
     } catch (e) {
       try { if (w) w.terminate(); } catch (e2) {  }
       return false;
@@ -145,8 +147,8 @@
     return true;
   }
 
-  function mount(el) {
-    var st = { stopped: false, raf: 0, worker: null, watch: 0 };
+  function mount(el, opts) {
+    var st = { stopped: false, raf: 0, worker: null, watch: 0, once: !!(opts && opts.once) };
     st.stop = function () {
       st.stopped = true;
       if (st.raf) (window.cancelAnimationFrame || clearTimeout)(st.raf);

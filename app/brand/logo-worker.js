@@ -68,6 +68,8 @@ function run(m, px, w, h, three) {
   var next = self.requestAnimationFrame ? function (f) { self.requestAnimationFrame(f); } : function (f) { setTimeout(f, 16); };
   function tick() {
     if (stopped) return;
+
+    if (m.once && clock() - t0 >= FILL) { paint(1, -1); return; }
     var t = (clock() - t0) % (FILL + DRAIN);
     if (t < FILL) paint(t / FILL, -1); else paint(1, (t - FILL) / DRAIN);
     next(tick);
