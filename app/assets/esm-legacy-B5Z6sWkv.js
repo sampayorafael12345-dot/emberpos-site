@@ -1,0 +1,1 @@
+(function(){System.register([`./preload-helper-legacy-mRVs4gLv.js`,`./index.web-legacy-DxBUVGMX.js`],function(e,t){var n,r;return{setters:[function(e){n=e.t},function(e){r=e.vs}],execute:function(){e(`App`,r(`App`,{web:function(){return n(function(){return t.import(`./web-legacy-Ds47y1c-.js`).then(function(e){return new e.AppWeb})},void 0)}}))}}})})();
