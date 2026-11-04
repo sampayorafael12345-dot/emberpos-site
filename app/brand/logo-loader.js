@@ -57,7 +57,6 @@
     return a;
   }
 
-
   function leave(t, tail) {
     if (tail <= -1) return 1;
     var b = (t - (tail * (1 + 2 * E) - E)) / E + 0.5;
@@ -70,7 +69,6 @@
     el.innerHTML = '<img alt="" src="' + src + '" style="height:100%;width:auto;display:block;margin:0 auto">';
   }
 
-
   var SRC = (document.currentScript && document.currentScript.src) || '';
   var WORKER = SRC ? SRC.replace(/logo-loader\.js(\?.*)?$/, 'logo-worker.js') : '';
 
@@ -82,7 +80,6 @@
     el.innerHTML = ''; el.appendChild(cv);
     return cv;
   }
-
 
   function onPage(el, st, reduced) {
     load(function (f) {
@@ -123,7 +120,6 @@
       tick();
     });
   }
-
 
   function offPage(el, st, reduced) {
     if (!WORKER || !window.Worker || location.protocol === 'file:') return false;
@@ -167,7 +163,6 @@
 
   window.EmberLogo = { mount: mount };
 
-
   function pageColour() {
     var m = null;
     try { m = localStorage.getItem('ember.theme'); } catch (e) {  }
@@ -188,7 +183,6 @@
     return '#121415';
   }
 
-
   function start() {
     var bg = pageColour();
     var ids = ['boot', 'demo-boot'];
@@ -202,7 +196,6 @@
 
   start();
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
-
 
   window.__emberHideBoot = function () {
     var ids = ['boot', 'demo-boot'];

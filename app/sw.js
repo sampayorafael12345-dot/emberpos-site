@@ -1,9 +1,6 @@
 
 
-
-
 const CACHE = 'ember-v1';
-
 
 const NAV_TIMEOUT_MS = 4000;
 
@@ -46,7 +43,6 @@ self.addEventListener('fetch', (event) => {
 
   if (!url.pathname.startsWith(new URL('./', self.registration.scope).pathname)) return;
 
-
   if (req.mode === 'navigate') {
     event.respondWith((async () => {
       const cached = await caches.match(shellKey());
@@ -82,9 +78,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-
   if (url.pathname.endsWith('/version.json')) return;
-
 
   if (url.pathname.includes('/assets/')) {
     event.respondWith((async () => {
@@ -97,7 +91,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-
   event.respondWith((async () => {
     const cached = await caches.match(req);
     const network = fetch(req).then((res) => {
@@ -108,8 +101,6 @@ self.addEventListener('fetch', (event) => {
   })());
 });
 
-
-
 async function saveShell(res) {
   if (!res || !res.ok || res.redirected) return;
   const cache = await caches.open(CACHE);
@@ -117,12 +108,9 @@ async function saveShell(res) {
   await pruneOldAssets(cache, res.clone()).catch(() => undefined);
 }
 
-
 function shellKey() {
   return new URL('./', self.registration.scope).toString();
 }
-
-
 
 async function pruneOldAssets(cache, shell) {
   const html = await shell.text();
