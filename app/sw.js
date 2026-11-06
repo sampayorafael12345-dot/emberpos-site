@@ -2,7 +2,7 @@
 
 const CACHE = 'ember-v1';
 
-const NAV_TIMEOUT_MS = 4000;
+const NAV_TIMEOUT_MS = 2000;
 
 self.addEventListener('install', (event) => {
 
