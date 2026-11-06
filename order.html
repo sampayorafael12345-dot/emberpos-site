@@ -767,7 +767,7 @@ function freshLine(l) {
   if (!it || soldOut(it)) return null;
   const sizes = it.sizes || [];
   const size = l.variant_id != null ? sizes.find((z) => z.id === l.variant_id) : null;
-  if ((l.variant_id != null && !size) || (l.variant_id == null && sizes.length)) return null;
+  if ((l.variant_id != null && !size) || (l.variant_id == null && sizes.length) || sizeOut(size)) return null;
   let price = it.price_cents + (size ? size.delta : 0);
   const opts = Array.isArray(l.options) ? l.options : [];
   for (const sl of (it.slots || [])) {
@@ -1213,7 +1213,7 @@ function linesFromServerOrder(o) {
     const it = MENU.items.find((x) => x.id === l.menu_item_id);
     if (!it || soldOut(it) || (it.slots && it.slots.length)) { skipped++; return; }
     const size = l.variant_id ? (it.sizes || []).find((z) => z.id === l.variant_id) : null;
-    if (l.variant_id && !size) { skipped++; return; }
+    if ((l.variant_id && !size) || sizeOut(size)) { skipped++; return; }
 
     if (!l.variant_id && (it.sizes || []).length) { skipped++; return; }
 
@@ -1618,7 +1618,8 @@ function openRating() {
   };
 }
 
-function soldOut(i) { return i.available === 0 || i.available === false; }
+function sizeOut(z) { return !!z && (z.sold_out === 1 || z.sold_out === true); }
+function soldOut(i) { return i.available === 0 || i.available === false || (!!(i.sizes && i.sizes.length) && i.sizes.every(sizeOut)); }
 
 const POS_COLORS = ['#f97316', '#3b82f6', '#22c55e', '#a855f7', '#ec4899', '#ef4444', '#a3e635', '#9ca3af'];
 const HEX = /^#[0-9a-fA-F]{6}$/;
@@ -1990,7 +1991,7 @@ function foodFacts(it) {
 function openItem(id, opts) {
   const it = MENU.items.find((x) => x.id === id);
   if (soldOut(it)) { toast(it.name + ' is sold out right now.'); return; }
-  let size = (it.sizes && it.sizes.length) ? it.sizes[0].id : null;
+  let size = (it.sizes && it.sizes.length) ? (it.sizes.find((z) => !sizeOut(z)) || it.sizes[0]).id : null;
 
   let qty = Math.max(1, Math.min(20, Number(opts && opts.qty) || 1));
   const picks = {};
@@ -2094,8 +2095,8 @@ function openItem(id, opts) {
       '</div>' +
       foodFacts(it) +
       ((it.sizes && it.sizes.length) ? '<div class="label">Size</div>' + it.sizes.map((s) =>
-        '<button class="opt" data-sz="' + s.id + '" aria-pressed="' + (size === s.id) + '"><span data-notl>' + esc(s.label) + '</span>' +
-        '<span class="delta">' + (s.delta ? (s.delta > 0 ? '+' : '') + money(s.delta) : 'Included') + '</span></button>').join('') : '') +
+        '<button class="opt" data-sz="' + s.id + '" aria-pressed="' + (size === s.id) + '"' + (sizeOut(s) ? ' disabled style="opacity:.45;cursor:not-allowed"' : '') + '><span data-notl>' + esc(s.label) + '</span>' +
+        '<span class="delta">' + (sizeOut(s) ? 'Sold out' : s.delta ? (s.delta > 0 ? '+' : '') + money(s.delta) : 'Included') + '</span></button>').join('') : '') +
       (it.slots || []).map((s) => '<div class="label" data-notl>' + esc(s.label) + '</div>' +
         (emptySlot === s ? '<p class="lede" style="font-size:13px;margin:0 0 8px">None left right now.</p>' : '') + (s.options || []).map((o) =>
         '<button class="opt" data-sl="' + s.id + '" data-op="' + o.id + '" aria-pressed="' + (picks[s.id] === o.id) + '"><span data-notl>' + esc(o.label) + '</span>' +
@@ -2255,7 +2256,7 @@ function lastOrderAgain() {
     const it = l.item_id && MENU.items.find((x) => x.id === l.item_id);
     if (!it || soldOut(it) || (l.options && l.options.length)) return;
     const size = l.variant_id ? (it.sizes || []).find((z) => z.id === l.variant_id) : null;
-    if (l.variant_id && !size) return;
+    if ((l.variant_id && !size) || sizeOut(size)) return;
 
     if (!l.variant_id && (it.sizes || []).length) return;
     const ads = (l.addons || []).map((id) => MENU.addons.find((a) => a.id === id)).filter(Boolean);
