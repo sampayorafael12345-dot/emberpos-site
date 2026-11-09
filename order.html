@@ -234,6 +234,10 @@
     pointer-events: none; background: linear-gradient(to bottom, transparent, var(--bg));
   }
   .sheet .foot .ghost, .sheet .foot .primary { margin: 0; }
+
+  .sheet .foot .ghost { flex: 0 0 auto; white-space: nowrap; }
+  .sheet .foot .primary { flex: 1 1 0; min-width: 0; white-space: normal; line-height: 1.2; padding-left: 12px; padding-right: 12px; overflow-wrap: anywhere; }
+  .sheet { overflow-x: hidden; }
   @keyframes rise { from { transform: translateY(14px); opacity: .6 } to { transform: none; opacity: 1 } }
 
   .sheet.full {
