@@ -167,7 +167,7 @@ button:disabled { opacity: .55; cursor: default; }
 
 .k-foot { margin-top: 96px; background: #060707; color: var(--d-ink2); border-top: 3px solid var(--night); padding: 52px 0 48px; font-size: 14.5px; }
 .k-foot .bar { width: min(1240px, 100% - 40px); margin: 0 auto; }
-.k-foot .cols { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 32px; }
+.k-foot .cols { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(4, minmax(0, 1fr)); gap: 32px; }
 .k-foot .brand-row { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
 .k-foot .brand-row img { height: 30px; width: auto; }
 .k-foot .brand-row b { font: 900 28px/1 var(--poster); text-transform: uppercase; }

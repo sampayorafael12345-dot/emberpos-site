@@ -44,7 +44,6 @@
       if (/youtube|youtu[.]be/.test(host)) return 'youtube';
       if (/google[.]/.test(host)) return 'google-search';
       if (/bing[.]|duckduckgo|yahoo[.]|ecosia|brave[.]/.test(host)) return 'other-search';
-      if (/chatgpt|openai|perplexity|gemini|copilot/.test(host)) return 'ai-answer';
       return 'other-site';
     } catch (e) { return 'unknown'; }
   }
