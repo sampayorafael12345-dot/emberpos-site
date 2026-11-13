@@ -357,11 +357,13 @@
           animation: pulse 1.4s ease-in-out infinite; }
   @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .55 } }
   @media (prefers-reduced-motion: reduce) { .skel { animation: none } }
+
   .toast {
     position: fixed; left: 50%; bottom: calc(112px + env(safe-area-inset-bottom));
     transform: translateX(-50%); z-index: 60;
-    background: var(--text); color: var(--bg); padding: 11px 18px; border-radius: 999px;
-    font-size: 14px; font-weight: 600; box-shadow: var(--shadow); max-width: 90vw;
+    background: var(--text); color: var(--bg); padding: 11px 18px; border-radius: 14px;
+    font-size: 14px; font-weight: 600; box-shadow: var(--shadow);
+    width: max-content; max-width: min(90vw, 420px); text-align: center; line-height: 1.4;
   }
   .scrim.on:not(.closing) ~ .toast {
     bottom: auto; top: calc(76px + env(safe-area-inset-top));
@@ -956,7 +958,7 @@ function toast(msg) {
     if (calm()) { d.remove(); return; }
     d.classList.add('out');
     setTimeout(() => d.remove(), 200);
-  }, 2600);
+  }, Math.max(2600, msg.length * 55));
 }
 
 function ico(d) {

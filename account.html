@@ -79,7 +79,8 @@
   details.more summary { cursor: pointer; font-weight: 650; font-size: 14px; color: var(--accent-text); }
   .toast {
     position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translateX(-50%);
-    background: #18181b; color: #fff; padding: 11px 16px; border-radius: 12px; font-size: 14.5px; max-width: calc(100% - 32px);
+    background: #18181b; color: #fff; padding: 11px 16px; border-radius: 12px; font-size: 14.5px;
+    width: max-content; max-width: min(calc(100vw - 32px), 420px); text-align: center;
     box-shadow: 0 8px 24px rgb(0 0 0 / .25); opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 50;
   }
   .toast.on { opacity: 1; }
