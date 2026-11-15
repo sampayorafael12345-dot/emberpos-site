@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+<script>if (window.top !== window.self) { document.documentElement.style.display = 'none'; try { window.top.location.replace(window.self.location.href); } catch (e) {} }</script>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ember POS: Privacy Policy</title>
@@ -37,7 +39,7 @@
   <div class="k-band-in">
     <p class="order"><b>#105</b>Privacy</p>
     <h1>Privacy Policy</h1>
-  <p>Last updated: <strong>31 October 2026</strong></p>
+  <p>Last updated: <strong>15 November 2026</strong></p>
   </div>
 </section>
 
@@ -101,9 +103,19 @@
     <td>To keep the app reliable and fix problems.</td>
   </tr>
   <tr>
+    <td>Your devices (the &quot;My devices&quot; list)</td>
+    <td>About every five minutes while the app is open, each device tells us a random number it made for itself (not your phone&rsquo;s own identifier and not an advertising identifier), a name you gave it, its model (for a browser: system, browser and screen size), the app version, when it last took a sale, the names of its printers and whether they answered last time, when the customer screen was last seen, its look settings, and how many taps were slow today.</td>
+    <td>So you can see from your phone which devices your shop runs on and which one has a problem. It is shown only to your shop.</td>
+  </tr>
+  <tr>
+    <td>Visitors to our website (emberpos.net)</td>
+    <td>A simple visit counter. When a page opens, it sends one short label: which page was opened and one word for where the visit came from (such as &quot;facebook&quot;, &quot;google-search&quot; or &quot;direct&quot;), and a short label when a download or sign-up button is tapped. The address you came from is read on your own device only to pick that word and is not sent. It sets no cookie and sends no name, no account and no number that could join two visits together.</td>
+    <td>To count how many people visit the site and which buttons they use. It is not used for advertising.</td>
+  </tr>
+  <tr>
     <td>Location (only when you tap a button)</td>
-    <td>On the ordering page, a customer who taps &quot;Use my location&quot; shares their position. It is saved in the order's delivery address, shown to that shop, and used to work out the delivery fee. A shop owner can save the shop's position for distance-based delivery and for the clock-in fence, and the staff device's position is checked at the moment someone clocks in. Only the shop and Ember POS (as processor) can see it.</td>
-    <td>Delivery address and fee, and the clock-in fence. Location is read only when the person taps the button or clocks in, kept with the order or the shop settings, and deleted when the order or the shop is deleted.</td>
+    <td>On the ordering page, a customer who taps &quot;Use my location&quot; shares their position. It is saved in the order's delivery address, shown to that shop, and used to work out the delivery fee. A shop owner can save the shop's position for distance-based delivery and for the clock-in fence, and the staff device's position is checked at the moment someone clocks in. Only the shop and Ember POS (as processor) can see it. A shop owner can also tap a button to sort the suppliers on Ember by distance from where they are: that position is used for the list on screen and is not saved. A supplier who lists on Ember can save their own position, which shops on Ember then see on the supplier list. A customer&rsquo;s Ember account can keep a map pin with a saved address until the person removes it.</td>
+    <td>Delivery address and fee, the clock-in fence, and sorting suppliers by distance. Location is read only when the person taps the button or clocks in, and the device always asks first: the browser or the phone shows its own permission question, and you can say no. Everything still works then; you type the address or the map pin instead. The clock-in position is compared with the shop&rsquo;s spot on the device and is not saved. The rest is kept with the order, the saved address or the shop settings, and deleted when the order, the address or the shop is deleted. The Android app asks for no location permission and never reads it. On an iPhone, and in a web browser or the Back Office on a computer, the app can ask while it is open.</td>
   </tr>
   <tr>
     <td>Customers of a shop (ordering and booking pages)</td>
@@ -141,6 +153,15 @@
   We do <strong>not</strong> collect contacts, camera roll, microphone, or advertising
   identifiers. The only pictures we keep are the ones you choose to put on your own menu (stored under your shop, deleted when you delete your shop). EmberPOS contains no third-party advertising or analytics SDKs.
 </p>
+<p>
+  <strong>What is kept on your device.</strong> Ember POS and this website set no cookies, and no
+  advertising or tracking cookies are used. They use the browser&rsquo;s or phone&rsquo;s own storage instead. The app keeps
+  your signed-in session, the random number of this device (see &quot;Your devices&quot; above), your settings, and a copy of your
+  shop&rsquo;s data so it can keep selling when the internet drops. On the website, the ordering page keeps a
+  customer&rsquo;s cart for that browser tab, the orders placed from that device, and the mobile number last used (not on a
+  shared screen); the loyalty page keeps the card you made; an Ember account keeps its sign-in and the email last used; and the visit counter
+  keeps one note per tab so a visit is counted once. Clearing the site data in your browser, or deleting the app, removes it.
+</p>
 
 <h2>3. How payments work</h2>
 <p>
@@ -160,6 +181,7 @@
   Subscription purchases are processed by <strong>Google Play Billing</strong> or the <strong>App Store</strong> and their status is managed for us
   by <strong>RevenueCat, Inc.</strong>, which receives your account identifier and your purchase and renewal
   status, but no card details and none of your shop's sales, staff or customer data.
+  The emails Ember POS sends (for example an order confirmation to a customer who has an Ember account, a reminder, or a reply to a message you sent us) go out through <strong>Brevo</strong>, an email sending service. It receives the sender, the recipient&rsquo;s email address and the message itself, so it can deliver it.
   Website payments are processed by our payment provider, which receives only what is needed to take the payment.
   Messages to our Facebook Page come to us through <strong>Meta Platforms</strong> and are handled by the service
   providers that help us read and answer them, only for that purpose.

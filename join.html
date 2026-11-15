@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en">
 <head>
+
+<script>if (window.top !== window.self) { document.documentElement.style.display = 'none'; try { window.top.location.replace(window.self.location.href); } catch (e) {} }</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
@@ -55,6 +57,7 @@
   .go:disabled { opacity: .5; }
   .msg { min-height: 22px; margin-top: 12px; font-size: 14.5px; color: var(--muted); text-align: center; }
   .note { font-size: 12.5px; color: var(--muted); margin-top: 14px; text-align: center; }
+  .note a { color: inherit; text-decoration: underline; }
   .loyal { text-align: center; }
   .loyal .shop { font-size: 15px; font-weight: 650; color: var(--muted); }
   .loyal .who { font-size: 22px; font-weight: 800; margin-top: 4px; }
@@ -93,7 +96,7 @@
 <div class="top"><h1 id="title">Loyalty card</h1><p id="sub">Collect stamps and get free items.</p></div>
 <main id="main"><div class="card"><div class="msg">Loading…</div></div></main>
 <div class="made">Powered by <a href="https://emberpos.net" target="_blank" rel="noopener">Ember POS</a></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="vendor/qrcode-generator-1.4.4.js"></script>
 <script>
 const URLB = 'https://qqmkgafyfxrcnwdkkyxc.supabase.co';
 const ANON = 'sb_publishable_-cAsxVwroAl8NPHIQnrKMw_PsBEYAYX';
@@ -172,7 +175,7 @@ function showForm(shop) {
       '<input id="bd" type="date" autocomplete="bday">' +
       '<button class="go" id="go">Get my card</button>' +
       '<div class="msg" id="msg"></div>' +
-      '<div class="note">Your name and number go to this shop only, for its loyalty card.</div>' +
+      '<div class="note">Your name and number (and birthday, if you add it) go to this shop only, for its loyalty card. Ember stores them for that shop. See the <a href="customer-terms.html">customer terms</a> and the <a href="privacy-policy.html">privacy policy</a>.</div>' +
     '</div>';
 
   const say = (text, kind) => {
