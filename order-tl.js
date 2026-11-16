@@ -6,6 +6,16 @@
   var TL = {
 
     'Search the menu': 'Hanapin sa menu',
+
+    'Pay the shop': 'Bayaran ang shop',
+    'Save the code': 'I-save ang code',
+    'Reference number from your receipt': 'Reference number mula sa resibo mo',
+    'The shop checks it in their own app before your order is marked paid.': 'Iche-check ito ng shop sa sarili nilang app bago ma-mark na bayad ang order mo.',
+    'Payment sent': 'Naipadala na ang bayad',
+    'The shop is checking your reference number. This page updates when they confirm.': 'Chine-check ng shop ang reference number mo. Mag-a-update ang page na ito kapag na-confirm na.',
+    'The shop could not find your payment': 'Hindi nakita ng shop ang bayad mo',
+    'Check the reference number and send it again, or pay at the counter.': 'I-check ang reference number at ipadala ulit, o magbayad sa counter.',
+    'Send the reference again': 'Ipadala ulit ang reference',
     'Menu sections': 'Mga bahagi ng menu',
     'View basket': 'Tingnan ang basket',
     'Sold out': 'Ubos na',

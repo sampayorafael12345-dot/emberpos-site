@@ -3186,6 +3186,114 @@ async function send() {
   }
 }
 
+var OWNQR = { on: false, methods: [] };
+var OWNQR_PICS = null;
+
+function loadOwnQr() {
+  rpc('kiosk_own_qr', { p_token: TOKEN, p_pictures: false }).then(function (r) {
+    var was = OWNQR.on;
+    OWNQR = (r && r.ok && r.on && Array.isArray(r.methods) && r.methods.length) ? { on: true, methods: r.methods } : { on: false, methods: [] };
+
+    if (OWNQR.on !== was && document.querySelector('[data-track]')) showOrders();
+  }).catch(function () {  });
+}
+
+function ownQrWords() {
+  var w = OWNQR.methods.map(function (m) { return m.key === 'gcash' ? 'GCash' : m.key === 'maya' ? 'Maya' : 'bank QR'; });
+  return w.length > 1 ? w.slice(0, -1).join(', ') + ' or ' + w[w.length - 1] : (w[0] || 'QR');
+}
+
+function ownQrShown(o) {
+  return !!(OWNQR.on && !SHARED && o.ref && !o.prepaid && !o.paid && !FINAL[o.state]
+    && o.payRef !== 'sent' && o.payRef !== 'confirmed' && (o.total == null || o.total > 0));
+}
+
+function ownQrCardHtml(o) {
+  if (o.prepaid || o.paid || FINAL[o.state]) return '';
+  var box = function (title, words) {
+    return '<div style="display:flex;gap:8px;align-items:flex-start;background:rgba(255,92,0,.12);' +
+      'border:1px solid rgba(255,92,0,.45);border-radius:var(--r-md);padding:10px 12px;margin-bottom:12px">' +
+      '<span><b style="display:block;font-size:14.5px">' + title + '</b>' +
+      '<span class="lede" style="font-size:12.5px">' + words + '</span></span></div>';
+  };
+  var btn = function (label) {
+    return '<button class="' + (payNowShown(o) ? 'ghost' : 'primary') + '" data-ownqr="' + esc(o.num) + '" style="width:100%;margin-bottom:12px">' + label + '</button>';
+  };
+  if (o.payRef === 'sent') return box('Payment sent', 'The shop is checking your reference number. This page updates when they confirm.');
+  if (o.payRef === 'rejected') {
+    return box('The shop could not find your payment', 'Check the reference number and send it again, or pay at the counter.') +
+      (ownQrShown(o) ? btn('Send the reference again') : '');
+  }
+  return ownQrShown(o) ? btn('Pay by ' + esc(ownQrWords())) : '';
+}
+
+function ownQrPictureOk(src) {
+  return typeof src === 'string' && /^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(src);
+}
+async function openOwnQrSheet(num) {
+  var o = loadOrders().find(function (x) { return x.num === num; });
+  if (!o || !o.ref) return;
+  var back = function () { closeSheet(); showOrders(num); };
+  openSheet('<h2>Pay the shop</h2><p class="lede" style="text-align:center;padding:26px 0"><span class="waitdot"></span>Getting the shop\'s code…</p>' +
+    '<div style="display:flex;gap:10px"><button class="ghost" id="oqback" style="flex:1">Not now</button></div>');
+  el('oqback').onclick = back;
+  if (!OWNQR_PICS) {
+    try {
+      var r = await rpc('kiosk_own_qr', { p_token: TOKEN, p_pictures: true });
+      if (r && r.ok && r.on && Array.isArray(r.methods)) OWNQR_PICS = r.methods.filter(function (m) { return ownQrPictureOk(m.qr); });
+    } catch (e) {  }
+  }
+  if (!OWNQR_PICS || !OWNQR_PICS.length) { back(); toast('Could not get the shop\'s code. Please pay at the counter.'); return; }
+  var pick = OWNQR_PICS[0].key, typed = '';
+  var draw = function () {
+    var m = OWNQR_PICS.find(function (x) { return x.key === pick; }) || OWNQR_PICS[0];
+    var app = m.key === 'gcash' ? 'GCash' : m.key === 'maya' ? 'Maya' : 'your bank or e-wallet app';
+    openSheet('<h2>Pay the shop</h2>' +
+      (OWNQR_PICS.length > 1
+        ? '<div style="display:flex;gap:8px;margin-bottom:10px">' + OWNQR_PICS.map(function (x) {
+            return '<button class="' + (x.key === pick ? 'primary' : 'ghost') + '" data-oq="' + esc(x.key) + '" style="flex:1">' +
+              (x.key === 'gcash' ? 'GCash' : x.key === 'maya' ? 'Maya' : 'Bank QR') + '</button>';
+          }).join('') + '</div>'
+        : '') +
+      '<div style="text-align:center"><img src="' + esc(m.qr) + '" alt="The shop\'s payment code" ' +
+        'style="width:230px;max-width:78vw;border-radius:12px;background:#fff;padding:8px"></div>' +
+      (o.total != null ? '<div style="text-align:center;font-weight:900;font-size:24px;margin:8px 0">' + money(o.total) + '</div>' : '') +
+      '<p class="lede" style="text-align:center;font-size:13px">Open ' + app + ' and scan this code, or save it and upload it inside the app. ' +
+        (o.total != null ? 'Pay exactly ' + money(o.total) + '.' : 'Pay the exact amount of your order.') + '</p>' +
+      '<div style="text-align:center;margin-bottom:10px"><a href="' + esc(m.qr) + '" download="shop-payment-code.png" ' +
+        'style="font-size:13px;font-weight:700;color:inherit">Save the code</a></div>' +
+      '<div class="label">Reference number from your receipt</div>' +
+      '<input class="note-in" id="oqref" type="text" autocomplete="off" autocapitalize="characters" maxlength="40" ' +
+        'placeholder="Type it here after you pay" value="' + esc(typed) + '" aria-label="Reference number from your receipt">' +
+      '<p class="lede" style="font-size:12.5px;margin-top:6px">The shop checks it in their own app before your order is marked paid.</p>' +
+      '<div style="display:flex;gap:10px;margin-top:10px">' +
+        '<button class="ghost" id="oqback" style="flex:1">Not now</button>' +
+        '<button class="primary" id="oqsend" style="flex:1">Send</button></div>');
+    el('oqback').onclick = back;
+    el('oqref').oninput = function () { typed = el('oqref').value; };
+    document.querySelectorAll('[data-oq]').forEach(function (b) {
+      b.onclick = function () { pick = b.getAttribute('data-oq'); SHEET_SAME = true; draw(); };
+    });
+    el('oqsend').onclick = async function () {
+      var ref = String(el('oqref').value || '').replace(/[^A-Za-z0-9]/g, '');
+      if (ref.length < 6) { toast('Type the reference number from your receipt.'); return; }
+      el('oqsend').disabled = true;
+      var res = null;
+      try { res = await rpc('kiosk_pay_reference', { p_token: TOKEN, p_order_number: num, p_client_ref: o.ref, p_method: pick, p_ref: ref }); }
+      catch (e) { res = null; }
+      if (!res || !res.ok) {
+        if (el('oqsend')) el('oqsend').disabled = false;
+        toast((res && res.error) || 'Could not send it. Check your internet and try again.');
+        return;
+      }
+      patchOrder(num, { payRef: 'sent' });
+      closeSheet(); showOrders(num);
+      toast('Sent. The shop will check your payment.');
+    };
+  };
+  draw();
+}
+
 function markPrepaid(num) {
   const a = loadOrders();
   const i = a.findIndex(function (x) { return x.num === num; });
@@ -3812,7 +3920,9 @@ function showOrders(highlight) {
 
           (payNowShown(o)
             ? '<button class="primary" data-paynow="' + esc(o.num) + '" data-paytype="' + esc(o.type || '') + '" style="width:100%;margin-bottom:12px">' + (o.total != null ? 'Pay now, ' + money(o.total) : 'Pay now') + '</button>'
-            : '')) +
+            : '') +
+
+          ownQrCardHtml(o)) +
         unopenedHtml(o) +
         '<div class="steps" data-track="' + esc(o.num) + '">' + stepsHtml(o.state || 'waiting', o.type, o.wanted, false, o.cancelReason) + '</div>' +
 
@@ -3875,6 +3985,7 @@ function showOrders(highlight) {
   document.querySelectorAll('[data-paynow]').forEach((b) => {
     b.onclick = () => openPaySheet(b.getAttribute('data-paynow'), b.getAttribute('data-paytype') || null);
   });
+  document.querySelectorAll('[data-ownqr]').forEach((b) => { b.onclick = () => openOwnQrSheet(b.getAttribute('data-ownqr')); });
   document.querySelectorAll('[data-cancel]').forEach((b) => { b.onclick = () => cancelOrder(b.getAttribute('data-cancel')); });
   document.querySelectorAll('[data-here]').forEach((b) => { b.onclick = () => imHere(b.getAttribute('data-here')); });
   document.querySelectorAll('[data-savelink]').forEach((b) => { b.onclick = () => saveOrderLink(b.getAttribute('data-savelink')); });
@@ -3897,6 +4008,13 @@ function trackAll() {
     let redraw = false;
     for (const o of live) {
       try {
+
+        if (o.payRef === 'sent' && o.ref) {
+          try {
+            const s = await rpc('kiosk_pay_reference_state', { p_token: TOKEN, p_order_number: o.num, p_client_ref: o.ref });
+            if (s && s.ok && s.state && s.state !== o.payRef) { patchOrder(o.num, { payRef: String(s.state) }); redraw = true; }
+          } catch (e) {  }
+        }
         const r = await rpc('kiosk_order_status', { p_token: TOKEN, p_order_number: o.num });
         if (r && r.ok) {
 
@@ -4187,6 +4305,7 @@ async function saveOrderLink(num) {
     SHARED = !!(m.link && m.link.kind === 'kiosk');
     if (m.link && m.link.kind === 'table' && !KMODE) KMODE = 'dine_in';
     PAYON = STORE ? STORE.prepay === true : instore.pay_now === true;
+    loadOwnQr();
     PAYMIN = Number(STORE ? STORE.min_prepay_cents : instore.min_prepay_cents) || 2000;
     FORGET = SHARED && instore.forget_between === true;
     TABLETIPS = !STORE && !SHARED && instore.tips === true;
