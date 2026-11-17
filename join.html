@@ -20,12 +20,14 @@
     --bg: #f1ece1; --card: #ffffff; --line: rgba(58, 50, 40, 0.14);
     --text: #14120f; --muted: #5d5446;
     --accent: #ff5c00; --accent-ink: #1a0e05; --accent-text: #b03e00;
+    --bad-bg: #fdecea; --bad-line: #f1b4ad; --bad-ink: #8f1d12;
     --r: 16px;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #121415; --card: #191c1e; --line: rgba(255, 255, 255, 0.08);
       --text: #ece7df; --muted: rgba(236, 231, 223, 0.74); --accent-text: #ff8340;
+      --bad-bg: rgba(239, 83, 64, 0.14); --bad-line: rgba(239, 83, 64, 0.45); --bad-ink: #ffb4a8;
     }
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -56,6 +58,10 @@
   }
   .go:disabled { opacity: .5; }
   .msg { min-height: 22px; margin-top: 12px; font-size: 14.5px; color: var(--muted); text-align: center; }
+
+  .msg.bad { background: var(--bad-bg); border: 1px solid var(--bad-line); color: var(--bad-ink); border-radius: 12px;
+    padding: 10px 12px; font-weight: 600; text-align: left; }
+  .msg.bad b { display: block; font-size: 15.5px; margin-bottom: 2px; }
   .note { font-size: 12.5px; color: var(--muted); margin-top: 14px; text-align: center; }
   .note a { color: inherit; text-decoration: underline; }
   .loyal { text-align: center; }
@@ -185,6 +191,14 @@ function showForm(shop) {
     m.textContent = text;
     if (kind === 'bad') { void m.offsetWidth; m.classList.add('bad'); }
   };
+
+  const sayTaken = () => {
+    const m = el('msg');
+    m.classList.remove('bad');
+    m.innerHTML = '<b>This number is already saved at this shop.</b>' +
+      'Check the number you typed. If it is right, show this screen at the counter and they will give you your card there.';
+    void m.offsetWidth; m.classList.add('bad');
+  };
   el('go').onclick = async function () {
     if (el('go').disabled) return;
     const name = el('nm').value.trim(), phone = el('ph').value.trim(), bday = el('bd').value || null;
@@ -193,6 +207,7 @@ function showForm(shop) {
     el('go').disabled = true; say('Making your card…', 'wait');
     try {
       const r = await rpc('loyalty_join', { p_token: TOKEN, p_name: name, p_phone: phone, p_birthday: bday });
+      if (r && r.exists) { sayTaken(); el('go').disabled = false; return; }
       if (!r || !r.ok) { say((r && r.error) || 'Please ask at the counter.', 'bad'); el('go').disabled = false; return; }
       const card = { code: r.card_code, name: name, shop: r.shop || shop.shop || '' };
       try { localStorage.setItem(KEY, JSON.stringify(card)); } catch (e) {  }
