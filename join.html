@@ -181,6 +181,7 @@ function showForm(shop) {
       '<input id="bd" type="date" autocomplete="bday">' +
       '<button class="go" id="go">Get my card</button>' +
       '<div class="msg" id="msg"></div>' +
+      '<div class="note"><a href="#" id="have">I already have a card from the shop</a></div>' +
       '<div class="note">Your name and number (and birthday, if you add it) go to this shop only, for its loyalty card. Ember stores them for that shop. See the <a href="customer-terms.html">customer terms</a> and the <a href="privacy-policy.html">privacy policy</a>.</div>' +
     '</div>';
 
@@ -199,6 +200,7 @@ function showForm(shop) {
       'Check the number you typed. If it is right, show this screen at the counter and they will give you your card there.';
     void m.offsetWidth; m.classList.add('bad');
   };
+  el('have').onclick = function (e) { e.preventDefault(); showHaveCard(shop); };
   el('go').onclick = async function () {
     if (el('go').disabled) return;
     const name = el('nm').value.trim(), phone = el('ph').value.trim(), bday = el('bd').value || null;
@@ -219,10 +221,63 @@ function showForm(shop) {
   };
 }
 
+const CODE_RE = /^[A-HJ-KM-NP-Z2-9]{10}$/;
+function codeFromHash() {
+  const m = /(?:^|[#&])c=([A-Za-z0-9 \-]+)/.exec(location.hash || '');
+  const c = m ? m[1].replace(/[\s-]/g, '').toUpperCase() : '';
+  return CODE_RE.test(c) ? c : '';
+}
+async function openByCode(code, shopName) {
+  const r = await rpc('loyalty_card_status', { p_token: TOKEN, p_code: code });
+  if (!r || !r.ok) return false;
+  const card = { code: code, name: r.first_name || 'Loyalty card', shop: shopName || '' };
+  try { localStorage.setItem(KEY, JSON.stringify(card)); } catch (e) {  }
+
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {  }
+  showCard(card);
+  return true;
+}
+function showHaveCard(shop) {
+  el('title').textContent = shop.shop || 'Loyalty card';
+  el('sub').textContent = 'See the stamps on the card the shop gave you.';
+  el('main').innerHTML =
+    '<div class="card">' +
+      '<label for="cc">The code under the QR on your card</label>' +
+      '<input id="cc" autocomplete="off" autocapitalize="characters" maxlength="14" placeholder="ABCDE FGHJK">' +
+      '<button class="go" id="go">Show my stamps</button>' +
+      '<div class="msg" id="msg"></div>' +
+      '<div class="note"><a href="#" id="back">I do not have a card yet</a></div>' +
+    '</div>';
+  el('back').onclick = function (e) { e.preventDefault(); showForm(shop); };
+  el('go').onclick = async function () {
+    if (el('go').disabled) return;
+    const code = el('cc').value.replace(/[\s-]/g, '').toUpperCase();
+    const m = el('msg');
+    m.classList.remove('bad');
+    if (!CODE_RE.test(code)) { m.textContent = 'Type the 10 letters and numbers under the QR on your card.'; void m.offsetWidth; m.classList.add('bad'); return; }
+    el('go').disabled = true; m.textContent = 'Looking for your card…';
+    try {
+      if (await openByCode(code, shop.shop)) return;
+      m.textContent = 'That code is not a card of this shop. Check it and try again, or ask at the counter.';
+      void m.offsetWidth; m.classList.add('bad');
+    } catch (e) {
+      m.textContent = 'No connection. Try again in a moment.';
+    }
+    el('go').disabled = false;
+  };
+}
+
 (async function () {
   if (!TOKEN) { el('main').innerHTML = '<div class="card"><div class="msg">This link is not complete. Please scan the QR code again.</div></div>'; return; }
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { saved = null; }
+  const scanned = codeFromHash();
+  if (scanned && !(saved && saved.code === scanned)) {
+    try {
+      const shop = await rpc('loyalty_join_shop', { p_token: TOKEN });
+      if (await openByCode(scanned, shop && shop.ok ? shop.shop : '')) return;
+    } catch (e) {  }
+  }
   if (saved && saved.code) { showCard(saved); return; }
   try {
     const shop = await rpc('loyalty_join_shop', { p_token: TOKEN });

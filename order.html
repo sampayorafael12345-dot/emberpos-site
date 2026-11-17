@@ -3194,6 +3194,8 @@ function loadOwnQr() {
     var was = OWNQR.on;
     OWNQR = (r && r.ok && r.on && Array.isArray(r.methods) && r.methods.length) ? { on: true, methods: r.methods } : { on: false, methods: [] };
 
+    if (OWNQR.on) rpc('kiosk_own_qr_hold', { p_token: TOKEN }).then(function (h) { if (h === true && !OWNQR.hold) { OWNQR.hold = true; if (document.querySelector('[data-track]')) showOrders(); } }).catch(function () {  });
+
     if (OWNQR.on !== was && document.querySelector('[data-track]')) showOrders();
   }).catch(function () {  });
 }
@@ -3224,6 +3226,8 @@ function ownQrCardHtml(o) {
     return box('The shop could not find your payment', 'Check the reference number and send it again, or pay at the counter.') +
       (ownQrShown(o) ? btn('Send the reference again') : '');
   }
+
+  if (ownQrShown(o) && OWNQR.hold) return box('The shop starts this order once it is paid', 'Pay to the shop QR and send the reference number. The shop checks it, then starts your order.') + btn('Pay by ' + esc(ownQrWords()));
   return ownQrShown(o) ? btn('Pay by ' + esc(ownQrWords())) : '';
 }
 
