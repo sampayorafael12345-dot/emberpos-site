@@ -1,0 +1,1 @@
+import{n as e}from"./rolldown-runtime-XKyaHtl9.js";var t=e({isIosApp:()=>a}),n=()=>typeof window.ember?.business?.provision==`function`,r=()=>!!window.Capacitor?.isNativePlatform?.(),i=()=>typeof window<`u`&&!!window.__EMBER_DEMO__,a=()=>r()&&window.Capacitor?.getPlatform?.()===`ios`;export{t as a,i,a as n,r,n as t};

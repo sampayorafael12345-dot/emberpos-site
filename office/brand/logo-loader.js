@@ -106,7 +106,7 @@
       }
       if (reduced) { paint(1, -1); return; }
 
-      var clock = function () { return window.performance && performance.now ? performance.now() : Date.now(); };
+      var clock = function () { return (window.performance && performance.now ? performance.now() : Date.now()) * st.speed; };
       var t0 = clock();
       var tick = function () {
         if (st.stopped) return;
@@ -129,7 +129,7 @@
     try {
       w = new Worker(WORKER);
       var off = cv.transferControlToOffscreen();
-      w.postMessage({ canvas: off, data: DATA, E: E, FILL: FILL, DRAIN: DRAIN, rgb: RGB, reduced: reduced, once: !!st.once }, [off]);
+      w.postMessage({ canvas: off, data: DATA, E: E, FILL: FILL / st.speed, DRAIN: DRAIN / st.speed, rgb: RGB, reduced: reduced, once: !!st.once }, [off]);
     } catch (e) {
       try { if (w) w.terminate(); } catch (e2) {  }
       return false;
@@ -148,7 +148,7 @@
   }
 
   function mount(el, opts) {
-    var st = { stopped: false, raf: 0, worker: null, watch: 0, once: !!(opts && opts.once) };
+    var st = { stopped: false, raf: 0, worker: null, watch: 0, once: !!(opts && opts.once), speed: (opts && opts.speed > 0) ? opts.speed : 1 };
     st.stop = function () {
       st.stopped = true;
       if (st.raf) (window.cancelAnimationFrame || clearTimeout)(st.raf);
@@ -183,7 +183,10 @@
     return '#121415';
   }
 
+  var bootStart = 0;
+
   function start() {
+    if (!bootStart) bootStart = Date.now();
     var bg = pageColour();
     var ids = ['boot', 'demo-boot'];
     for (var b = 0; b < ids.length; b++) { var s = document.getElementById(ids[b]); if (s) s.style.background = bg; }
@@ -197,7 +200,16 @@
   start();
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
 
+  var hideAsked = false;
   window.__emberHideBoot = function () {
+    if (hideAsked) return;
+    hideAsked = true;
+    var reduced = false;
+    try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {  }
+    var left = reduced || !bootStart ? 0 : FILL - (Date.now() - bootStart);
+    if (left > 0) setTimeout(lift, left); else lift();
+  };
+  function lift() {
     var ids = ['boot', 'demo-boot'];
     for (var i = 0; i < ids.length; i++) {
       var b = document.getElementById(ids[i]);
@@ -214,5 +226,5 @@
         }, 240);
       })(b);
     }
-  };
+  }
 })();

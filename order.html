@@ -863,6 +863,13 @@ const subtotal = () => CART.reduce((s, l) => s + l.price * l.qty, 0);
 
 var ZONE = null;
 const zones = () => (STORE && Array.isArray(STORE.delivery_zones) ? STORE.delivery_zones : []);
+
+const LINK_ZONE = String(QS.get('z') || '').trim().slice(0, 40).toLowerCase();
+const lockedZone = () => {
+  if (!LINK_ZONE) return '';
+  const z = zones().find((r) => String(r.name || '').trim().toLowerCase() === LINK_ZONE);
+  return z && STORE && STORE.delivery ? z.name : '';
+};
 const zoneFee = () => { const z = zones().find((r) => r.name === ZONE); return z ? (z.fee_cents || 0) : 0; };
 
 var GEO = null;
@@ -2551,7 +2558,12 @@ function storeFields() {
 
   var otherMode = OMODE === 'pickup' ? 'delivery' : 'pickup';
   if (!modeOpen(OMODE) && modeOpen(otherMode)) OMODE = otherMode;
-  if (modeOpen('pickup') && modeOpen('delivery')) {
+
+  var LZ = modeOpen('delivery') ? lockedZone() : '';
+  if (LZ) { OMODE = 'delivery'; ZONE = LZ; }
+  if (LZ) {
+    h += '<div class="label">' + ICON_MOTO + ' Delivery order</div>';
+  } else if (modeOpen('pickup') && modeOpen('delivery')) {
     h += '<div class="label">How do you want it?</div>' +
       '<div class="modes">' +
       '<button class="' + (OMODE === 'pickup' ? 'primary' : 'ghost') + '" data-omode="pickup">' + ICON_BAG + 'Pickup</button>' +
@@ -2598,6 +2610,11 @@ function storeFields() {
   if (OMODE === 'delivery') {
     if (zones().length) {
       if (ZONE && !zones().some((r) => r.name === ZONE)) ZONE = null;
+      if (lockedZone() && ZONE === lockedZone()) {
+        var lz = zones().find((r) => r.name === ZONE);
+        h += '<div class="label">Delivery area</div>' +
+          '<div class="note-in" id="ozonefixed" style="min-height:0">' + esc(ZONE) + ', ' + (lz && lz.fee_cents ? money(lz.fee_cents) : 'free') + '</div>';
+      } else
       h += '<div class="label">Delivery area</div>' +
         '<select class="when-sel" id="ozone" aria-label="Delivery area">' +
         '<option value=""' + (ZONE ? '' : ' selected') + ' disabled>Choose your area</option>' +
