@@ -870,6 +870,15 @@ const lockedZone = () => {
   const z = zones().find((r) => String(r.name || '').trim().toLowerCase() === LINK_ZONE);
   return z && STORE && STORE.delivery ? z.name : '';
 };
+
+const PARTNER_CODE = (function () { const c = String(QS.get('ref') || '').trim().toLowerCase(); return /^[a-z0-9]{6,12}$/.test(c) ? c : ''; })();
+var REF_NAME = '';
+async function loadRefName() {
+  if (!PARTNER_CODE || !STORE) return;
+  try { const n = await rpc('kiosk_referral_name', { p_token: TOKEN, p_code: PARTNER_CODE }, 6000); REF_NAME = typeof n === 'string' ? n.trim().slice(0, 40) : ''; }
+  catch (e) { REF_NAME = ''; }
+}
+function refNoteHtml() { return REF_NAME ? '<p class="snote">Ordered through ' + esc(REF_NAME) + '</p>' : ''; }
 const zoneFee = () => { const z = zones().find((r) => r.name === ZONE); return z ? (z.fee_cents || 0) : 0; };
 
 var GEO = null;
@@ -1077,6 +1086,7 @@ function render() {
 
       heroId(shop.logo, shop.name) +
       (chips ? '<div class="meta">' + chips + '</div>' : '') +
+      refNoteHtml() +
       shopNoteHtml() +
       acctButtonHtml() +
       (mine.length ? '<button class="mine" id="mine">Your orders (' + mine.length + ')</button>' : '') +
@@ -3143,6 +3153,9 @@ async function send() {
       return;
     }
 
+    if (STORE && PARTNER_CODE && REF_NAME) {
+      try { await rpc('kiosk_set_referral', { p_token: TOKEN, p_order_number: res.order_number, p_client_ref: acctRef, p_code: PARTNER_CODE }, 8000); } catch (e) {  }
+    }
     var tipped = 0;
 
     if (res.duplicate && Number(res.tip_cents) > 0) tipped = Number(res.tip_cents);
@@ -4327,6 +4340,7 @@ async function saveOrderLink(num) {
     if (m.link && m.link.kind === 'table' && !KMODE) KMODE = 'dine_in';
     PAYON = STORE ? STORE.prepay === true : instore.pay_now === true;
     loadOwnQr();
+    await loadRefName();
     PAYMIN = Number(STORE ? STORE.min_prepay_cents : instore.min_prepay_cents) || 2000;
     FORGET = SHARED && instore.forget_between === true;
     TABLETIPS = !STORE && !SHARED && instore.tips === true;
