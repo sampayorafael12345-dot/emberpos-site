@@ -51,6 +51,9 @@
     width: 100%; padding: 14px 15px; border-radius: 14px; border: 1px solid var(--line);
     background: rgba(0, 0, 0, .28); font-size: 16px; outline: none; transition: border-color .2s ease, box-shadow .2s ease;
   }
+
+  input[type="date"] { -webkit-appearance: none; appearance: none; display: block; min-width: 0; max-width: 100%; height: 53px; line-height: 20px; text-align: left; }
+  input[type="date"]::-webkit-date-and-time-value { text-align: left; min-height: 20px; }
   input::placeholder { color: rgba(201, 179, 156, .55); }
   input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(232, 194, 122, .18); }
   .go {
