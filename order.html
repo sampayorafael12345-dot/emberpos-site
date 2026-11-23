@@ -846,6 +846,8 @@ let KMODE = null;
 
 let PEAT = 'takeout';
 
+function GOODS_SHOP() { var k = MENU && MENU.shop && MENU.shop.business_kind; return k === 'retail' || k === 'pharmacy'; }
+
 let PAYMIN = 2000;
 
 const MINE = {};
@@ -1096,7 +1098,7 @@ function render() {
     '<div class="stick">' +
       '<div class="srow"><div class="search">' +
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' +
-        '<input id="q" type="text" inputmode="search" placeholder="Search the menu" value="' + esc(Q) + '" aria-label="Search the menu">' +
+        '<input id="q" type="text" inputmode="search" placeholder="' + (GOODS_SHOP() ? 'Search products' : 'Search the menu') + '" value="' + esc(Q) + '" aria-label="' + (GOODS_SHOP() ? 'Search products' : 'Search the menu') + '">' +
       '</div>' +
       ((menuDiets().length || menuAllergens().length)
         ? '<button class="fbtn' + (filtersOn() ? ' on' : '') + '" id="filt" type="button">' + (filtersOn() ? 'Filter (' + filtersOn() + ')' : 'Filter') + '</button>' : '') +
@@ -1492,6 +1494,14 @@ async function afterAccountOrder(num, ref, addrTyped, keepAddr, mkt) {
   await loadAcct();
 }
 
+function tableStampPhoneHtml() {
+  if (STORE || !(MENU.shop && MENU.shop.loyalty)) return '';
+  var saved = SHARED ? '' : lsGet('ember.phone');
+  return '<div class="label">Your mobile number (optional)</div>' +
+    '<input class="note-in" id="tph" type="tel" inputmode="tel" autocomplete="' + (SHARED ? 'off' : 'tel') + '" maxlength="20" value="' + esc(saved) + '" ' +
+      'placeholder="' + (CUR === '₱' ? '0917 123 4567' : 'Mobile number') + '" aria-label="Your mobile number">' +
+    '<div class="lede" style="font-size:13px;margin-top:6px">Give the number you use at the counter, so this order earns your stamp.</div>';
+}
 function openStamps() {
 
   var saved = '';
@@ -2349,6 +2359,7 @@ function openCart() {
       kioskModeHtml() +
       '<div class="label">Your name</div>' +
       '<input class="note-in" id="who" type="text" maxlength="40" placeholder="' + (STORE ? 'Who is this order for?' : 'So the staff can call you') + '" aria-label="Your name">' +
+      tableStampPhoneHtml() +
       couponFieldHtml() +
 
       (STORE ? tipHtml() : '') +
@@ -2528,6 +2539,7 @@ function openCart() {
   function redrawKeeping() {
     var w = el('who') ? el('who').value : '';
     var ph = el('oph') ? el('oph').value : '';
+    var tph = el('tph') ? el('tph').value : null;
     var ad = el('oaddr') ? el('oaddr').value : '';
     var sa = el('osaveaddr') ? el('osaveaddr').checked : null;
     var mk = el('omkt') ? el('omkt').checked : null;
@@ -2538,6 +2550,7 @@ function openCart() {
     draw();
     if (el('who') && w) el('who').value = w;
     if (el('oph') && ph) el('oph').value = ph;
+    if (el('tph') && tph !== null) el('tph').value = tph;
     if (el('oaddr') && ad) el('oaddr').value = ad;
     if (el('osaveaddr') && sa !== null) el('osaveaddr').checked = sa;
     if (el('omkt') && mk !== null) el('omkt').checked = mk;
@@ -2554,7 +2567,7 @@ function openCart() {
 }
 
 function kioskModeHtml() {
-  if (STORE) return '';
+  if (STORE || GOODS_SHOP()) return '';
   var km = KMODE || (SHARED ? null : 'dine_in');
   return '<div class="label">Dine in or take out?</div>' +
     '<div class="modes">' +
@@ -2584,7 +2597,7 @@ function storeFields() {
     h += '<div class="label">' + ICON_MOTO + ' Delivery order</div>';
   }
 
-  if (OMODE === 'pickup') {
+  if (OMODE === 'pickup' && !GOODS_SHOP()) {
     h += '<div class="label">Dine in or take out?</div>' +
       '<div class="modes">' +
       '<button class="' + (PEAT === 'dine_in' ? 'primary' : 'ghost') + '" data-peat="dine_in">' + ICON_CUP + 'Dine in</button>' +
@@ -3077,6 +3090,13 @@ async function send() {
   if (btn.disabled) return;
   const who = (el('who').value || '').trim();
   var phone = null, addr = null;
+
+  if (!STORE && el('tph')) {
+    var tp = (el('tph').value || '').trim();
+    if (tp && tp.replace(/[^0-9]/g, '').length < 10) { toast('Type your full mobile number, or leave it empty.'); return; }
+    phone = tp || null;
+    if (phone && !SHARED) lsSet('ember.phone', phone);
+  }
   if (STORE) {
     phone = ((el('oph') && el('oph').value) || '').trim();
     addr = ((el('oaddr') && el('oaddr').value) || '').trim();
@@ -3120,14 +3140,14 @@ async function send() {
     }
     lsSet('ember.who', who); lsSet('ember.phone', phone); if (addr) lsSet('ember.addr', addr);
   }
-  if (!STORE && SHARED && !KMODE) { toast('Dine in or take out? Tap one, then send your order.'); return; }
+  if (!STORE && SHARED && !KMODE && !GOODS_SHOP()) { toast('Dine in or take out? Tap one, then send your order.'); return; }
   btn.disabled = true; btn.textContent = 'Sending…';
   const sendArgs = {
       p_token: TOKEN,
       p_items: CART.map((l) => ({ item_id: l.item_id, qty: l.qty, variant_id: l.variant_id, options: l.options, addons: l.addons || [], note: l.note })),
 
       p_name: who || null, p_note: [payWithNote(), (el('onote') && el('onote').value.trim()) || ''].filter(Boolean).join(' | ') || null, p_order_type: STORE ? (OMODE === 'pickup' ? 'pickup_' + PEAT : OMODE) : (SHARED ? (KMODE || 'takeout') : (KMODE || 'dine_in')),
-      p_phone: STORE ? phone : null, p_address: (STORE && OMODE === 'delivery') ? deliveryAddressLine(addr) : null,
+      p_phone: phone || null, p_address: (STORE && OMODE === 'delivery') ? deliveryAddressLine(addr) : null,
 
       p_wanted_hhmm: (STORE && timesFor(OMODE)) ? wantedValue() : null,
 

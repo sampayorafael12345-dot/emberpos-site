@@ -72,6 +72,8 @@ function show(r) {
     '<div class="label">Ticket</div><div class="num">' + esc(r.number) + '</div>' +
     '<span class="stage' + (r.stage === 'Ready' ? ' ready' : '') + '">' + esc(r.stage) + '</span>' +
     (done ? '' : '<div class="row"><span class="label">Ready</span><b>' + esc(when(r.promised_at)) + '</b></div>') +
+    (!done && Number(r.storage_fee_cents) > 0 ? '<div class="row"><span class="label">Storage fee</span><b class="pay">' + esc(fmt(Math.round(Number(r.storage_fee_cents)), r.symbol)) + '</b></div>' : '') +
+    (!done && Number(r.days_waiting) > 0 ? '<div class="row"><span class="label">Waiting</span><b>' + esc(String(Math.round(Number(r.days_waiting)))) + (Number(r.days_waiting) === 1 ? ' day' : ' days') + '</b></div>' : '') +
     '<div class="row"><span class="label">Balance</span><b class="' + (bal > 0 ? 'pay' : 'paid') + '">' + (r.stage === 'Cancelled' ? 'Cancelled' : bal > 0 ? esc(money) + ' to pay' : 'Paid') + '</b></div>';
 }
 

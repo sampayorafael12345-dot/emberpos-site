@@ -1,0 +1,1 @@
+function e(e=t){let n=e(8),r=``;for(let e=0;e<8;e++)r+=`ABCDEFGHJKMNPQRSTUVWXYZ23456789`[n[e]%31];return`GIFT-`+r}function t(e){let t=new Uint8Array(e),n=globalThis.crypto;if(!n?.getRandomValues)throw Error(`This device cannot make a safe gift card code.`);return n.getRandomValues(t),t}export{e as t};
