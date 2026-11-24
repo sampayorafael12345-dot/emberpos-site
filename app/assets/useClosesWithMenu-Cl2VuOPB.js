@@ -1,1 +1,0 @@
-import{r as e}from"./rolldown-runtime-XKyaHtl9.js";import{n as t}from"./jsx-runtime-C3cWAN_r.js";var n=e(t(),1),r=`ember:menu-open`,i=`ember:bar-tap`;function a(e,t){(0,n.useEffect)(()=>{if(e)return window.addEventListener(r,t),window.addEventListener(i,t),()=>{window.removeEventListener(r,t),window.removeEventListener(i,t)}},[e])}export{i as n,r,a as t};
