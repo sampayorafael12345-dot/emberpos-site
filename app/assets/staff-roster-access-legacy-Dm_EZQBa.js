@@ -1,0 +1,1 @@
+(function(){System.register([],function(e,t){function n(e,t){return e===`owner`||e===`manager`||!t||t.has(`payroll.run`)||t.has(`users.manage`)}return e(`mayAskStaffAdminList`,n),{setters:[],execute:function(){}}})})();

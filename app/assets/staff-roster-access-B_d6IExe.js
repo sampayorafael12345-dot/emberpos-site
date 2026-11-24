@@ -1,0 +1,1 @@
+function e(e,t){return e===`owner`||e===`manager`||!t||t.has(`payroll.run`)||t.has(`users.manage`)}export{e as mayAskStaffAdminList};

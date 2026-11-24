@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-C3cWAN_r.js";var t=`/app/assets/logo-mark-Dmoekzm5.png`,n=e();function r({size:e=40,className:r=``}){return(0,n.jsx)(`img`,{src:t,alt:``,"aria-hidden":!0,draggable:!1,height:e,style:{height:e,width:`auto`},className:`select-none shrink-0 ${r}`})}export{r as t};

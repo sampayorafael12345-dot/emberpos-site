@@ -1,0 +1,1 @@
+(function(){System.register([],function(e,t){function n(e,t,n){var r=arguments.length>3&&arguments[3]!==void 0&&arguments[3];return`${Math.round(Math.max(8,Math.min(e.left+e.width/2-t,n-8)))}px ${r?`100%`:`0px`}`}return e(`t`,n),{setters:[],execute:function(){}}})})();
