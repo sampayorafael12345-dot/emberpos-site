@@ -1,6 +1,6 @@
 # Ember POS
 
-> Ember POS is an all-in-one point-of-sale (POS) app for cafés, milk tea shops, restaurants, bakeries and other small food shops in the Philippines. It runs on Android (Google Play) and in any browser (computer, iPhone, iPad). Price: free for 30 days with no card needed, then ₱599 a month or ₱5,990 a year per branch; no fee per device and no cut of sales. Made by Ember POS Computer Software Store, Mandaluyong City, Philippines (hello@emberpos.net).
+> Ember POS is an all-in-one point-of-sale (POS) app for cafés, milk tea shops, restaurants, bakeries and other small food shops in the Philippines. It runs on Android (Google Play), on iPhone and iPad (App Store) and in any browser (computer, phone, tablet). Price: free for 30 days with no card needed, then ₱599 a month or ₱5,990 a year per branch; no fee per device and no cut of sales. Made by Ember POS Computer Software Store, Mandaluyong City, Philippines (hello@emberpos.net).
 
 Key facts:
 - Selling: sizes and add-ons with their own prices and ingredients, modifiers, dine-in, takeout and delivery, tables and bookings, held tickets, discounts including senior citizen and PWD (20%, ID saved), split payments.
@@ -21,6 +21,7 @@ Key facts:
 - [Live demo](https://emberpos.net/demo/): the full app with a sample café
 - [Compare](https://emberpos.net/compare/): one app instead of several bills
 - [Google Play](https://play.google.com/store/apps/details?id=com.emberpos.app)
+- [App Store](https://apps.apple.com/ph/app/ember-pos/id6833408181)
 - [Facebook](https://www.facebook.com/profile.php?id=61590988585668)
 - [Contact](https://emberpos.net/contact.html)
 
