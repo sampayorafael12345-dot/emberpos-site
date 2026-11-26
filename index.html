@@ -113,6 +113,9 @@
     .on-ink .btn-flame:hover, .on-graph .btn-flame:hover { box-shadow: 0 6px 0 #fff; }
   }
   .play-g { width: 18px; height: 20px; fill: currentColor; stroke: none; }
+  .store-g { width: 18px; height: 20px; fill: currentColor; stroke: none; flex: none; }
+  .tix-h > span:first-child { display: inline-flex; align-items: center; }
+  .tix-h .store-g { width: 16px; height: 16px; margin-right: 6px; vertical-align: -3px; }
   .tlink { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; }
   .tlink .i { width: 17px; height: 17px; transition: transform .2s var(--ease); }
   @media (hover: hover) { .tlink:hover .i { transform: translateX(3px); } }
@@ -466,9 +469,9 @@
 
   .dock { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 40; display: none; gap: 8px; padding: 8px; border-radius: 16px; background: var(--ink); border: 2px solid var(--flame); transform: translateY(140%); transition: transform .4s var(--ease); }
 
-  .dock .btn { flex: 1 1 0; min-width: 0; min-height: 48px; font-size: 15px; padding: 0 10px; white-space: normal; text-align: center; line-height: 1.2; }
+  .dock .btn { flex: 1 1 0; min-width: 0; min-height: 48px; font-size: 13px; padding: 0 6px; gap: 5px; white-space: normal; text-align: center; line-height: 1.2; }
   .dock .btn-paper { border-color: #fff; }
-  .dock .btn-flame { flex-grow: 1.6; }
+  .dock .btn-flame { flex-grow: 1.2; }
   .dock.show { transform: none; }
 
   .stage { position: relative; display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); grid-template-areas: "till kitchen" "till stock" "till owner"; gap: 14px; margin-top: 64px; }
@@ -732,7 +735,7 @@
         <p class="lede rv" style="--d:120ms">For cafés, milk tea shops, carinderias and food stalls in the Philippines. Take orders, send them to the kitchen, track your stock, record utang, pay your staff, and see your <b>profit every day</b>.</p>
         <div class="hero-ctas rv" style="--d:180ms" id="hero-ctas">
           <a class="btn btn-ink" href="https://play.google.com/store/apps/details?id=com.emberpos.app"><svg class="play-g" viewBox="0 0 24 26" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z"/></svg>Get it on Google Play</a>
-          <a class="btn btn-ink" href="https://apps.apple.com/ph/app/ember-pos/id6833408181">Download on the App Store</a>
+          <a class="btn btn-ink" href="https://apps.apple.com/ph/app/ember-pos/id6833408181"><svg class="store-g" width="18" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>Download on the App Store</a>
           <a class="btn btn-paper" href="demo/">Try the live demo</a>
         </div>
         <p class="hero-alt rv" style="--d:220ms">Prefer a computer? <a class="tlink" href="app/">Use it in your web browser <svg class="i"><use href="#i-arrow"/></svg></a></p>
@@ -750,7 +753,7 @@
       <div class="stub"><b>30 days</b><span>Free to try. No card needed.</span></div>
       <div class="stub"><b>₱599</b><span>A month per food or retail branch (or ₱5,990 a year), every shop feature included. Pharmacy ₱999, extra storage place ₱199.</span></div>
       <div class="stub"><b>Unlimited</b><span>Staff and devices, at no extra cost.</span></div>
-      <div class="stub"><b>Brownout?</b><span>The Android app keeps selling.</span></div>
+      <div class="stub"><b>Brownout?</b><span>The app keeps selling.</span></div>
     </div>
   </div>
 </section>
@@ -948,7 +951,7 @@
         <div class="tix-h"><span>#25 · Brownout</span><span>Offline</span></div>
         <div class="tix-b">
           <h3>Keeps selling during a brownout</h3>
-          <p>No internet? The Android app keeps selling and printing receipts. It saves everything online when the internet comes back.</p>
+          <p>No internet? The app keeps selling and printing receipts. It saves everything online when the internet comes back.</p>
           <div class="viz">
             <div class="net" id="net">
               <div class="net-row">
@@ -1074,7 +1077,7 @@
     <p class="lede rv" style="--d:120ms">No special machine to buy. Your shop is the same on every device, so you can check your sales from home.</p>
     <div class="dev-grid">
       <article class="tix dev clip rv drop">
-        <div class="tix-h"><span>Android</span><span>Google Play</span></div>
+        <div class="tix-h"><span><svg class="store-g" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5 17a7 7 0 0 1 14 0Z M9.6 13.6a.9.9 0 1 0 1.8 0 .9.9 0 1 0-1.8 0Z M12.6 13.6a.9.9 0 1 0 1.8 0 .9.9 0 1 0-1.8 0Z"/><path d="M8.3 8.2 6.8 5.8M15.7 8.2l1.5-2.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>Android</span><span>Google Play</span></div>
         <div class="dev-vis"><div class="mini-phone"><img src="shots/phone-pos.webp" width="720" height="1558" alt="The Ember POS register on an Android phone" loading="lazy" decoding="async" /></div></div>
         <div class="tix-b">
           <h3>Android phone or tablet</h3>
@@ -1083,7 +1086,7 @@
         </div>
       </article>
       <article class="tix o dev clip rv drop" style="--d:80ms">
-        <div class="tix-h"><span>iPhone &amp; iPad</span><span>App Store</span></div>
+        <div class="tix-h"><span><svg class="store-g" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>iPhone &amp; iPad</span><span>App Store</span></div>
         <div class="dev-vis"><div class="mini-phone"><img src="shots/phone-overview.webp" width="720" height="1558" alt="The owner's overview on a phone: today's sales and orders" loading="lazy" decoding="async" /></div></div>
         <div class="tix-b">
           <h3>iPhone and iPad</h3>
@@ -1170,7 +1173,7 @@
       <p class="bill-per">per month, per branch</p>
       <p class="bill-sub">No card needed to start. When the free month ends, you subscribe inside the app.</p>
       <a class="btn btn-ink" href="https://play.google.com/store/apps/details?id=com.emberpos.app"><svg class="play-g" viewBox="0 0 24 26" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z"/></svg>Start free on Google Play</a>
-      <a class="btn btn-ink" href="https://apps.apple.com/ph/app/ember-pos/id6833408181">Start free on the App Store</a>
+      <a class="btn btn-ink" href="https://apps.apple.com/ph/app/ember-pos/id6833408181"><svg class="store-g" width="18" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>Start free on the App Store</a>
       <p class="bill-fine">Each branch needs its own subscription. A pharmacy branch is ₱999 a month and an extra storage place is ₱199 a month.</p>
     </div>
   </div>
@@ -1230,7 +1233,7 @@
     <div class="final-ctas rv" style="--d:180ms">
       <a class="btn btn-flame" href="demo/">Open the live demo <svg class="i"><use href="#i-arrow"/></svg></a>
       <a class="btn btn-paper" href="https://play.google.com/store/apps/details?id=com.emberpos.app"><svg class="play-g" viewBox="0 0 24 26" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z"/></svg>Get it on Google Play</a>
-      <a class="btn btn-paper" href="https://apps.apple.com/ph/app/ember-pos/id6833408181">Download on the App Store</a>
+      <a class="btn btn-paper" href="https://apps.apple.com/ph/app/ember-pos/id6833408181"><svg class="store-g" width="18" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>Download on the App Store</a>
     </div>
     <p class="final-note rv" style="--d:220ms">You are signed in as the owner, <b>Maria Santos</b>. If you sign out, her PIN is 1234.</p>
     <div class="lessons-rail">
@@ -1267,8 +1270,8 @@
           <a href="demo/">Live demo</a>
           <a href="app/">Open the app</a>
           <a href="office/">Back Office</a>
-          <a href="https://play.google.com/store/apps/details?id=com.emberpos.app">Google Play</a>
-          <a href="https://apps.apple.com/ph/app/ember-pos/id6833408181">App Store</a>
+          <a href="https://play.google.com/store/apps/details?id=com.emberpos.app"><svg style="vertical-align:-3px;margin-right:6px;flex:none" class="store-g" width="13" height="14" viewBox="0 0 24 26" fill="currentColor" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z"/></svg>Google Play</a>
+          <a href="https://apps.apple.com/ph/app/ember-pos/id6833408181"><svg style="vertical-align:-3px;margin-right:6px;flex:none" class="store-g" width="13" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>App Store</a>
           <a href="https://www.facebook.com/profile.php?id=61590988585668" rel="me noopener" target="_blank">Facebook</a>
         </nav>
       </div>
@@ -1320,7 +1323,8 @@
 </footer>
 
 <div class="dock" id="dock" aria-label="Get Ember POS">
-  <a class="btn btn-flame" href="#devices">Get the app</a>
+  <a class="btn btn-flame" href="https://apps.apple.com/ph/app/ember-pos/id6833408181"><svg class="store-g" width="16" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>App Store</a>
+  <a class="btn btn-flame" href="https://play.google.com/store/apps/details?id=com.emberpos.app"><svg class="store-g" width="16" height="18" viewBox="0 0 24 26" fill="currentColor" aria-hidden="true"><path d="M2 1.6v22.8c0 .5.6.9 1 .6l13-7.3-3.4-3.4L2 1.6Zm12.9 11.9 3.6 3.6 3.9-2.2c.8-.4.8-1.4 0-1.8l-3.9-2.2-3.6 2.6ZM3.6 1 14 11.4l3.2-2.3L4.4.7c-.3-.2-.6-.1-.8.3Z"/></svg>Google Play</a>
   <a class="btn btn-paper" href="demo/">Live demo</a>
 </div>
 
