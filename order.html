@@ -1415,6 +1415,186 @@ async function claimRecent() {
   if (mine.length) await loadAcct();
 }
 
+function giftHoldAmount(total, spendable) {
+  var t = Math.floor(Number(total)), s = Math.floor(Number(spendable));
+  if (!isFinite(t) || !isFinite(s)) return 0;
+  return Math.max(0, Math.min(t, s));
+}
+
+function giftChoice(c) {
+  if (!c || !c.signedIn) return { show: false, why: 'signed_out' };
+  if (c.needsProfile) return { show: false, why: 'profile' };
+  if (c.missing) return { show: false, why: 'missing' };
+  if (!c.counterLater) return { show: false, why: 'not_counter' };
+  var cards = (c.cards || []).filter(function (g) { return g && g.active !== false && g.active !== 0; });
+  if (!cards.length) return { show: false, why: 'no_card' };
+  var offered = cards.filter(function (g) { return g.gift_pay === true && typeof g.spendable_cents === 'number'; });
+  if (!offered.length) return { show: false, why: 'not_offered' };
+  var best = null;
+  offered.forEach(function (g) { if (g.spendable_cents > 0 && (!best || g.spendable_cents > best.spendable_cents)) best = g; });
+  if (!best) return { show: false, why: 'zero' };
+  var pay = giftHoldAmount(c.total, best.spendable_cents);
+  if (pay <= 0) return { show: false, why: 'nothing_due' };
+  return { show: true, cardId: best.id, cardName: best.code_end ? 'the card ending ' + best.code_end : 'your gift card', codeEnd: best.code_end || '',
+    spendable: best.spendable_cents, estimate: pay };
+}
+
+function giftReadView(st, orderState, fmt) {
+  var none = function (lines, more) { return Object.assign({ lines: lines, release: false, retry: false, check: false, signIn: false }, more || {}); };
+  if (st.busy === 'hold') return none(['Reserving your gift card...']);
+  if (st.busy === 'release') return none(['Taking your gift card off this order...']);
+  var rd = st.read;
+  if (!rd || (rd.status === 'loading' && !rd.data)) return none(['Checking your gift card...']);
+  if (rd.status === 'signed_out') return none(['Sign in to see your gift card.'], { signIn: true });
+  if (rd.status === 'unsure') return none(['We could not confirm your gift card.', 'Check this order again in a moment.'], { check: true });
+  var d = rd.data || {}, holds = Array.isArray(d.holds) ? d.holds : [];
+  var live = holds.filter(function (h) { return h.state === 'held' || h.state === 'captured'; });
+  var h = live[0] || holds[holds.length - 1] || null;
+  var left = Number(d.left_cents) || 0;
+  if (h && h.state === 'captured') {
+    var l = ['Gift card: ' + fmt(h.captured_cents) + ' was taken from your card.'];
+    if (left > 0) l.push(fmt(left) + ' left to pay at the counter.');
+    return none(l);
+  }
+  if (st.closed) return null;
+  if (h && h.state === 'held') {
+    if (!(Number(h.reserved_cents) > 0)) return none(['Your gift card will not be charged for this order.', 'The order is already covered.']);
+    var lines = ['Gift card: ' + fmt(h.reserved_cents) + ' reserved. It is taken when the shop accepts your order.'];
+    if (left > 0) lines.push(fmt(left) + ' left to pay at the counter.');
+    return none(lines, { release: orderState === 'waiting' });
+  }
+  if (h && h.state === 'released') {
+    return d.order_voided
+      ? none(['The reservation on your gift card was dropped. Your card keeps its money.'])
+      : none(['Your gift card is not being used for this order. Pay the full amount at the counter.']);
+  }
+  if (d.order_voided || orderState === 'cancelled') return null;
+  return none([st.why || (st.noClaim ? 'We could not link this order to your account, so your gift card is not reserved.' : 'Your gift card is not reserved for this order.'), 'Your order is in. Pay at the counter as usual.'],
+    { retry: !st.noClaim && orderState === 'waiting' });
+}
+
+let GIFT_MISSING = false;
+let GIFTUSE = false;
+function giftNow() {
+  const sess = !!(window.EmberAccount && EmberAccount.getSession());
+  return giftChoice({
+    signedIn: !!ACCT && sess, needsProfile: !!(ACCT && ACCT.profile && ACCT.profile.needs_profile),
+    cards: (ACCT && ACCT.card && ACCT.card.gift_cards) || [], missing: GIFT_MISSING,
+    counterLater: !!STORE && !SHARED && PAYCHOICE === 'later' && counterPayAllowed(), total: payTotal(),
+  });
+}
+
+function giftChoiceHtml() {
+  const c = giftNow();
+  if (!c.show) { GIFTUSE = false; return ''; }
+  return '<div class="label">Gift card</div>' +
+    '<button class="when" id="ogift" aria-pressed="' + (GIFTUSE ? 'true' : 'false') + '" style="width:100%;text-align:left;display:block">' +
+      '<span style="display:block">Pay with gift card</span>' +
+      '<span class="lede" style="display:block;font-size:12.5px;font-weight:500;margin:2px 0 0">' + esc(money(c.spendable)) + ' available on ' + esc(c.cardName) + '</span></button>' +
+    (GIFTUSE
+      ? '<p class="lede" style="font-size:12.5px;margin:6px 0 0">About ' + esc(money(c.estimate)) + ' of this order can come from the card. The exact amount is worked out when you place the order, and shown on your order. ' +
+        'It is reserved then and taken when the shop accepts it. A tip is paid at the counter.</p>'
+      : '');
+}
+
+async function giftRpc(fn, args, abortMs) {
+  const ctl = abortMs && typeof AbortController === 'function' ? new AbortController() : null;
+  const timer = ctl ? setTimeout(() => ctl.abort(), abortMs) : null;
+  try {
+    const r = await fetch(URLB + '/rest/v1/rpc/' + fn, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON }, body: JSON.stringify(args),
+      signal: ctl ? ctl.signal : undefined,
+    });
+    let j = null; try { j = await r.json(); } catch (e) {  }
+    if (r.status === 404 || (j && j.code === 'PGRST202')) { GIFT_MISSING = true; return { missing: true }; }
+    if (!r.ok || !j) return { offline: true };
+    return j;
+  } catch (e) { return { offline: true }; } finally { if (timer) clearTimeout(timer); }
+}
+function giftSession() { return (window.EmberAccount && EmberAccount.getSession()) || ''; }
+function giftRedraw() { if (el('tomenu')) showOrders(); }
+
+const GIFT_BUSY = {};
+const GIFT_READ = {};
+const GIFT_WHY = {};
+const GIFT_NOCLAIM = {};
+const GIFT_SEQ = {};
+const GIFT_READ_WAIT = 8000;
+const GIFT_WRITE_WAIT = 20000;
+
+function giftWait(p, ms) {
+  return new Promise((resolve) => {
+    const t = setTimeout(() => resolve({ timedOut: true }), ms);
+    p.then((v) => { clearTimeout(t); resolve(v); }, () => { clearTimeout(t); resolve({ offline: true }); });
+  });
+}
+
+async function readGiftHold(num) {
+  const o = loadOrders().find((x) => x.num === num);
+  if (!o || !o.gift) return;
+
+  if (!giftSession()) { GIFT_READ[num] = { status: 'signed_out', data: null }; giftRedraw(); return; }
+  const seq = (GIFT_SEQ[num] || 0) + 1; GIFT_SEQ[num] = seq;
+  GIFT_READ[num] = { status: 'loading', data: (GIFT_READ[num] && GIFT_READ[num].data) || null };
+  const r = await giftWait(giftRpc('cust_gift_holds_of_order', { p_session: giftSession(), p_token: TOKEN, p_order_number: num }, GIFT_READ_WAIT), GIFT_READ_WAIT);
+  if (GIFT_SEQ[num] !== seq) return;
+  GIFT_READ[num] = (r && r.signed_out === true) ? { status: 'signed_out', data: null }
+    : (r && r.ok === true && Array.isArray(r.holds)) ? { status: 'ok', data: r } : { status: 'unsure', data: null };
+  giftRedraw();
+}
+
+async function placeGiftHold(num) {
+  const o = loadOrders().find((x) => x.num === num);
+  if (!o || !o.gift || !(o.gift.cents > 0) || GIFT_BUSY[num]) return;
+  GIFT_BUSY[num] = 'hold'; GIFT_WHY[num] = ''; giftRedraw();
+  try {
+
+    const r = await giftWait(giftRpc('cust_gift_hold', { p_session: giftSession(), p_token: TOKEN, p_order_number: num, p_card_id: o.gift.card, p_amount_cents: o.gift.cents }), GIFT_WRITE_WAIT);
+    if (r && r.ok === false && !r.missing && r.error) GIFT_WHY[num] = String(r.error);
+  } finally { delete GIFT_BUSY[num]; }
+  await readGiftHold(num);
+  await loadAcct(); giftRedraw();
+}
+
+function giftNotClaimed(num) {
+  GIFT_NOCLAIM[num] = true;
+  GIFT_READ[num] = { status: 'ok', data: { ok: true, holds: [], left_cents: 0, order_voided: false } };
+  giftRedraw();
+}
+
+async function releaseGift(num) {
+  const o = loadOrders().find((x) => x.num === num);
+  if (!o || !o.gift || GIFT_BUSY[num]) return;
+  GIFT_BUSY[num] = 'release'; giftRedraw();
+  let r;
+  try { r = await giftWait(giftRpc('cust_gift_release', { p_session: giftSession(), p_token: TOKEN, p_order_number: num, p_card_id: o.gift.card }), GIFT_WRITE_WAIT); }
+  finally { delete GIFT_BUSY[num]; }
+  if (r.timedOut) {  }
+  else if (r.ok) toast('Your gift card will not be used for this order.');
+  else toast(r.offline ? 'No connection. Try again.' : (r.error || 'Could not take it off. Please tell the counter.'));
+  await readGiftHold(num);
+  await loadAcct(); giftRedraw();
+}
+
+function giftRenderView(o, fmt) {
+  if (!o.gift) return null;
+  return giftReadView({ busy: GIFT_BUSY[o.num] || false, read: GIFT_READ[o.num] || null, why: GIFT_WHY[o.num] || '', noClaim: !!GIFT_NOCLAIM[o.num],
+    closed: !!(o.paid || o.state === 'collected') }, o.state || 'waiting', fmt);
+}
+
+function giftCardHtml(o) {
+  if (o.gift && !GIFT_READ[o.num] && !GIFT_BUSY[o.num]) setTimeout(function () { readGiftHold(o.num); }, 0);
+  const v = giftRenderView(o, money);
+  if (!v) return '';
+  return '<div style="display:flex;gap:8px;align-items:flex-start;background:var(--bg-sub);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px;margin-bottom:12px">' +
+    '<span style="color:var(--muted);display:flex">' + ICON_CARD + '</span><span style="min-width:0;overflow-wrap:anywhere">' +
+    v.lines.map((l, i) => i === 0 ? '<b style="display:block;font-size:14.5px">' + esc(l) + '</b>' : '<span class="lede" style="display:block;font-size:12.5px">' + esc(l) + '</span>').join('') + '</span></div>' +
+    (v.release ? '<button class="ghost" data-giftrel="' + esc(o.num) + '" style="width:100%;margin-bottom:12px">Do not use my gift card</button>' : '') +
+    (v.retry ? '<button class="primary" data-giftretry="' + esc(o.num) + '" style="width:100%;margin-bottom:12px">Try the gift card again</button>' : '') +
+    (v.signIn ? '<button class="primary" data-giftsignin="' + esc(o.num) + '" style="width:100%;margin-bottom:12px">Sign in</button>' : '') +
+    (v.check ? '<button class="ghost" data-giftcheck="' + esc(o.num) + '" style="width:100%;margin-bottom:12px">Check again</button>' : '');
+}
+
 async function cancelOrder(num) {
   const o = loadOrders().find((x) => x.num === num);
   if (!o || !o.ref) return;
@@ -1423,6 +1603,7 @@ async function cancelOrder(num) {
     const r = await rpc('kiosk_cancel_order', { p_token: TOKEN, p_order_number: num, p_client_ref: o.ref });
     if (!r || !r.ok) { toast((r && r.error) || 'Could not cancel. Please call the shop.'); return; }
     markOrder(num, 'cancelled'); patchOrder(num, { cancelReason: 'customer' }); STEP_MOVED[num] = 1;
+    await readGiftHold(num);
     toast('Your order is cancelled.');
     showOrders();
   } catch (e) { toast('No connection. Try again, or call the shop.'); }
@@ -1479,11 +1660,14 @@ function fillAddress(a) {
 }
 
 async function afterAccountOrder(num, ref, addrTyped, keepAddr, mkt) {
-  if (!ACCT || !EmberAccount.getSession()) return;
+  if (!ACCT || !EmberAccount.getSession()) { giftNotClaimed(num); return; }
 
-  if (ACCT.profile && ACCT.profile.needs_profile) return;
+  if (ACCT.profile && ACCT.profile.needs_profile) { giftNotClaimed(num); return; }
   const ses = EmberAccount.getSession();
-  try { await EmberAccount.rpc('cust_claim_order', { p_session: ses, p_token: TOKEN, p_order_number: num, p_client_ref: ref }); } catch (e) {  }
+  let claimed = false;
+  try { const cr = await EmberAccount.rpc('cust_claim_order', { p_session: ses, p_token: TOKEN, p_order_number: num, p_client_ref: ref }); claimed = !!(cr && cr.ok); } catch (e) {  }
+
+  if (claimed) await placeGiftHold(num); else giftNotClaimed(num);
   if (keepAddr && addrTyped) {
     try {
       await EmberAccount.rpc('cust_address_save', { p_session: ses, p_id: null, p_label: null, p_address: addrTyped,
@@ -2366,6 +2550,7 @@ function openCart() {
       payChoiceHtml() +
       payWithHtml() +
       (STORE ? '' : tipHtml()) +
+      giftChoiceHtml() +
       alsoLikeHtml() +
       '<div class="foot">' +
         '<button class="ghost" id="back">Add more</button>' +
@@ -2501,6 +2686,7 @@ function openCart() {
     document.querySelectorAll('[data-paych]').forEach(function (b) {
       b.onclick = function () { PAYCHOICE = b.getAttribute('data-paych'); redrawKeeping(); };
     });
+    if (el('ogift')) el('ogift').onclick = function () { GIFTUSE = !GIFTUSE; redrawKeeping(); };
     document.querySelectorAll('[data-paywith]').forEach(function (b) {
       b.onclick = function () {
         var v = Number(b.getAttribute('data-paywith'));
@@ -3159,6 +3345,8 @@ async function send() {
   const acctMkt = !!(el('omkt') && el('omkt').checked);
 
   const tip = tipCents();
+
+  const giftPlan = (GIFTUSE && giftNow().show) ? giftNow() : null;
   try {
     const res = await rpc('kiosk_place_order', Object.assign({}, sendArgs, { p_client_ref: acctRef }));
     if (!res || !res.ok) {
@@ -3190,6 +3378,10 @@ async function send() {
       num: res.order_number, at: Date.now(), total: (res.total_cents || 0) + tipped, tip: tipped,
 
       ref: acctRef, claimed: !!ACCT,
+
+      gift: (giftPlan && giftHoldAmount(res.total_cents, giftPlan.spendable) > 0)
+        ? { asked: true, card: giftPlan.cardId, codeEnd: giftPlan.codeEnd, cents: giftHoldAmount(res.total_cents, giftPlan.spendable) }
+        : null,
       type: STORE ? (res.order_type || OMODE) : null, prepaid: false,
 
       payFirst: res.must_prepay === true,
@@ -3212,7 +3404,7 @@ async function send() {
     var saved = Number(res.discount_cents || 0);
     COUPON = '';
     var payNow = PAYON && PAYCHOICE === 'now' && (res.total_cents || 0) + tipped >= minPay() && !res.duplicate;
-    CART = []; SEND_REF = null; KMODE = null; WHEN = null; WHENDAY = ''; PAYWITH = null; PAYWITH_OTHER = false;
+    CART = []; SEND_REF = null; KMODE = null; WHEN = null; WHENDAY = ''; PAYWITH = null; PAYWITH_OTHER = false; GIFTUSE = false;
     DRAFT = {}; saveCart();
     closeSheet(); showOrders(res.order_number);
     if (ACCT && !res.duplicate) afterAccountOrder(res.order_number, acctRef, addr, acctKeep, acctMkt);
@@ -3977,6 +4169,7 @@ function showOrders(highlight) {
             : '') +
 
           ownQrCardHtml(o)) +
+        giftCardHtml(o) +
         unopenedHtml(o) +
         '<div class="steps" data-track="' + esc(o.num) + '">' + stepsHtml(o.state || 'waiting', o.type, o.wanted, false, o.cancelReason) + '</div>' +
 
@@ -4041,6 +4234,10 @@ function showOrders(highlight) {
   });
   document.querySelectorAll('[data-ownqr]').forEach((b) => { b.onclick = () => openOwnQrSheet(b.getAttribute('data-ownqr')); });
   document.querySelectorAll('[data-cancel]').forEach((b) => { b.onclick = () => cancelOrder(b.getAttribute('data-cancel')); });
+  document.querySelectorAll('[data-giftrel]').forEach((b) => { b.onclick = () => { b.disabled = true; releaseGift(b.getAttribute('data-giftrel')); }; });
+  document.querySelectorAll('[data-giftsignin]').forEach((b) => { b.onclick = () => { const n = b.getAttribute('data-giftsignin'); openSignIn(() => { delete GIFT_READ[n]; showOrders(); }); }; });
+  document.querySelectorAll('[data-giftcheck]').forEach((b) => { b.onclick = () => { b.disabled = true; readGiftHold(b.getAttribute('data-giftcheck')); }; });
+  document.querySelectorAll('[data-giftretry]').forEach((b) => { b.onclick = () => { b.disabled = true; placeGiftHold(b.getAttribute('data-giftretry')); }; });
   document.querySelectorAll('[data-here]').forEach((b) => { b.onclick = () => imHere(b.getAttribute('data-here')); });
   document.querySelectorAll('[data-savelink]').forEach((b) => { b.onclick = () => saveOrderLink(b.getAttribute('data-savelink')); });
   if (el('saveme')) el('saveme').onclick = () => openSignIn(() => showOrders());
@@ -4081,6 +4278,8 @@ function trackAll() {
           if (ch.becameReady) { alertReady(o.num); notifyReady(o.num, o.pickup); redraw = true; BANNER_NEW[o.num] = 1; }
 
           if (ch.becameCollected) { stopRinging(); redraw = true; BANNER_NEW[o.num] = 1; }
+
+          if (o.gift && (moved || ch.paidChanged || (GIFT_READ[o.num] && GIFT_READ[o.num].status === 'unsure'))) readGiftHold(o.num);
           if (ch.paidChanged) redraw = true;
 
           const patch = {};
