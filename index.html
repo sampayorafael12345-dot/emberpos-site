@@ -154,9 +154,9 @@
   .stamp { display: grid; place-content: center; text-align: center; border: 5px solid currentColor; outline: 2px solid currentColor; outline-offset: -13px; border-radius: 50%; font: 900 28px/.92 var(--poster); text-transform: uppercase; }
   .stamp small { display: block; margin-top: 6px; font: 700 11px var(--mono); letter-spacing: .08em; }
 
-  .hero { padding: 72px 0 0; overflow: hidden; }
+  .hero { padding: clamp(32px, 6vh, 72px) 0 0; overflow: hidden; }
   .hero-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 40px clamp(32px, 5vw, 72px); align-items: center; }
-  .hero h1 { font-size: clamp(64px, 10.6vw, 176px); margin-top: 6px; }
+  .hero h1 { font-size: clamp(64px, min(10.6vw, 10.4vh), 176px); margin-top: 6px; }
   .hero .lede { max-width: 46ch; margin-top: 30px; }
   .hero-ctas { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 32px; }
   .hero-alt { margin-top: 18px; font-size: 15.5px; color: var(--on-flame); }
