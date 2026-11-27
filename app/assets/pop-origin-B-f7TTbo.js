@@ -1,1 +1,0 @@
-function e(e,t,n,r=!1){return`${Math.round(Math.max(8,Math.min(e.left+e.width/2-t,n-8)))}px ${r?`100%`:`0px`}`}export{e as t};
